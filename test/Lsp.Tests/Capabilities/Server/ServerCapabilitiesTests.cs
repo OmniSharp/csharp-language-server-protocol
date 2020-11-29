@@ -5,6 +5,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using TestingUtils;
 using Xunit;
 
 namespace Lsp.Tests.Capabilities.Server
@@ -70,7 +71,7 @@ namespace Lsp.Tests.Capabilities.Server
             result.Should().Be(expected);
 
             var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<ServerCapabilities>(expected);
-            deresult.Should().BeEquivalentTo(model);
+            deresult.Should().BeEquivalentTo(model, x => x.UsingStructuralRecordEquality());
         }
 
         [Theory]
@@ -86,7 +87,7 @@ namespace Lsp.Tests.Capabilities.Server
             result.Should().Be(expected);
 
             var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<ServerCapabilities>(expected);
-            deresult.Should().BeEquivalentTo(model);
+            deresult.Should().BeEquivalentTo(model, x => x.UsingStructuralRecordEquality());
         }
 
         [Theory]
@@ -98,7 +99,7 @@ namespace Lsp.Tests.Capabilities.Server
             };
 
             var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<ServerCapabilities>(expected);
-            deresult.Should().BeEquivalentTo(model);
+            deresult.Should().BeEquivalentTo(model, x => x.UsingStructuralRecordEquality());
         }
     }
 }

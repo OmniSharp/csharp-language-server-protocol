@@ -230,6 +230,7 @@ namespace Lsp.Tests.Integration
             configuration.Update("mysection", new Dictionary<string, string> { ["host"] = "localhost", ["port"] = "443" });
             configuration.Update("notmysection", new Dictionary<string, string> { ["host"] = "127.0.0.1", ["port"] = "123" });
             await options.WaitForChange(CancellationToken);
+            await SettleNext();
 
             // IOptionsMonitor<> is registered as a singleton, so this will update
             options.CurrentValue.Host.Should().Be("localhost");
@@ -238,6 +239,7 @@ namespace Lsp.Tests.Integration
 
             configuration.Update("mysection", new Dictionary<string, string> { ["host"] = "127.0.0.1", ["port"] = "80" });
             await options.WaitForChange(CancellationToken);
+            await SettleNext();
 
             options.CurrentValue.Host.Should().Be("127.0.0.1");
             options.CurrentValue.Port.Should().Be(80);

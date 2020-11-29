@@ -3,7 +3,7 @@ using System.Diagnostics;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    public class FileSystemWatcher
+    public record FileSystemWatcher
     {
         /// <summary>
         /// The  glob pattern to watch.
@@ -16,14 +16,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// - `[]` to declare a range of characters to match in a path segment (e.g., `example.[0-9]` to match on `example.0`, `example.1`, …)
         /// - `[!...]` to negate a range of characters to match in a path segment (e.g., `example.[!0-9]` to match on `example.a`, `example.b`, but not `example.0`)
         /// </summary>
-        public string GlobPattern { get; set; } = null!;
+        public string GlobPattern { get; init; }
 
         /// <summary>
         /// The kind of events of interest. If omitted it defaults
         /// to WatchKind.Create | WatchKind.Change | WatchKind.Delete
         /// which is 7.
         /// </summary>
-        public WatchKind Kind { get; set; }
+        public WatchKind Kind { get; init; }
 
         private string DebuggerDisplay => $"[{Kind}] {GlobPattern}";
 

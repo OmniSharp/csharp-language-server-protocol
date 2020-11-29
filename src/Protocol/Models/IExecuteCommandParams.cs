@@ -7,11 +7,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The identifier of the actual command handler.
         /// </summary>
-        string Command { get; set; }
+        string Command { get; }
 
         /// <summary>
         /// Arguments that the command should be invoked with.
         /// </summary>
-        JArray? Arguments { get; set; }
+        JArray? Arguments { get; }
     }
 }

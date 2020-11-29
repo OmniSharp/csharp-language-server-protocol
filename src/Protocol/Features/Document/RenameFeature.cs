@@ -27,24 +27,24 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(RenameRegistrationOptions)), Capability(typeof(RenameCapability))]
-        public partial class RenameParams : ITextDocumentIdentifierParams, IRequest<WorkspaceEdit?>, IWorkDoneProgressParams
+        public partial record RenameParams : ITextDocumentIdentifierParams, IRequest<WorkspaceEdit?>, IWorkDoneProgressParams
         {
             /// <summary>
             /// The document to format.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; set; } = null!;
+            public TextDocumentIdentifier TextDocument { get; init; }
 
             /// <summary>
             /// The position at which this request was sent.
             /// </summary>
-            public Position Position { get; set; } = null!;
+            public Position Position { get; init; }
 
             /// <summary>
             /// The new name of the symbol. If the given name is not valid the
             /// request must return a [ResponseError](#ResponseError) with an
             /// appropriate message set.
             /// </summary>
-            public string NewName { get; set; } = null!;
+            public string NewName { get; init; }
         }
 
         [Parallel]
@@ -55,12 +55,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(RenameRegistrationOptions)), Capability(typeof(RenameCapability))]
-        public partial class PrepareRenameParams : TextDocumentPositionParams, IRequest<RangeOrPlaceholderRange?>
+        public partial record PrepareRenameParams : TextDocumentPositionParams, IRequest<RangeOrPlaceholderRange?>
         {
         }
 
         [JsonConverter(typeof(RangeOrPlaceholderRangeConverter))]
-        public class RangeOrPlaceholderRange
+        public record RangeOrPlaceholderRange
         {
             private RenameDefaultBehavior? _renameDefaultBehavior;
             private Range? _range;
@@ -86,7 +86,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public PlaceholderRange? PlaceholderRange
             {
                 get => _placeholderRange;
-                set {
+                init {
                     _placeholderRange = value;
                     _renameDefaultBehavior = default;
                     _range = null;
@@ -98,7 +98,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public Range? Range
             {
                 get => _range;
-                set {
+                init {
                     _placeholderRange = default;
                     _renameDefaultBehavior = default;
                     _range = value;
@@ -110,7 +110,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public RenameDefaultBehavior? DefaultBehavior
             {
                 get => _renameDefaultBehavior;
-                set {
+                init {
                     _placeholderRange = default;
                     _renameDefaultBehavior = value;
                     _range = default;
@@ -132,15 +132,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static implicit operator RangeOrPlaceholderRange(Range value) => new RangeOrPlaceholderRange(value);
         }
 
-        public class PlaceholderRange
+        public record PlaceholderRange
         {
-            public Range Range { get; set; } = null!;
-            public string Placeholder { get; set; } = null!;
+            public Range Range { get; init; }
+            public string Placeholder { get; init; }
         }
 
-        public class RenameDefaultBehavior
+        public record RenameDefaultBehavior
         {
-            public bool DefaultBehavior { get; set; }
+            public bool DefaultBehavior { get; init; }
         }
 
         [RegistrationName(TextDocumentNames.Rename)]

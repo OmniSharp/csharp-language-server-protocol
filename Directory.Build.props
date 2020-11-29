@@ -23,7 +23,7 @@
         <AllowedReferenceRelatedFileExtensions>$(AllowedReferenceRelatedFileExtensions);.pdb</AllowedReferenceRelatedFileExtensions>
     </PropertyGroup>
     <PropertyGroup>
-        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+        <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
     </PropertyGroup>
     <ItemGroup>
         <None Include="$(MSBuildThisFileDirectory)/.tmp/packageicon.png" Condition="Exists('$(MSBuildThisFileDirectory)/.tmp/packageicon.png')" Pack="true" PackagePath="/images/" Visible="false" />

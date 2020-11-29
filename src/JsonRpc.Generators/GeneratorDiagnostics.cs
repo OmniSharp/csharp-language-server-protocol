@@ -2,6 +2,8 @@ using Microsoft.CodeAnalysis;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators
 {
+    // TODO: Create analyier to ensure registration options are { get; set; }
+    // TODO: Create analyier to ensure capabilities are { get; set; }
     internal static class GeneratorDiagnostics
     {
         public static DiagnosticDescriptor Exception { get; } = new DiagnosticDescriptor(

@@ -24,17 +24,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(DocumentFormattingRegistrationOptions)), Capability(typeof(DocumentFormattingCapability))]
-        public partial class DocumentFormattingParams : ITextDocumentIdentifierParams, IRequest<TextEditContainer?>, IWorkDoneProgressParams
+        public partial record DocumentFormattingParams : ITextDocumentIdentifierParams, IRequest<TextEditContainer?>, IWorkDoneProgressParams
         {
             /// <summary>
             /// The document to format.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; set; } = null!;
+            public TextDocumentIdentifier TextDocument { get; init; }
 
             /// <summary>
             /// The format options.
             /// </summary>
-            public FormattingOptions Options { get; set; } = null!;
+            public FormattingOptions Options { get; init; }
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.DocumentFormattingProvider))]

@@ -22,12 +22,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageServer), typeof(ILanguageServer))
         ]
         [Capability(typeof(PublishDiagnosticsCapability))]
-        public class PublishDiagnosticsParams : IRequest
+        public record PublishDiagnosticsParams : IRequest
         {
             /// <summary>
             /// The URI for which diagnostic information is reported.
             /// </summary>
-            public DocumentUri Uri { get; set; } = null!;
+            public DocumentUri Uri { get; init; }
 
             /// <summary>
             /// Optional the version number of the document the diagnostics are published for.
@@ -38,12 +38,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <see cref="uint"/> in the LSP spec
             /// </remarks>
             [Optional]
-            public int? Version { get; set; }
+            public int? Version { get; init; }
 
             /// <summary>
             /// An array of diagnostic information items.
             /// </summary>
-            public Container<Diagnostic> Diagnostics { get; set; } = null!;
+            public Container<Diagnostic> Diagnostics { get; init; }
         }
     }
 

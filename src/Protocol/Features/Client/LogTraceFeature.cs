@@ -13,18 +13,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Method(GeneralNames.LogTrace, Direction.ServerToClient)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Client"), GenerateHandlerMethods,
          GenerateRequestMethods(typeof(IClientLanguageServer), typeof(ILanguageServer))]
-        public class LogTraceParams : IRequest
+        public record LogTraceParams : IRequest
         {
             /// <summary>
             /// The message to be logged.
             /// </summary>
-            public string Message { get; set; } = null!;
+            public string Message { get; init; }
 
             /// <summary>
             /// Additional information that can be computed if the `trace` configuration is set to `'verbose'`
             /// </summary>
             [Optional]
-            public string? Verbose { get; set; }
+            public string? Verbose { get; init; }
         }
     }
 }

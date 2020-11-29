@@ -14,7 +14,7 @@ using SyntaxTrivia = Microsoft.CodeAnalysis.SyntaxTrivia;
 namespace OmniSharp.Extensions.JsonRpc.Generators
 {
     [Generator]
-    public class RegistrationOptionsGenerator : CachedSourceGenerator<RegistrationOptionsGenerator.SyntaxReceiver, ClassDeclarationSyntax>
+    public class RegistrationOptionsGenerator : CachedSourceGenerator<RegistrationOptionsGenerator.SyntaxReceiver, TypeDeclarationSyntax>
     {
         private static string[] RequiredUsings = new[] {
             "OmniSharp.Extensions.LanguageServer.Protocol",
@@ -22,7 +22,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             "OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities",
         };
 
-        protected override void Execute(GeneratorExecutionContext context, SyntaxReceiver syntaxReceiver, AddCacheSource<ClassDeclarationSyntax> addCacheSource, ReportCacheDiagnostic<ClassDeclarationSyntax> cacheDiagnostic)
+        protected override void Execute(
+            GeneratorExecutionContext context, SyntaxReceiver syntaxReceiver, AddCacheSource<TypeDeclarationSyntax> addCacheSource,
+            ReportCacheDiagnostic<TypeDeclarationSyntax> cacheDiagnostic
+        )
         {
             var options = ( context.Compilation as CSharpCompilation )?.SyntaxTrees[0].Options as CSharpParseOptions;
             var compilation = context.Compilation;
@@ -190,10 +193,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 }
             }
 
-            static ClassDeclarationSyntax ExtendAndImplementInterface(ClassDeclarationSyntax syntax, ITypeSymbol symbolToExtendFrom)
+            static TypeDeclarationSyntax ExtendAndImplementInterface(TypeDeclarationSyntax syntax, ITypeSymbol symbolToExtendFrom)
             {
-                return syntax
-                   .AddBaseListTypes(SimpleBaseType(ParseName(symbolToExtendFrom.ToDisplayString())));
+                return syntax switch {
+                    ClassDeclarationSyntax cd  => cd.AddBaseListTypes(SimpleBaseType(ParseName(symbolToExtendFrom.ToDisplayString()))),
+                    RecordDeclarationSyntax rd => rd.AddBaseListTypes(SimpleBaseType(ParseName(symbolToExtendFrom.ToDisplayString()))),
+                    _                          => throw new NotSupportedException()
+                };
             }
 
             static PropertyDeclarationSyntax GetWorkDoneProperty()
@@ -207,16 +213,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                )
                            )
                        )
-                      .WithAccessorList(
-                           AccessorList(
-                               List(
-                                   new[] {
-                                       AccessorDeclaration(SyntaxKind.GetAccessorDeclaration).WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
-                                       AccessorDeclaration(SyntaxKind.SetAccessorDeclaration).WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
-                                   }
-                               )
-                           )
-                       );
+                      .WithAccessorList(CommonElements.GetSetAccessor);
             }
 
             static PropertyDeclarationSyntax GetIdProperty()
@@ -230,16 +227,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                )
                            )
                        )
-                      .WithAccessorList(
-                           AccessorList(
-                               List(
-                                   new[] {
-                                       AccessorDeclaration(SyntaxKind.GetAccessorDeclaration).WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
-                                       AccessorDeclaration(SyntaxKind.SetAccessorDeclaration).WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
-                                   }
-                               )
-                           )
-                       );
+                      .WithAccessorList(CommonElements.GetSetAccessor);
             }
         }
 
@@ -260,7 +248,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                    );
         }
 
-        private ClassDeclarationSyntax? CreateConverter(ClassDeclarationSyntax syntax, IEnumerable<PropertyDeclarationSyntax> properties)
+        private TypeDeclarationSyntax? CreateConverter(TypeDeclarationSyntax syntax, IEnumerable<PropertyDeclarationSyntax> properties)
         {
             var attribute = syntax.AttributeLists
                                   .SelectMany(z => z.Attributes)
@@ -337,18 +325,19 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
         public RegistrationOptionsGenerator() : base(() => new SyntaxReceiver(Cache))
         {
-
         }
-        public static CacheContainer<ClassDeclarationSyntax> Cache = new();
 
-        public class SyntaxReceiver : SyntaxReceiverCache<ClassDeclarationSyntax>
+        public static CacheContainer<TypeDeclarationSyntax> Cache = new();
+
+        public class SyntaxReceiver : SyntaxReceiverCache<TypeDeclarationSyntax>
         {
-            public List<ClassDeclarationSyntax> RegistrationOptions { get; } = new();
+            public List<TypeDeclarationSyntax> RegistrationOptions { get; } = new();
 
-            public override string? GetKey(ClassDeclarationSyntax syntax)
+            public override string? GetKey(TypeDeclarationSyntax syntax)
             {
                 var hasher = new CacheKeyHasher();
                 hasher.Append(syntax.SyntaxTree.FilePath);
+                hasher.Append(syntax.Keyword.Text);
                 hasher.Append(syntax.Identifier.Text);
                 hasher.Append(syntax.TypeParameterList);
                 hasher.Append(syntax.AttributeLists);
@@ -357,15 +346,17 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 {
                     hasher.Append(item);
                 }
+
                 return hasher;
             }
 
             /// <summary>
             /// Called for every syntax node in the compilation, we can inspect the nodes and save any information useful for generation
             /// </summary>
-            public override void OnVisitNode(ClassDeclarationSyntax syntaxNode)
+            public override void OnVisitNode(TypeDeclarationSyntax syntaxNode)
             {
-                if (syntaxNode.AttributeLists
+                if (syntaxNode is ClassDeclarationSyntax or RecordDeclarationSyntax
+                 && syntaxNode.AttributeLists
                               .SelectMany(z => z.Attributes)
                               .Any(z => z.Name.ToFullString().Contains("GenerateRegistrationOptions"))
                 )
@@ -374,7 +365,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 }
             }
 
-            public SyntaxReceiver(CacheContainer<ClassDeclarationSyntax> cache) : base(cache) { }
+            public SyntaxReceiver(CacheContainer<TypeDeclarationSyntax> cache) : base(cache)
+            {
+            }
         }
     }
 }

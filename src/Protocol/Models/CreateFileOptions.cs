@@ -5,18 +5,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     /// Options to create a file.
     /// </summary>
-    public class CreateFileOptions
+    public record CreateFileOptions
     {
         /// <summary>
         /// Overwrite existing file. Overwrite wins over `ignoreIfExists`
         /// </summary>
         [Optional]
-        public bool Overwrite { get; set; }
+        public bool Overwrite { get; init; }
 
         /// <summary>
         /// Ignore if exists.
         /// </summary>
         [Optional]
-        public bool IgnoreIfExists { get; set; }
+        public bool IgnoreIfExists { get; init; }
     }
 }

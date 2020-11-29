@@ -41,14 +41,14 @@ namespace Test
         public ProgressToken? WorkDoneToken
         {
             get;
-            set;
+            init;
         }
 
         [Optional]
         public ProgressToken? PartialResultToken
         {
             get;
-            set;
+            init;
         }
     }
 }

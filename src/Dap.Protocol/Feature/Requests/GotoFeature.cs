@@ -16,20 +16,20 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class GotoArguments : IRequest<GotoResponse>
+        public record GotoArguments : IRequest<GotoResponse>
         {
             /// <summary>
             /// Set the goto target for this thread.
             /// </summary>
-            public long ThreadId { get; set; }
+            public long ThreadId { get; init; }
 
             /// <summary>
             /// The location where the debuggee will continue to run.
             /// </summary>
-            public long TargetId { get; set; }
+            public long TargetId { get; init; }
         }
 
-        public class GotoResponse
+        public record GotoResponse
         {
         }
     }

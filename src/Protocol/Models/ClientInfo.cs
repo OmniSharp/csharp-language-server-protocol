@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -9,18 +10,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// @since 3.15.0
     /// </summary>
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    public class ClientInfo
+    public record ClientInfo
     {
         /// <summary>
         /// The name of the client as defined by the client.
         /// </summary>
-        public string Name { get; set; } = null!;
+        public string Name { get; init; }
 
         /// <summary>
         /// The client's version as defined by the client.
         /// </summary>
         [Optional]
-        public string? Version { get; set; }
+        public string? Version { get; init; }
 
         private string DebuggerDisplay => string.IsNullOrWhiteSpace(Version) ? Name : $"{Name} ({Version})";
 

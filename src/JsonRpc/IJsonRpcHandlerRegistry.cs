@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     public class JsonRpcHandlerOptions
     {
-        public RequestProcessType RequestProcessType { get; set; }
+        public RequestProcessType RequestProcessType { get; init; }
     }
 
     public interface IJsonRpcHandlerRegistry

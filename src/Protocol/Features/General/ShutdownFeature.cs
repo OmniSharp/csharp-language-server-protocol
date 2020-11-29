@@ -14,7 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Serial]
         [Method(GeneralNames.Shutdown, Direction.ClientToServer)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.General"), GenerateHandlerMethods, GenerateRequestMethods(typeof(ILanguageClient))]
-        public partial class ShutdownParams : IRequest
+        public partial record ShutdownParams : IRequest
         {
             public static ShutdownParams Instance { get; } = new();
         }

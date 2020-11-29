@@ -15,7 +15,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Parallel]
         [Method(WorkspaceNames.ApplyEdit, Direction.ServerToClient)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace"), GenerateHandlerMethods, GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
-        public partial class ApplyWorkspaceEditParams : IRequest<ApplyWorkspaceEditResponse>
+        public partial record ApplyWorkspaceEditParams : IRequest<ApplyWorkspaceEditResponse>
         {
             /// <summary>
             /// An optional label of the workspace edit. This label is
@@ -23,20 +23,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// stack to undo the workspace edit.
             /// </summary>
             [Optional]
-            public string? Label { get; set; }
+            public string? Label { get; init; }
 
             /// <summary>
             /// The edits to apply.
             /// </summary>
-            public WorkspaceEdit Edit { get; set; } = null!;
+            public WorkspaceEdit Edit { get; init; }
         }
 
-        public partial class ApplyWorkspaceEditResponse
+        public partial record ApplyWorkspaceEditResponse
         {
             /// <summary>
             /// Indicates whether the edit was applied or not.
             /// </summary>
-            public bool Applied { get; set; }
+            public bool Applied { get; init; }
 
             /// <summary>
             /// An optional textual description for why the edit was not applied.
@@ -45,7 +45,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// triggered the edit.
             /// </summary>
             [Optional]
-            public string? FailureReason { get; set; }
+            public string? FailureReason { get; init; }
 
             /// <summary>
             /// Depending on the client's failure handling strategy `failedChange`
@@ -54,7 +54,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// in its client capabilities.
             /// </summary>
             [Optional]
-            public int? FailedChange { get; set; }
+            public int? FailedChange { get; init; }
         }
     }
 }

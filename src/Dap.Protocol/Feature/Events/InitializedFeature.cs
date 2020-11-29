@@ -16,7 +16,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class InitializedEvent : IRequest
+        public record InitializedEvent : IRequest
         {
         }
     }

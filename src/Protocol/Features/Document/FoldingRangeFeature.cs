@@ -27,19 +27,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(FoldingRangeRegistrationOptions)), Capability(typeof(FoldingRangeCapability))]
-        public partial class FoldingRangeRequestParam : ITextDocumentIdentifierParams, IPartialItemsRequest<Container<FoldingRange>?, FoldingRange>, IWorkDoneProgressParams
+        public partial record FoldingRangeRequestParam : ITextDocumentIdentifierParams, IPartialItemsRequest<Container<FoldingRange>?, FoldingRange>, IWorkDoneProgressParams
         {
             /// <summary>
             /// The text document.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; set; } = null!;
+            public TextDocumentIdentifier TextDocument { get; init; }
         }
 
         /// <summary>
         /// Represents a folding range.
         /// </summary>
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-        public partial class FoldingRange
+        public partial record FoldingRange
         {
             /// <summary>
             /// The zero-based line number from where the folded range starts.
@@ -48,7 +48,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// TODO: UPDATE THIS next version
             /// <see cref="uint"/> in the LSP spec
             /// </remarks>
-            public long StartLine { get; set; }
+            public long StartLine { get; init; }
 
             /// <summary>
             /// The zero-based character offset from where the folded range starts. If not defined, defaults to the length of the start line.
@@ -58,7 +58,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <see cref="uint"/> in the LSP spec
             /// </remarks>
             [Optional]
-            public long? StartCharacter { get; set; }
+            public long? StartCharacter { get; init; }
 
             /// <summary>
             /// The zero-based line number where the folded range ends.
@@ -67,7 +67,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// TODO: UPDATE THIS next version
             /// <see cref="uint"/> in the LSP spec
             /// </remarks>
-            public long EndLine { get; set; }
+            public long EndLine { get; init; }
 
             /// <summary>
             /// The zero-based character offset before the folded range ends. If not defined, defaults to the length of the end line.
@@ -77,7 +77,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <see cref="uint"/> in the LSP spec
             /// </remarks>
             [Optional]
-            public long? EndCharacter { get; set; }
+            public long? EndCharacter { get; init; }
 
             /// <summary>
             /// Describes the kind of the folding range such as `comment' or 'region'. The kind
@@ -85,7 +85,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// [FoldingRangeKind](#FoldingRangeKind) for an enumeration of standardized kinds.
             /// </summary>
             [Optional]
-            public FoldingRangeKind? Kind { get; set; }
+            public FoldingRangeKind? Kind { get; init; }
 
             private string DebuggerDisplay =>
                 $"[start: (line: {StartLine}{( StartCharacter.HasValue ? $", char: {StartCharacter}" : string.Empty )}), end: (line: {EndLine}, char: {( EndCharacter.HasValue ? $", char: {EndCharacter}" : string.Empty )})]";

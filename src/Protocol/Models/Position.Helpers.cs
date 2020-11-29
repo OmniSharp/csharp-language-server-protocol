@@ -1,6 +1,6 @@
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public partial class Position
+    public partial record Position
     {
         /// <summary>
         /// Derive a new position from this position.

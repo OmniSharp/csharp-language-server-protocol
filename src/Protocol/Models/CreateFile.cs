@@ -5,7 +5,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     /// Create file operation
     /// </summary>
-    public class CreateFile : IFile
+    public record CreateFile : IFile
     {
         /// <summary>
         /// A create
@@ -15,12 +15,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The resource to create.
         /// </summary>
-        public DocumentUri Uri { get; set; } = null!;
+        public DocumentUri Uri { get; init; }
 
         /// <summary>
         /// Additional Options
         /// </summary>
         [Optional]
-        public CreateFileOptions? Options { get; set; }
+        public CreateFileOptions? Options { get; init; }
     }
 }

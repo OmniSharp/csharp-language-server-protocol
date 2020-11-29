@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
@@ -8,13 +9,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
     {
         private readonly IEnumerable<T> _items;
 
-        public ContainerBase(IEnumerable<T> items) => _items = items;
+        public ContainerBase(IEnumerable<T> items) => _items = items.ToArray();
 
         public override bool Equals(object? obj) => Equals(obj as ContainerBase<T>);
 
         public bool Equals(ContainerBase<T>? other) =>
             other is not null &&
-            EqualityComparer<IEnumerable<T>>.Default.Equals(_items, other._items);
+            _items.SequenceEqual(other._items);
 
         public IEnumerator<T> GetEnumerator() => _items.GetEnumerator();
 

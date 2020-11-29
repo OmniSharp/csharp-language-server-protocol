@@ -20,7 +20,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// </summary>
     [JsonConverter(typeof(MarkedStringConverter))]
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    public class MarkedString
+    public record MarkedString
     {
         public MarkedString(string value)
         {

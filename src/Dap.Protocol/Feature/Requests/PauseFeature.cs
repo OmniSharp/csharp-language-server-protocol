@@ -16,15 +16,15 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class PauseArguments : IRequest<PauseResponse>
+        public record PauseArguments : IRequest<PauseResponse>
         {
             /// <summary>
             /// Pause execution for this thread.
             /// </summary>
-            public long ThreadId { get; set; }
+            public long ThreadId { get; init; }
         }
 
-        public class PauseResponse
+        public record PauseResponse
         {
         }
     }

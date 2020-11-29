@@ -14,7 +14,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         /// <summary>
         /// Information about the capabilities of a debug adapter.
         /// </summary>
-        public class Capabilities
+        public record Capabilities
         {
             /// <summary>
             /// The debug adapter supports the 'configurationDone' request.
@@ -232,12 +232,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class CapabilitiesEvent : IRequest
+        public record CapabilitiesEvent : IRequest
         {
             /// <summary>
             /// The set of updated capabilities.
             /// </summary>
-            public Capabilities Capabilities { get; set; } = null!;
+            public Capabilities Capabilities { get; init; }
         }
     }
 }

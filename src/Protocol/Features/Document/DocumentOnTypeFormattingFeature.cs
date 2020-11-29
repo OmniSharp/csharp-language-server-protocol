@@ -25,28 +25,28 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(OnTypeRenameRegistrationOptions)), Capability(typeof(DocumentOnTypeFormattingCapability))]
-        public partial class DocumentOnTypeFormattingParams : ITextDocumentIdentifierParams, IRequest<TextEditContainer?>
+        public partial record DocumentOnTypeFormattingParams : ITextDocumentIdentifierParams, IRequest<TextEditContainer?>
         {
             /// <summary>
             /// The document to format.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; set; } = null!;
+            public TextDocumentIdentifier TextDocument { get; init; }
 
             /// <summary>
             /// The position at which this request was sent.
             /// </summary>
-            public Position Position { get; set; } = null!;
+            public Position Position { get; init; }
 
             /// <summary>
             /// The character that has been typed.
             /// </summary>
             [JsonProperty("ch")]
-            public string Character { get; set; } = null!;
+            public string Character { get; init; }
 
             /// <summary>
             /// The format options.
             /// </summary>
-            public FormattingOptions Options { get; set; } = null!;
+            public FormattingOptions Options { get; init; }
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.DocumentOnTypeFormattingProvider))]

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -23,7 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Method(GeneralNames.Progress, Direction.Bidirectional)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol"), GenerateHandlerMethods,
          GenerateRequestMethods(typeof(IGeneralLanguageClient), typeof(ILanguageClient), typeof(IGeneralLanguageServer), typeof(ILanguageServer))]
-        public class ProgressParams : IRequest
+        public record ProgressParams : IRequest
         {
             public static ProgressParams Create<T>(ProgressToken token, T value, JsonSerializer jsonSerializer) =>
                 new ProgressParams {
@@ -34,17 +35,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// The progress token provided by the client or server.
             /// </summary>
-            public ProgressToken Token { get; set; } = null!;
+            public ProgressToken Token { get; init; }
 
             /// <summary>
             /// The progress data.
             /// </summary>
-            public JToken Value { get; set; } = null!;
+            public JToken Value { get; init; }
         }
 
         [JsonConverter(typeof(ProgressTokenConverter))]
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-        public class ProgressToken : IEquatable<ProgressToken>, IEquatable<long>, IEquatable<string>
+        public record ProgressToken : IEquatable<long>, IEquatable<string>
         {
             private long? _long;
             private string? _string;
@@ -89,26 +90,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public ProgressParams Create<T>(T value, JsonSerializer jsonSerializer) => ProgressParams.Create(this, value, jsonSerializer);
 
-            public override bool Equals(object obj) =>
-                obj is ProgressToken token &&
-                Equals(token);
-
-            public override int GetHashCode()
-            {
-                var hashCode = 1456509845;
-                hashCode = hashCode * -1521134295 + IsLong.GetHashCode();
-                hashCode = hashCode * -1521134295 + Long.GetHashCode();
-                hashCode = hashCode * -1521134295 + IsString.GetHashCode();
-                if (String != null) hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(String);
-                return hashCode;
-            }
-
-            public bool Equals(ProgressToken other) =>
-                IsLong == other.IsLong &&
-                Long == other.Long &&
-                IsString == other.IsString &&
-                String == other.String;
-
             public bool Equals(long other) => IsLong && Long == other;
 
             public bool Equals(string other) => IsString && String == other;
@@ -126,8 +107,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             this ILanguageProtocolProxy requestRouter, IPartialItemRequest<TResponse, TItem> @params, Func<TItem, TResponse> factory, CancellationToken cancellationToken = default
         )
         {
-            var resultToken = new ProgressToken(Guid.NewGuid().ToString());
-            @params.PartialResultToken = resultToken;
+            @params.SetPartialResultToken(new ProgressToken(Guid.NewGuid().ToString()));
 
             return requestRouter.ProgressManager.MonitorUntil(@params, factory, cancellationToken);
         }
@@ -138,10 +118,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         )
             where TResponse : IEnumerable<TItem>
         {
-            var resultToken = new ProgressToken(Guid.NewGuid().ToString());
-            @params.PartialResultToken = resultToken;
+            @params.SetPartialResultToken(new ProgressToken(Guid.NewGuid().ToString()));
 
             return requestRouter.ProgressManager.MonitorUntil(@params, factory, cancellationToken);
+        }
+
+        private static readonly PropertyInfo PartialResultTokenProperty = typeof(IPartialResultParams).GetProperty(nameof(IPartialResultParams.PartialResultToken))!;
+
+        internal static ProgressToken SetPartialResultToken(this IPartialResultParams @params, ProgressToken? progressToken = null)
+        {
+            if (@params.PartialResultToken is not null) return @params.PartialResultToken;
+            PartialResultTokenProperty.SetValue(@params, progressToken ?? new ProgressToken(Guid.NewGuid().ToString()));
+            return @params.PartialResultToken!;
         }
     }
 }

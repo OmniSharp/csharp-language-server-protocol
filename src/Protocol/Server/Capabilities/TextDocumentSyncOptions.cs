@@ -6,7 +6,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
-    public class TextDocumentSyncOptions : ITextDocumentSyncOptions
+    public class TextDocumentSyncOptions
     {
         /// <summary>
         /// Open and close notifications are sent to the server.
@@ -38,27 +38,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// </summary>
         [Optional]
         public BooleanOr<SaveOptions> Save { get; set; } = new BooleanOr<SaveOptions>(false);
-
-        public static TextDocumentSyncOptions Of(IEnumerable<ITextDocumentSyncOptions> options, IEnumerable<IHandlerDescriptor> descriptors)
-        {
-            var change = TextDocumentSyncKind.None;
-            var textDocumentSyncOptions = options as ITextDocumentSyncOptions[] ?? options.ToArray();
-            if (textDocumentSyncOptions.Any(x => x.Change != TextDocumentSyncKind.None))
-            {
-                change = textDocumentSyncOptions
-                        .Where(x => x.Change != TextDocumentSyncKind.None)
-                        .Min(z => z.Change);
-            }
-
-            return new TextDocumentSyncOptions {
-                OpenClose = textDocumentSyncOptions.Any(z => z.OpenClose),
-                Change = change,
-                WillSave = textDocumentSyncOptions.Any(z => z.WillSave),
-                WillSaveWaitUntil = textDocumentSyncOptions.Any(z => z.WillSaveWaitUntil),
-                Save = new SaveOptions {
-                    IncludeText = textDocumentSyncOptions.Any(z => z.Save.IsValue && z.Save.Value.IncludeText)
-                }
-            };
-        }
     }
 }

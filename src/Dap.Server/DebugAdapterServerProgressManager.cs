@@ -29,9 +29,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
 
         public IProgressObserver Create(ProgressStartEvent begin, Func<Exception, ProgressEndEvent>? onError = null, Func<ProgressEndEvent>? onComplete = null)
         {
-            if (EqualityComparer<ProgressToken>.Default.Equals(begin.ProgressId, default))
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+            if (begin.ProgressId is null)
             {
-                begin.ProgressId = new ProgressToken(Guid.NewGuid().ToString());
+                begin = begin with { ProgressId = new ProgressToken(Guid.NewGuid().ToString()) };
             }
 
             if (_activeObservers.TryGetValue(begin.ProgressId, out var item))
@@ -61,7 +62,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
 
         public Task<CancelResponse> Handle(CancelArguments request, CancellationToken cancellationToken)
         {
-            if (request.ProgressId.HasValue && _activeObserverTokens.TryGetValue(request.ProgressId.Value, out var cts))
+            if (request.ProgressId is not null && _activeObserverTokens.TryGetValue(request.ProgressId, out var cts))
             {
                 cts.Cancel();
             }

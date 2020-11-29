@@ -28,18 +28,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace"), GenerateHandlerMethods,
          GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
         [RegistrationOptions(typeof(ExecuteCommandRegistrationOptions)), Capability(typeof(ExecuteCommandCapability))]
-        public partial class ExecuteCommandParams : IJsonRpcRequest, IWorkDoneProgressParams, IExecuteCommandParams
+        public partial record ExecuteCommandParams : IJsonRpcRequest, IWorkDoneProgressParams, IExecuteCommandParams
         {
             /// <summary>
             /// The identifier of the actual command handler.
             /// </summary>
-            public string Command { get; set; } = null!;
+            public string Command { get; init; }
 
             /// <summary>
             /// Arguments that the command should be invoked with.
             /// </summary>
             [Optional]
-            public JArray? Arguments { get; set; }
+            public JArray? Arguments { get; init; }
         }
 
         /// <summary>

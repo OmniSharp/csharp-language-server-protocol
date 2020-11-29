@@ -1,13 +1,24 @@
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using TestingUtils;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Lsp.Tests.Models
 {
     public class CodeActionContextTests
     {
+        private ILogger _logger;
+
+        public CodeActionContextTests(ITestOutputHelper testOutputHelper)
+        {
+            var factory = new TestLoggerFactory(testOutputHelper);
+            _logger = factory.CreateLogger<CodeActionContextTests>();
+        }
         [Theory]
         [JsonFixture]
         public void SimpleTest(string expected)
@@ -28,7 +39,7 @@ namespace Lsp.Tests.Models
             result.Should().Be(expected);
 
             var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<CodeActionContext>(expected);
-            deresult.Should().BeEquivalentTo(model);
+            deresult.Should().BeEquivalentTo(model, x => x.UsingStructuralRecordEquality());
         }
     }
 }

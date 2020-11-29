@@ -24,22 +24,22 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(DocumentRangeFormattingRegistrationOptions)), Capability(typeof(DocumentRangeFormattingCapability))]
-        public partial class DocumentRangeFormattingParams : ITextDocumentIdentifierParams, IRequest<TextEditContainer>, IWorkDoneProgressParams
+        public partial record DocumentRangeFormattingParams : ITextDocumentIdentifierParams, IRequest<TextEditContainer>, IWorkDoneProgressParams
         {
             /// <summary>
             /// The document to format.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; set; } = null!;
+            public TextDocumentIdentifier TextDocument { get; init; }
 
             /// <summary>
             /// The range to format
             /// </summary>
-            public Range Range { get; set; } = null!;
+            public Range Range { get; init; }
 
             /// <summary>
             /// The format options
             /// </summary>
-            public FormattingOptions Options { get; set; } = null!;
+            public FormattingOptions Options { get; init; }
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.DocumentRangeFormattingProvider))]

@@ -17,18 +17,18 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class ContinuedEvent : IRequest
+        public record ContinuedEvent : IRequest
         {
             /// <summary>
             /// The thread which was continued.
             /// </summary>
-            public long ThreadId { get; set; }
+            public long ThreadId { get; init; }
 
             /// <summary>
             /// If 'allThreadsContinued' is true, a debug adapter can announce that all threads have continued.
             /// </summary>
             [Optional]
-            public bool AllThreadsContinued { get; set; }
+            public bool AllThreadsContinued { get; init; }
         }
     }
 }

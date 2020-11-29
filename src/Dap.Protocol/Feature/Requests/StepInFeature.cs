@@ -18,27 +18,27 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class StepInArguments : IRequest<StepInResponse>
+        public record StepInArguments : IRequest<StepInResponse>
         {
             /// <summary>
             /// Execute 'stepIn' for this thread.
             /// </summary>
-            public long ThreadId { get; set; }
+            public long ThreadId { get; init; }
 
             /// <summary>
             /// Optional id of the target to step into.
             /// </summary>
             [Optional]
-            public long? TargetId { get; set; }
+            public long? TargetId { get; init; }
 
             /// <summary>
             /// Optional granularity to step. If no granularity is specified, a granularity of 'statement' is assumed.
             /// </summary>
             [Optional]
-            public SteppingGranularity? Granularity { get; set; }
+            public SteppingGranularity? Granularity { get; init; }
         }
 
-        public class StepInResponse
+        public record StepInResponse
         {
         }
     }

@@ -18,12 +18,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Method(WorkspaceNames.DidChangeConfiguration, Direction.ClientToServer)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace"), GenerateHandlerMethods, GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
         [Capability(typeof(DidChangeConfigurationCapability))]
-        public partial class DidChangeConfigurationParams : IRequest
+        public partial record DidChangeConfigurationParams : IRequest
         {
             /// <summary>
             /// The actual changed settings
             /// </summary>
-            public JToken? Settings { get; set; }
+            public JToken? Settings { get; init; }
         }
     }
 

@@ -20,21 +20,21 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class SetExceptionBreakpointsArguments : IRequest<SetExceptionBreakpointsResponse>
+        public record SetExceptionBreakpointsArguments : IRequest<SetExceptionBreakpointsResponse>
         {
             /// <summary>
             /// IDs of checked exception options.The set of IDs is returned via the 'exceptionBreakpointFilters' capability.
             /// </summary>
-            public Container<string> Filters { get; set; } = null!;
+            public Container<string> Filters { get; init; }
 
             /// <summary>
             /// Configuration options for selected exceptions.
             /// </summary>
             [Optional]
-            public Container<ExceptionOptions>? ExceptionOptions { get; set; }
+            public Container<ExceptionOptions>? ExceptionOptions { get; init; }
         }
 
-        public class SetExceptionBreakpointsResponse
+        public record SetExceptionBreakpointsResponse
         {
         }
     }
@@ -45,37 +45,37 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         /// ExceptionOptions
         /// An ExceptionOptions assigns configuration options to a set of exceptions.
         /// </summary>
-        public class ExceptionOptions
+        public record ExceptionOptions
         {
             /// <summary>
             /// A path that selects a single or multiple exceptions in a tree. If 'path' is missing, the whole tree is selected. By convention the first segment of the path is a category that is
             /// used to group exceptions in the UI.
             /// </summary>
             [Optional]
-            public Container<ExceptionPathSegment>? Path { get; set; }
+            public Container<ExceptionPathSegment>? Path { get; init; }
 
             /// <summary>
             /// Condition when a thrown exception should result in a break.
             /// </summary>
-            public ExceptionBreakMode BreakMode { get; set; }
+            public ExceptionBreakMode BreakMode { get; init; }
         }
 
         /// <summary>
         /// An ExceptionPathSegment represents a segment in a path that is used to match leafs or nodes in a tree of exceptions.If a segment consists of more than one name, it matches the
         /// names provided if ‘negate’ is false or missing or it matches anything except the names provided if ‘negate’ is true.
         /// </summary>
-        public class ExceptionPathSegment
+        public record ExceptionPathSegment
         {
             /// <summary>
             /// If false or missing this segment matches the names provided, otherwise it matches anything except the names provided.
             /// </summary>
             [Optional]
-            public bool Negate { get; set; }
+            public bool Negate { get; init; }
 
             /// <summary>
             /// Depending on the value of 'negate' the names that should match or not match.
             /// </summary>
-            public Container<string> Names { get; set; } = null!;
+            public Container<string> Names { get; init; }
         }
 
         /// <summary>

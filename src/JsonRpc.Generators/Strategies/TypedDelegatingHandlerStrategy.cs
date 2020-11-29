@@ -28,7 +28,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             }
         }
 
-        private ClassDeclarationSyntax CreateDelegatingHandler(RequestItem item, RequestItem resolver)
+        private TypeDeclarationSyntax CreateDelegatingHandler(RequestItem item, RequestItem resolver)
         {
             TypeSyntax requestType = item.Request.Syntax;
             TypeSyntax resolveType = GenericName(Identifier(resolver.Request.Symbol.Name))
@@ -319,7 +319,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             return handler;
         }
 
-        private ClassDeclarationSyntax CreateDelegatingPartialHandler(RequestItem item, RequestItem resolver)
+        private TypeDeclarationSyntax CreateDelegatingPartialHandler(RequestItem item, RequestItem resolver)
         {
             TypeSyntax requestType = item.Request.Syntax;
             TypeSyntax resolveType = GenericName(Identifier(resolver.Request.Symbol.Name))

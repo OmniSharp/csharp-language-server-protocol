@@ -14,12 +14,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Parallel]
         [Method(GeneralNames.SetTrace, Direction.ClientToServer)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Server"), GenerateHandlerMethods, GenerateRequestMethods(typeof(IClientLanguageClient), typeof(ILanguageClient))]
-        public class SetTraceParams : IRequest
+        public record SetTraceParams : IRequest
         {
             /// <summary>
             /// The new value that should be assigned to the trace setting.
             /// </summary>
-            public InitializeTrace Value { get; set; }
+            public InitializeTrace Value { get; init; }
         }
     }
 

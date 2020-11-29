@@ -24,31 +24,31 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(SelectionRangeRegistrationOptions)), Capability(typeof(SelectionRangeCapability))]
-        public partial class SelectionRangeParams : ITextDocumentIdentifierParams, IPartialItemsRequest<Container<SelectionRange>?, SelectionRange>, IWorkDoneProgressParams
+        public partial record SelectionRangeParams : ITextDocumentIdentifierParams, IPartialItemsRequest<Container<SelectionRange>?, SelectionRange>, IWorkDoneProgressParams
         {
             /// <summary>
             /// The text document.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; set; } = null!;
+            public TextDocumentIdentifier TextDocument { get; init; }
 
             /// <summary>
             /// The positions inside the text document.
             /// </summary>
-            public Container<Position> Positions { get; set; } = null!;
+            public Container<Position> Positions { get; init; }
         }
 
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-        public partial class SelectionRange
+        public partial record SelectionRange
         {
             /// <summary>
             /// The [range](#Range) of this selection range.
             /// </summary>
-            public Range Range { get; set; } = null!;
+            public Range Range { get; init; }
 
             /// <summary>
             /// The parent selection range containing this range. Therefore `parent.range` must contain `this.range`.
             /// </summary>
-            public SelectionRange Parent { get; set; } = null!;
+            public SelectionRange Parent { get; init; }
 
             private string DebuggerDisplay => $"{Range} {{{Parent}}}";
 

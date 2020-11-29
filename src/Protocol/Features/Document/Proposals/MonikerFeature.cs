@@ -38,35 +38,35 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(MonikerRegistrationOptions)), Capability(typeof(MonikerCapability))]
-        public partial class MonikerParams : TextDocumentPositionParams, IWorkDoneProgressParams, IPartialItemsRequest<Container<Moniker>?, Moniker> { }
+        public partial record MonikerParams : TextDocumentPositionParams, IWorkDoneProgressParams, IPartialItemsRequest<Container<Moniker>?, Moniker> { }
 
         /// <summary>
         /// Moniker definition to match LSIF 0.5 moniker definition.
         /// </summary>
         [Obsolete(Constants.Proposal)]
-        public partial class Moniker
+        public partial record Moniker
         {
             /// <summary>
             /// The scheme of the moniker. For example tsc or .Net
             /// </summary>
-            public string Scheme { get; set; } = null!;
+            public string Scheme { get; init; }
 
             /// <summary>
             /// The identifier of the moniker. The value is opaque in LSIF however
             /// schema owners are allowed to define the structure if they want.
             /// </summary>
-            public string Identifier { get; set; } = null!;
+            public string Identifier { get; init; }
 
             /// <summary>
             /// The scope in which the moniker is unique
             /// </summary>
-            public UniquenessLevel Unique { get; set; }
+            public UniquenessLevel Unique { get; init; }
 
             /// <summary>
             /// The moniker kind if known.
             /// </summary>
             [Optional]
-            public MonikerKind Kind { get; set; }
+            public MonikerKind Kind { get; init; }
         }
 
         /// <summary>
@@ -184,6 +184,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
     namespace Document.Proposals
     {
-
+        class A<T> where T : IHandlerIdentity?
+        {
+            public T? B { get; set; }
+        }
     }
 }

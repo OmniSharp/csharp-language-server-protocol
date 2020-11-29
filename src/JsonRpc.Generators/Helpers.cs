@@ -882,7 +882,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             return name.Substring(name.LastIndexOf('.') + 1);
         }
 
-        public static TypeParameterConstraintSyntax HandlerIdentityConstraint { get; } = TypeConstraint(NullableType(IdentifierName("HandlerIdentity")));
+        public static SeparatedSyntaxList<TypeParameterConstraintSyntax> HandlerIdentityConstraint { get; } = SeparatedList(
+            new TypeParameterConstraintSyntax[] {
+                ClassOrStructConstraint(SyntaxKind.ClassConstraint)
+                   .WithQuestionToken(Token(SyntaxKind.QuestionToken)),
+                TypeConstraint(NullableType(IdentifierName("IHandlerIdentity"))),
+            }
+        );
 
         public static SyntaxList<TypeParameterConstraintClauseSyntax> HandlerIdentityConstraintClause(bool withHandlerIdentity, IdentifierNameSyntax? openGenericType = null)
         {
@@ -897,7 +903,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 );
             return SingletonList(
                 TypeParameterConstraintClause(openGenericType ?? IdentifierName("T"))
-                   .WithConstraints(SingletonSeparatedList(HandlerIdentityConstraint))
+                   .WithConstraints(HandlerIdentityConstraint)
             );
         }
 
@@ -980,7 +986,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 PredefinedTypeSyntax pts => pts.Keyword.Text,
                 ArrayTypeSyntax ats      => ats.ElementType.GetSyntaxName() + "[]",
                 TupleTypeSyntax tts      => "(" + tts.Elements.Select(z => $"{z.Type.GetSyntaxName()}{z.Identifier.Text}") + ")",
-                _                        => null// there might be more but for now... throw new NotSupportedException(typeSyntax.GetType().FullName)
+                _                        => null // there might be more but for now... throw new NotSupportedException(typeSyntax.GetType().FullName)
             };
         }
 
@@ -1135,8 +1141,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 );
         }
 
-        public static ClassDeclarationSyntax WithHandlerIdentityConstraint(
-            this ClassDeclarationSyntax syntax, bool includeHandlerIdentity, IdentifierNameSyntax? openGenericType = null
+        public static TypeDeclarationSyntax WithHandlerIdentityConstraint(
+            this TypeDeclarationSyntax syntax, bool includeHandlerIdentity, IdentifierNameSyntax? openGenericType = null
         )
         {
             openGenericType ??= IdentifierName("T");

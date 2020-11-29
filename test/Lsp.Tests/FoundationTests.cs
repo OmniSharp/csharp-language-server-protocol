@@ -656,6 +656,7 @@ namespace Lsp.Tests
                                     .Assembly.DefinedTypes
                                     .Where(z => z.IsClass && !z.IsAbstract && typeof(IRegistrationOptionsConverter).IsAssignableFrom(z))
                                     .Where(z => z.BaseType?.IsGenericType == true && z.BaseType.GetGenericArguments().Length == 2)
+                                    .Where(z => !z.FullName?.Contains("TextDocumentSyncRegistrationOptions") == true)
                 )
                 {
                     Add(type);

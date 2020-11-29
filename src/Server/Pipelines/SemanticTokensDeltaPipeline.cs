@@ -9,18 +9,20 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
 {
     [Obsolete(Constants.Proposal)]
-    class SemanticTokensDeltaPipeline<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+    class SemanticTokensDeltaPipeline<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse?>
         where TRequest : notnull
+        where TResponse : class?
     {
-        public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+        public async Task<TResponse?> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse?> next)
         {
             if (request is SemanticTokensParams semanticTokensParams)
             {
                 var response = await next().ConfigureAwait(false);
                 if (GetResponse(semanticTokensParams, response, out var result) && string.IsNullOrEmpty(result.ResultId))
                 {
-                    result.ResultId = Guid.NewGuid().ToString();
+                    return result with { ResultId = Guid.NewGuid().ToString() } as TResponse;
                 }
+
                 return response;
             }
 
@@ -31,14 +33,15 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
                 {
                     if (result.IsFull && string.IsNullOrEmpty(result.Full!.ResultId))
                     {
-                        result.Full.ResultId = semanticTokensDeltaParams.PreviousResultId;
+                        return result with { Full = result.Full with { ResultId = semanticTokensDeltaParams.PreviousResultId } } as TResponse;
                     }
 
                     if (result.IsDelta && string.IsNullOrEmpty(result.Delta!.ResultId))
                     {
-                        result.Delta.ResultId = semanticTokensDeltaParams.PreviousResultId;
+                        return result with { Delta = result.Delta with {ResultId = semanticTokensDeltaParams.PreviousResultId} } as TResponse;
                     }
                 }
+
                 return response;
             }
 

@@ -6,22 +6,22 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
     /// ExceptionBreakpointsFilter
     /// An ExceptionBreakpointsFilter is shown in the UI as an option for configuring how exceptions are dealt with.
     /// </summary>
-    public class ExceptionBreakpointsFilter
+    public record ExceptionBreakpointsFilter
     {
         /// <summary>
         /// The internal ID of the filter. This value is passed to the setExceptionBreakpoints request.
         /// </summary>
-        public string Filter { get; set; } = null!;
+        public string Filter { get; init; }
 
         /// <summary>
         /// The name of the filter. This will be shown in the UI.
         /// </summary>
-        public string Label { get; set; } = null!;
+        public string Label { get; init; }
 
         /// <summary>
         /// Initial value of the filter. If not specified a value 'false' is assumed.
         /// </summary>
         [Optional]
-        public bool Default { get; set; }
+        public bool Default { get; init; }
     }
 }

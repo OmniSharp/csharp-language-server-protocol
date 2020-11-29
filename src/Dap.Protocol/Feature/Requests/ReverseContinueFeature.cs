@@ -16,15 +16,15 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class ReverseContinueArguments : IRequest<ReverseContinueResponse>
+        public record ReverseContinueArguments : IRequest<ReverseContinueResponse>
         {
             /// <summary>
             /// Execute 'reverseContinue' for this thread.
             /// </summary>
-            public long ThreadId { get; set; }
+            public long ThreadId { get; init; }
         }
 
-        public class ReverseContinueResponse
+        public record ReverseContinueResponse
         {
         }
     }

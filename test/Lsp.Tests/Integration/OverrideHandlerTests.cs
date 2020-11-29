@@ -71,46 +71,42 @@ namespace Lsp.Tests.Integration
             normalResponse.Should().Be(Unit.Value);
             customResponse.Should().BeEquivalentTo(JToken.FromObject(new { someValue = "custom" }));
         }
+    }
 
-        [Method(WorkspaceNames.ExecuteCommand)]
-        public class CustomExecuteCommandHandler : IJsonRpcRequestHandler<CustomExecuteCommandParams, JToken>, IRegistration<ExecuteCommandRegistrationOptions, ExecuteCommandCapability>
+    [Method(WorkspaceNames.ExecuteCommand)]
+    public class CustomExecuteCommandHandler : IJsonRpcRequestHandler<CustomExecuteCommandParams, JToken>, IRegistration<ExecuteCommandRegistrationOptions, ExecuteCommandCapability>
+    {
+        // ReSharper disable once NotAccessedField.Local
+        private ExecuteCommandCapability? _capability;
+        private readonly ExecuteCommandRegistrationOptions _executeCommandRegistrationOptions = new ExecuteCommandRegistrationOptions() {
+            WorkDoneProgress = true,
+            Commands = new Container<string>("mycommand")
+        };
+
+        public Task<JToken> Handle(CustomExecuteCommandParams request, CancellationToken cancellationToken)
         {
-            // ReSharper disable once NotAccessedField.Local
-            private ExecuteCommandCapability? _capability;
-            private readonly ExecuteCommandRegistrationOptions _executeCommandRegistrationOptions = new ExecuteCommandRegistrationOptions() {
-                WorkDoneProgress = true,
-                Commands = new Container<string>("mycommand")
-            };
-
-            public Task<JToken> Handle(CustomExecuteCommandParams request, CancellationToken cancellationToken)
-            {
-                return Task.FromResult(JToken.FromObject(new { someValue = "custom" }));
-            }
-
-            public ExecuteCommandRegistrationOptions GetRegistrationOptions(ExecuteCommandCapability capability, ClientCapabilities clientCapabilities)
-            {
-                _capability = capability;
-                return _executeCommandRegistrationOptions;
-            }
+            return Task.FromResult(JToken.FromObject(new { someValue = "custom" }));
         }
 
-        [Method(WorkspaceNames.ExecuteCommand, Direction.ClientToServer)]
-        public class CustomExecuteCommandParams : IRequest<JToken>, IWorkDoneProgressParams, IExecuteCommandParams // required for routing
+        public ExecuteCommandRegistrationOptions GetRegistrationOptions(ExecuteCommandCapability capability, ClientCapabilities clientCapabilities)
         {
-            /// <summary>
-            /// The identifier of the actual command handler.
-            /// </summary>
-            public string Command { get; set; } = null!;
-
-            /// <summary>
-            /// Arguments that the command should be invoked with.
-            /// </summary>
-            [Optional]
-            public JArray? Arguments { get; set; } = null!;
-
-            /// <inheritdoc />
-            [Optional]
-            public ProgressToken? WorkDoneToken { get; set; } = null!;
+            _capability = capability;
+            return _executeCommandRegistrationOptions;
         }
+    }
+
+    [Method(WorkspaceNames.ExecuteCommand, Direction.ClientToServer)]
+    public partial record CustomExecuteCommandParams : IRequest<JToken>, IWorkDoneProgressParams, IExecuteCommandParams // required for routing
+    {
+        /// <summary>
+        /// The identifier of the actual command handler.
+        /// </summary>
+        public string Command { get; init; }
+
+        /// <summary>
+        /// Arguments that the command should be invoked with.
+        /// </summary>
+        [Optional]
+        public JArray? Arguments { get; init; }
     }
 }

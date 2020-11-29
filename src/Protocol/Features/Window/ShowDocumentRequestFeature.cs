@@ -26,12 +26,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Method(WindowNames.ShowDocument, Direction.ServerToClient)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Window"), GenerateHandlerMethods, GenerateRequestMethods(typeof(IWindowLanguageServer), typeof(ILanguageServer))]
         [Capability(typeof(ShowDocumentClientCapabilities))]
-        public class ShowDocumentParams : IRequest<ShowDocumentResult>
+        public record ShowDocumentParams : IRequest<ShowDocumentResult>
         {
             /// <summary>
             /// The document uri to show.
             /// </summary>
-            public DocumentUri Uri { get; set; } = null!;
+            public DocumentUri Uri { get; init; }
 
             /// <summary>
             /// Indicates to show the resource in an external program.
@@ -39,7 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// in the default WEB browser set `external` to `true`.
             /// </summary>
             [Optional]
-            public bool? External { get; set; }
+            public bool? External { get; init; }
 
             /// <summary>
             /// An optional property to indicate whether the editor
@@ -48,7 +48,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// program is started.
             /// </summary>
             [Optional]
-            public bool? TakeFocus { get; set; }
+            public bool? TakeFocus { get; init; }
 
             /// <summary>
             /// An optional selection range if the document is a text
@@ -57,7 +57,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// file.
             /// </summary>
             [Optional]
-            public Range? Selection { get; set; }
+            public Range? Selection { get; init; }
         }
 
         /// <summary>
@@ -66,12 +66,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// @since 3.16.0 - proposed state
         /// </summary>
         [Obsolete(Constants.Proposal)]
-        public class ShowDocumentResult
+        public record ShowDocumentResult
         {
             /// <summary>
             /// A boolean indicating if the show was successful.
             /// </summary>
-            public bool Success { get; set; }
+            public bool Success { get; init; }
         }
     }
 

@@ -16,15 +16,15 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class RestartFrameArguments : IRequest<RestartFrameResponse>
+        public record RestartFrameArguments : IRequest<RestartFrameResponse>
         {
             /// <summary>
             /// Restart this stackframe.
             /// </summary>
-            public long FrameId { get; set; }
+            public long FrameId { get; init; }
         }
 
-        public class RestartFrameResponse
+        public record RestartFrameResponse
         {
         }
     }

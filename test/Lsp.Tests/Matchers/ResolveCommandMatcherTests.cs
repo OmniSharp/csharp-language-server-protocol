@@ -14,6 +14,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Server.Matchers;
 using OmniSharp.Extensions.LanguageServer.Server.Pipelines;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -267,7 +268,7 @@ namespace Lsp.Tests.Matchers
             var response = await handlerMatcher.Handle(new CompletionParams(), CancellationToken.None, () => Task.FromResult(list));
 
             // Then
-            response.Should().BeEquivalentTo(list);
+            response.Should().BeEquivalentTo(list, x => x.UsingStructuralRecordEquality());
             response.Items.Should().Contain(item);
             var responseItem = response.Items.First();
             responseItem.Data![Constants.PrivateHandlerId].Value<Guid>().Should().Be(_trueId);
@@ -317,7 +318,7 @@ namespace Lsp.Tests.Matchers
             var response = await handlerMatcher.Handle(new CodeLensParams(), CancellationToken.None, () => Task.FromResult(list));
 
             // Then
-            response.Should().BeEquivalentTo(list);
+            response.Should().BeEquivalentTo(list, x => x.UsingStructuralRecordEquality());
             response.Should().Contain(item);
             var responseItem = response.First();
             responseItem.Data![Constants.PrivateHandlerId].Value<Guid>().Should().Be(_trueId);
@@ -364,7 +365,7 @@ namespace Lsp.Tests.Matchers
             var response = await handlerMatcher.Handle(item, CancellationToken.None, () => Task.FromResult(item));
 
             // Then
-            response.Should().BeEquivalentTo(item);
+            response.Should().BeEquivalentTo(item, x => x.UsingStructuralRecordEquality());
             item.Data?[Constants.PrivateHandlerId].Value<Guid>().Should().BeEmpty();
             item.Data?["hello"].Value<string>().Should().Be("world");
         }

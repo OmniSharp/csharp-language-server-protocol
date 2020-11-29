@@ -267,21 +267,21 @@ namespace Dap.Tests.Integration
             request.Script.Should().Be("build.ps1");
         }
 
-        public class CustomAttachRequestArguments : AttachRequestArguments
+        public record CustomAttachRequestArguments : AttachRequestArguments
         {
-            public string ComputerName { get; set; } = null!;
+            public string ComputerName { get; init; }
 
-            public string ProcessId { get; set; } = null!;
+            public string ProcessId { get; init; }
 
-            public string RunspaceId { get; set; } = null!;
+            public string RunspaceId { get; init; }
         }
 
-        public class CustomLaunchRequestArguments : LaunchRequestArguments
+        public record CustomLaunchRequestArguments : LaunchRequestArguments
         {
             /// <summary>
             /// Gets or sets the absolute path to the script to debug.
             /// </summary>
-            public string Script { get; set; } = null!;
+            public string Script { get; init; }
         }
     }
 }

@@ -18,37 +18,37 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class ExceptionInfoArguments : IRequest<ExceptionInfoResponse>
+        public record ExceptionInfoArguments : IRequest<ExceptionInfoResponse>
         {
             /// <summary>
             /// Thread for which exception information should be retrieved.
             /// </summary>
-            public long ThreadId { get; set; }
+            public long ThreadId { get; init; }
         }
 
-        public class ExceptionInfoResponse
+        public record ExceptionInfoResponse
         {
             /// <summary>
             /// ID of the exception that was thrown.
             /// </summary>
-            public string ExceptionId { get; set; } = null!;
+            public string ExceptionId { get; init; }
 
             /// <summary>
             /// Descriptive text for the exception provided by the debug adapter.
             /// </summary>
             [Optional]
-            public string? Description { get; set; }
+            public string? Description { get; init; }
 
             /// <summary>
             /// Mode that caused the exception notification to be raised.
             /// </summary>
-            public ExceptionBreakMode BreakMode { get; set; }
+            public ExceptionBreakMode BreakMode { get; init; }
 
             /// <summary>
             /// Detailed information about the exception.
             /// </summary>
             [Optional]
-            public ExceptionDetails? Details { get; set; }
+            public ExceptionDetails? Details { get; init; }
         }
     }
 }

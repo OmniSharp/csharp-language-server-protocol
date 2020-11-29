@@ -37,9 +37,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
         {
             if (_disposable.IsDisposed) return;
             var @event = _onComplete?.Invoke() ?? new ProgressEndEvent { Message = "", ProgressId = ProgressId };
-            if (EqualityComparer<ProgressToken>.Default.Equals(@event.ProgressId, default))
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+            if (@event.ProgressId is null)
             {
-                @event.ProgressId = ProgressId;
+                @event = @event with { ProgressId = ProgressId };
             }
 
             _router.SendNotification(@event);
@@ -49,9 +50,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
         {
             if (_disposable.IsDisposed) return;
             var @event = _onError?.Invoke(error) ?? new ProgressEndEvent { Message = error.ToString(), ProgressId = ProgressId };
-            if (EqualityComparer<ProgressToken>.Default.Equals(@event.ProgressId, default))
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+            if (@event.ProgressId is null)
             {
-                @event.ProgressId = ProgressId;
+                @event = @event with { ProgressId = ProgressId };
             }
 
             _router.SendNotification(@event);
@@ -60,9 +62,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
         public void OnNext(ProgressUpdateEvent value)
         {
             if (_disposable.IsDisposed) return;
-            if (EqualityComparer<ProgressToken>.Default.Equals(value.ProgressId, default))
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+            if (value.ProgressId is null)
             {
-                value.ProgressId = ProgressId;
+                value = value with { ProgressId = ProgressId };
             }
 
             _router.SendNotification(value);

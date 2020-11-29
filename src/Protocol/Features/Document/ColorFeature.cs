@@ -25,22 +25,22 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(DocumentColorRegistrationOptions)), Capability(typeof(ColorProviderCapability))]
-        public partial class ColorPresentationParams : IRequest<Container<ColorPresentation>>
+        public partial record ColorPresentationParams : IRequest<Container<ColorPresentation>>
         {
             /// <summary>
             /// The document to provide document links for.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; set; } = null!;
+            public TextDocumentIdentifier TextDocument { get; init; }
 
             /// <summary>
             /// The actual color value for this color range.
             /// </summary>
-            public DocumentColor Color { get; set; } = null!;
+            public DocumentColor Color { get; init; }
 
             /// <summary>
             /// The range in the document where this color appers.
             /// </summary>
-            public Range Range { get; set; } = null!;
+            public Range Range { get; init; }
         }
 
         [Parallel]
@@ -50,14 +50,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(DocumentColorRegistrationOptions)), Capability(typeof(ColorProviderCapability))]
-        public partial class ColorPresentation
+        public partial record ColorPresentation
         {
             /// <summary>
             /// The label of this color presentation. It will be shown on the color
             /// picker header. By default this is also the text that is inserted when selecting
             /// this color presentation.
             /// </summary>
-            public string Label { get; set; } = null!;
+            public string Label { get; init; }
 
             /// <summary>
             /// An [edit](#TextEdit) which is applied to a document when selecting
@@ -65,14 +65,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// is used.
             /// </summary>
             [Optional]
-            public TextEdit? TextEdit { get; set; }
+            public TextEdit? TextEdit { get; init; }
 
             /// <summary>
             /// An optional array of additional [text edits](#TextEdit) that are applied when
             /// selecting this color presentation. Edits must not overlap with the main [edit](#ColorPresentation.textEdit) nor with themselves.
             /// </summary>
             [Optional]
-            public TextEditContainer? AdditionalTextEdits { get; set; }
+            public TextEditContainer? AdditionalTextEdits { get; init; }
         }
 
         [Parallel]
@@ -83,52 +83,52 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(DocumentColorRegistrationOptions)), Capability(typeof(ColorProviderCapability))]
-        public partial  class DocumentColorParams : IPartialItemsRequest<Container<ColorInformation>, ColorInformation>, IWorkDoneProgressParams
+        public partial record DocumentColorParams : IPartialItemsRequest<Container<ColorInformation>, ColorInformation>, IWorkDoneProgressParams
         {
             /// <summary>
             /// The text document.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; set; } = null!;
+            public TextDocumentIdentifier TextDocument { get; init; }
         }
 
-        public partial class ColorInformation
+        public partial record ColorInformation
         {
             /// <summary>
             /// The range in the document where this color appers.
             /// </summary>
-            public Range Range { get; set; } = null!;
+            public Range Range { get; init; }
 
             /// <summary>
             /// The actual color value for this color range.
             /// </summary>
-            public DocumentColor Color { get; set; } = null!;
+            public DocumentColor Color { get; init; }
         }
 
         /// <summary>
         /// Represents a color in RGBA space.
         /// </summary>
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-        public class DocumentColor
+        public record DocumentColor
         {
             /// <summary>
             /// The red component of this color in the range [0-1].
             /// </summary>
-            public double Red { get; set; }
+            public double Red { get; init; }
 
             /// <summary>
             /// The green component of this color in the range [0-1].
             /// </summary>
-            public double Green { get; set; }
+            public double Green { get; init; }
 
             /// <summary>
             /// The blue component of this color in the range [0-1].
             /// </summary>
-            public double Blue { get; set; }
+            public double Blue { get; init; }
 
             /// <summary>
             /// The alpha component of this color in the range [0-1].
             /// </summary>
-            public double Alpha { get; set; }
+            public double Alpha { get; init; }
 
             private string DebuggerDisplay => $"R:{Red} G:{Green} B:{Blue} A:{Alpha}";
 

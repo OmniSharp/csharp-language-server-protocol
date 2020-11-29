@@ -6,7 +6,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
     /// VariablePresentationHint
     /// Optional properties of a variable that can be used to determine how to render the variable in the UI.
     /// </summary>
-    public class VariablePresentationHint
+    public record VariablePresentationHint
     {
         /// <summary>
         /// The kind of variable. Before introducing additional values, try to use the listed values.
@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// etc.
         /// </summary>
         [Optional]
-        public string? Kind { get; set; }
+        public string? Kind { get; init; }
 
         /// <summary>
         /// Set of attributes represented as an array of strings. Before introducing additional values, try to use the listed values.
@@ -40,13 +40,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// etc.
         /// </summary>
         [Optional]
-        public Container<string>? Attributes { get; set; }
+        public Container<string>? Attributes { get; init; }
 
         /// <summary>
         /// Visibility of variable. Before introducing additional values, try to use the listed values.
         /// Values: 'public', 'private', 'protected', 'internal', 'final', etc.
         /// </summary>
         [Optional]
-        public string? Visibility { get; set; }
+        public string? Visibility { get; init; }
     }
 }

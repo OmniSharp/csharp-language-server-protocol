@@ -6,7 +6,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [JsonConverter(typeof(LocationOrLocationLinkConverter))]
     [GenerateContainer("LocationOrLocationLinks")]
-    public class LocationOrLocationLink
+    public record LocationOrLocationLink
     {
         public LocationOrLocationLink(Location location)
         {

@@ -19,17 +19,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Parallel]
         [Method(WindowNames.ShowMessage, Direction.ServerToClient)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Window"), GenerateHandlerMethods, GenerateRequestMethods(typeof(IWindowLanguageServer), typeof(ILanguageServer))]
-        public class ShowMessageParams : IRequest
+        public record ShowMessageParams : IRequest
         {
             /// <summary>
             /// The message type. See {@link MessageType}.
             /// </summary>
-            public MessageType Type { get; set; }
+            public MessageType Type { get; init; }
 
             /// <summary>
             /// The actual message.
             /// </summary>
-            public string Message { get; set; } = null!;
+            public string Message { get; init; }
         }
     }
 

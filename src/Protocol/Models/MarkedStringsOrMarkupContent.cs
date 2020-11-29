@@ -8,7 +8,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [JsonConverter(typeof(MarkedStringsOrMarkupContentConverter))]
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    public class MarkedStringsOrMarkupContent
+    public record MarkedStringsOrMarkupContent
     {
         public MarkedStringsOrMarkupContent(params MarkedString[] markedStrings) => MarkedStrings = markedStrings;
 

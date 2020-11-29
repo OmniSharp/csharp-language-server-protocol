@@ -26,18 +26,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(OnTypeRenameRegistrationOptions)), Capability(typeof(OnTypeRenameClientCapabilities))]
-        public partial class OnTypeRenameParams : TextDocumentPositionParams, IWorkDoneProgressParams, IRequest<OnTypeRenameRanges>
+        public partial record OnTypeRenameParams : TextDocumentPositionParams, IWorkDoneProgressParams, IRequest<OnTypeRenameRanges>
         {
         }
 
         [Obsolete(Constants.Proposal)]
-        public partial class OnTypeRenameRanges
+        public partial record OnTypeRenameRanges
         {
             /// <summary>
             /// A list of ranges that can be renamed together. The ranges must have
             /// identical length and contain identical text content. The ranges cannot overlap.
             /// </summary>
-            public Container<Range> Ranges { get; set; } = null!;
+            public Container<Range> Ranges { get; init; }
 
             /// <summary>
             /// An optional word pattern (regular expression) that describes valid contents for
@@ -45,7 +45,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// pattern will be used.
             /// </summary>
             [Optional]
-            public string? WordPattern { get; set; }
+            public string? WordPattern { get; init; }
         }
 
         [Obsolete(Constants.Proposal)]

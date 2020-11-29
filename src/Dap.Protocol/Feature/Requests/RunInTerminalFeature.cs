@@ -21,50 +21,50 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class RunInTerminalArguments : IRequest<RunInTerminalResponse>
+        public record RunInTerminalArguments : IRequest<RunInTerminalResponse>
         {
             /// <summary>
             /// What kind of terminal to launch.
             /// </summary>
             [Optional]
-            public RunInTerminalArgumentsKind? Kind { get; set; }
+            public RunInTerminalArgumentsKind? Kind { get; init; }
 
             /// <summary>
             /// Optional title of the terminal.
             /// </summary>
             [Optional]
-            public string? Title { get; set; }
+            public string? Title { get; init; }
 
             /// <summary>
             /// Working directory of the command.
             /// </summary>
-            public string Cwd { get; set; } = null!;
+            public string Cwd { get; init; }
 
             /// <summary>
             /// List of arguments.The first argument is the command to run.
             /// </summary>
-            public Container<string> Args { get; set; } = null!;
+            public Container<string> Args { get; init; }
 
             /// <summary>
             /// Environment key-value pairs that are added to or removed from the default environment.
             /// </summary>
             [Optional]
-            public IDictionary<string, string>? Env { get; set; }
+            public IDictionary<string, string>? Env { get; init; }
         }
 
-        public class RunInTerminalResponse
+        public record RunInTerminalResponse
         {
             /// <summary>
             /// The process ID.
             /// </summary>
             [Optional]
-            public long? ProcessId { get; set; }
+            public long? ProcessId { get; init; }
 
             /// <summary>
             /// The process ID of the terminal shell.
             /// </summary>
             [Optional]
-            public long? ShellProcessId { get; set; }
+            public long? ShellProcessId { get; init; }
         }
 
         [JsonConverter(typeof(StringEnumConverter))]

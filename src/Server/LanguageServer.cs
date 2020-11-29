@@ -449,8 +449,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             }
 
             var ccp = new ClientCapabilityProvider(_collection, windowCapabilities.WorkDoneProgress.IsSupported);
-            serverCapabilities.TextDocumentSync = ccp.GetStaticOptions(textDocumentCapabilities.Synchronization)
-                                                     .Reduce<ITextDocumentSyncOptions, TextDocumentSyncOptions>(TextDocumentSyncOptions.Of)!;
 
             if (_collection.ContainsHandler(typeof(IDidChangeWorkspaceFoldersHandler)))
             {
@@ -471,7 +469,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                                .Select(x => x.Handler)
                                .OfType<IDidChangeTextDocumentHandler>()
                                .Select(
-                                    x => ( (TextDocumentChangeRegistrationOptions?)x.GetRegistrationOptions(textDocumentCapabilities.Synchronization, clientCapabilities) )?.SyncKind
+                                    x => ( (TextDocumentChangeRegistrationOptions?)x.GetRegistrationOptions(textDocumentCapabilities.Synchronization!, clientCapabilities) )?.SyncKind
                                       ?? TextDocumentSyncKind.None
                                 )
                                .Where(x => x != TextDocumentSyncKind.None)

@@ -37,12 +37,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(CodeLensRegistrationOptions)), Capability(typeof(CodeLensCapability)), Resolver(typeof(CodeLens))]
-        public partial class CodeLensParams : ITextDocumentIdentifierParams, IWorkDoneProgressParams, IPartialItemsRequest<CodeLensContainer, CodeLens>
+        public partial record CodeLensParams : ITextDocumentIdentifierParams, IWorkDoneProgressParams, IPartialItemsRequest<CodeLensContainer, CodeLens>
         {
             /// <summary>
             /// The document to request code lens for.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; set; } = null!;
+            public TextDocumentIdentifier TextDocument { get; init; }
         }
 
         /// <summary>
@@ -63,25 +63,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateContainer
         ]
         [RegistrationOptions(typeof(CodeLensRegistrationOptions)), Capability(typeof(CodeLensCapability))]
-        public partial class CodeLens : IRequest<CodeLens>, ICanBeResolved
+        public partial record CodeLens : IRequest<CodeLens>, ICanBeResolved
         {
             /// <summary>
             /// The range in which this code lens is valid. Should only span a single line.
             /// </summary>
-            public Range Range { get; set; } = null!;
+            public Range Range { get; init; }
 
             /// <summary>
             /// The command this code lens represents.
             /// </summary>
             [Optional]
-            public Command? Command { get; set; }
+            public Command? Command { get; init; }
 
             /// <summary>
             /// A data entry field that is preserved on a code lens item between
             /// a code lens and a code lens resolve request.
             /// </summary>
             [Optional]
-            public JToken? Data { get; set; }
+            public JToken? Data { get; init; }
 
             private string DebuggerDisplay => $"{Range}{( Command != null ? $" {Command}" : "" )}";
 
@@ -127,7 +127,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace.Proposals"), GenerateHandlerMethods,
          GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
         [Capability(typeof(CodeLensWorkspaceClientCapabilities))]
-        public partial class CodeLensRefreshParams : IRequest
+        public partial record CodeLensRefreshParams : IRequest
         {
         }
     }

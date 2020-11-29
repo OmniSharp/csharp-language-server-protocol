@@ -2,6 +2,7 @@ using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using TestingUtils;
 using Xunit;
 
 namespace Lsp.Tests.Models
@@ -17,7 +18,7 @@ namespace Lsp.Tests.Models
             result.Should().Be("null");
 
             var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<BooleanNumberString>("null");
-            deresult.Should().BeEquivalentTo(model);
+            deresult.Should().BeEquivalentTo(model, x => x.UsingStructuralRecordEquality());
         }
 
         [Fact]
@@ -29,7 +30,7 @@ namespace Lsp.Tests.Models
             result.Should().Be("1");
 
             var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<BooleanNumberString>("1");
-            deresult.Should().BeEquivalentTo(model);
+            deresult.Should().BeEquivalentTo(model, x => x.UsingStructuralRecordEquality());
         }
 
         [Fact]
@@ -41,7 +42,7 @@ namespace Lsp.Tests.Models
             result.Should().Be("true");
 
             var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<BooleanNumberString>("true");
-            deresult.Should().BeEquivalentTo(model);
+            deresult.Should().BeEquivalentTo(model, x => x.UsingStructuralRecordEquality());
         }
 
         [Fact]
@@ -53,7 +54,7 @@ namespace Lsp.Tests.Models
             result.Should().Be("\"abc\"");
 
             var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<BooleanNumberString>("\"abc\"");
-            deresult.Should().BeEquivalentTo(model);
+            deresult.Should().BeEquivalentTo(model, x => x.UsingStructuralRecordEquality());
         }
     }
 }

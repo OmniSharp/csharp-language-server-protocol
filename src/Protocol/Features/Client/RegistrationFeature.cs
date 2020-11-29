@@ -26,9 +26,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods(typeof(IClientLanguageServer), typeof(ILanguageServer))
         ]
-        public class RegistrationParams : IJsonRpcRequest
+        public partial record RegistrationParams : IJsonRpcRequest
         {
-            public RegistrationContainer Registrations { get; set; } = null!;
+            public RegistrationContainer Registrations { get; init; }
         }
 
         [Parallel]
@@ -38,16 +38,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods(typeof(IClientLanguageServer), typeof(ILanguageServer))
         ]
-        public partial class UnregistrationParams : IJsonRpcRequest
+        public partial record UnregistrationParams : IJsonRpcRequest
         {
-            public UnregistrationContainer? Unregisterations { get; set; }
+            public UnregistrationContainer? Unregisterations { get; init; }
 
             // Placeholder for v4 support
             [JsonIgnore]
             public UnregistrationContainer? Unregistrations
             {
                 get => Unregisterations;
-                set => Unregisterations = value;
+                init => Unregisterations = value;
             }
         }
 
@@ -56,24 +56,24 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// </summary>
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
         [GenerateContainer]
-        public partial class Registration
+        public partial record Registration
         {
             /// <summary>
             /// The id used to register the request. The id can be used to deregister
             /// the request again.
             /// </summary>
-            public string Id { get; set; } = null!;
+            public string Id { get; init; }
 
             /// <summary>
             /// The method / capability to register for.
             /// </summary>
-            public string Method { get; set; } = null!;
+            public string Method { get; init; }
 
             /// <summary>
             /// Options necessary for the registration.
             /// </summary>
             [Optional]
-            public object? RegisterOptions { get; set; }
+            public object? RegisterOptions { get; init; }
 
             private string DebuggerDisplay => $"[{Id}] {( RegisterOptions is ITextDocumentRegistrationOptions td ? $"{td.DocumentSelector}" : string.Empty )} {Method}";
 
@@ -128,18 +128,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// </summary>
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
         [GenerateContainer]
-        public partial class Unregistration
+        public partial record Unregistration
         {
             /// <summary>
             /// The id used to unregister the request or notification. Usually an id
             /// provided during the register request.
             /// </summary>
-            public string Id { get; set; } = null!;
+            public string Id { get; init; }
 
             /// <summary>
             /// The method to unregister for.
             /// </summary>
-            public string Method { get; set; } = null!;
+            public string Method { get; init; }
 
             public static implicit operator Unregistration(Registration registration) =>
                 new Unregistration {

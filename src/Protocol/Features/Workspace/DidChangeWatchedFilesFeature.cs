@@ -19,12 +19,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Method(WorkspaceNames.DidChangeWatchedFiles, Direction.ClientToServer)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace"), GenerateHandlerMethods, GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
         [RegistrationOptions(typeof(DidChangeWatchedFilesRegistrationOptions)), Capability(typeof(DidChangeWatchedFilesCapability))]
-        public partial class DidChangeWatchedFilesParams : IRequest
+        public partial record DidChangeWatchedFilesParams : IRequest
         {
             /// <summary>
             /// The actual file events.
             /// </summary>
-            public Container<FileEvent> Changes { get; set; } = null!;
+            public Container<FileEvent> Changes { get; init; }
         }
 
         [GenerateRegistrationOptions]

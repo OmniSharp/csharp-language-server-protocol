@@ -11,25 +11,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     [GenerateTypedData]
-    public partial class Diagnostic : ICanHaveData
+    public partial record Diagnostic : ICanHaveData
     {
         /// <summary>
         /// The range at which the message applies.
         /// </summary>
-        public Range Range { get; set; } = null!;
+        public Range Range { get; init; }
 
         /// <summary>
         /// The diagnostic's severity. Can be omitted. If omitted it is up to the
         /// client to interpret diagnostics as error, warning, info or hint.
         /// </summary>
         [Optional]
-        public DiagnosticSeverity? Severity { get; set; }
+        public DiagnosticSeverity? Severity { get; init; }
 
         /// <summary>
         /// The diagnostic's code. Can be omitted.
         /// </summary>
         [Optional]
-        public DiagnosticCode? Code { get; set; }
+        public DiagnosticCode? Code { get; init; }
 
         /// <summary>
         /// An optional property to describe the error code.
@@ -37,19 +37,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// @since 3.16.0 - proposed state
         /// </summary>
         [Optional]
-        public CodeDescription? CodeDescription { get; set; }
+        public CodeDescription? CodeDescription { get; init; }
 
         /// <summary>
         /// A human-readable string describing the source of this
         /// diagnostic, e.g. 'typescript' or 'super lint'.
         /// </summary>
         [Optional]
-        public string? Source { get; set; }
+        public string? Source { get; init; }
 
         /// <summary>
         /// The diagnostic's message.
         /// </summary>
-        public string Message { get; set; } = null!;
+        public string Message { get; init; }
 
         /// <summary>
         /// Additional metadata about the diagnostic.
@@ -57,20 +57,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// @since 3.15.0
         /// </summary>
         [Optional]
-        public Container<DiagnosticTag>? Tags { get; set; }
+        public Container<DiagnosticTag>? Tags { get; init; }
 
         /// <summary>
         /// An array of related diagnostic information, e.g. when symbol-names within
         /// a scope collide all definitions can be marked via this property.
         /// </summary>
         [Optional]
-        public Container<DiagnosticRelatedInformation>? RelatedInformation { get; set; }
+        public Container<DiagnosticRelatedInformation>? RelatedInformation { get; init; }
 
         /// <summary>
         /// A data entry field that is preserved on a code lens item between
         /// a code lens and a code lens resolve request.
         /// </summary>
-        [Optional] public JToken? Data { get; set; }
+        [Optional]
+        public JToken? Data { get; init; }
 
         private string DebuggerDisplay =>
             $"{( Code.HasValue ? $"[{Code.Value.ToString()}]" : "" )}" +
@@ -81,7 +82,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     }
 
     [JsonConverter(typeof(DiagnosticCodeConverter))]
-    public struct DiagnosticCode
+    public readonly struct DiagnosticCode
     {
         public DiagnosticCode(long value)
         {
@@ -96,9 +97,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         }
 
         public bool IsLong => String == null;
-        public long Long { get; set; }
+        public long Long { get;  }
         public bool IsString => String != null;
-        public string? String { get; set; }
+        public string? String { get;  }
 
         public static implicit operator DiagnosticCode(long value) => new DiagnosticCode(value);
 
@@ -162,12 +163,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     ///
     /// @since 3.16.0 - proposed state
     /// </summary>
-    public class CodeDescription
+    public record CodeDescription
     {
         /// <summary>
         /// An URI to open with more information about the diagnostic error.
         /// </summary>
-        public Uri Href { get; set; } = null!;
+        public Uri Href { get; init; }
     }
 
     /// <summary>
@@ -175,16 +176,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// used to point to code locations that cause or related to a diagnostics, e.g when duplicating
     /// a symbol in a scope.
     /// </summary>
-    public class DiagnosticRelatedInformation
+    public record DiagnosticRelatedInformation
     {
         /// <summary>
         /// The location of this related diagnostic information.
         /// </summary>
-        public Location Location { get; set; } = null!;
+        public Location Location { get; init; }
 
         /// <summary>
         /// The message of this related diagnostic information.
         /// </summary>
-        public string Message { get; set; } = null!;
+        public string Message { get; init; }
     }
 }

@@ -27,38 +27,38 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Parallel]
         [Method(WindowNames.ShowMessageRequest, Direction.ServerToClient)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Window"), GenerateHandlerMethods, GenerateRequestMethods(typeof(IWindowLanguageServer), typeof(ILanguageServer))]
-        public class ShowMessageRequestParams : IRequest<MessageActionItem>
+        public record ShowMessageRequestParams : IRequest<MessageActionItem>
         {
             /// <summary>
             /// The message type. See {@link MessageType}
             /// </summary>
-            public MessageType Type { get; set; }
+            public MessageType Type { get; init; }
 
             /// <summary>
             /// The actual message
             /// </summary>
-            public string Message { get; set; } = null!;
+            public string Message { get; init; }
 
             /// <summary>
             /// The message action items to present.
             /// </summary>
             [Optional]
-            public Container<MessageActionItem>? Actions { get; set; }
+            public Container<MessageActionItem>? Actions { get; init; }
         }
 
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-        public class MessageActionItem
+        public record MessageActionItem
         {
             /// <summary>
             /// A short title like 'Retry', 'Open Log' etc.
             /// </summary>
-            public string Title { get; set; } = null!;
+            public string Title { get; init; }
 
             /// <summary>
             /// Extension data that may contain additional properties based on <see cref="ShowMessageRequestClientCapabilities"/>
             /// </summary>
             [JsonExtensionData]
-            public IDictionary<string, JToken> ExtensionData { get; set; } = new Dictionary<string, JToken>();
+            public IDictionary<string, JToken> ExtensionData { get; init; } = new Dictionary<string, JToken>();
 
             private string DebuggerDisplay => Title;
 

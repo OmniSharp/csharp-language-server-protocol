@@ -6,7 +6,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [JsonConverter(typeof(StringOrMarkupContentConverter))]
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    public class StringOrMarkupContent
+    public record StringOrMarkupContent
     {
         public StringOrMarkupContent(string value) => String = value;
 

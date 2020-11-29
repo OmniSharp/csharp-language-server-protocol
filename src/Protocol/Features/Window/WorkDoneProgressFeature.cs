@@ -23,24 +23,24 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Method(WindowNames.WorkDoneProgressCreate, Direction.ServerToClient)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Window"), GenerateHandlerMethods,
          GenerateRequestMethods(typeof(IWindowLanguageServer), typeof(ILanguageServer))]
-        public partial class WorkDoneProgressCreateParams : IRequest
+        public partial record WorkDoneProgressCreateParams : IRequest
         {
             /// <summary>
             /// The token to be used to report progress.
             /// </summary>
-            public ProgressToken? Token { get; set; }
+            public ProgressToken? Token { get; init; }
         }
 
         [Parallel]
         [Method(WindowNames.WorkDoneProgressCancel, Direction.ClientToServer)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Window"), GenerateHandlerMethods,
          GenerateRequestMethods(typeof(IWindowLanguageClient), typeof(ILanguageClient))]
-        public partial class WorkDoneProgressCancelParams : IRequest
+        public partial record WorkDoneProgressCancelParams : IRequest
         {
             /// <summary>
             /// The token to be used to report progress.
             /// </summary>
-            public ProgressToken? Token { get; set; }
+            public ProgressToken? Token { get; init; }
         }
 
 
@@ -50,7 +50,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// An optional token that a server can use to report work done progress.
             /// </summary>
             [Optional]
-            ProgressToken? WorkDoneToken { get; set; }
+            ProgressToken? WorkDoneToken { get; init; }
         }
 
         public interface IWorkDoneProgressOptions
@@ -58,7 +58,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             [Optional] bool WorkDoneProgress { get; set; }
         }
 
-        public abstract class WorkDoneProgress
+        public abstract record WorkDoneProgress
         {
             public WorkDoneProgress(WorkDoneProgressKind kind) => Kind = kind;
 
@@ -69,7 +69,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// of the operation.
             /// </summary>
             [Optional]
-            public string? Message { get; set; }
+            public string? Message { get; init; }
         }
 
         [JsonConverter(typeof(EnumLikeStringConverter))]
@@ -115,7 +115,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// To start progress reporting a `$/progress` notification with the following payload must be sent
         /// </summary>
-        public class WorkDoneProgressBegin : WorkDoneProgress
+        public record WorkDoneProgressBegin : WorkDoneProgress
         {
             public WorkDoneProgressBegin() : base(WorkDoneProgressKind.Begin)
             {
@@ -127,7 +127,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             ///
             /// Examples: "Indexing" or "Linking dependencies".
             /// </summary>
-            public string Title { get; set; } = null!;
+            public string Title { get; init; }
 
             /// <summary>
             /// Controls if a cancel button should show to allow the user to cancel the
@@ -135,7 +135,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// to ignore the setting.
             /// </summary>
             [Optional]
-            public bool Cancellable { get; set; }
+            public bool Cancellable { get; init; }
 
             /// <summary>
             /// Optional progress percentage to display (value 100 is considered 100%).
@@ -150,20 +150,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <see cref="uint"/> in the LSP spec
             /// </remarks>
             [Optional]
-            public double? Percentage { get; set; }
+            public double? Percentage { get; init; }
         }
 
         /// <summary>
         /// Signaling the end of a progress reporting is done using the following payload
         /// </summary>
-        public class WorkDoneProgressEnd : WorkDoneProgress
+        public record WorkDoneProgressEnd : WorkDoneProgress
         {
             public WorkDoneProgressEnd() : base(WorkDoneProgressKind.End)
             {
             }
         }
 
-        public class WorkDoneProgressOptions : IWorkDoneProgressOptions
+        public record WorkDoneProgressOptions : IWorkDoneProgressOptions
         {
             [Optional] public bool WorkDoneProgress { get; set; }
         }
@@ -171,7 +171,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// Reporting progress is done using the following payload
         /// </summary>
-        public class WorkDoneProgressReport : WorkDoneProgress
+        public record WorkDoneProgressReport : WorkDoneProgress
         {
             public WorkDoneProgressReport() : base(WorkDoneProgressKind.Report)
             {

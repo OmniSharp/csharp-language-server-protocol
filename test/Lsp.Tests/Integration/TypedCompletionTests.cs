@@ -1,9 +1,12 @@
 using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Lsp.Tests.Integration.Fixtures;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Testing;
@@ -15,7 +18,8 @@ using Serilog.Events;
 using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
-using HandlerIdentity = OmniSharp.Extensions.LanguageServer.Protocol.Models.HandlerIdentity;
+using IHandlerIdentity = OmniSharp.Extensions.LanguageServer.Protocol.Models.IHandlerIdentity;
+using Nested = Lsp.Tests.Integration.Fixtures.Nested;
 
 namespace Lsp.Tests.Integration
 {
@@ -39,13 +43,13 @@ namespace Lsp.Tests.Integration
                     options.OnCompletion(
                         codeLensParams => {
                             return Task.FromResult(
-                                new CompletionList<Data>(
-                                    new CompletionItem<Data> {
+                                new CompletionList<Fixtures.Data>(
+                                    new CompletionItem<Fixtures.Data> {
                                         Command = new Command {
                                             Name = "data-a",
                                             Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                         },
-                                        Data = new Data {
+                                        Data = new Fixtures.Data {
                                             Child = new Nested {
                                                 Date = DateTimeOffset.MinValue
                                             },
@@ -56,10 +60,7 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        completionItem => {
-                            completionItem.Command!.Name = "resolved-a";
-                            return Task.FromResult(completionItem);
-                        },
+                        completionItem => { return Task.FromResult(completionItem with { Command = completionItem.Command with { Name = "resolved-a" } }); },
                         (_, _) => new CompletionRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
@@ -81,10 +82,7 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        completionItem => {
-                            completionItem.Command!.Name = "resolved-b";
-                            return Task.FromResult(completionItem);
-                        },
+                        completionItem => { return Task.FromResult(completionItem with { Command = completionItem.Command with { Name = "resolved-b" } }); },
                         (_, _) => new CompletionRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
@@ -103,10 +101,7 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        completionItem => {
-                            completionItem.Command!.Name = "resolved-c";
-                            return Task.FromResult(completionItem);
-                        },
+                        completionItem => { return Task.FromResult(completionItem with { Command = completionItem.Command with { Name = "resolved-c" } }); },
                         (_, _) => new CompletionRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
@@ -125,10 +120,7 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        completionItem => {
-                            completionItem.Command!.Name = "resolved-d";
-                            return Task.FromResult(completionItem);
-                        },
+                        completionItem => { return Task.FromResult(completionItem with { Command = completionItem.Command with { Name = "resolved-d" }}); },
                         (_, _) => new CompletionRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForLanguage("vb")
                         }
@@ -158,13 +150,13 @@ namespace Lsp.Tests.Integration
                     options.OnCompletion(
                         (completionParams, capability, token) => {
                             return Task.FromResult(
-                                new CompletionList<Data>(
-                                    new CompletionItem<Data> {
+                                new CompletionList<Fixtures.Data>(
+                                    new CompletionItem<Fixtures.Data> {
                                         Command = new Command {
                                             Name = "execute-a",
                                             Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                         },
-                                        Data = new Data {
+                                        Data = new Fixtures.Data {
                                             Child = new Nested {
                                                 Date = DateTimeOffset.MinValue
                                             },
@@ -179,8 +171,12 @@ namespace Lsp.Tests.Integration
                             completionItem.Data!.Id.Should().NotBeEmpty();
                             completionItem.Data!.Child.Should().NotBeNull();
                             completionItem.Data!.Name.Should().Be("name");
-                            completionItem.Detail = "resolved";
-                            return Task.FromResult(completionItem);
+                            return Task.FromResult(completionItem with { Detail = "resolved" });
+                            return Task.FromResult(
+                                completionItem with {
+                                    Detail = "resolved"
+                                    }
+                            );
                         },
                         (_, _) => new CompletionRegistrationOptions()
                     );
@@ -200,15 +196,15 @@ namespace Lsp.Tests.Integration
         {
             var (client, _) = await Initialize(
                 options => { }, options => {
-                    options.ObserveCompletion<Data>(
+                    options.ObserveCompletion<Fixtures.Data>(
                         (completionParams, observer, capability, token) => {
-                            var a = new CompletionList<Data>(
-                                new CompletionItem<Data> {
+                            var a = new CompletionList<Fixtures.Data>(
+                                new CompletionItem<Fixtures.Data> {
                                     Command = new Command {
                                         Name = "execute-a",
                                         Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                     },
-                                    Data = new Data {
+                                    Data = new Fixtures.Data {
                                         Child = new Nested {
                                             Date = DateTimeOffset.MinValue
                                         },
@@ -225,9 +221,8 @@ namespace Lsp.Tests.Integration
                             completionItem.Data!.Id.Should().NotBeEmpty();
                             completionItem.Data!.Child.Should().NotBeNull();
                             completionItem.Data!.Name.Should().Be("name");
-                            completionItem.Detail = "resolved";
-                            return Task.FromResult(completionItem);
-                        },
+                            return Task.FromResult(completionItem with { Detail = "resolved" });
+                },
                         (_, _) => new CompletionRegistrationOptions()
                     );
                 }
@@ -247,13 +242,13 @@ namespace Lsp.Tests.Integration
                     options.OnCompletion(
                         (completionParams, token) => {
                             return Task.FromResult(
-                                new CompletionList<Data>(
-                                    new CompletionItem<Data> {
+                                new CompletionList<Fixtures.Data>(
+                                    new CompletionItem<Fixtures.Data> {
                                         Command = new Command {
                                             Name = "execute-a",
                                             Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                         },
-                                        Data = new Data {
+                                        Data = new Fixtures.Data {
                                             Child = new Nested {
                                                 Date = DateTimeOffset.MinValue
                                             },
@@ -268,8 +263,7 @@ namespace Lsp.Tests.Integration
                             completionItem.Data!.Id.Should().NotBeEmpty();
                             completionItem.Data!.Child.Should().NotBeNull();
                             completionItem.Data!.Name.Should().Be("name");
-                            completionItem.Detail = "resolved";
-                            return Task.FromResult(completionItem);
+                            return Task.FromResult(completionItem with { Detail = "resolved" });
                         },
                         (_, _) => new CompletionRegistrationOptions()
                     );
@@ -289,15 +283,15 @@ namespace Lsp.Tests.Integration
         {
             var (client, _) = await Initialize(
                 options => { }, options => {
-                    options.ObserveCompletion<Data>(
+                    options.ObserveCompletion<Fixtures.Data>(
                         (completionParams, observer, token) => {
-                            var a = new CompletionList<Data>(
-                                new CompletionItem<Data> {
+                            var a = new CompletionList<Fixtures.Data>(
+                                new CompletionItem<Fixtures.Data> {
                                     Command = new Command {
                                         Name = "execute-a",
                                         Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                     },
-                                    Data = new Data {
+                                    Data = new Fixtures.Data {
                                         Child = new Nested {
                                             Date = DateTimeOffset.MinValue
                                         },
@@ -314,8 +308,7 @@ namespace Lsp.Tests.Integration
                             completionItem.Data!.Id.Should().NotBeEmpty();
                             completionItem.Data!.Child.Should().NotBeNull();
                             completionItem.Data!.Name.Should().Be("name");
-                            completionItem.Detail = "resolved";
-                            return Task.FromResult(completionItem);
+                            return Task.FromResult(completionItem with { Detail = "resolved" });
                         },
                         (_, _) => new CompletionRegistrationOptions()
                     );
@@ -336,7 +329,7 @@ namespace Lsp.Tests.Integration
                     options.OnCompletion(
                         completionParams => {
                             return Task.FromResult(
-                                new CompletionList<Data>(
+                                new CompletionList<Fixtures.Data>(
                                     new CompletionItem<Data> {
                                         Command = new Command {
                                             Name = "execute-a",
@@ -357,8 +350,7 @@ namespace Lsp.Tests.Integration
                             completionItem.Data!.Id.Should().NotBeEmpty();
                             completionItem.Data!.Child.Should().NotBeNull();
                             completionItem.Data!.Name.Should().Be("name");
-                            completionItem.Detail = "resolved";
-                            return Task.FromResult(completionItem);
+                            return Task.FromResult(completionItem with { Detail = "resolved" });
                         },
                         (_, _) => new CompletionRegistrationOptions()
                     );
@@ -403,8 +395,7 @@ namespace Lsp.Tests.Integration
                             completionItem.Data!.Id.Should().NotBeEmpty();
                             completionItem.Data!.Child.Should().NotBeNull();
                             completionItem.Data!.Name.Should().Be("name");
-                            completionItem.Detail = "resolved";
-                            return Task.FromResult(completionItem);
+                            return Task.FromResult(completionItem with { Detail = "resolved" });
                         },
                         (_, _) => new CompletionRegistrationOptions()
                     );
@@ -436,10 +427,7 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        (completionItem, capability, token) => {
-                            completionItem.Detail = "resolved";
-                            return Task.FromResult(completionItem);
-                        },
+                        (completionItem, capability, token) => { return Task.FromResult(completionItem with { Detail = "resolved" }); },
                         (_, _) => new CompletionRegistrationOptions()
                     );
                 }
@@ -472,10 +460,7 @@ namespace Lsp.Tests.Integration
                             observer.OnNext(a);
                             observer.OnCompleted();
                         },
-                        (completionItem, capability, token) => {
-                            completionItem.Detail = "resolved";
-                            return Task.FromResult(completionItem);
-                        },
+                        (completionItem, capability, token) => { return Task.FromResult(completionItem with { Detail = "resolved" }); },
                         (_, _) => new CompletionRegistrationOptions()
                     );
                 }
@@ -505,10 +490,7 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        (completionItem, token) => {
-                            completionItem.Detail = "resolved";
-                            return Task.FromResult(completionItem);
-                        },
+                        (completionItem, token) => { return Task.FromResult(completionItem with { Detail = "resolved" }); },
                         (_, _) => new CompletionRegistrationOptions()
                     );
                 }
@@ -541,10 +523,7 @@ namespace Lsp.Tests.Integration
                             observer.OnNext(a);
                             observer.OnCompleted();
                         },
-                        (completionItem, token) => {
-                            completionItem.Detail = "resolved";
-                            return Task.FromResult(completionItem);
-                        },
+                        (completionItem, token) => { return Task.FromResult(completionItem with { Detail = "resolved" }); },
                         (_, _) => new CompletionRegistrationOptions()
                     );
                 }
@@ -574,10 +553,7 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        completionItem => {
-                            completionItem.Detail = "resolved";
-                            return Task.FromResult(completionItem);
-                        },
+                        completionItem => { return Task.FromResult(completionItem with { Detail = "resolved" }); },
                         (_, _) => new CompletionRegistrationOptions()
                     );
                 }
@@ -610,10 +586,7 @@ namespace Lsp.Tests.Integration
                             observer.OnNext(a);
                             observer.OnCompleted();
                         },
-                        completionItem => {
-                            completionItem.Detail = "resolved";
-                            return Task.FromResult(completionItem);
-                        },
+                        completionItem => { return Task.FromResult(completionItem with { Detail = "resolved" }); },
                         (_, _) => new CompletionRegistrationOptions()
                     );
                 }
@@ -623,19 +596,6 @@ namespace Lsp.Tests.Integration
 
             item = await client.ResolveCompletion(item);
             item.Detail.Should().Be("resolved");
-        }
-
-        private class Data : HandlerIdentity
-        {
-            public string Name { get; set; } = null!;
-            public Guid Id { get; set; }
-            public Nested Child { get; set; } = null!;
-        }
-
-        private class Nested : HandlerIdentity
-        {
-            // ReSharper disable once UnusedAutoPropertyAccessor.Local
-            public DateTimeOffset Date { get; set; }
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -26,19 +27,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(TextDocumentChangeRegistrationOptions)), Capability(typeof(SynchronizationCapability))]
-        public partial class DidChangeTextDocumentParams : IRequest
+        public partial record DidChangeTextDocumentParams : IRequest
         {
             /// <summary>
             /// The document that did change. The version number points
             /// to the version after all provided content changes have
             /// been applied.
             /// </summary>
-            public VersionedTextDocumentIdentifier TextDocument { get; set; } = null!;
+            public VersionedTextDocumentIdentifier TextDocument { get; init; }
 
             /// <summary>
             /// The actual content changes.
             /// </summary>
-            public Container<TextDocumentContentChangeEvent> ContentChanges { get; set; } = null!;
+            public Container<TextDocumentContentChangeEvent> ContentChanges { get; init; }
         }
 
         /// <summary>
@@ -58,13 +59,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// An event describing a change to a text document. If range and rangeLength are omitted
         /// the new text is considered to be the full content of the document.
         /// </summary>
-        public class TextDocumentContentChangeEvent
+        public record TextDocumentContentChangeEvent
         {
             /// <summary>
             /// The range of the document that changed.
             /// </summary>
             [Optional]
-            public Range? Range { get; set; }
+            public Range? Range { get; init; }
 
             /// <summary>
             /// The length of the range that got replaced.
@@ -73,25 +74,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <see cref="uint"/> in the LSP spec
             /// </remarks>
             [Optional]
-            public int RangeLength { get; set; }
+            public int RangeLength { get; init; }
 
             /// <summary>
             /// The new text of the document.
             /// </summary>
-            public string Text { get; set; } = null!;
+            public string Text { get; init; }
         }
 
-        public class TextDocumentEdit
+        public record TextDocumentEdit
         {
             /// <summary>
             /// The text document to change.
             /// </summary>
-            public VersionedTextDocumentIdentifier TextDocument { get; set; } = null!;
+            public VersionedTextDocumentIdentifier TextDocument { get; init; }
 
             /// <summary>
             /// The edits to be applied.
             /// </summary>
-            public TextEditContainer Edits { get; set; } = null!;
+            public TextEditContainer Edits { get; init; }
         }
 
         [Serial]
@@ -172,36 +173,81 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public bool IncludeText { get; set; }
         }
 
-        [GenerateRegistrationOptions]
+        [GenerateRegistrationOptions(nameof(ServerCapabilities.TextDocumentSync))]
+        [RegistrationOptionsConverter(typeof(Converter))]
         public partial class TextDocumentSyncRegistrationOptions : ITextDocumentRegistrationOptions
         {
             public TextDocumentSyncRegistrationOptions()
             {
-                SyncKind = TextDocumentSyncKind.Full;
+                Change = TextDocumentSyncKind.Full;
             }
 
             public TextDocumentSyncRegistrationOptions(TextDocumentSyncKind syncKind)
             {
-                SyncKind = syncKind;
+                Change = syncKind;
             }
 
             /// <summary>
-            /// The client is supposed to include the content on save.
+            /// Save notifications are sent to the server.
             /// </summary>
             [Optional]
-            public bool IncludeText { get; set; }
+            public SaveOptions? Save { get; set; } = new();
 
             /// <summary>
             /// How documents are synced to the server. See TextDocumentSyncKind.Full
             /// and TextDocumentSyncKindIncremental.
             /// </summary>
-            public TextDocumentSyncKind SyncKind { get; init; }
+            public TextDocumentSyncKind Change { get; set; }
+
+            class Converter : RegistrationOptionsConverterBase<TextDocumentSyncRegistrationOptions, StaticOptions>
+            {
+                private readonly IHandlersManager _handlersManager;
+
+                public Converter(IHandlersManager handlersManager) : base(nameof(ServerCapabilities.TextDocumentSync))
+                {
+                    _handlersManager = handlersManager;
+                }
+
+                public override StaticOptions Convert(TextDocumentSyncRegistrationOptions source)
+                {
+                    return new() {
+                        OpenClose = _handlersManager.Descriptors.Any(
+                            z => z.HandlerType == typeof(IDidOpenTextDocumentHandler) || z.HandlerType == typeof(IDidCloseTextDocumentHandler)
+                        ),
+                        Change = source.Change,
+                        WillSave = _handlersManager.Descriptors.Any(z => z.HandlerType == typeof(IWillSaveTextDocumentHandler)),
+                        WillSaveWaitUntil = _handlersManager.Descriptors.Any(z => z.HandlerType == typeof(IWillSaveWaitUntilTextDocumentHandler)),
+                        Save = new SaveOptions { IncludeText = source.Save?.IncludeText == true }
+                    };
+                }
+            }
+
+            public partial class StaticOptions : ITextDocumentSyncOptions
+            {
+                /// <summary>
+                /// Open and close notifications are sent to the server.
+                /// </summary>
+                [Optional]
+                public bool OpenClose { get; set; }
+
+                /// <summary>
+                /// Will save notifications are sent to the server.
+                /// </summary>
+                [Optional]
+                public bool WillSave { get; set; }
+
+                /// <summary>
+                /// Will save wait until requests are sent to the server.
+                /// </summary>
+                [Optional]
+                public bool WillSaveWaitUntil { get; set; }
+            }
 
             public static implicit operator TextDocumentSaveRegistrationOptions(TextDocumentSyncRegistrationOptions options)
             {
                 return new() {
                     DocumentSelector = options.DocumentSelector,
-                    IncludeText = options.IncludeText
+                    IncludeText = options.Save?.IncludeText == true
                 };
             }
 
@@ -209,7 +255,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
                 return new() {
                     DocumentSelector = options.DocumentSelector,
-                    SyncKind = options.SyncKind,
+                    SyncKind = options.Change,
                 };
             }
 
@@ -329,7 +375,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         public abstract class TextDocumentSyncHandlerBase : ITextDocumentSyncHandler
         {
-
             public TextDocumentSyncHandlerBase()
             {
             }
@@ -351,8 +396,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             protected SynchronizationCapability Capability { get; private set; } = default!;
 
             protected abstract TextDocumentSyncRegistrationOptions CreateRegistrationOptions(SynchronizationCapability capability, ClientCapabilities clientCapabilities);
+
             private TextDocumentSyncRegistrationOptions AssignRegistrationOptions(SynchronizationCapability capability, ClientCapabilities clientCapabilities)
-                {
+            {
                 Capability = capability;
                 return CreateRegistrationOptions(capability, clientCapabilities);
             }
@@ -745,7 +791,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     return Unit.Value;
                 }
 
-                protected override TextDocumentSyncRegistrationOptions CreateRegistrationOptions(SynchronizationCapability capability, ClientCapabilities clientCapabilities) => _registrationOptionsFactory(capability, clientCapabilities);
+                protected override TextDocumentSyncRegistrationOptions CreateRegistrationOptions(SynchronizationCapability capability, ClientCapabilities clientCapabilities) =>
+                    _registrationOptionsFactory(capability, clientCapabilities);
 
                 public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri) => _getTextDocumentAttributes.Invoke(uri);
             }

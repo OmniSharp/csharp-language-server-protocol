@@ -27,20 +27,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(DocumentSymbolRegistrationOptions)), Capability(typeof(DocumentSymbolCapability))]
-        public partial class DocumentSymbolParams : ITextDocumentIdentifierParams,
+        public partial record DocumentSymbolParams : ITextDocumentIdentifierParams,
                                                     IPartialItemsRequest<SymbolInformationOrDocumentSymbolContainer, SymbolInformationOrDocumentSymbol>,
                                                     IWorkDoneProgressParams
         {
             /// <summary>
             /// The text document.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; set; } = null!;
+            public TextDocumentIdentifier TextDocument { get; init; }
         }
 
         [JsonConverter(typeof(SymbolInformationOrDocumentSymbolConverter))]
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
         [GenerateContainer]
-        public class SymbolInformationOrDocumentSymbol
+        public record SymbolInformationOrDocumentSymbol
         {
             public SymbolInformationOrDocumentSymbol(DocumentSymbol documentSymbol)
             {
@@ -80,24 +80,24 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// e.g. the range of an identifier.
         /// </summary>
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-        public class DocumentSymbol
+        public record DocumentSymbol
         {
             /// <summary>
             /// The name of this symbol.
             /// </summary>
-            public string Name { get; set; } = null!;
+            public string Name { get; init; }
 
             /// <summary>
             /// More detail for this symbol, e.g the signature of a function. If not provided the
             /// name is used.
             /// </summary>
             [Optional]
-            public string? Detail { get; set; }
+            public string? Detail { get; init; }
 
             /// <summary>
             /// The kind of this symbol.
             /// </summary>
-            public SymbolKind Kind { get; set; }
+            public SymbolKind Kind { get; init; }
 
             /// <summary>
             /// Tags for this document symbol.
@@ -106,32 +106,32 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             [Obsolete(Constants.Proposal)]
             [Optional]
-            public Container<SymbolTag>? Tags { get; set; }
+            public Container<SymbolTag>? Tags { get; init; }
 
             /// <summary>
             /// Indicates if this symbol is deprecated.
             /// </summary>
             [Optional]
-            public bool Deprecated { get; set; }
+            public bool Deprecated { get; init; }
 
             /// <summary>
             /// The range enclosing this symbol not including leading/trailing whitespace but everything else
             /// like comments. This information is typically used to determine if the the clients cursor is
             /// inside the symbol to reveal in the symbol in the UI.
             /// </summary>
-            public Range Range { get; set; } = null!;
+            public Range Range { get; init; }
 
             /// <summary>
             /// The range that should be selected and revealed when this symbol is being picked, e.g the name of a function.
             /// Must be contained by the the `range`.
             /// </summary>
-            public Range SelectionRange { get; set; } = null!;
+            public Range SelectionRange { get; init; }
 
             /// <summary>
             /// Children of this symbol, e.g. properties of a class.
             /// </summary>
             [Optional]
-            public Container<DocumentSymbol>? Children { get; set; }
+            public Container<DocumentSymbol>? Children { get; init; }
 
             private string DebuggerDisplay => $"[{Kind}] {Name} {{ range: {Range}, selection: {SelectionRange}, detail: {Detail ?? string.Empty} }}";
 
