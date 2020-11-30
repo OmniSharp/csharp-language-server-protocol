@@ -12,17 +12,17 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
     /// To avoid an unnecessary proliferation of additional attributes with similar semantics but different names
     /// we recommend to re-use attributes from the ‘recommended’ list below first, and only introduce new attributes if nothing appropriate could be found.
     /// </summary>
-    public class Module
+    public record Module
     {
         /// <summary>
         /// Unique identifier for the module.
         /// </summary>
-        public NumberString Id { get; set; }
+        public NumberString Id { get; init; }
 
         /// <summary>
         /// A name of the module.
         /// </summary>
-        public string Name { get; set; } = null!;
+        public string Name { get; init; }
 
         /// <summary>
         /// optional but recommended attributes.
@@ -31,54 +31,54 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// Logical full path to the module. The exact definition is implementation defined, but usually this would be a full path to the on-disk file for the module.
         /// </summary>
         [Optional]
-        public string? Path { get; set; }
+        public string? Path { get; init; }
 
         /// <summary>
         /// True if the module is optimized.
         /// </summary>
         [Optional]
-        public bool IsOptimized { get; set; }
+        public bool IsOptimized { get; init; }
 
         /// <summary>
         /// True if the module is considered 'user code' by a debugger that supports 'Just My Code'.
         /// </summary>
         [Optional]
-        public bool IsUserCode { get; set; }
+        public bool IsUserCode { get; init; }
 
         /// <summary>
         /// Version of Module.
         /// </summary>
         [Optional]
-        public string? Version { get; set; }
+        public string? Version { get; init; }
 
         /// <summary>
         /// User understandable description of if symbols were found for the module (ex: 'Symbols Loaded', 'Symbols not found', etc.
         /// </summary>
         [Optional]
-        public string? SymbolStatus { get; set; }
+        public string? SymbolStatus { get; init; }
 
         /// <summary>
         /// Logical full path to the symbol file. The exact definition is implementation defined.
         /// </summary>
         [Optional]
-        public string? SymbolFilePath { get; set; }
+        public string? SymbolFilePath { get; init; }
 
         /// <summary>
         /// Module created or modified.
         /// </summary>
         [Optional]
-        public string? DateTimeStamp { get; set; }
+        public string? DateTimeStamp { get; init; }
 
         /// <summary>
         /// Address range covered by this module.
         /// </summary>
         [Optional]
-        public string? AddressRange { get; set; }
+        public string? AddressRange { get; init; }
 
         /// <summary>
         /// Allows additional data to be displayed
         /// </summary>
         [JsonExtensionData]
-        public Dictionary<string, object> ExtensionData { get; set; } = new Dictionary<string, object>();
+        public Dictionary<string, object> ExtensionData { get; init; } = new Dictionary<string, object>();
     }
 }

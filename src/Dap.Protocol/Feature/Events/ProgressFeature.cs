@@ -12,18 +12,18 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
 {
     namespace Events
     {
-        public abstract class ProgressEvent
+        public abstract record ProgressEvent
         {
             /// <summary>
             /// The ID that was introduced in the initial 'progressStart' event.
             /// </summary>
-            public ProgressToken ProgressId { get; set; }
+            public ProgressToken ProgressId { get; init; }
 
             /// <summary>
             /// Optional, more detailed progress message. If omitted, the previous message (if any) is used.
             /// </summary>
             [Optional]
-            public string? Message { get; set; }
+            public string? Message { get; init; }
         }
 
         [Parallel]
@@ -33,12 +33,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class ProgressStartEvent : ProgressEvent, IRequest
+        public record ProgressStartEvent : ProgressEvent, IRequest
         {
             /// <summary>
             /// Mandatory (short) title of the progress reporting. Shown in the UI to describe the long running operation.
             /// </summary>
-            public string Title { get; set; } = null!;
+            public string Title { get; init; }
 
             /// <summary>
             /// The request ID that this progress report is related to. If specified a debug adapter is expected to emit
@@ -46,7 +46,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// If the request ID is omitted, the progress report is assumed to be related to some general activity of the debug adapter.
             /// </summary>
             [Optional]
-            public int? RequestId { get; set; }
+            public int? RequestId { get; init; }
 
             /// <summary>
             /// If true, the request that reports progress may be canceled with a 'cancel' request.
@@ -54,13 +54,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// Clients that don't support cancellation are allowed to ignore the setting.
             /// </summary>
             [Optional]
-            public bool Cancellable { get; set; }
+            public bool Cancellable { get; init; }
 
             /// <summary>
             /// Optional progress percentage to display (value range: 0 to 100). If omitted no percentage will be shown.
             /// </summary>
             [Optional]
-            public int? Percentage { get; set; }
+            public int? Percentage { get; init; }
         }
 
         [Parallel]
@@ -70,13 +70,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class ProgressUpdateEvent : ProgressEvent, IRequest
+        public record ProgressUpdateEvent : ProgressEvent, IRequest
         {
             /// <summary>
             /// Optional progress percentage to display (value range: 0 to 100). If omitted no percentage will be shown.
             /// </summary>
             [Optional]
-            public double? Percentage { get; set; }
+            public double? Percentage { get; init; }
         }
 
         [Parallel]
@@ -86,7 +86,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class ProgressEndEvent : ProgressEvent, IRequest
+        public record ProgressEndEvent : ProgressEvent, IRequest
         {
         }
     }

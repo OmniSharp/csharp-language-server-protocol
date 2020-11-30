@@ -579,8 +579,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             }
         }
 
-        private static ClassDeclarationSyntax GenerateTypedPartialHandler(
-            ClassDeclarationSyntax classDeclarationSyntax,
+        private static TypeDeclarationSyntax GenerateTypedPartialHandler(
+            TypeDeclarationSyntax classDeclarationSyntax,
             RequestItem item,
             RequestItem resolver,
             SyntaxSymbol partialItems
@@ -881,8 +881,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                    );
         }
 
-        private static ClassDeclarationSyntax GenerateTypedHandler(
-            ClassDeclarationSyntax classDeclarationSyntax,
+        private static TypeDeclarationSyntax GenerateTypedHandler(
+            TypeDeclarationSyntax classDeclarationSyntax,
             RequestItem item,
             RequestItem resolver
         )

@@ -3,11 +3,11 @@ using Newtonsoft.Json;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public abstract class HandlerIdentity
+    public interface IHandlerIdentity
     {
         [JsonProperty(Constants.PrivateHandlerId, DefaultValueHandling = DefaultValueHandling.Ignore)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once InconsistentNaming
-        public string __identity { get; set; } = null!;
+        string __identity { get; init; }
     }
 }

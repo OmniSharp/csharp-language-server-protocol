@@ -21,7 +21,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
     [Generator]
     public class GenerateHandlerMethodsGenerator : CachedSourceGenerator<GenerateHandlerMethodsGenerator.SyntaxReceiver, TypeDeclarationSyntax>
     {
-        protected override void Execute(GeneratorExecutionContext context, SyntaxReceiver syntaxReceiver, AddCacheSource<TypeDeclarationSyntax> addCacheSource, ReportCacheDiagnostic<TypeDeclarationSyntax> cacheDiagnostic)
+        protected override void Execute(
+            GeneratorExecutionContext context, SyntaxReceiver syntaxReceiver, AddCacheSource<TypeDeclarationSyntax> addCacheSource,
+            ReportCacheDiagnostic<TypeDeclarationSyntax> cacheDiagnostic
+        )
         {
             foreach (var candidateClass in syntaxReceiver.Candidates)
             {
@@ -142,8 +145,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             return compilationUnitStrategies;
         }
 
-        public GenerateHandlerMethodsGenerator() : base(() => new SyntaxReceiver(Cache)) { }
-        public static CacheContainer<TypeDeclarationSyntax> Cache = new ();
+        public GenerateHandlerMethodsGenerator() : base(() => new SyntaxReceiver(Cache))
+        {
+        }
+
+        public static CacheContainer<TypeDeclarationSyntax> Cache = new();
+
         public class SyntaxReceiver : SyntaxReceiverCache<TypeDeclarationSyntax>
         {
             private string _attributes;
@@ -158,6 +165,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             {
                 var hasher = new CacheKeyHasher();
                 hasher.Append(syntax.SyntaxTree.FilePath);
+                hasher.Append(syntax.Keyword.Text);
                 hasher.Append(syntax.Identifier.Text);
                 hasher.Append(syntax.TypeParameterList);
                 hasher.Append(syntax.AttributeLists);
@@ -171,7 +179,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             public override void OnVisitNode(TypeDeclarationSyntax syntaxNode)
             {
                 // any field with at least one attribute is a candidate for property generation
-                if (syntaxNode is ( ClassDeclarationSyntax { } or InterfaceDeclarationSyntax { }) && syntaxNode.AttributeLists.ContainsAttribute(_attributes))
+                if (syntaxNode is ClassDeclarationSyntax or RecordDeclarationSyntax or InterfaceDeclarationSyntax && syntaxNode.AttributeLists.ContainsAttribute(_attributes))
                 {
                     Candidates.Add(syntaxNode);
                 }

@@ -37,12 +37,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(DocumentLinkRegistrationOptions)), Capability(typeof(DocumentLinkCapability)), Resolver(typeof(DocumentLink))]
-        public partial class DocumentLinkParams : ITextDocumentIdentifierParams, IPartialItemsRequest<DocumentLinkContainer, DocumentLink>, IWorkDoneProgressParams
+        public partial record DocumentLinkParams : ITextDocumentIdentifierParams, IPartialItemsRequest<DocumentLinkContainer, DocumentLink>, IWorkDoneProgressParams
         {
             /// <summary>
             /// The document to provide document links for.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; set; } = null!;
+            public TextDocumentIdentifier TextDocument { get; init; }
         }
 
         /// <summary>
@@ -60,25 +60,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateContainer
         ]
         [RegistrationOptions(typeof(DocumentLinkRegistrationOptions)), Capability(typeof(DocumentLinkCapability))]
-        public partial class DocumentLink : ICanBeResolved, IRequest<DocumentLink>
+        public partial record DocumentLink : ICanBeResolved, IRequest<DocumentLink>
         {
             /// <summary>
             /// The range this link applies to.
             /// </summary>
-            public Range Range { get; set; } = null!;
+            public Range Range { get; init; }
 
             /// <summary>
             /// The uri this link points to. If missing a resolve request is sent later.
             /// </summary>
             [Optional]
-            public DocumentUri? Target { get; set; }
+            public DocumentUri? Target { get; init; }
 
             /// <summary>
             /// A data entry field that is preserved on a document link between a
             /// DocumentLinkRequest and a DocumentLinkResolveRequest.
             /// </summary>
             [Optional]
-            public JToken? Data { get; set; }
+            public JToken? Data { get; init; }
 
             /// <summary>
             /// The tooltip text when you hover over this link.
@@ -90,7 +90,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// @since 3.15.0
             /// </summary>
             [Optional]
-            public string? Tooltip { get; set; }
+            public string? Tooltip { get; init; }
 
             private string DebuggerDisplay => $"{Range}{( Target is not null ? $" {Target}" : "" )}{( string.IsNullOrWhiteSpace(Tooltip) ? $" {Tooltip}" : "" )}";
 

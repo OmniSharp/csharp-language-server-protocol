@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
@@ -98,13 +99,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
 
         private static void DoObserveWorkDone(ILanguageProtocolProxy proxy, IWorkDoneProgressParams @params, IObserver<WorkDoneProgress> observer)
         {
-            var token = @params.WorkDoneToken ??= new ProgressToken(Guid.NewGuid().ToString());
+            var token = SetWorkDoneToken(@params);
             proxy.GetRequiredService<IClientWorkDoneManager>().Monitor(token).Subscribe(observer);
         }
 
         private static void DoObserveWorkDone(ILanguageProtocolProxy proxy, IWorkDoneProgressParams @params, IWorkDoneProgressObserver observer)
         {
-            var token = @params.WorkDoneToken ??= new ProgressToken(Guid.NewGuid().ToString());
+            var token = SetWorkDoneToken(@params);
             var observable = proxy.GetRequiredService<IClientWorkDoneManager>().Monitor(token);
             observable.Subscribe(
                 v => {
@@ -124,6 +125,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
                 observer.OnError,
                 observer.OnCompleted
             );
+        }
+
+        private static readonly PropertyInfo WorkDoneTokenProperty = typeof(IWorkDoneProgressParams).GetProperty(nameof(IWorkDoneProgressParams.WorkDoneToken))!;
+
+        private static ProgressToken SetWorkDoneToken(IWorkDoneProgressParams @params)
+        {
+            if (@params.WorkDoneToken is not null) return @params.WorkDoneToken;
+            WorkDoneTokenProperty.SetValue(@params, new ProgressToken(Guid.NewGuid().ToString()));
+            return @params.WorkDoneToken!;
         }
     }
 }

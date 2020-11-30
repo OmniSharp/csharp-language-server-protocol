@@ -19,7 +19,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class TerminatedEvent : IRequest
+        public record TerminatedEvent : IRequest
         {
             /// <summary>
             /// A debug adapter may set 'restart' to true (or to an arbitrary object) to request that the front end restarts the session.
@@ -27,7 +27,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// </summary>
             [Optional]
             [JsonProperty(PropertyName = "__restart")]
-            public JToken? Restart { get; set; }
+            public JToken? Restart { get; init; }
         }
     }
 }

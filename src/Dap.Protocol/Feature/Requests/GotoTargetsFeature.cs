@@ -18,31 +18,31 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class GotoTargetsArguments : IRequest<GotoTargetsResponse>
+        public record GotoTargetsArguments : IRequest<GotoTargetsResponse>
         {
             /// <summary>
             /// The source location for which the goto targets are determined.
             /// </summary>
-            public Source Source { get; set; } = null!;
+            public Source Source { get; init; }
 
             /// <summary>
             /// The line location for which the goto targets are determined.
             /// </summary>
-            public long Line { get; set; }
+            public long Line { get; init; }
 
             /// <summary>
             /// An optional column location for which the goto targets are determined.
             /// </summary>
             [Optional]
-            public long? Column { get; set; }
+            public long? Column { get; init; }
         }
 
-        public class GotoTargetsResponse
+        public record GotoTargetsResponse
         {
             /// <summary>
             /// The possible goto targets of the specified location.
             /// </summary>
-            public Container<GotoTarget> Targets { get; set; } = null!;
+            public Container<GotoTarget> Targets { get; init; }
         }
     }
 
@@ -52,46 +52,46 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         /// A GotoTarget describes a code location that can be used as a target in the ‘goto’ request.
         /// The possible goto targets can be determined via the ‘gotoTargets’ request.
         /// </summary>
-        public class GotoTarget
+        public record GotoTarget
         {
             /// <summary>
             /// Unique identifier for a goto target. This is used in the goto request.
             /// </summary>
-            public long Id { get; set; }
+            public long Id { get; init; }
 
             /// <summary>
             /// The name of the goto target (shown in the UI).
             /// </summary>
-            public string Label { get; set; } = null!;
+            public string Label { get; init; }
 
             /// <summary>
             /// The line of the goto target.
             /// </summary>
-            public int Line { get; set; }
+            public int Line { get; init; }
 
             /// <summary>
             /// An optional column of the goto target.
             /// </summary>
             [Optional]
-            public int? Column { get; set; }
+            public int? Column { get; init; }
 
             /// <summary>
             /// An optional end line of the range covered by the goto target.
             /// </summary>
             [Optional]
-            public int? EndLine { get; set; }
+            public int? EndLine { get; init; }
 
             /// <summary>
             /// An optional end column of the range covered by the goto target.
             /// </summary>
             [Optional]
-            public int? EndColumn { get; set; }
+            public int? EndColumn { get; init; }
 
             /// <summary>
             /// Optional memory reference for the instruction pointer value represented by this target.
             /// </summary>
             [Optional]
-            public string? InstructionPointerReference { get; set; }
+            public string? InstructionPointerReference { get; init; }
         }
     }
 }

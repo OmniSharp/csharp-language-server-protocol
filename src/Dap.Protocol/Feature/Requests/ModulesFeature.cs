@@ -18,33 +18,33 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class ModulesArguments : IRequest<ModulesResponse>
+        public record ModulesArguments : IRequest<ModulesResponse>
         {
             /// <summary>
             /// The index of the first module to return; if omitted modules start at 0.
             /// </summary>
             [Optional]
-            public long? StartModule { get; set; }
+            public long? StartModule { get; init; }
 
             /// <summary>
             /// The number of modules to return. If moduleCount is not specified or 0, all modules are returned.
             /// </summary>
             [Optional]
-            public long? ModuleCount { get; set; }
+            public long? ModuleCount { get; init; }
         }
 
-        public class ModulesResponse
+        public record ModulesResponse
         {
             /// <summary>
             /// All modules or range of modules.
             /// </summary>
-            public Container<Module> Modules { get; set; } = null!;
+            public Container<Module> Modules { get; init; }
 
             /// <summary>
             /// The total number of modules available.
             /// </summary>
             [Optional]
-            public long? TotalModules { get; set; }
+            public long? TotalModules { get; init; }
         }
     }
 

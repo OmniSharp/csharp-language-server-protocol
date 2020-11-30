@@ -24,7 +24,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             "System.Linq",
         };
 
-        protected override void Execute(GeneratorExecutionContext context, SyntaxReceiver syntaxReceiver, AddCacheSource<TypeDeclarationSyntax> addCacheSource, ReportCacheDiagnostic<TypeDeclarationSyntax> cacheDiagnostic)
+        protected override void Execute(
+            GeneratorExecutionContext context, SyntaxReceiver syntaxReceiver, AddCacheSource<TypeDeclarationSyntax> addCacheSource,
+            ReportCacheDiagnostic<TypeDeclarationSyntax> cacheDiagnostic
+        )
         {
             var generateTypedDataAttributeSymbol = context.Compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateTypedDataAttribute");
             var generateContainerAttributeSymbol = context.Compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateContainerAttribute");
@@ -79,18 +82,22 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             foreach (var canBeResolved in syntaxReceiver.CanBeResolved)
             {
                 var dataInterfaceName = IdentifierName("ICanBeResolved");
-                CreateTypedClass(context, canBeResolved, dataInterfaceName, generateTypedDataAttributeSymbol, generateContainerAttributeSymbol, true, addCacheSource, cacheDiagnostic);
+                CreateTypedClass(
+                    context, canBeResolved, dataInterfaceName, generateTypedDataAttributeSymbol, generateContainerAttributeSymbol, true, addCacheSource, cacheDiagnostic
+                );
             }
 
             foreach (var canBeResolved in syntaxReceiver.CanHaveData)
             {
                 var dataInterfaceName = IdentifierName("ICanHaveData");
-                CreateTypedClass(context, canBeResolved, dataInterfaceName, generateTypedDataAttributeSymbol, generateContainerAttributeSymbol, false, addCacheSource, cacheDiagnostic);
+                CreateTypedClass(
+                    context, canBeResolved, dataInterfaceName, generateTypedDataAttributeSymbol, generateContainerAttributeSymbol, false, addCacheSource, cacheDiagnostic
+                );
             }
 
             static void CreateTypedClass(
                 GeneratorExecutionContext context,
-                ClassDeclarationSyntax candidate,
+                TypeDeclarationSyntax candidate,
                 IdentifierNameSyntax dataInterfaceName,
                 INamedTypeSymbol? generateTypedDataAttributeSymbol,
                 INamedTypeSymbol? generateContainerAttributeSymbol,
@@ -125,12 +132,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 };
 
 
-                var convertFromOperator = GetConvertFromOperator(candidate, dataInterfaceName);
-                var convertToOperator = GetConvertToOperator(candidate, dataInterfaceName);
+                var convertFromOperator = GetConvertFromOperator(candidate);
+                var convertToOperator = GetConvertToOperator(candidate);
                 // remove the data property
                 var typedClass = candidate
                                 .WithHandlerIdentityConstraint(includeHandlerIdentity)
-                                .WithMembers(candidate.Members.Replace(property, GetPropertyImpl(property, dataInterfaceName).WithType(IdentifierName("T"))))
+                                .WithMembers(candidate.Members.Replace(property, GetPropertyImpl(property).WithType(IdentifierName("T"))))
                                 .AddMembers(
                                      GetWithDataMethod(candidate, HandlerIdentityConstraintClause(includeHandlerIdentity, IdentifierName("TData"))),
                                      GetExplicitProperty(property, dataInterfaceName),
@@ -243,14 +250,14 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 }
 
                 cacheItem(
-                    $"{candidate.Identifier.Text}Typed.cs",
+                    $"{Path.GetFileNameWithoutExtension(candidate.SyntaxTree.FilePath)}_{candidate.Identifier.Text}Typed.cs",
                     candidate,
                     cu.NormalizeWhitespace().GetText(Encoding.UTF8)
                 );
             }
         }
 
-        private static MethodDeclarationSyntax GetWithDataMethod(ClassDeclarationSyntax syntax, SyntaxList<TypeParameterConstraintClauseSyntax> constraintSyntax)
+        private static MethodDeclarationSyntax GetWithDataMethod(TypeDeclarationSyntax syntax, SyntaxList<TypeParameterConstraintClauseSyntax> constraintSyntax)
         {
             return MethodDeclaration(
                        GenericName(Identifier(syntax.Identifier.Text))
@@ -291,7 +298,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                    );
         }
 
-        private static MethodDeclarationSyntax GetGenericFromMethod(ClassDeclarationSyntax syntax)
+        private static MethodDeclarationSyntax GetGenericFromMethod(TypeDeclarationSyntax syntax)
         {
             return MethodDeclaration(
                        GenericName(Identifier(syntax.Identifier.Text))
@@ -310,7 +317,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                   .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
         }
 
-        private static MethodDeclarationSyntax GetFromMethod(ClassDeclarationSyntax syntax, bool includeHandlerIdentity)
+        private static MethodDeclarationSyntax GetFromMethod(TypeDeclarationSyntax syntax, bool includeHandlerIdentity)
         {
             return MethodDeclaration(IdentifierName(syntax.Identifier.Text), Identifier("From"))
                   .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword)))
@@ -331,7 +338,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                   .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
         }
 
-        private static IEnumerable<ExpressionSyntax> GetMapping(ClassDeclarationSyntax syntax, IdentifierNameSyntax? paramName)
+        private static IEnumerable<ExpressionSyntax> GetMapping(TypeDeclarationSyntax syntax, IdentifierNameSyntax? paramName)
         {
             return syntax.Members.OfType<PropertyDeclarationSyntax>()
                          .Where(z => z.AccessorList?.Accessors.Any(a => a.Keyword.Kind() == SyntaxKind.SetKeyword || a.Keyword.Kind() == SyntaxKind.InitKeyword) == true)
@@ -351,7 +358,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                           );
         }
 
-        private static ConversionOperatorDeclarationSyntax GetConvertToOperator(ClassDeclarationSyntax syntax, IdentifierNameSyntax dataInterfaceName)
+        private static ConversionOperatorDeclarationSyntax GetConvertToOperator(TypeDeclarationSyntax syntax)
         {
             var name = IdentifierName(syntax.Identifier.Text);
             var identifier = Identifier(syntax.Identifier.Text);
@@ -386,8 +393,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                            IdentifierName("Data"),
                                                            MemberAccessExpression(
                                                                SyntaxKind.SimpleMemberAccessExpression,
-                                                               ParenthesizedExpression(CastExpression(dataInterfaceName, paramName)),
-                                                               IdentifierName("Data")
+                                                               paramName,
+                                                               IdentifierName("JData")
                                                            )
                                                        )
                                                    }
@@ -401,7 +408,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                   .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
         }
 
-        private static ConversionOperatorDeclarationSyntax GetConvertFromOperator(ClassDeclarationSyntax syntax, IdentifierNameSyntax dataInterfaceName)
+        private static ConversionOperatorDeclarationSyntax GetConvertFromOperator(TypeDeclarationSyntax syntax)
         {
             var name = IdentifierName(syntax.Identifier.Text);
             var identifier = Identifier(syntax.Identifier.Text);
@@ -441,7 +448,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                            IdentifierName("JData"),
                                                            MemberAccessExpression(
                                                                SyntaxKind.SimpleMemberAccessExpression,
-                                                               ParenthesizedExpression(CastExpression(dataInterfaceName, paramName)),
+                                                               paramName,
                                                                IdentifierName("Data")
                                                            )
                                                        )
@@ -461,18 +468,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                   .WithExplicitInterfaceSpecifier(ExplicitInterfaceSpecifier(dataInterfaceName))
                   .WithModifiers(TokenList())
                   .WithAttributeLists(List(SeparatedList<AttributeListSyntax>()))
-                  .WithAccessorList(
-                       AccessorList(
-                           List(
-                               new[] {
-                                   AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-                                      .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
-                                   AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
-                                      .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
-                               }
-                           )
-                       )
-                   );
+                  .WithAccessorList(CommonElements.GetInitAccessor);
         }
 
         private static PropertyDeclarationSyntax GetJDataProperty(IdentifierNameSyntax interfaceName)
@@ -486,54 +482,26 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                    AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
                                       .WithExpressionBody(
                                            ArrowExpressionClause(
-                                               MemberAccessExpression(
-                                                   SyntaxKind.SimpleMemberAccessExpression,
-                                                   ParenthesizedExpression(
-                                                       CastExpression(
-                                                           interfaceName,
-                                                           ThisExpression()
-                                                       )
-                                                   ),
-                                                   IdentifierName("Data")
-                                               )
+                                               InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, ThisExpression(), IdentifierName("GetRawData")))
                                            )
                                        )
                                       .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
-                                   AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+                                   AccessorDeclaration(SyntaxKind.InitAccessorDeclaration)
                                       .WithExpressionBody(
                                            ArrowExpressionClause(
-                                               AssignmentExpression(
-                                                   SyntaxKind.SimpleAssignmentExpression,
-                                                   MemberAccessExpression(
-                                                       SyntaxKind.SimpleMemberAccessExpression,
-                                                       ParenthesizedExpression(
-                                                           CastExpression(
-                                                               interfaceName,
-                                                               ThisExpression()
-                                                           )
-                                                       ),
-                                                       IdentifierName("Data")
-                                                   ),
-                                                   IdentifierName("value")
-                                               )
+                                               InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, ThisExpression(), IdentifierName("SetRawData")))
+                                                  .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("value")))))
                                            )
                                        )
-                                      .WithSemicolonToken(
-                                           Token(SyntaxKind.SemicolonToken)
-                                       )
+                                      .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
                                }
                            )
                        )
                    );
         }
 
-        static PropertyDeclarationSyntax GetPropertyImpl(PropertyDeclarationSyntax syntax, IdentifierNameSyntax dataInterfaceName)
+        static PropertyDeclarationSyntax GetPropertyImpl(PropertyDeclarationSyntax syntax)
         {
-            var memberAccess = MemberAccessExpression(
-                SyntaxKind.SimpleMemberAccessExpression,
-                ParenthesizedExpression(CastExpression(dataInterfaceName, ThisExpression())),
-                IdentifierName("Data")
-            );
             return syntax.WithAccessorList(
                 AccessorList(
                     List(
@@ -543,47 +511,29 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                     ArrowExpressionClause(
                                         PostfixUnaryExpression(
                                             SyntaxKind.SuppressNullableWarningExpression,
-                                            ConditionalAccessExpression(
-                                                memberAccess,
-                                                InvocationExpression(
-                                                    MemberBindingExpression(
-                                                        GenericName(Identifier("ToObject"))
-                                                           .WithTypeArgumentList(
-                                                                TypeArgumentList(
-                                                                    SingletonSeparatedList<TypeSyntax>(IdentifierName("T"))
-                                                                )
-                                                            )
-                                                    )
+                                            InvocationExpression(
+                                                MemberAccessExpression(
+                                                    SyntaxKind.SimpleMemberAccessExpression, ThisExpression(), GenericName("GetRawData")
+                                                       .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("T"))))
                                                 )
                                             )
                                         )
                                     )
                                 ).WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
                             AccessorDeclaration(
-                                    SyntaxKind.SetAccessorDeclaration
+                                    SyntaxKind.InitAccessorDeclaration
                                 )
                                .WithExpressionBody(
                                     ArrowExpressionClause(
-                                        AssignmentExpression(
-                                            SyntaxKind.SimpleAssignmentExpression,
-                                            memberAccess,
-                                            InvocationExpression(
-                                                    MemberAccessExpression(
-                                                        SyntaxKind.SimpleMemberAccessExpression,
-                                                        IdentifierName("JToken"),
-                                                        IdentifierName("FromObject")
-                                                    )
+                                        InvocationExpression(
+                                                MemberAccessExpression(
+                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                    ThisExpression(),
+                                                    GenericName("SetRawData")
+                                                       .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("T"))))
                                                 )
-                                               .WithArgumentList(
-                                                    ArgumentList(
-                                                        SingletonSeparatedList(
-                                                            Argument(
-                                                                IdentifierName("value")
-                                                            )
-                                                        )
-                                                    )
-                                                )
-                                        )
+                                            )
+                                           .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("value")))))
                                     )
                                 ).WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
                         }
@@ -592,7 +542,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             );
         }
 
-        private static ClassDeclarationSyntax CreateContainerClass(TypeDeclarationSyntax syntax, string? name)
+        private static TypeDeclarationSyntax CreateContainerClass(TypeDeclarationSyntax syntax, string? name)
         {
             TypeSyntax typeName = IdentifierName(syntax.Identifier.Text);
             var classIdentifier = Identifier(name ?? $"{syntax.Identifier.Text}Container");
@@ -874,19 +824,21 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
         public StronglyTypedGenerator() : base(() => new SyntaxReceiver(Cache))
         {
-
         }
-        public static CacheContainer<TypeDeclarationSyntax> Cache = new ();
+
+        public static CacheContainer<TypeDeclarationSyntax> Cache = new();
+
         public class SyntaxReceiver : SyntaxReceiverCache<TypeDeclarationSyntax>
         {
-            public List<ClassDeclarationSyntax> CanBeResolved { get; } = new();
-            public List<ClassDeclarationSyntax> CanHaveData { get; } = new();
+            public List<TypeDeclarationSyntax> CanBeResolved { get; } = new();
+            public List<TypeDeclarationSyntax> CanHaveData { get; } = new();
             public List<TypeDeclarationSyntax> CreateContainers { get; } = new();
 
             public override string? GetKey(TypeDeclarationSyntax syntax)
             {
                 var hasher = new CacheKeyHasher();
                 hasher.Append(syntax.SyntaxTree.FilePath);
+                hasher.Append(syntax.Keyword.Text);
                 hasher.Append(syntax.Identifier.Text);
                 hasher.Append(syntax.TypeParameterList);
                 hasher.Append(syntax.AttributeLists);
@@ -909,32 +861,34 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     }
                 }
 
-                if (syntaxNode is ClassDeclarationSyntax classDeclarationSyntax)
+                if (syntaxNode is ClassDeclarationSyntax or RecordDeclarationSyntax)
                 {
-                    if (classDeclarationSyntax.AttributeLists.ContainsAttribute("GenerateContainer"))
+                    if (syntaxNode.AttributeLists.ContainsAttribute("GenerateContainer"))
                     {
-                        CreateContainers.Add(classDeclarationSyntax);
+                        CreateContainers.Add(syntaxNode);
                     }
 
                     if (
-                        classDeclarationSyntax.BaseList != null &&
-                        classDeclarationSyntax.SyntaxTree.HasCompilationUnitRoot &&
-                        classDeclarationSyntax.Members.OfType<PropertyDeclarationSyntax>().Any(z => z.Identifier.Text == "Data")
+                        syntaxNode.BaseList != null &&
+                        syntaxNode.SyntaxTree.HasCompilationUnitRoot &&
+                        syntaxNode.Members.OfType<PropertyDeclarationSyntax>().Any(z => z.Identifier.Text == "Data")
                     )
                     {
-                        if (classDeclarationSyntax.BaseList.Types.Any(z => z.Type.GetSyntaxName() == "ICanBeResolved"))
+                        if (syntaxNode.BaseList.Types.Any(z => z.Type.GetSyntaxName() == "ICanBeResolved"))
                         {
-                            CanBeResolved.Add(classDeclarationSyntax);
+                            CanBeResolved.Add(syntaxNode);
                         }
-                        else if (classDeclarationSyntax.BaseList.Types.Any(z => z.Type.GetSyntaxName() == "ICanHaveData"))
+                        else if (syntaxNode.BaseList.Types.Any(z => z.Type.GetSyntaxName() == "ICanHaveData"))
                         {
-                            CanHaveData.Add(classDeclarationSyntax);
+                            CanHaveData.Add(syntaxNode);
                         }
                     }
                 }
             }
 
-            public SyntaxReceiver(CacheContainer<TypeDeclarationSyntax> cache) : base(cache) { }
+            public SyntaxReceiver(CacheContainer<TypeDeclarationSyntax> cache) : base(cache)
+            {
+            }
         }
     }
 }

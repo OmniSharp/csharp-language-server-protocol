@@ -19,17 +19,17 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class ModuleEvent : IRequest
+        public record ModuleEvent : IRequest
         {
             /// <summary>
             /// The reason for the event.
             /// </summary>
-            public ModuleEventReason Reason { get; set; }
+            public ModuleEventReason Reason { get; init; }
 
             /// <summary>
             /// The new, changed, or removed module. In case of 'removed' only the module id is used.
             /// </summary>
-            public Module Module { get; set; } = null!;
+            public Module Module { get; init; }
         }
 
         [JsonConverter(typeof(StringEnumConverter))]

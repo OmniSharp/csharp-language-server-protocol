@@ -17,16 +17,16 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class TerminateArguments : IRequest<TerminateResponse>
+        public record TerminateArguments : IRequest<TerminateResponse>
         {
             /// <summary>
             /// A value of true indicates that this 'terminate' request is part of a restart sequence.
             /// </summary>
             [Optional]
-            public bool Restart { get; set; }
+            public bool Restart { get; init; }
         }
 
-        public class TerminateResponse
+        public record TerminateResponse
         {
         }
     }

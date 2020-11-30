@@ -23,7 +23,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class CancelArguments : IRequest<CancelResponse>
+        public record CancelArguments : IRequest<CancelResponse>
         {
             // This is removed on purpose, as request cancellation is handled by the DapReciever
             // /// <summary>
@@ -38,24 +38,24 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// Both a 'requestId' and a 'progressId' can be specified in one request.
             /// </summary>
             [Optional]
-            public ProgressToken? ProgressId { get; set; }
+            public ProgressToken? ProgressId { get; init; }
         }
 
-        public class CancelResponse
+        public record CancelResponse
         {
             /// <summary>
             /// The ID (attribute 'seq') of the request to cancel. If missing no request is cancelled.
             /// Both a 'requestId' and a 'progressId' can be specified in one request.
             /// </summary>
             [Optional]
-            public int? RequestId { get; set; }
+            public int? RequestId { get; init; }
 
             /// <summary>
             /// The ID (attribute 'progressId') of the progress to cancel. If missing no progress is cancelled.
             /// Both a 'requestId' and a 'progressId' can be specified in one request.
             /// </summary>
             [Optional]
-            public ProgressToken? ProgressId { get; set; }
+            public ProgressToken? ProgressId { get; init; }
         }
     }
 }

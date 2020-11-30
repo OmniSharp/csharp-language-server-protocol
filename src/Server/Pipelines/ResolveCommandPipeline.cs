@@ -40,7 +40,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
                 );
                 foreach (var item in canBeResolvedItems)
                 {
-                    item.Data ??= new JObject();
+                    item.SetRawData(item.Data ?? new JObject());
                     if (item.Data is JObject o)
                     {
                         o[Constants.PrivateHandlerId] = id;

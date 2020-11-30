@@ -18,25 +18,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Parallel]
         [Method(WindowNames.TelemetryEvent, Direction.ServerToClient)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Window"), GenerateHandlerMethods, GenerateRequestMethods(typeof(IWindowLanguageServer), typeof(ILanguageServer))]
-        public class TelemetryEventParams : IRequest
+        public record TelemetryEventParams : IRequest
         {
-            [JsonExtensionData] public IDictionary<string, JToken> Data { get; set; } = new Dictionary<string, JToken>();
+            [JsonExtensionData] public IDictionary<string, JToken> Data { get; init; } = new Dictionary<string, JToken>();
         }
     }
 
     namespace Window
     {
-    }
-    [Parallel]
-    [Method(WindowNames.TelemetryEvent, Direction.ServerToClient)]
-    [GenerateHandlerMethods]
-    [GenerateRequestMethods(typeof(IWindowLanguageServer), typeof(ILanguageServer))]
-    public interface ITelemetryEventHandler : IJsonRpcNotificationHandler<TelemetryEventParams>
-    {
-    }
-
-    public abstract class TelemetryEventHandler : ITelemetryEventHandler
-    {
-        public abstract Task<Unit> Handle(TelemetryEventParams request, CancellationToken cancellationToken);
     }
 }

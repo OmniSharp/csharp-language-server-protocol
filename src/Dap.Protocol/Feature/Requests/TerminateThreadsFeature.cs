@@ -18,16 +18,16 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class TerminateThreadsArguments : IRequest<TerminateThreadsResponse>
+        public record TerminateThreadsArguments : IRequest<TerminateThreadsResponse>
         {
             /// <summary>
             /// Ids of threads to be terminated.
             /// </summary>
             [Optional]
-            public Container<long>? ThreadIds { get; set; }
+            public Container<long>? ThreadIds { get; init; }
         }
 
-        public class TerminateThreadsResponse
+        public record TerminateThreadsResponse
         {
         }
     }

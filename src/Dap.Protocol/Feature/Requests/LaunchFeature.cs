@@ -20,13 +20,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class LaunchRequestArguments : IRequest<LaunchResponse>
+        public record LaunchRequestArguments : IRequest<LaunchResponse>
         {
             /// <summary>
             /// If noDebug is true the launch request should launch the program without enabling debugging.
             /// </summary>
             [Optional]
-            public bool NoDebug { get; set; }
+            public bool NoDebug { get; init; }
 
             /// <summary>
             /// Optional data from the previous, restarted session.
@@ -35,12 +35,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// </summary>
             [Optional]
             [JsonProperty(PropertyName = "__restart")]
-            public JToken? Restart { get; set; }
+            public JToken? Restart { get; init; }
 
-            [JsonExtensionData] public IDictionary<string, object> ExtensionData { get; set; } = new Dictionary<string, object>();
+            [JsonExtensionData] public IDictionary<string, object> ExtensionData { get; init; } = new Dictionary<string, object>();
         }
 
-        public class LaunchResponse
+        public record LaunchResponse
         {
         }
     }

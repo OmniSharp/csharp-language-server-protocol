@@ -17,23 +17,23 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class ContinueArguments : IRequest<ContinueResponse>
+        public record ContinueArguments : IRequest<ContinueResponse>
         {
             /// <summary>
             /// Continue execution for the specified thread(if possible). If the backend cannot continue on a single thread but will continue on all threads, it should set the
             /// 'allThreadsContinued' attribute in the response to true.
             /// </summary>
-            public long ThreadId { get; set; }
+            public long ThreadId { get; init; }
         }
 
-        public class ContinueResponse
+        public record ContinueResponse
         {
             /// <summary>
             /// If true, the 'continue' request has ignored the specified thread and continued all threads instead.If this attribute is missing a value of 'true' is assumed for backward
             /// compatibility.
             /// </summary>
             [Optional]
-            public bool AllThreadsContinued { get; set; }
+            public bool AllThreadsContinued { get; init; }
         }
     }
 }

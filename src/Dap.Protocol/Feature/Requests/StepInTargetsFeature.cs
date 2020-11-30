@@ -17,20 +17,20 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class StepInTargetsArguments : IRequest<StepInTargetsResponse>
+        public record StepInTargetsArguments : IRequest<StepInTargetsResponse>
         {
             /// <summary>
             /// The stack frame for which to retrieve the possible stepIn targets.
             /// </summary>
-            public long FrameId { get; set; }
+            public long FrameId { get; init; }
         }
 
-        public class StepInTargetsResponse
+        public record StepInTargetsResponse
         {
             /// <summary>
             /// The possible stepIn targets of the specified source location.
             /// </summary>
-            public Container<StepInTarget>? Targets { get; set; }
+            public Container<StepInTarget>? Targets { get; init; }
         }
     }
 
@@ -39,17 +39,17 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         /// <summary>
         /// A StepInTarget can be used in the ‘stepIn’ request and determines into which single target the stepIn request should step.
         /// </summary>
-        public class StepInTarget
+        public record StepInTarget
         {
             /// <summary>
             /// Unique identifier for a stepIn target.
             /// </summary>
-            public long Id { get; set; }
+            public long Id { get; init; }
 
             /// <summary>
             /// The name of the stepIn target (shown in the UI).
             /// </summary>
-            public string Label { get; set; } = null!;
+            public string Label { get; init; }
         }
     }
 }

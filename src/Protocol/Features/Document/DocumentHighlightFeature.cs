@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(DocumentHighlightRegistrationOptions)), Capability(typeof(DocumentHighlightCapability))]
-        public partial class DocumentHighlightParams : TextDocumentPositionParams, IWorkDoneProgressParams, IPartialItemsRequest<DocumentHighlightContainer?, DocumentHighlight>
+        public partial record DocumentHighlightParams : TextDocumentPositionParams, IWorkDoneProgressParams, IPartialItemsRequest<DocumentHighlightContainer?, DocumentHighlight>
         {
         }
 
@@ -36,17 +36,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// </summary>
         [GenerateContainer]
-        public partial class DocumentHighlight
+        public partial record DocumentHighlight
         {
             /// <summary>
             /// The range this highlight applies to.
             /// </summary>
-            public Range Range { get; set; } = null!;
+            public Range Range { get; init; }
 
             /// <summary>
             /// The highlight kind, default is DocumentHighlightKind.Text.
             /// </summary>
-            public DocumentHighlightKind Kind { get; set; }
+            public DocumentHighlightKind Kind { get; init; }
         }
 
         /// <summary>

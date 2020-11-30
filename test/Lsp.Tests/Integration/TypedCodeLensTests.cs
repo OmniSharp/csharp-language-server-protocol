@@ -1,9 +1,12 @@
 using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Lsp.Tests.Integration.Fixtures;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Testing;
@@ -15,7 +18,8 @@ using Serilog.Events;
 using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
-using HandlerIdentity = OmniSharp.Extensions.LanguageServer.Protocol.Models.HandlerIdentity;
+using IHandlerIdentity = OmniSharp.Extensions.LanguageServer.Protocol.Models.IHandlerIdentity;
+using Nested = Lsp.Tests.Integration.Fixtures.Nested;
 
 namespace Lsp.Tests.Integration
 {
@@ -39,13 +43,13 @@ namespace Lsp.Tests.Integration
                     options.OnCodeLens(
                         codeLensParams => {
                             return Task.FromResult(
-                                new CodeLensContainer<Data>(
-                                    new CodeLens<Data> {
+                                new CodeLensContainer<Fixtures.Data>(
+                                    new CodeLens<Fixtures.Data> {
                                         Command = new Command {
                                             Name = "data-a",
                                             Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                         },
-                                        Data = new Data {
+                                        Data = new Fixtures.Data {
                                             Child = new Nested {
                                                 Date = DateTimeOffset.MinValue
                                             },
@@ -56,10 +60,7 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        l => {
-                            l.Command!.Name = "resolved-a";
-                            return Task.FromResult(l);
-                        },
+                        l => { return Task.FromResult(l with { Command = l.Command with { Name = "resolved-a" } }); },
                         (_, _) => new CodeLensRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
@@ -81,10 +82,7 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        l => {
-                            l.Command!.Name = "resolved-b";
-                            return Task.FromResult(l);
-                        },
+                        l => { return Task.FromResult(l with { Command = l.Command with { Name = "resolved-b" } }); },
                         (_, _) => new CodeLensRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
@@ -103,10 +101,7 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        l => {
-                            l.Command!.Name = "resolved-c";
-                            return Task.FromResult(l);
-                        },
+                        l => { return Task.FromResult(l with { Command = l.Command with { Name = "resolved-c" } }); },
                         (_, _) => new CodeLensRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
@@ -125,10 +120,7 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        l => {
-                            l.Command!.Name = "resolved-d";
-                            return Task.FromResult(l);
-                        },
+                        l => { return Task.FromResult(l with { Command = l.Command with { Name = "resolved-d" } }); },
                         (_, _) => new CodeLensRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForLanguage("vb")
                         }
@@ -158,13 +150,13 @@ namespace Lsp.Tests.Integration
                     options.OnCodeLens(
                         (codeLensParams, capability, token) => {
                             return Task.FromResult(
-                                new CodeLensContainer<Data>(
-                                    new CodeLens<Data> {
+                                new CodeLensContainer<Fixtures.Data>(
+                                    new CodeLens<Fixtures.Data> {
                                         Command = new Command {
                                             Name = "execute-a",
                                             Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                         },
-                                        Data = new Data {
+                                        Data = new Fixtures.Data {
                                             Child = new Nested {
                                                 Date = DateTimeOffset.MinValue
                                             },
@@ -179,7 +171,7 @@ namespace Lsp.Tests.Integration
                             lens.Data.Id.Should().NotBeEmpty();
                             lens.Data.Child.Should().NotBeNull();
                             lens.Data.Name.Should().Be("name");
-                            lens.Command!.Name = "resolved";
+                            return Task.FromResult(lens with { Command = lens.Command with { Name = "resolved" } });
                             return Task.FromResult(lens);
                         },
                         (_, _) => new CodeLensRegistrationOptions()
@@ -200,15 +192,15 @@ namespace Lsp.Tests.Integration
         {
             var (client, _) = await Initialize(
                 options => { }, options => {
-                    options.ObserveCodeLens<Data>(
+                    options.ObserveCodeLens<Fixtures.Data>(
                         (codeLensParams, observer, capability, token) => {
-                            var a = new CodeLensContainer<Data>(
-                                new CodeLens<Data> {
+                            var a = new CodeLensContainer<Fixtures.Data>(
+                                new CodeLens<Fixtures.Data> {
                                     Command = new Command {
                                         Name = "execute-a",
                                         Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                     },
-                                    Data = new Data {
+                                    Data = new Fixtures.Data {
                                         Child = new Nested {
                                             Date = DateTimeOffset.MinValue
                                         },
@@ -225,7 +217,7 @@ namespace Lsp.Tests.Integration
                             codeLens.Data.Id.Should().NotBeEmpty();
                             codeLens.Data.Child.Should().NotBeNull();
                             codeLens.Data.Name.Should().Be("name");
-                            codeLens.Command!.Name = "resolved";
+                            return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
                             return Task.FromResult(codeLens);
                         },
                         (_, _) => new CodeLensRegistrationOptions()
@@ -247,13 +239,13 @@ namespace Lsp.Tests.Integration
                     options.OnCodeLens(
                         (codeLensParams, token) => {
                             return Task.FromResult(
-                                new CodeLensContainer<Data>(
-                                    new CodeLens<Data> {
+                                new CodeLensContainer<Fixtures.Data>(
+                                    new CodeLens<Fixtures.Data> {
                                         Command = new Command {
                                             Name = "execute-a",
                                             Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                         },
-                                        Data = new Data {
+                                        Data = new Fixtures.Data {
                                             Child = new Nested {
                                                 Date = DateTimeOffset.MinValue
                                             },
@@ -268,7 +260,7 @@ namespace Lsp.Tests.Integration
                             codeLens.Data.Id.Should().NotBeEmpty();
                             codeLens.Data.Child.Should().NotBeNull();
                             codeLens.Data.Name.Should().Be("name");
-                            codeLens.Command!.Name = "resolved";
+                            return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
                             return Task.FromResult(codeLens);
                         },
                         (_, _) => new CodeLensRegistrationOptions()
@@ -289,15 +281,15 @@ namespace Lsp.Tests.Integration
         {
             var (client, _) = await Initialize(
                 options => { }, options => {
-                    options.ObserveCodeLens<Data>(
+                    options.ObserveCodeLens<Fixtures.Data>(
                         (codeLensParams, observer, token) => {
-                            var a = new CodeLensContainer<Data>(
-                                new CodeLens<Data> {
+                            var a = new CodeLensContainer<Fixtures.Data>(
+                                new CodeLens<Fixtures.Data> {
                                     Command = new Command {
                                         Name = "execute-a",
                                         Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                     },
-                                    Data = new Data {
+                                    Data = new Fixtures.Data {
                                         Child = new Nested {
                                             Date = DateTimeOffset.MinValue
                                         },
@@ -314,7 +306,7 @@ namespace Lsp.Tests.Integration
                             codeLens.Data.Id.Should().NotBeEmpty();
                             codeLens.Data.Child.Should().NotBeNull();
                             codeLens.Data.Name.Should().Be("name");
-                            codeLens.Command!.Name = "resolved";
+                            return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
                             return Task.FromResult(codeLens);
                         },
                         (_, _) => new CodeLensRegistrationOptions()
@@ -336,7 +328,7 @@ namespace Lsp.Tests.Integration
                     options.OnCodeLens(
                         codeLensParams => {
                             return Task.FromResult(
-                                new CodeLensContainer<Data>(
+                                new CodeLensContainer<Fixtures.Data>(
                                     new CodeLens<Data> {
                                         Command = new Command {
                                             Name = "execute-a",
@@ -357,7 +349,7 @@ namespace Lsp.Tests.Integration
                             codeLens.Data.Id.Should().NotBeEmpty();
                             codeLens.Data.Child.Should().NotBeNull();
                             codeLens.Data.Name.Should().Be("name");
-                            codeLens.Command!.Name = "resolved";
+                            return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
                             return Task.FromResult(codeLens);
                         },
                         (_, _) => new CodeLensRegistrationOptions()
@@ -403,7 +395,7 @@ namespace Lsp.Tests.Integration
                             codeLens.Data.Id.Should().NotBeEmpty();
                             codeLens.Data.Child.Should().NotBeNull();
                             codeLens.Data.Name.Should().Be("name");
-                            codeLens.Command!.Name = "resolved";
+                            return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
                             return Task.FromResult(codeLens);
                         },
                         (_, _) => new CodeLensRegistrationOptions()
@@ -437,7 +429,7 @@ namespace Lsp.Tests.Integration
                             );
                         },
                         (codeLens, capability, token) => {
-                            codeLens.Command!.Name = "resolved";
+                            return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
                             return Task.FromResult(codeLens);
                         },
                         (_, _) => new CodeLensRegistrationOptions()
@@ -473,7 +465,7 @@ namespace Lsp.Tests.Integration
                             observer.OnCompleted();
                         },
                         (codeLens, capability, token) => {
-                            codeLens.Command!.Name = "resolved";
+                            return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
                             return Task.FromResult(codeLens);
                         },
                         (_, _) => new CodeLensRegistrationOptions()
@@ -506,7 +498,7 @@ namespace Lsp.Tests.Integration
                             );
                         },
                         (codeLens, token) => {
-                            codeLens.Command!.Name = "resolved";
+                            return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
                             return Task.FromResult(codeLens);
                         },
                         (_, _) => new CodeLensRegistrationOptions()
@@ -542,7 +534,7 @@ namespace Lsp.Tests.Integration
                             observer.OnCompleted();
                         },
                         (codeLens, token) => {
-                            codeLens.Command!.Name = "resolved";
+                            return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
                             return Task.FromResult(codeLens);
                         },
                         (_, _) => new CodeLensRegistrationOptions()
@@ -575,7 +567,7 @@ namespace Lsp.Tests.Integration
                             );
                         },
                         codeLens => {
-                            codeLens.Command!.Name = "resolved";
+                            return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
                             return Task.FromResult(codeLens);
                         },
                         (_, _) => new CodeLensRegistrationOptions()
@@ -611,7 +603,7 @@ namespace Lsp.Tests.Integration
                             observer.OnCompleted();
                         },
                         codeLens => {
-                            codeLens.Command!.Name = "resolved";
+                            return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
                             return Task.FromResult(codeLens);
                         },
                         (_, _) => new CodeLensRegistrationOptions()
@@ -623,19 +615,6 @@ namespace Lsp.Tests.Integration
 
             item = await client.ResolveCodeLens(item);
             item.Command!.Name.Should().Be("resolved");
-        }
-
-        private class Data : HandlerIdentity
-        {
-            public string Name { get; set; } = null!;
-            public Guid Id { get; set; }
-            public Nested Child { get; set; } = null!;
-        }
-
-        private class Nested : HandlerIdentity
-        {
-            // ReSharper disable once UnusedAutoPropertyAccessor.Local
-            public DateTimeOffset Date { get; set; }
         }
     }
 }

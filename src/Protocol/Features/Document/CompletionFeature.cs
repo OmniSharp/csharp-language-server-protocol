@@ -40,14 +40,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(CompletionRegistrationOptions)), Capability(typeof(CompletionCapability)), Resolver(typeof(CompletionItem))]
-        public partial class CompletionParams : TextDocumentPositionParams, IWorkDoneProgressParams, IPartialItemsRequest<CompletionList, CompletionItem>
+        public partial record CompletionParams : TextDocumentPositionParams, IWorkDoneProgressParams, IPartialItemsRequest<CompletionList, CompletionItem>
         {
             /// <summary>
             /// The completion context. This is only available it the client specifies to send
             /// this using `Capability.textDocument.completion.contextSupport === true`
             /// </summary>
             [Optional]
-            public CompletionContext? Context { get; set; }
+            public CompletionContext? Context { get; init; }
         }
 
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
@@ -61,21 +61,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateTypedData
         ]
         [RegistrationOptions(typeof(CompletionRegistrationOptions)), Capability(typeof(CompletionCapability))]
-        public partial class CompletionItem : ICanBeResolved, IRequest<CompletionItem>
+        public partial record CompletionItem : ICanBeResolved, IRequest<CompletionItem>
         {
             /// <summary>
             /// The label of this completion item. By default
             /// also the text that is inserted when selecting
             /// this completion.
             /// </summary>
-            public string Label { get; set; } = null!;
+            public string Label { get; init; }
 
             /// <summary>
             /// The kind of this completion item. Based of the kind
             /// an icon is chosen by the editor.
             /// </summary>
             [Optional]
-            public CompletionItemKind Kind { get; set; }
+            public CompletionItemKind Kind { get; init; }
 
             /// <summary>
             /// Tags for this completion item.
@@ -83,26 +83,26 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// @since 3.15.0
             /// </summary>
             [Optional]
-            public Container<CompletionItemTag>? Tags { get; set; }
+            public Container<CompletionItemTag>? Tags { get; init; }
 
             /// <summary>
             /// A human-readable string with additional information
             /// about this item, like type or symbol information.
             /// </summary>
             [Optional]
-            public string? Detail { get; set; }
+            public string? Detail { get; init; }
 
             /// <summary>
             /// A human-readable string that represents a doc-comment.
             /// </summary>
             [Optional]
-            public StringOrMarkupContent? Documentation { get; set; }
+            public StringOrMarkupContent? Documentation { get; init; }
 
             /// <summary>
             /// Indicates if this item is deprecated.
             /// </summary>
             [Optional]
-            public bool Deprecated { get; set; }
+            public bool Deprecated { get; init; }
 
             /// <summary>
             /// Select this item when showing.
@@ -112,14 +112,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// item of those that match best is selected.
             /// </summary>
             [Optional]
-            public bool Preselect { get; set; }
+            public bool Preselect { get; init; }
 
             /// <summary>
             /// A string that shoud be used when comparing this item
             /// with other items. When `falsy` the label is used.
             /// </summary>
             [Optional]
-            public string? SortText { get; set; }
+            public string? SortText { get; init; }
 
             /// <summary>
             /// A string that should be used when filtering a set of
@@ -127,7 +127,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
 
             [Optional]
-            public string? FilterText { get; set; }
+            public string? FilterText { get; init; }
 
             /// <summary>
             /// A string that should be inserted a document when selecting
@@ -135,14 +135,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
 
             [Optional]
-            public string? InsertText { get; set; }
+            public string? InsertText { get; init; }
 
             /// <summary>
             /// The format of the insert text. The format applies to both the `insertText` property
             /// and the `newText` property of a provided `textEdit`.
             /// </summary>
             [Optional]
-            public InsertTextFormat InsertTextFormat { get; set; }
+            public InsertTextFormat InsertTextFormat { get; init; }
 
             /// <summary>
             /// How whitespace and indentation is handled during completion
@@ -151,7 +151,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// @since 3.16.0 - proposed state
             /// </summary>
             [Optional]
-            public InsertTextMode InsertTextMode { get; set; }
+            public InsertTextMode InsertTextMode { get; init; }
 
             /// <summary>
             /// An edit which is applied to a document when selecting this completion. When an edit is provided the value of
@@ -181,7 +181,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// TODO: Update this to union <see cref="TextEdit"/> <see cref="InsertReplaceEdit"/>
             /// </remarks>
             [Optional]
-            public TextEdit? TextEdit { get; set; }
+            public TextEdit? TextEdit { get; init; }
 
             /// <summary>
             /// An optional array of additional text edits that are applied when
@@ -189,7 +189,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// nor with themselves.
             /// </summary>
             [Optional]
-            public TextEditContainer? AdditionalTextEdits { get; set; }
+            public TextEditContainer? AdditionalTextEdits { get; init; }
 
             /// <summary>
             /// An optional set of characters that when pressed while this completion is active will accept it first and
@@ -197,7 +197,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// characters will be ignored.
             /// </summary>
             [Optional]
-            public Container<string>? CommitCharacters { get; set; }
+            public Container<string>? CommitCharacters { get; init; }
 
             /// <summary>
             /// An optional command that is executed/// after* inserting this completion./// Note* that
@@ -205,14 +205,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// additionalTextEdits-property.
             /// </summary>
             [Optional]
-            public Command? Command { get; set; }
+            public Command? Command { get; init; }
 
             /// <summary>
             /// An data entry field that is preserved on a completion item between
             /// a completion and a completion resolve request.
             /// </summary>
             [Optional]
-            public JToken? Data { get; set; }
+            public JToken? Data { get; init; }
 
             private string DebuggerDisplay => $"[{Kind}] {Label}{( Tags?.Any() == true ? $" tags: {string.Join(", ", Tags.Select(z => z.ToString()))}" : "" )}";
 
@@ -275,6 +275,27 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }
         }
 
+        public record CompletionContext
+        {
+            /// <summary>
+            /// How the completion was triggered.
+            /// </summary>
+            public CompletionTriggerKind TriggerKind { get; init; }
+
+            /// <summary>
+            /// Most tools trigger completion request automatically without explicitly requesting
+            /// it using a keyboard shortcut (e.g. Ctrl+Space). Typically they do so when the user
+            /// starts to type an identifier. For example if the user types `c` in a JavaScript file
+            /// code complete will automatically pop up present `console` besides others as a
+            /// completion item. Characters that make up identifiers don't need to be listed here.
+            ///
+            /// If code complete should automatically be trigger on characters not being valid inside
+            /// an identifier (for example `.` in JavaScript) list them in `triggerCharacters`.
+            /// </summary>
+            [Optional]
+            public string? TriggerCharacter { get; init; }
+        }
+
         /// <summary>
         /// Represents a collection of [completion items](#CompletionItem) to be presented
         /// in the editor.
@@ -303,7 +324,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             public IEnumerable<CompletionItem> Items => this;
 
-            public static CompletionList? From<T>(CompletionList<T>? list) where T : HandlerIdentity?, new()
+            public static CompletionList? From<T>(CompletionList<T>? list) where T : class?, IHandlerIdentity?
                 => list switch {
                     not null => new(list.Items.Select(CompletionItem.From)!, list.IsIncomplete),
                     _        => null
@@ -370,27 +391,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             [Optional]
             public bool ContextSupport { get; set; }
-        }
-
-        public class CompletionContext
-        {
-            /// <summary>
-            /// How the completion was triggered.
-            /// </summary>
-            public CompletionTriggerKind TriggerKind { get; set; }
-
-            /// <summary>
-            /// Most tools trigger completion request automatically without explicitly requesting
-            /// it using a keyboard shortcut (e.g. Ctrl+Space). Typically they do so when the user
-            /// starts to type an identifier. For example if the user types `c` in a JavaScript file
-            /// code complete will automatically pop up present `console` besides others as a
-            /// completion item. Characters that make up identifiers don't need to be listed here.
-            ///
-            /// If code complete should automatically be trigger on characters not being valid inside
-            /// an identifier (for example `.` in JavaScript) list them in `triggerCharacters`.
-            /// </summary>
-            [Optional]
-            public string? TriggerCharacter { get; set; }
         }
 
         public class CompletionItemCapabilityOptions

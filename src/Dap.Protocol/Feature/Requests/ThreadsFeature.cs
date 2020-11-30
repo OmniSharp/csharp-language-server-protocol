@@ -17,16 +17,16 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class ThreadsArguments : IRequest<ThreadsResponse>
+        public record ThreadsArguments : IRequest<ThreadsResponse>
         {
         }
 
-        public class ThreadsResponse
+        public record ThreadsResponse
         {
             /// <summary>
             /// All threads.
             /// </summary>
-            public Container<Thread>? Threads { get; set; }
+            public Container<Thread>? Threads { get; init; }
         }
     }
 }

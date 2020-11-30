@@ -41,13 +41,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(SemanticTokensRegistrationOptions)), Capability(typeof(SemanticTokensCapability))]
-        public partial class SemanticTokensParams : IWorkDoneProgressParams, ITextDocumentIdentifierParams,
+        public partial record SemanticTokensParams : IWorkDoneProgressParams, ITextDocumentIdentifierParams,
                                                     IPartialItemRequest<SemanticTokens?, SemanticTokensPartialResult>
         {
             /// <summary>
             /// The text document.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; set; } = null!;
+            public TextDocumentIdentifier TextDocument { get; init; }
         }
 
         /// <summary>
@@ -62,18 +62,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(SemanticTokensRegistrationOptions)), Capability(typeof(SemanticTokensCapability))]
-        public partial class SemanticTokensDeltaParams : IWorkDoneProgressParams, ITextDocumentIdentifierParams,
+        public partial record SemanticTokensDeltaParams : IWorkDoneProgressParams, ITextDocumentIdentifierParams,
                                                          IPartialItemRequest<SemanticTokensFullOrDelta?, SemanticTokensFullOrDeltaPartialResult>
         {
             /// <summary>
             /// The text document.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; set; } = null!;
+            public TextDocumentIdentifier TextDocument { get; init; }
 
             /// <summary>
             /// The previous result id.
             /// </summary>
-            public string PreviousResultId { get; set; } = null!;
+            public string PreviousResultId { get; init; }
         }
 
         /// <summary>
@@ -88,18 +88,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(SemanticTokensRegistrationOptions)), Capability(typeof(SemanticTokensCapability))]
-        public partial class SemanticTokensRangeParams : IWorkDoneProgressParams, ITextDocumentIdentifierParams,
+        public partial record SemanticTokensRangeParams : IWorkDoneProgressParams, ITextDocumentIdentifierParams,
                                                          IPartialItemRequest<SemanticTokens?, SemanticTokensPartialResult>
         {
             /// <summary>
             /// The text document.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; set; } = null!;
+            public TextDocumentIdentifier TextDocument { get; init; }
 
             /// <summary>
             /// The range the semantic tokens are requested for.
             /// </summary>
-            public Range Range { get; set; } = null!;
+            public Range Range { get; init; }
         }
 
         [Obsolete(Constants.Proposal)]
@@ -108,7 +108,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace.Proposals"), GenerateHandlerMethods,
          GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
         [Capability(typeof(SemanticTokensWorkspaceCapability))]
-        public partial class SemanticTokensRefreshParams : IRequest
+        public partial record SemanticTokensRefreshParams : IRequest
         {
         }
 
@@ -122,14 +122,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// send a delta.
             /// </summary>
             [Optional]
-            public string? ResultId { get; set; }
+            public string? ResultId { get; init; }
         }
 
         /// <summary>
         /// @since 3.16.0
         /// </summary>
         [Obsolete(Constants.Proposal)]
-        public partial class SemanticTokens : ISemanticTokenResult
+        public partial record SemanticTokens : ISemanticTokenResult
         {
             public SemanticTokens()
             {
@@ -147,7 +147,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// send a delta.
             /// </summary>
             [Optional]
-            public string? ResultId { get; set; }
+            public string? ResultId { get; init; }
 
             /// <summary>
             /// The actual tokens. For a detailed description about how the data is
@@ -157,7 +157,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <remarks>
             /// <see cref="uint"/> in the LSP spec
             /// </remarks>
-            public ImmutableArray<int> Data { get; set; }
+            public ImmutableArray<int> Data { get; init; }
 
             [return: NotNullIfNotNull("result")]
             public static SemanticTokens? From(SemanticTokensPartialResult? result) => result switch {
@@ -170,14 +170,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// @since 3.16.0
         /// </summary>
         [Obsolete(Constants.Proposal)]
-        public partial class SemanticTokensPartialResult
+        public partial record SemanticTokensPartialResult
         {
             /// <summary>
             /// The actual tokens. For a detailed description about how the data is
             /// structured pls see
             /// https://github.com/microsoft/vscode-extension-samples/blob/5ae1f7787122812dcc84e37427ca90af5ee09f14/semantic-tokens-sample/vscode.proposed.d.ts#L71
             /// </summary>
-            public ImmutableArray<int> Data { get; set; }
+            public ImmutableArray<int> Data { get; init; }
         }
 
 
@@ -185,7 +185,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// @since 3.16.0
         /// </summary>
         [Obsolete(Constants.Proposal)]
-        public class SemanticTokensDelta : ISemanticTokenResult
+        public record SemanticTokensDelta : ISemanticTokenResult
         {
             public SemanticTokensDelta()
             {
@@ -203,34 +203,34 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// send a delta.
             /// </summary>
             [Optional]
-            public string? ResultId { get; set; }
+            public string? ResultId { get; init; }
 
             /// <summary>
             /// For a detailed description how these edits are structured pls see
             /// https://github.com/microsoft/vscode-extension-samples/blob/5ae1f7787122812dcc84e37427ca90af5ee09f14/semantic-tokens-sample/vscode.proposed.d.ts#L131
             /// </summary>
-            public Container<SemanticTokensEdit> Edits { get; set; } = null!;
+            public Container<SemanticTokensEdit> Edits { get; init; }
         }
 
         /// <summary>
         /// @since 3.16.0
         /// </summary>
         [Obsolete(Constants.Proposal)]
-        public class SemanticTokensDeltaPartialResult
+        public record SemanticTokensDeltaPartialResult
         {
             /// <summary>
             /// The actual tokens. For a detailed description about how the data is
             /// structured pls see
             /// https://github.com/microsoft/vscode-extension-samples/blob/5ae1f7787122812dcc84e37427ca90af5ee09f14/semantic-tokens-sample/vscode.proposed.d.ts#L71
             /// </summary>
-            public Container<SemanticTokensEdit> Edits { get; set; } = null!;
+            public Container<SemanticTokensEdit> Edits { get; init; }
         }
 
         /// <summary>
         /// @since 3.16.0
         /// </summary>
         [Obsolete(Constants.Proposal)]
-        public class SemanticTokensEdit
+        public record SemanticTokensEdit
         {
             /// <summary>
             /// The start index of the edit
@@ -238,7 +238,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <remarks>
             /// <see cref="uint"/> in the LSP spec
             /// </remarks>
-            public int Start { get; set; }
+            public int Start { get; init; }
 
             /// <summary>
             /// The number of items to delete
@@ -246,7 +246,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <remarks>
             /// <see cref="uint"/> in the LSP spec
             /// </remarks>
-            public int DeleteCount { get; set; }
+            public int DeleteCount { get; init; }
 
             /// <summary>
             /// The actual tokens. For a detailed description about how the data is
@@ -257,12 +257,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <see cref="uint"/> in the LSP spec
             /// </remarks>
             [Optional]
-            public ImmutableArray<int>? Data { get; set; } = ImmutableArray<int>.Empty;
+            public ImmutableArray<int>? Data { get; init; } = ImmutableArray<int>.Empty;
         }
 
         [Obsolete(Constants.Proposal)]
         [JsonConverter(typeof(SemanticTokensFullOrDeltaConverter))]
-        public class SemanticTokensFullOrDelta
+        public record SemanticTokensFullOrDelta
         {
             public SemanticTokensFullOrDelta(SemanticTokensDelta delta)
             {
@@ -295,10 +295,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }
 
             public bool IsFull => Full != null;
-            public SemanticTokens? Full { get; }
+            public SemanticTokens? Full { get; init; }
 
             public bool IsDelta => Delta != null;
-            public SemanticTokensDelta? Delta { get; }
+            public SemanticTokensDelta? Delta { get;init; }
 
             [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("semanticTokensDelta")]
             public static SemanticTokensFullOrDelta? From(SemanticTokensDelta? semanticTokensDelta) => semanticTokensDelta switch {
@@ -340,7 +340,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         [Obsolete(Constants.Proposal)]
         [JsonConverter(typeof(SemanticTokensFullOrDeltaPartialResultConverter))]
-        public class SemanticTokensFullOrDeltaPartialResult
+        public record SemanticTokensFullOrDeltaPartialResult
         {
             public SemanticTokensFullOrDeltaPartialResult(
                 SemanticTokensPartialResult full
@@ -378,7 +378,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// @since 3.16.0
         /// </summary>
         [Obsolete(Constants.Proposal)]
-        public class SemanticTokensLegend
+        public record SemanticTokensLegend
         {
             private ImmutableDictionary<SemanticTokenModifier, int>? _tokenModifiersData;
             private ImmutableDictionary<SemanticTokenType, int>? _tokenTypesData;
@@ -386,12 +386,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// The token types a server uses.
             /// </summary>
-            public Container<SemanticTokenType> TokenTypes { get; set; } = new Container<SemanticTokenType>(SemanticTokenType.Defaults);
+            public Container<SemanticTokenType> TokenTypes { get; init; } = new Container<SemanticTokenType>(SemanticTokenType.Defaults);
 
             /// <summary>
             /// The token modifiers a server uses.
             /// </summary>
-            public Container<SemanticTokenModifier> TokenModifiers { get; set; } = new Container<SemanticTokenModifier>(SemanticTokenModifier.Defaults);
+            public Container<SemanticTokenModifier> TokenModifiers { get; init; } = new Container<SemanticTokenModifier>(SemanticTokenModifier.Defaults);
 
             public int GetTokenTypeIdentity(string tokenType)
             {

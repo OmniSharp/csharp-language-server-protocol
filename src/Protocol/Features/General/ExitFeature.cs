@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Serial]
         [Method(GeneralNames.Exit, Direction.ClientToServer)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.General"), GenerateHandlerMethods, GenerateRequestMethods(typeof(ILanguageClient))]
-        public partial class ExitParams : IRequest
+        public partial record ExitParams : IRequest
         {
             public static ExitParams Instance { get; } = new ExitParams();
         }

@@ -3,6 +3,7 @@ using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using TestingUtils;
 using Xunit;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
@@ -20,7 +21,7 @@ namespace Lsp.Tests.Models
             result.Should().Be(expected);
 
             var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<LocationOrLocationLinks>(expected);
-            deresult.Should().BeEquivalentTo(model);
+            deresult.Should().BeEquivalentTo(model, x => x.UsingStructuralRecordEquality());
         }
 
         [Theory]
@@ -37,7 +38,7 @@ namespace Lsp.Tests.Models
             result.Should().Be(expected);
 
             var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<LocationOrLocationLinks>(expected);
-            deresult.Should().BeEquivalentTo(model);
+            deresult.Should().BeEquivalentTo(model, x => x.UsingStructuralRecordEquality());
         }
 
         [Theory]
@@ -56,7 +57,7 @@ namespace Lsp.Tests.Models
             result.Should().Be(expected);
 
             var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<LocationOrLocationLinks>(expected);
-            deresult.Should().BeEquivalentTo(model);
+            deresult.Should().BeEquivalentTo(model, x => x.UsingStructuralRecordEquality());
         }
 
         [Theory]
@@ -77,8 +78,8 @@ namespace Lsp.Tests.Models
 
             var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<LocationOrLocationLinks>(expected);
             deresult.Should().BeEquivalentTo(
-                model, x => x
-                   .ComparingByMembers<LocationOrLocationLink>()
+                model, x => x.UsingStructuralRecordEquality()
+                             .ComparingByMembers<LocationOrLocationLink>()
             );
         }
 
@@ -106,10 +107,10 @@ namespace Lsp.Tests.Models
 
             var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<LocationOrLocationLinks>(expected);
             deresult.Should().BeEquivalentTo(
-                model, x => x
-                           .ComparingByMembers<LocationOrLocationLink>()
-                           .ComparingByMembers<Location>()
-                           .ComparingByMembers<LocationLink>()
+                model, x => x.UsingStructuralRecordEquality()
+                               .ComparingByMembers<LocationOrLocationLink>()
+                               .ComparingByMembers<Location>()
+                               .ComparingByMembers<LocationLink>()
             );
         }
     }

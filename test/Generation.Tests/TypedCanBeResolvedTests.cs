@@ -40,27 +40,28 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
     [DebuggerDisplay(""{"" + nameof(DebuggerDisplay) + "",nq}"")]
     [Method(TextDocumentNames.CodeLensResolve, Direction.ClientToServer)]
     [GenerateTypedData, GenerateContainer]
-    public partial class CodeLens : IRequest<CodeLens>, ICanBeResolved
+    public partial record CodeLens : IRequest<CodeLens>, ICanBeResolved
     {
         /// <summary>
         /// The range in which this code lens is valid. Should only span a single line.
         /// </summary>
-        public Range Range { get; set; } = null!;
+        public Range Range { get; init; }
         [Optional]
-        public Command? Command { get; set; }
+        public Command? Command { get; init; }
         /// <summary>
         /// A data entry field that is preserved on a code lens item between
         /// a code lens and a code lens resolve request.
         /// </summary>
         [Optional]
-        public JToken? Data { get; set; }
+        public JToken? Data { get; init; }
         private string DebuggerDisplay => $""{Range}{( Command != null ? $"" {Command}"" : """" )}"";
         public override string ToString() => DebuggerDisplay;
     }
 }
 #nullable restore";
 
-            var expected = @"using System;
+            var expected = @"
+using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -84,17 +85,17 @@ using System.Linq;
 #nullable enable
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 {
-    public partial class CodeLens
+    public partial record CodeLens
     {
         public CodeLens<TData> WithData<TData>(TData data)
-            where TData : HandlerIdentity?
+            where TData : class?, IHandlerIdentity?
         {
             return new CodeLens<TData>{Range = Range, Command = Command, Data = data};
         }
 
         [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""item"")]
         public static CodeLens? From<T>(CodeLens<T>? item)
-            where T : HandlerIdentity? => item switch
+            where T : class?, IHandlerIdentity? => item switch
         {
         not null => item, _ => null
         }
@@ -111,7 +112,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
     /// </summary>
     [DebuggerDisplay(""{"" + nameof(DebuggerDisplay) + "",nq}"")]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute, System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-    public partial class CodeLens<T> : ICanBeResolved where T : HandlerIdentity?
+    public partial record CodeLens<T> : ICanBeResolved where T : class?, IHandlerIdentity?
     {
         /// <summary>
         /// The range in which this code lens is valid. Should only span a single line.
@@ -119,15 +120,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         public Range Range
         {
             get;
-            set;
+            init;
         }
 
-        = null !;
         [Optional]
         public Command? Command
         {
             get;
-            set;
+            init;
         }
 
         /// <summary>
@@ -137,14 +137,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         [Optional]
         public T Data
         {
-            get => ((ICanBeResolved)this).Data?.ToObject<T>()!;
-            set => ((ICanBeResolved)this).Data = JToken.FromObject(value);
+            get => this.GetRawData<T>()!;
+            init => this.SetRawData<T>(value);
         }
 
         private string DebuggerDisplay => $""{Range}{(Command != null ? $"" {Command}"" : """")}"";
         public override string ToString() => DebuggerDisplay;
         public CodeLens<TData> WithData<TData>(TData data)
-            where TData : HandlerIdentity?
+            where TData : class?, IHandlerIdentity?
         {
             return new CodeLens<TData>{Range = Range, Command = Command, Data = data};
         }
@@ -152,20 +152,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         JToken? ICanBeResolved.Data
         {
             get;
-            set;
+            init;
         }
 
         private JToken? JData
         {
-            get => ((ICanBeResolved)this).Data;
-            set => ((ICanBeResolved)this).Data = value;
+            get => this.GetRawData();
+            init => this.SetRawData(value);
         }
 
-        public static implicit operator CodeLens<T>(CodeLens value) => new CodeLens<T>{Range = value.Range, Command = value.Command, JData = ((ICanBeResolved)value).Data};
+        public static implicit operator CodeLens<T>(CodeLens value) => new CodeLens<T>{Range = value.Range, Command = value.Command, JData = value.Data};
         [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""value"")]
         public static implicit operator CodeLens? (CodeLens<T>? value) => value switch
         {
-        not null => new CodeLens{Range = value.Range, Command = value.Command, Data = ((ICanBeResolved)value).Data}, _ => null
+        not null => new CodeLens{Range = value.Range, Command = value.Command, Data = value.JData}, _ => null
         }
 
         ;
@@ -178,7 +178,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         ;
     }
 
-    public partial class CodeLensContainer<T> : ContainerBase<CodeLens<T>> where T : HandlerIdentity?
+    public partial class CodeLensContainer<T> : ContainerBase<CodeLens<T>> where T : class?, IHandlerIdentity?
     {
         public CodeLensContainer(): this(Enumerable.Empty<CodeLens<T>>())
         {
@@ -329,7 +329,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         /// a code lens and a code lens resolve request.
         /// </summary>
         [Optional]
-        public JToken? Data { get; set; }
+        public JToken? Data { get; init; }
         private string DebuggerDisplay => $""{Range}{( Command != null ? $"" {Command}"" : """" )}"";
         public override string ToString() => DebuggerDisplay;
     }

@@ -44,29 +44,29 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(CodeActionRegistrationOptions)), Capability(typeof(CodeActionCapability)), Resolver(typeof(CodeAction))]
-        public partial class CodeActionParams : ITextDocumentIdentifierParams, IPartialItemsRequest<CommandOrCodeActionContainer, CommandOrCodeAction>, IWorkDoneProgressParams
+        public partial record CodeActionParams : ITextDocumentIdentifierParams, IPartialItemsRequest<CommandOrCodeActionContainer, CommandOrCodeAction>, IWorkDoneProgressParams
         {
             /// <summary>
             /// The document in which the command was invoked.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; set; } = null!;
+            public TextDocumentIdentifier TextDocument { get; init; }
 
             /// <summary>
             /// The range for which the command was invoked.
             /// </summary>
-            public Range Range { get; set; } = null!;
+            public Range Range { get; init; }
 
             /// <summary>
             /// Context carrying additional information.
             /// </summary>
-            public CodeActionContext Context { get; set; } = null!;
+            public CodeActionContext Context { get; init; }
         }
 
         /// <summary>
         /// Contains additional diagnostic information about the context in which
         /// a code action is run.
         /// </summary>
-        public class CodeActionContext
+        public record CodeActionContext
         {
             /// <summary>
             /// An array of diagnostics known on the client side overlapping the range provided to the
@@ -75,7 +75,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// that these accurately reflect the error state of the resource. The primary parameter
             /// to compute code actions is the provided range.
             /// </summary>
-            public Container<Diagnostic> Diagnostics { get; set; } = null!;
+            public Container<Diagnostic> Diagnostics { get; init; }
 
             /// <summary>
             /// Requested kind of actions to return.
@@ -84,7 +84,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// can omit computing them.
             /// </summary>
             [Optional]
-            public Container<CodeActionKind>? Only { get; set; }
+            public Container<CodeActionKind>? Only { get; init; }
         }
 
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
@@ -98,12 +98,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateContainer
         ]
         [RegistrationOptions(typeof(CodeActionRegistrationOptions)), Capability(typeof(CodeActionCapability))]
-        public partial class CodeAction : ICanBeResolved, IRequest<CodeAction>
+        public partial record CodeAction : ICanBeResolved, IRequest<CodeAction>
         {
             /// <summary>
             /// A short, human-readable, title for this code action.
             /// </summary>
-            public string Title { get; set; } = null!;
+            public string Title { get; init; }
 
             /// <summary>
             /// The kind of the code action.
@@ -111,7 +111,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// Used to filter code actions.
             /// </summary>
             [Optional]
-            public CodeActionKind Kind { get; set; }
+            public CodeActionKind Kind { get; init; }
 
             /// <summary>
             /// Marks this as a preferred action. Preferred actions are used by the `auto fix` command and can be targeted
@@ -123,19 +123,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// @since 3.15.0
             /// </summary>
             [Optional]
-            public bool IsPreferred { get; set; }
+            public bool IsPreferred { get; init; }
 
             /// <summary>
             /// The diagnostics that this code action resolves.
             /// </summary>
             [Optional]
-            public Container<Diagnostic>? Diagnostics { get; set; }
+            public Container<Diagnostic>? Diagnostics { get; init; }
 
             /// <summary>
             /// The workspace edit this code action performs.
             /// </summary>
             [Optional]
-            public WorkspaceEdit? Edit { get; set; }
+            public WorkspaceEdit? Edit { get; init; }
 
             /// <summary>
             /// A command this code action executes. If a code action
@@ -143,7 +143,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// executed and then the command.
             /// </summary>
             [Optional]
-            public Command? Command { get; set; }
+            public Command? Command { get; init; }
 
             /// <summary>
             /// Marks that the code action cannot currently be applied.
@@ -163,14 +163,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// @since 3.16.0
             /// </summary>
             [Optional]
-            public CodeActionDisabled? Disabled { get; set; }
+            public CodeActionDisabled? Disabled { get; init; }
 
             /// <summary>
             /// A data entry field that is preserved on a document link between a
             /// DocumentLinkRequest and a DocumentLinkResolveRequest.
             /// </summary>
             [Optional]
-            public JToken? Data { get; set; }
+            public JToken? Data { get; init; }
 
             private string DebuggerDisplay => $"[{Kind}] {Title}";
 
@@ -195,20 +195,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.16.0
         /// </summary>
-        public class CodeActionDisabled
+        public record CodeActionDisabled
         {
             /// <summary>
             /// Human readable description of why the code action is currently disabled.
             ///
             /// This is displayed in the code actions UI.
             /// </summary>
-            public string Reason { get; set; } = null!;
+            public string Reason { get; init; }
         }
 
         [JsonConverter(typeof(CommandOrCodeActionConverter))]
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
         [GenerateContainer]
-        public class CommandOrCodeAction : ICanBeResolved // This to ensure that code actions get updated as expected
+        public record CommandOrCodeAction : ICanBeResolved // This to ensure that code actions get updated as expected
         {
             private CodeAction? _codeAction;
             private Command? _command;
@@ -261,7 +261,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public static CommandOrCodeAction From(CodeAction value) => new(value);
             public static implicit operator CommandOrCodeAction(CodeAction value) => new(value);
-            public static CommandOrCodeAction From<T>(CodeAction<T> value) where T : HandlerIdentity? => new(value);
+            public static CommandOrCodeAction From<T>(CodeAction<T> value) where T : class?, IHandlerIdentity? => new(value);
 
             private string DebuggerDisplay => $"{( IsCommand ? $"command: {Command}" : IsCodeAction ? $"code action: {CodeAction}" : "..." )}";
 
@@ -271,9 +271,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             JToken? ICanBeResolved.Data
             {
                 get => _codeAction?.Data;
-                set {
+                init {
                     if (_codeAction == null) return;
-                    _codeAction.Data = value;
+                    _codeAction = _codeAction with { Data = value };
                 }
             }
         }

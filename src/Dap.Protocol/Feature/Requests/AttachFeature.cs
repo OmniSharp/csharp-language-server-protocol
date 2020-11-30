@@ -20,7 +20,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class AttachRequestArguments : IRequest<AttachResponse>
+        public record AttachRequestArguments : IRequest<AttachResponse>
         {
             /// <summary>
             /// Optional data from the previous, restarted session.
@@ -29,12 +29,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// </summary>
             [Optional]
             [JsonProperty(PropertyName = "__restart")]
-            public JToken? Restart { get; set; }
+            public JToken? Restart { get; init; }
 
-            [JsonExtensionData] public IDictionary<string, object> ExtensionData { get; set; } = new Dictionary<string, object>();
+            [JsonExtensionData] public IDictionary<string, object> ExtensionData { get; init; } = new Dictionary<string, object>();
         }
 
-        public class AttachResponse
+        public record AttachResponse
         {
         }
     }

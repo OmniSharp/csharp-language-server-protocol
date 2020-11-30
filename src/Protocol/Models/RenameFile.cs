@@ -5,7 +5,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     /// Rename file operation
     /// </summary>
-    public class RenameFile : IFile
+    public record RenameFile : IFile
     {
         /// <summary>
         /// A rename
@@ -15,17 +15,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The old (existing) location.
         /// </summary>
-        public DocumentUri OldUri { get; set; } = null!;
+        public DocumentUri OldUri { get; init; }
 
         /// <summary>
         /// The new location.
         /// </summary>
-        public DocumentUri NewUri { get; set; } = null!;
+        public DocumentUri NewUri { get; init; }
 
         /// <summary>
         /// Rename Options.
         /// </summary>
         [Optional]
-        public RenameFileOptions? Options { get; set; }
+        public RenameFileOptions? Options { get; init; }
     }
 }

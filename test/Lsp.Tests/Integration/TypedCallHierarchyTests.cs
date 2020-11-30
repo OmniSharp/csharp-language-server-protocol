@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Lsp.Tests.Integration.Fixtures;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Testing;
@@ -209,19 +212,6 @@ namespace Lsp.Tests.Integration
                                      .Take(1)
                                      .ToTask(CancellationToken);
             outgoingHandler.Received(1).Invoke(Arg.Any<CallHierarchyOutgoingCallsParams<Data>>(), Arg.Any<IObserver<IEnumerable<CallHierarchyOutgoingCall>>>());
-        }
-
-        private class Data : HandlerIdentity
-        {
-            public string Name { get; set; } = null!;
-            public Guid Id { get; set; }
-            public Nested Child { get; set; } = null!;
-        }
-
-        private class Nested : HandlerIdentity
-        {
-            // ReSharper disable once UnusedAutoPropertyAccessor.Local
-            public DateTimeOffset Date { get; set; }
         }
     }
 }

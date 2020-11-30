@@ -5,7 +5,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     /// Delete file operation
     /// </summary>
-    public class DeleteFile : IFile
+    public record DeleteFile : IFile
     {
         /// <summary>
         /// A delete
@@ -15,12 +15,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The file to delete.
         /// </summary>
-        public DocumentUri Uri { get; set; } = null!;
+        public DocumentUri Uri { get; init; }
 
         /// <summary>
         /// Delete Options.
         /// </summary>
         [Optional]
-        public DeleteFileOptions? Options { get; set; }
+        public DeleteFileOptions? Options { get; init; }
     }
 }

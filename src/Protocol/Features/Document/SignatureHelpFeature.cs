@@ -27,7 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(SignatureHelpRegistrationOptions)), Capability(typeof(SignatureHelpCapability))]
-        public partial class SignatureHelpParams : TextDocumentPositionParams, IWorkDoneProgressParams, IRequest<SignatureHelp?>
+        public partial record SignatureHelpParams : TextDocumentPositionParams, IWorkDoneProgressParams, IRequest<SignatureHelp?>
         {
             /// <summary>
             /// The signature help context. This is only available if the client specifies
@@ -35,7 +35,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             ///
             /// @since 3.15.0
             /// </summary>
-            public SignatureHelpContext Context { get; set; } = null!;
+            public SignatureHelpContext Context { get; init; }
         }
 
         /// <summary>
@@ -43,12 +43,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.15.0
         /// </summary>
-        public class SignatureHelpContext
+        public record SignatureHelpContext
         {
             /// <summary>
             /// Action that caused signature help to be triggered.
             /// </summary>
-            public SignatureHelpTriggerKind TriggerKind { get; set; }
+            public SignatureHelpTriggerKind TriggerKind { get; init; }
 
             /// <summary>
             /// Character that caused signature help to be triggered.
@@ -56,7 +56,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// This is undefined when `triggerKind !== SignatureHelpTriggerKind.TriggerCharacter`
             /// </summary>
             [Optional]
-            public string? TriggerCharacter { get; set; }
+            public string? TriggerCharacter { get; init; }
 
             /// <summary>
             /// `true` if signature help was already showing when it was triggered.
@@ -64,7 +64,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// Retriggers occur when the signature help is already active and can be caused by actions such as
             /// typing a trigger character, a cursor move, or document content changes.
             /// </summary>
-            public bool IsRetrigger { get; set; }
+            public bool IsRetrigger { get; init; }
 
             /// <summary>
             /// The currently active `SignatureHelp`.
@@ -73,7 +73,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// the user navigating through available signatures.
             /// </summary>
             [Optional]
-            public SignatureHelp? ActiveSignatureHelp { get; set; }
+            public SignatureHelp? ActiveSignatureHelp { get; init; }
         }
 
         /// <summary>
@@ -105,24 +105,24 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// callable. There can be multiple signature but only one
         /// active and only one active parameter.
         /// </summary>
-        public partial class SignatureHelp
+        public partial record SignatureHelp
         {
             /// <summary>
             /// One or more signatures.
             /// </summary>
-            public Container<SignatureInformation> Signatures { get; set; } = new Container<SignatureInformation>();
+            public Container<SignatureInformation> Signatures { get; init; } = new();
 
             /// <summary>
             /// The active signature.
             /// </summary>
             [Optional]
-            public int? ActiveSignature { get; set; }
+            public int? ActiveSignature { get; init; }
 
             /// <summary>
             /// The active parameter of the active signature.
             /// </summary>
             [Optional]
-            public int? ActiveParameter { get; set; }
+            public int? ActiveParameter { get; init; }
         }
 
         /// <summary>
@@ -131,26 +131,26 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// a set of parameters.
         /// </summary>
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-        public class SignatureInformation
+        public record SignatureInformation
         {
             /// <summary>
             /// The label of this signature. Will be shown in
             /// the UI.
             /// </summary>
-            public string Label { get; set; } = null!;
+            public string Label { get; init; }
 
             /// <summary>
             /// The human-readable doc-comment of this signature. Will be shown
             /// in the UI but can be omitted.
             /// </summary>
             [Optional]
-            public StringOrMarkupContent? Documentation { get; set; }
+            public StringOrMarkupContent? Documentation { get; init; }
 
             /// <summary>
             /// The parameters of this signature.
             /// </summary>
             [Optional]
-            public Container<ParameterInformation>? Parameters { get; set; }
+            public Container<ParameterInformation>? Parameters { get; init; }
 
             /// <summary>
             /// The index of the active parameter.
@@ -160,7 +160,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// @since 3.16.0 - proposed state
             /// </summary>
             [Optional]
-            public int? ActiveParameter { get; set; }
+            public int? ActiveParameter { get; init; }
 
             private string DebuggerDisplay => $"{Label}{Documentation?.ToString() ?? ""}";
 
@@ -173,20 +173,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// have a label and a doc-comment.
         /// </summary>
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-        public class ParameterInformation
+        public record ParameterInformation
         {
             /// <summary>
             /// The label of this parameter. Will be shown in
             /// the UI.
             /// </summary>
-            public ParameterInformationLabel Label { get; set; } = null!;
+            public ParameterInformationLabel Label { get; init; }
 
             /// <summary>
             /// The human-readable doc-comment of this parameter. Will be shown
             /// in the UI but can be omitted.
             /// </summary>
             [Optional]
-            public StringOrMarkupContent? Documentation { get; set; }
+            public StringOrMarkupContent? Documentation { get; init; }
 
             private string DebuggerDisplay => $"{Label}{( Documentation != null ? $" {Documentation}" : string.Empty )}";
 
@@ -196,7 +196,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         [JsonConverter(typeof(ParameterInformationLabelConverter))]
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-        public class ParameterInformationLabel
+        public record ParameterInformationLabel
         {
             public ParameterInformationLabel((int start, int end) range) => Range = range;
 

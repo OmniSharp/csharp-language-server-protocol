@@ -24,29 +24,26 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Method(WorkspaceNames.WorkspaceSymbol, Direction.ClientToServer)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace", Name = "WorkspaceSymbols"), GenerateHandlerMethods, GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
         [RegistrationOptions(typeof(WorkspaceSymbolRegistrationOptions)), Capability(typeof(WorkspaceSymbolCapability))]
-        public partial class WorkspaceSymbolParams : IPartialItemsRequest<Container<SymbolInformation>?, SymbolInformation>, IWorkDoneProgressParams
+        public partial record WorkspaceSymbolParams : IPartialItemsRequest<Container<SymbolInformation>?, SymbolInformation>, IWorkDoneProgressParams
         {
             /// <summary>
             /// A non-empty query string
             /// </summary>
-            public string Query { get; set; } = null!;
+            public string Query { get; init; }
         }
 
-        [GenerateRegistrationOptions(nameof(ServerCapabilities.WorkspaceSymbolProvider))]
-        public partial class WorkspaceSymbolRegistrationOptions : IWorkDoneProgressOptions { }
-
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-        public partial class SymbolInformation
+        public partial record SymbolInformation
         {
             /// <summary>
             /// The name of this symbol.
             /// </summary>
-            public string Name { get; set; } = null!;
+            public string Name { get; init; }
 
             /// <summary>
             /// The kind of this symbol.
             /// </summary>
-            public SymbolKind Kind { get; set; }
+            public SymbolKind Kind { get; init; }
 
             /// <summary>
             /// Tags for this completion item.
@@ -55,30 +52,33 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             [Obsolete(Constants.Proposal)]
             [Optional]
-            public Container<SymbolTag>? Tags { get; set; }
+            public Container<SymbolTag>? Tags { get; init; }
 
             /// <summary>
             /// Indicates if this item is deprecated.
             /// </summary>
             [Optional]
-            public bool Deprecated { get; set; }
+            public bool Deprecated { get; init; }
 
             /// <summary>
             /// The location of this symbol.
             /// </summary>
-            public Location Location { get; set; } = null!;
+            public Location Location { get; init; }
 
             /// <summary>
             /// The name of the symbol containing this symbol.
             /// </summary>
             [Optional]
-            public string? ContainerName { get; set; }
+            public string? ContainerName { get; init; }
 
             private string DebuggerDisplay => $"[{Kind}@{Location}] {Name}";
 
             /// <inheritdoc />
             public override string ToString() => DebuggerDisplay;
         }
+
+        [GenerateRegistrationOptions(nameof(ServerCapabilities.WorkspaceSymbolProvider))]
+        public partial class WorkspaceSymbolRegistrationOptions : IWorkDoneProgressOptions { }
     }
     namespace Client.Capabilities
     {

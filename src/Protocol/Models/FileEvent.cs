@@ -6,17 +6,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// An event describing a file change.
     /// </summary>
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    public class FileEvent
+    public record FileEvent
     {
         /// <summary>
         /// The file's URI.
         /// </summary>
-        public DocumentUri Uri { get; set; } = null!;
+        public DocumentUri Uri { get; init; }
 
         /// <summary>
         /// The change type.
         /// </summary>
-        public FileChangeType Type { get; set; }
+        public FileChangeType Type { get; init; }
 
         private string DebuggerDisplay => $"[{Type}] {Uri}";
 

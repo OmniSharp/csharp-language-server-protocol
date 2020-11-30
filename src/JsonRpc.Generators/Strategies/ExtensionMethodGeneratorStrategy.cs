@@ -64,7 +64,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             yield return NamespaceDeclaration(ParseName(item.JsonRpcAttributes.HandlerNamespace))
                                       .WithMembers(
                                            SingletonList<MemberDeclarationSyntax>(
-                                               ClassDeclaration(className)
+                                                ClassDeclaration(className)
                                                             .WithAttributeLists(attributes)
                                                             .WithModifiers(
                                                                  TokenList(

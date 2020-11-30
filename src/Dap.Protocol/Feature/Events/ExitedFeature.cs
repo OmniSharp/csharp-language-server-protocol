@@ -16,12 +16,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class ExitedEvent : IRequest
+        public record ExitedEvent : IRequest
         {
             /// <summary>
             /// The exit code returned from the debuggee.
             /// </summary>
-            public long ExitCode { get; set; }
+            public long ExitCode { get; init; }
         }
     }
 }

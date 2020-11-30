@@ -2,6 +2,7 @@ using FluentAssertions;
 using NSubstitute;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -31,7 +32,7 @@ namespace Lsp.Tests.Capabilities.Client
             result.Should().Be(expected);
 
             var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<WorkspaceClientCapabilities>(expected);
-            deresult.Should().BeEquivalentTo(model, o => o.ConfigureForSupports(Logger));
+            deresult.Should().BeEquivalentTo(model, x => x.UsingStructuralRecordEquality().ConfigureForSupports(Logger));
         }
 
         [Theory]
@@ -45,7 +46,7 @@ namespace Lsp.Tests.Capabilities.Client
             result.Should().Be(expected);
 
             var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<WorkspaceClientCapabilities>(expected);
-            deresult.Should().BeEquivalentTo(model);
+            deresult.Should().BeEquivalentTo(model, x => x.UsingStructuralRecordEquality());
         }
     }
 }

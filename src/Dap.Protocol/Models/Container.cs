@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
@@ -18,10 +20,70 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         {
         }
 
-        public static implicit operator Container<T>(T[] items) => new Container<T>(items);
+        [return: NotNullIfNotNull("items")]
+        public static Container<T>? From(IEnumerable<T>? items) => items switch {
+            not null => new Container<T>(items),
+            _        => null
+        };
 
-        public static implicit operator Container<T>(Collection<T> items) => new Container<T>(items);
+        [return: NotNullIfNotNull("items")]
+        public static implicit operator Container<T>?(T[] items) => items switch {
+            not null => new Container<T>(items),
+            _        => null
+        };
 
-        public static implicit operator Container<T>(List<T> items) => new Container<T>(items);
+        [return: NotNullIfNotNull("items")]
+        public static Container<T>? From(params T[] items) => items switch {
+            not null => new Container<T>(items),
+            _        => null
+        };
+
+        [return: NotNullIfNotNull("items")]
+        public static implicit operator Container<T>?(Collection<T>? items) => items switch {
+            not null => new Container<T>(items),
+            _        => null
+        };
+
+        [return: NotNullIfNotNull("items")]
+        public static Container<T>? From(Collection<T>? items) => items switch {
+            not null => new Container<T>(items),
+            _        => null
+        };
+
+        [return: NotNullIfNotNull("items")]
+        public static implicit operator Container<T>?(List<T>? items) => items switch {
+            not null => new Container<T>(items),
+            _        => null
+        };
+
+        [return: NotNullIfNotNull("items")]
+        public static Container<T>? From(List<T>? items) => items switch {
+            not null => new Container<T>(items),
+            _        => null
+        };
+
+        [return: NotNullIfNotNull("items")]
+        public static implicit operator Container<T>?(in ImmutableArray<T>? items) => items switch {
+            not null => new Container<T>(items),
+            _        => null
+        };
+
+        [return: NotNullIfNotNull("items")]
+        public static Container<T>? From(in ImmutableArray<T>? items) => items switch {
+            not null => new Container<T>(items),
+            _        => null
+        };
+
+        [return: NotNullIfNotNull("items")]
+        public static implicit operator Container<T>?(ImmutableList<T>? items) => items switch {
+            not null => new Container<T>(items),
+            _        => null
+        };
+
+        [return: NotNullIfNotNull("items")]
+        public static Container<T>? From(ImmutableList<T>? items) => items switch {
+            not null => new Container<T>(items),
+            _        => null
+        };
     }
 }

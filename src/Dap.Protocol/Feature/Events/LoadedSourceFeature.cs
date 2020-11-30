@@ -19,17 +19,17 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class LoadedSourceEvent : IRequest
+        public record LoadedSourceEvent : IRequest
         {
             /// <summary>
             /// The reason for the event.
             /// </summary>
-            public LoadedSourceReason Reason { get; set; }
+            public LoadedSourceReason Reason { get; init; }
 
             /// <summary>
             /// The new, changed, or removed source.
             /// </summary>
-            public Source Source { get; set; } = null!;
+            public Source Source { get; init; }
         }
 
         [JsonConverter(typeof(StringEnumConverter))]

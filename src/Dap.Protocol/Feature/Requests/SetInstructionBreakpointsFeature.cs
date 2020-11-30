@@ -17,20 +17,20 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class SetInstructionBreakpointsArguments : IRequest<SetInstructionBreakpointsResponse>
+        public record SetInstructionBreakpointsArguments : IRequest<SetInstructionBreakpointsResponse>
         {
             /// <summary>
             /// The contents of this array replaces all existing data breakpoints. An empty array clears all data breakpoints.
             /// </summary>
-            public Container<DataBreakpoint> Breakpoints { get; set; } = null!;
+            public Container<DataBreakpoint> Breakpoints { get; init; }
         }
 
-        public class SetInstructionBreakpointsResponse
+        public record SetInstructionBreakpointsResponse
         {
             /// <summary>
             /// Information about the data breakpoints.The array elements correspond to the elements of the input argument 'breakpoints' array.
             /// </summary>
-            public Container<Breakpoint> Breakpoints { get; set; } = null!;
+            public Container<Breakpoint> Breakpoints { get; init; }
         }
     }
 

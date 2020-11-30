@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(HoverRegistrationOptions)), Capability(typeof(HoverCapability))]
-        public partial class HoverParams : TextDocumentPositionParams, IWorkDoneProgressParams, IRequest<Hover?>
+        public partial record HoverParams : TextDocumentPositionParams, IWorkDoneProgressParams, IRequest<Hover?>
         {
         }
 
@@ -33,19 +33,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// The result of a hover request.
         /// </summary>
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-        public partial class Hover
+        public partial record Hover
         {
             /// <summary>
             /// The hover's content
             /// </summary>
-            public MarkedStringsOrMarkupContent Contents { get; set; } = null!;
+            public MarkedStringsOrMarkupContent Contents { get; init; }
 
             /// <summary>
             /// An optional range is a range inside a text document
             /// that is used to visualize a hover, e.g. by changing the background color.
             /// </summary>
             [Optional]
-            public Range? Range { get; set; }
+            public Range? Range { get; init; }
 
             private string DebuggerDisplay => $"{Contents}{( Range is not null ? $" {Range}" : string.Empty )}";
 

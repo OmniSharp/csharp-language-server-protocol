@@ -69,8 +69,8 @@ namespace SampleServer
 
         protected override TextDocumentSyncRegistrationOptions CreateRegistrationOptions(SynchronizationCapability capability, ClientCapabilities clientCapabilities) => new TextDocumentSyncRegistrationOptions() {
             DocumentSelector = _documentSelector,
-            SyncKind = Change,
-            IncludeText = true
+            Change = Change,
+            Save = new SaveOptions() { IncludeText = true }
         };
 
         public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri) => new TextDocumentAttributes(uri, "csharp");

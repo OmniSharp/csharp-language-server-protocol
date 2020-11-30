@@ -23,16 +23,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(ReferenceRegistrationOptions)), Capability(typeof(ReferenceCapability))]
-        public partial class ReferenceParams : TextDocumentPositionParams, IWorkDoneProgressParams, IPartialItemsRequest<LocationContainer, Location>
+        public partial record ReferenceParams : TextDocumentPositionParams, IWorkDoneProgressParams, IPartialItemsRequest<LocationContainer, Location>
         {
-            public ReferenceContext Context { get; set; } = null!;
+            public ReferenceContext Context { get; init; }
         }
-        public class ReferenceContext
+        public record ReferenceContext
         {
             /// <summary>
             /// Include the declaration of the current symbol.
             /// </summary>
-            public bool IncludeDeclaration { get; set; }
+            public bool IncludeDeclaration { get; init; }
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.ReferencesProvider))]

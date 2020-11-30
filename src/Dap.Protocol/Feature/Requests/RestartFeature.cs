@@ -16,11 +16,11 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class RestartArguments : IRequest<RestartResponse>
+        public record RestartArguments : IRequest<RestartResponse>
         {
         }
 
-        public class RestartResponse
+        public record RestartResponse
         {
         }
     }

@@ -4,8 +4,7 @@ using System.Diagnostics;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    public partial  class Position : IEquatable<Position>, IComparable<Position>, IComparable
+    public partial record Position : IComparable<Position>, IComparable
     {
         public Position()
         {
@@ -33,13 +32,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </remarks>
         public int Character { get; set; }
 
-        public override bool Equals(object? obj) => Equals(obj as Position);
-
-        public bool Equals(Position? other) =>
-            other is not null &&
-            Line == other.Line &&
-            Character == other.Character;
-
         public int CompareTo(Position? other)
         {
             if (ReferenceEquals(this, other)) return 0;
@@ -55,18 +47,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             return obj is Position other ? CompareTo(other) : throw new ArgumentException($"Object must be of type {nameof(Position)}");
         }
 
-        public override int GetHashCode()
-        {
-            var hashCode = 1927683087;
-            hashCode = hashCode * -1521134295 + Line.GetHashCode();
-            hashCode = hashCode * -1521134295 + Character.GetHashCode();
-            return hashCode;
-        }
-
-        public static bool operator ==(Position position1, Position position2) => EqualityComparer<Position>.Default.Equals(position1, position2);
-
-        public static bool operator !=(Position position1, Position position2) => !( position1 == position2 );
-
         public static implicit operator Position((int line, int character) value) => new Position(value.line, value.character);
 
         public static bool operator <(Position left, Position right) => Comparer<Position>.Default.Compare(left, right) < 0;
@@ -77,9 +57,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public static bool operator >=(Position left, Position right) => Comparer<Position>.Default.Compare(left, right) >= 0;
 
-        private string DebuggerDisplay => $"(line: {Line}, char: {Character})";
-
         /// <inheritdoc />
-        public override string ToString() => DebuggerDisplay;
+        public override string ToString() => $"(line: {Line}, char: {Character})";
     }
 }

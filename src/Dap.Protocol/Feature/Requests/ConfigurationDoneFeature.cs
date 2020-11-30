@@ -16,11 +16,11 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class ConfigurationDoneArguments : IRequest<ConfigurationDoneResponse>
+        public record ConfigurationDoneArguments : IRequest<ConfigurationDoneResponse>
         {
         }
 
-        public class ConfigurationDoneResponse
+        public record ConfigurationDoneResponse
         {
         }
     }

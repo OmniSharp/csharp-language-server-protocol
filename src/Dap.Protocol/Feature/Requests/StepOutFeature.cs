@@ -18,21 +18,21 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class StepOutArguments : IRequest<StepOutResponse>
+        public record StepOutArguments : IRequest<StepOutResponse>
         {
             /// <summary>
             /// Execute 'stepOut' for this thread.
             /// </summary>
-            public long ThreadId { get; set; }
+            public long ThreadId { get; init; }
 
             /// <summary>
             /// Optional granularity to step. If no granularity is specified, a granularity of 'statement' is assumed.
             /// </summary>
             [Optional]
-            public SteppingGranularity? Granularity { get; set; }
+            public SteppingGranularity? Granularity { get; init; }
         }
 
-        public class StepOutResponse
+        public record StepOutResponse
         {
         }
     }

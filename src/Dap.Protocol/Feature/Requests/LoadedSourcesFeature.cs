@@ -17,16 +17,16 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class LoadedSourcesArguments : IRequest<LoadedSourcesResponse>
+        public record LoadedSourcesArguments : IRequest<LoadedSourcesResponse>
         {
         }
 
-        public class LoadedSourcesResponse
+        public record LoadedSourcesResponse
         {
             /// <summary>
             /// Set of loaded sources.
             /// </summary>
-            public Container<Source> Sources { get; set; } = null!;
+            public Container<Source> Sources { get; init; }
         }
     }
 

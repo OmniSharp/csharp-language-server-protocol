@@ -19,24 +19,24 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class ProcessEvent : IRequest
+        public record ProcessEvent : IRequest
         {
             /// <summary>
             /// The logical name of the process. This is usually the full path to process's executable file. Example: /home/example/myproj/program.js.
             /// </summary>
-            public string Name { get; set; } = null!;
+            public string Name { get; init; }
 
             /// <summary>
             /// The system process id of the debugged process. This property will be missing for non-system processes.
             /// </summary>
             [Optional]
-            public long? SystemProcessId { get; set; }
+            public long? SystemProcessId { get; init; }
 
             /// <summary>
             /// If true, the process is running on the same computer as the debug adapter.
             /// </summary>
             [Optional]
-            public bool IsLocalProcess { get; set; }
+            public bool IsLocalProcess { get; init; }
 
             /// <summary>
             /// Describes how the debug engine started debugging this process.
@@ -45,13 +45,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// 'attachForSuspendedLaunch': A project launcher component has launched a new process in a suspended state and then asked the debugger to attach.
             /// </summary>
             [Optional]
-            public ProcessEventStartMethod? StartMethod { get; set; }
+            public ProcessEventStartMethod? StartMethod { get; init; }
 
             /// <summary>
             /// The size of a pointer or address for this process, in bits. This value may be used by clients when formatting addresses for display.
             /// </summary>
             [Optional]
-            public long? PointerSize { get; set; }
+            public long? PointerSize { get; init; }
         }
 
         [JsonConverter(typeof(StringEnumConverter))]

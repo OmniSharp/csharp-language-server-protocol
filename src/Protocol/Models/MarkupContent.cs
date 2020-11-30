@@ -27,17 +27,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// remove HTML from the markdown to avoid script execution.
     /// </summary>
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    public class MarkupContent
+    public record MarkupContent
     {
         /// <summary>
         /// The type of the Markup
         /// </summary>
-        public MarkupKind Kind { get; set; }
+        public MarkupKind Kind { get; init; }
 
         /// <summary>
         /// The content itself
         /// </summary>
-        public string Value { get; set; } = null!;
+        public string Value { get; init; }
 
         private string DebuggerDisplay => $"[{Kind}] {Value}";
 

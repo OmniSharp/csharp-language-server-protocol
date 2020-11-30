@@ -16,18 +16,18 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class ThreadEvent : IRequest
+        public record ThreadEvent : IRequest
         {
             /// <summary>
             /// The reason for the event.
             /// Values: 'started', 'exited', etc.
             /// </summary>
-            public string Reason { get; set; } = null!;
+            public string Reason { get; init; }
 
             /// <summary>
             /// The identifier of the thread.
             /// </summary>
-            public long ThreadId { get; set; }
+            public long ThreadId { get; init; }
         }
     }
 }

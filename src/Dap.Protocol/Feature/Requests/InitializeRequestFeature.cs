@@ -18,7 +18,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public class InitializeRequestArguments : IRequest<InitializeResponse>, IInitializeRequestArguments
+        public record InitializeRequestArguments : IRequest<InitializeResponse>, IInitializeRequestArguments
         {
             /// <summary>
             /// The ID of the(frontend) client using this adapter.
@@ -96,7 +96,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public bool SupportsProgressReporting { get; set; }
         }
 
-        public class InitializeResponse : Capabilities
+        public record InitializeResponse : Capabilities
         {
         }
     }
