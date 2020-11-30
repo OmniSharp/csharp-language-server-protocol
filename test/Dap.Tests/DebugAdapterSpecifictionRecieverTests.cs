@@ -44,7 +44,7 @@ namespace Dap.Tests
                 }
             );
 
-            response.Should().Be("{\"supportsConfigurationDoneRequest\":false,\"supportsFunctionBreakpoints\":false,\"supportsConditionalBreakpoints\":false,\"supportsHitConditionalBreakpoints\":false,\"supportsEvaluateForHovers\":false,\"supportsStepBack\":false,\"supportsSetVariable\":false,\"supportsRestartFrame\":false,\"supportsGotoTargetsRequest\":false,\"supportsStepInTargetsRequest\":false,\"supportsCompletionsRequest\":false,\"supportsModulesRequest\":false,\"supportsRestartRequest\":false,\"supportsExceptionOptions\":false,\"supportsValueFormattingOptions\":false,\"supportsExceptionInfoRequest\":false,\"supportTerminateDebuggee\":false,\"supportsDelayedStackTraceLoading\":false,\"supportsLoadedSourcesRequest\":false,\"supportsLogPoints\":false,\"supportsTerminateThreadsRequest\":false,\"supportsSetExpression\":false,\"supportsTerminateRequest\":false,\"supportsDataBreakpoints\":false,\"supportsReadMemoryRequest\":false,\"supportsDisassembleRequest\":false,\"supportsCancelRequest\":true,\"supportsBreakpointLocationsRequest\":false,\"supportsClipboardContext\":false,\"supportsSteppingGranularity\":false,\"supportsInstructionBreakpoints\":false}");
+            response.Should().Be(@"{""supportsCancelRequest"":true}");
         }
 
         private class SpecificationMessages : TheoryData<string, Renor[]>

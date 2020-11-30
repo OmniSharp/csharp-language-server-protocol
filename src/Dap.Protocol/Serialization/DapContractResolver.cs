@@ -17,6 +17,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Serialization
             )
             {
                 property.NullValueHandling = NullValueHandling.Ignore;
+                property.DefaultValueHandling = DefaultValueHandling.Ignore;
             }
 
             return property;

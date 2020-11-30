@@ -7,21 +7,14 @@
     },
     "completion": {
         "completionItem": {
-            "snippetSupport": true,
-            "commitCharactersSupport": false,
-            "deprecatedSupport": false,
-            "preselectSupport": false,
-            "insertReplaceSupport": false,
-            "resolveAdditionalTextEditsSupport": false
+            "snippetSupport": true
         },
-        "contextSupport": false,
         "dynamicRegistration": true
     },
     "hover": {
         "dynamicRegistration": true
     },
     "signatureHelp": {
-        "contextSupport": false,
         "dynamicRegistration": true
     },
     "references": {
@@ -31,8 +24,6 @@
         "dynamicRegistration": true
     },
     "documentSymbol": {
-        "hierarchicalDocumentSymbolSupport": false,
-        "labelSupport": false,
         "dynamicRegistration": true
     },
     "formatting": {
@@ -45,25 +36,18 @@
         "dynamicRegistration": true
     },
     "definition": {
-        "linkSupport": false,
         "dynamicRegistration": true
     },
     "codeAction": {
-        "isPreferredSupport": false,
-        "disabledSupport": false,
-        "dataSupport": false,
         "dynamicRegistration": true
     },
     "codeLens": {
         "dynamicRegistration": true
     },
     "documentLink": {
-        "tooltipSupport": false,
         "dynamicRegistration": true
     },
     "rename": {
-        "prepareSupport": false,
-        "prepareSupportDefaultBehavior": false,
         "dynamicRegistration": true
     }
 }

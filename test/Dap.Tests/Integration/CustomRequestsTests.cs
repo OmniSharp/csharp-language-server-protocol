@@ -93,7 +93,7 @@ namespace Dap.Tests.Integration
             var fake = Substitute.For<LaunchHandlerBase<CustomLaunchRequestArguments>>();
             var (client, _) = await Initialize(options => { }, options => { options.AddHandler(fake); });
 
-            await client.RequestLaunch(
+            await client.Launch(
                 new CustomLaunchRequestArguments {
                     Script = "build.ps1"
                 }
@@ -111,7 +111,7 @@ namespace Dap.Tests.Integration
             var fake = Substitute.For<LaunchHandlerBase>();
             var (client, _) = await Initialize(options => { }, options => { options.AddHandler(fake); });
 
-            await client.RequestLaunch(
+            await client.Launch(
                 new CustomLaunchRequestArguments {
                     Script = "build.ps1"
                 }
@@ -129,7 +129,7 @@ namespace Dap.Tests.Integration
             var fake = Substitute.For<LaunchHandlerBase<CustomLaunchRequestArguments>>();
             var (client, _) = await Initialize(options => { }, options => { options.AddHandler(fake); });
 
-            await client.RequestLaunch(
+            await client.Launch(
                 new CustomLaunchRequestArguments {
                     ExtensionData = new Dictionary<string, object> {
                         ["Script"] = "build.ps1"
@@ -217,7 +217,7 @@ namespace Dap.Tests.Integration
             var fake = Substitute.For<Func<CustomLaunchRequestArguments, CancellationToken, Task<LaunchResponse>>>();
             var (client, _) = await Initialize(options => { }, options => { options.OnLaunch(fake); });
 
-            await client.RequestLaunch(
+            await client.Launch(
                 new CustomLaunchRequestArguments {
                     Script = "build.ps1"
                 }
@@ -235,7 +235,7 @@ namespace Dap.Tests.Integration
             var fake = Substitute.For<Func<LaunchRequestArguments, CancellationToken, Task<LaunchResponse>>>();
             var (client, _) = await Initialize(options => { }, options => { options.OnLaunch(fake); });
 
-            await client.RequestLaunch(
+            await client.Launch(
                 new CustomLaunchRequestArguments {
                     Script = "build.ps1"
                 }
@@ -253,7 +253,7 @@ namespace Dap.Tests.Integration
             var fake = Substitute.For<Func<CustomLaunchRequestArguments, CancellationToken, Task<LaunchResponse>>>();
             var (client, _) = await Initialize(options => { }, options => { options.OnLaunch(fake); });
 
-            await client.RequestLaunch(
+            await client.Launch(
                 new CustomLaunchRequestArguments {
                     ExtensionData = new Dictionary<string, object> {
                         ["Script"] = "build.ps1"

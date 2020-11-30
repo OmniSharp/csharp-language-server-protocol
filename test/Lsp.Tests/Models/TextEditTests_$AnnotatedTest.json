@@ -11,8 +11,8 @@
     },
     "newText": "new text",
     "annotation": {
-        "description": "Cool story",
         "label": "Heck ya",
-        "needsConfirmation": true
+        "needsConfirmation": true,
+        "description": "Cool story"
     }
 }

@@ -154,6 +154,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     ///
     /// @since 3.16.0 - proposed state.
     /// </summary>
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     [JsonConverter(typeof(TextEditConverter))]
     public record AnnotatedTextEdit : TextEdit
     {
@@ -161,5 +162,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The actual annotation
         /// </summary>
         public ChangeAnnotation Annotation { get; init; }
+
+        private string DebuggerDisplay => $"annotated: {Range} {( string.IsNullOrWhiteSpace(NewText) ? string.Empty : NewText.Length > 30 ? NewText.Substring(0, 30) : NewText )}";
+
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

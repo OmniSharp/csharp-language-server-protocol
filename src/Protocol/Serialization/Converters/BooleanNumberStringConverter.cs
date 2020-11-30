@@ -18,7 +18,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
         {
             if (reader.TokenType == JsonToken.Integer)
             {
-                return new BooleanNumberString((int) reader.Value);
+                return new BooleanNumberString(Convert.ToInt32((long)reader.Value));
             }
 
             if (reader.TokenType == JsonToken.String)

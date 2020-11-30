@@ -1,12 +1,3 @@
 {
-    "completionItem": {
-        "snippetSupport": false,
-        "commitCharactersSupport": false,
-        "deprecatedSupport": false,
-        "preselectSupport": false,
-        "insertReplaceSupport": false,
-        "resolveAdditionalTextEditsSupport": false
-    },
-    "contextSupport": false,
-    "dynamicRegistration": false
+    "completionItem": {}
 }

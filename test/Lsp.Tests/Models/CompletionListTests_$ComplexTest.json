@@ -4,11 +4,7 @@
         {
             "label": null,
             "kind": 7,
-            "detail": "details",
-            "deprecated": false,
-            "preselect": false,
-            "insertTextFormat": 0,
-            "insertTextMode": 0
+            "detail": "details"
         }
     ]
 }

@@ -674,7 +674,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
             where T : AttachRequestArguments => registry.AddHandler(""attach"", RequestHandler.For(handler));
         public static IDebugAdapterServerRegistry OnAttachRequest<T>(this IDebugAdapterServerRegistry registry, Func<T, CancellationToken, Task<AttachResponse>> handler)
             where T : AttachRequestArguments => registry.AddHandler(""attach"", RequestHandler.For(handler));
-        public static Task<AttachResponse> RequestAttachRequest(this IDebugAdapterClient mediator, AttachRequestArguments request, CancellationToken cancellationToken = default) => mediator.SendRequest(request, cancellationToken);
+        public static Task<AttachResponse> AttachRequest(this IDebugAdapterClient mediator, AttachRequestArguments request, CancellationToken cancellationToken = default) => mediator.SendRequest(request, cancellationToken);
     }
 #nullable restore
 }";
@@ -750,7 +750,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
             where T : AttachRequestArguments => registry.AddHandler(""attach"", RequestHandler.For(handler));
         public static IDebugAdapterServerRegistry OnAttachRequest<T>(this IDebugAdapterServerRegistry registry, Func<T, CancellationToken, Task<AttachResponse?>> handler)
             where T : AttachRequestArguments => registry.AddHandler(""attach"", RequestHandler.For(handler));
-        public static Task<AttachResponse?> RequestAttachRequest(this IDebugAdapterClient mediator, AttachRequestArguments request, CancellationToken cancellationToken = default) => mediator.SendRequest(request, cancellationToken);
+        public static Task<AttachResponse?> AttachRequest(this IDebugAdapterClient mediator, AttachRequestArguments request, CancellationToken cancellationToken = default) => mediator.SendRequest(request, cancellationToken);
     }
 #nullable restore
 }";
@@ -826,7 +826,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
             where T : AttachRequestArguments => registry.AddHandler(""attach"", RequestHandler.For(handler));
         public static IDebugAdapterServerRegistry OnAttachRequest<T>(this IDebugAdapterServerRegistry registry, Func<T, CancellationToken, Task<AttachResponse>> handler)
             where T : AttachRequestArguments => registry.AddHandler(""attach"", RequestHandler.For(handler));
-        public static Task<AttachResponse> RequestAttachRequest(this IDebugAdapterClient mediator, AttachRequestArguments request, CancellationToken cancellationToken = default) => mediator.SendRequest(request, cancellationToken);
+        public static Task<AttachResponse> AttachRequest(this IDebugAdapterClient mediator, AttachRequestArguments request, CancellationToken cancellationToken = default) => mediator.SendRequest(request, cancellationToken);
     }
 #nullable restore
 }";

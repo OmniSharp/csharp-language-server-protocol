@@ -3,33 +3,25 @@
         "codeActionProvider": {
             "codeActionKinds": [
                 "quickfix"
-            ],
-            "resolveProvider": false,
-            "workDoneProgress": false
+            ]
         },
         "renameProvider": {
-            "prepareProvider": true,
-            "workDoneProgress": false
+            "prepareProvider": true
         },
         "experimental": {},
         "typeDefinitionProvider": {
-            "workDoneProgress": false,
             "id": "foo"
         },
         "implementationProvider": {
-            "workDoneProgress": false,
             "id": "foo"
         },
         "colorProvider": {
-            "workDoneProgress": false,
             "id": "foo"
         },
         "foldingRangeProvider": {
-            "workDoneProgress": false,
             "id": "foo"
         },
         "declarationProvider": {
-            "workDoneProgress": false,
             "id": "foo"
         }
     }

@@ -82,6 +82,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             )
             {
                 property.NullValueHandling = NullValueHandling.Ignore;
+                property.DefaultValueHandling = DefaultValueHandling.Ignore;
             }
 
             if (typeof(ISupports).IsAssignableFrom(property.PropertyType))

@@ -302,6 +302,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             ///
             /// @since 3.16.0
             /// </summary>
+            [Optional]
             public bool ResolveProvider { get; set; }
 
             class CodeActionRegistrationOptionsConverter : RegistrationOptionsConverterBase<CodeActionRegistrationOptions, StaticOptions>
