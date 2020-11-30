@@ -146,7 +146,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                 var attribute = interfaceType.GetAttributes().First(z => z.AttributeClass?.Name == "MethodAttribute");
                 if (attribute.ConstructorArguments.Length < 2)
                 {
-                    cacheDiagnostic( static c => Diagnostic.Create(GeneratorDiagnostics.MissingDirection, c.AttributeLists.GetAttribute("GenerateHandlerMethods")?.GetLocation()));
+                    cacheDiagnostic(static c => Diagnostic.Create(GeneratorDiagnostics.MissingDirection, c.AttributeLists.GetAttribute("GenerateHandlerMethods")?.GetLocation()));
                     yield break;
                 }
 
@@ -344,10 +344,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
             if (
                 name.StartsWith("Run")
              || name.StartsWith("Execute")
-                // TODO: Change this next breaking change
-                // || name.StartsWith("Set")
-                // || name.StartsWith("Attach")
-                // || name.StartsWith("Read")
+             || name.StartsWith("Set")
+             || name.StartsWith("Attach")
+             || name.StartsWith("Launch")
+             || name.StartsWith("Read")
              || name.StartsWith("Did")
              || name.StartsWith("Log")
              || name.StartsWith("Show")

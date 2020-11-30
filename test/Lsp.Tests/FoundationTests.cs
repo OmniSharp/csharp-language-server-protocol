@@ -191,13 +191,6 @@ namespace Lsp.Tests
         {
             _logger.LogInformation("Handler: {Type}", descriptor.HandlerType);
             // This test requires a refactor, the delegating handlers have been removed and replaced by shared implementations
-            // TODO:
-            // * Check for extension methods
-            // * Check for IPartialItem(s)<> extension methods
-            // * Check that the extension method calls `AddHandler` using the correct eventname
-            // * check extension method name
-            // * Also update events to have a nicer fire and forget abstract class
-            // * Ensure all notifications have an action and task returning function
             var abstractHandler = descriptor.HandlerType.Assembly.ExportedTypes.FirstOrDefault(z => z.IsAbstract && z.IsClass && descriptor.HandlerType.IsAssignableFrom(z));
             abstractHandler.Should().NotBeNull($"{descriptor.HandlerType.FullName} is missing abstract base class");
 
@@ -224,9 +217,6 @@ namespace Lsp.Tests
         )
         {
             // This test requires a refactor, the delegating handlers have been removed and replaced by shared implementations
-            // TODO:
-            // * Check for IPartialItem(s)<> extension methods
-            // * Also update events to have a nicer fire and forget abstract class
 
             _logger.LogInformation(
                 "Handler: {Type} {Extension} {ExtensionName} {OnMethod} {SendMethod}", descriptor.HandlerType,
@@ -764,6 +754,9 @@ namespace Lsp.Tests
             var name = SpecialCasedHandlerName(descriptor);
             if (name.StartsWith("Did")
              || name.StartsWith("Log")
+             || name.StartsWith("Set")
+             || name.StartsWith("Attach")
+             || name.StartsWith("Launch")
              || name.StartsWith("Show")
              || name.StartsWith("Register")
              || name.StartsWith("Prepare")

@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
 
         public ProgressToken WorkDoneToken { get; } = new ProgressToken("Noop");
 
-        public void OnNext(string message, double? percentage, bool? cancellable)
+        public void OnNext(string message, int? percentage, bool? cancellable)
         {
         }
 

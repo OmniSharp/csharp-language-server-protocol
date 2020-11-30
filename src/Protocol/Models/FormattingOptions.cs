@@ -13,13 +13,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// Size of a tab in spaces.
         /// </summary>
         /// <remarks>
-        /// TODO: UPDATE THIS next version
         /// <see cref="uint"/> in the LSP spec
         /// </remarks>
         [JsonIgnore]
-        public long TabSize
+        public int TabSize
         {
-            get => TryGetValue("tabSize", out var tabSize) && tabSize.IsLong ? tabSize.Long : -1;
+            get => TryGetValue("tabSize", out var tabSize) && tabSize.IsInteger ? tabSize.Integer : -1;
             set => this["tabSize"] = value;
         }
 

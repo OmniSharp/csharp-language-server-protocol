@@ -186,26 +186,27 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                     Assert.Equal(expectedCompletionItem.Label, actualCompletionItem.Label);
 
                     Assert.NotNull(actualCompletionItem.TextEdit);
-                    Assert.Equal(expectedCompletionItem.TextEdit!.NewText, actualCompletionItem.TextEdit!.NewText);
+                    Assert.True(actualCompletionItem.TextEdit!.IsTextEdit);
+                    Assert.Equal(expectedCompletionItem.TextEdit!.TextEdit!.NewText, actualCompletionItem.TextEdit.TextEdit!.NewText);
 
-                    Assert.NotNull(actualCompletionItem.TextEdit.Range);
-                    Assert.NotNull(actualCompletionItem.TextEdit.Range.Start);
-                    Assert.NotNull(actualCompletionItem.TextEdit.Range.End);
+                    Assert.NotNull(actualCompletionItem.TextEdit.TextEdit.Range);
+                    Assert.NotNull(actualCompletionItem.TextEdit.TextEdit.Range.Start);
+                    Assert.NotNull(actualCompletionItem.TextEdit.TextEdit.Range.End);
                     Assert.Equal(
-                        expectedCompletionItem.TextEdit.Range.Start.Line,
-                        actualCompletionItem.TextEdit.Range.Start.Line
+                        expectedCompletionItem.TextEdit.TextEdit.Range.Start.Line,
+                        actualCompletionItem.TextEdit.TextEdit.Range.Start.Line
                     );
                     Assert.Equal(
-                        expectedCompletionItem.TextEdit.Range.Start.Character,
-                        actualCompletionItem.TextEdit.Range.Start.Character
+                        expectedCompletionItem.TextEdit.TextEdit.Range.Start.Character,
+                        actualCompletionItem.TextEdit.TextEdit.Range.Start.Character
                     );
                     Assert.Equal(
-                        expectedCompletionItem.TextEdit.Range.End.Line,
-                        actualCompletionItem.TextEdit.Range.End.Line
+                        expectedCompletionItem.TextEdit.TextEdit.Range.End.Line,
+                        actualCompletionItem.TextEdit.TextEdit.Range.End.Line
                     );
                     Assert.Equal(
-                        expectedCompletionItem.TextEdit.Range.End.Character,
-                        actualCompletionItem.TextEdit.Range.End.Character
+                        expectedCompletionItem.TextEdit.TextEdit.Range.End.Character,
+                        actualCompletionItem.TextEdit.TextEdit.Range.End.Character
                     );
                 }
             );

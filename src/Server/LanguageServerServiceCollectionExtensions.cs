@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -76,7 +77,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             var providedConfiguration = options.Services.FirstOrDefault(z => z.ServiceType == typeof(IConfiguration) && z.ImplementationInstance is IConfiguration);
             container.RegisterDelegate<IConfiguration>(
                 _ => {
-                    var builder = new ConfigurationBuilder();
+                    var builder = options.ConfigurationBuilder;
                     var didChangeConfigurationProvider = _.GetRequiredService<ILanguageServerConfiguration>();
                     var outerConfiguration = outerServiceProvider?.GetService<IConfiguration>();
                     if (outerConfiguration != null)
@@ -94,7 +95,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 Reuse.Singleton
             );
 
-            container.RegisterMany<LanguageServerLoggerFilterOptions>(serviceTypeCondition: type => type.IsInterface, reuse: Reuse.Singleton);
+            container.RegisterMany<LanguageServerLoggingManager>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
             container.RegisterInstance(
                 options.ServerInfo ?? new ServerInfo {
                     Name = Assembly.GetEntryAssembly()?.GetName().Name ?? string.Empty,

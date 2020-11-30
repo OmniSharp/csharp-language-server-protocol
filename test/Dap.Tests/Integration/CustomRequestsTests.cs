@@ -25,7 +25,7 @@ namespace Dap.Tests.Integration
             var fake = Substitute.For<AttachHandlerBase<CustomAttachRequestArguments>>();
             var (client, _) = await Initialize(options => { }, options => { options.AddHandler(fake); });
 
-            await client.RequestAttach(
+            await client.Attach(
                 new CustomAttachRequestArguments {
                     ComputerName = "computer",
                     RunspaceId = "1234",
@@ -47,7 +47,7 @@ namespace Dap.Tests.Integration
             var fake = Substitute.For<AttachHandlerBase>();
             var (client, _) = await Initialize(options => { }, options => { options.AddHandler(fake); });
 
-            await client.RequestAttach(
+            await client.Attach(
                 new CustomAttachRequestArguments {
                     ComputerName = "computer",
                     RunspaceId = "1234",
@@ -69,7 +69,7 @@ namespace Dap.Tests.Integration
             var fake = Substitute.For<AttachHandlerBase<CustomAttachRequestArguments>>();
             var (client, _) = await Initialize(options => { }, options => { options.AddHandler(fake); });
 
-            await client.RequestAttach(
+            await client.Attach(
                 new AttachRequestArguments {
                     ExtensionData = new Dictionary<string, object> {
                         ["ComputerName"] = "computer",
@@ -149,7 +149,7 @@ namespace Dap.Tests.Integration
             var fake = Substitute.For<Func<CustomAttachRequestArguments, CancellationToken, Task<AttachResponse>>>();
             var (client, _) = await Initialize(options => { }, options => { options.OnAttach(fake); });
 
-            await client.RequestAttach(
+            await client.Attach(
                 new CustomAttachRequestArguments {
                     ComputerName = "computer",
                     RunspaceId = "1234",
@@ -171,7 +171,7 @@ namespace Dap.Tests.Integration
             var fake = Substitute.For<Func<AttachRequestArguments, CancellationToken, Task<AttachResponse>>>();
             var (client, _) = await Initialize(options => { }, options => { options.OnAttach(fake); });
 
-            await client.RequestAttach(
+            await client.Attach(
                 new CustomAttachRequestArguments {
                     ComputerName = "computer",
                     RunspaceId = "1234",
@@ -193,7 +193,7 @@ namespace Dap.Tests.Integration
             var fake = Substitute.For<Func<CustomAttachRequestArguments, CancellationToken, Task<AttachResponse>>>();
             var (client, _) = await Initialize(options => { }, options => { options.OnAttach(fake); });
 
-            await client.RequestAttach(
+            await client.Attach(
                 new AttachRequestArguments {
                     ExtensionData = new Dictionary<string, object> {
                         ["ComputerName"] = "computer",

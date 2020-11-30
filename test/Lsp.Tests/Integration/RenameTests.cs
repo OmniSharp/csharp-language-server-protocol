@@ -227,7 +227,7 @@ namespace Lsp.Tests.Integration
             obj.WithCapability(
                 new RenameCapability() {
                     PrepareSupport = true,
-                    PrepareSupportDefaultBehavior = true
+                    PrepareSupportDefaultBehavior = PrepareSupportDefaultBehavior.Identifier
                 }
             );
         }

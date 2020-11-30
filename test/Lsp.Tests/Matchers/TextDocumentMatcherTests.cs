@@ -134,7 +134,7 @@ namespace Lsp.Tests.Matchers
             // When
             var result = handlerMatcher.FindHandler(
                 new DidChangeTextDocumentParams {
-                    TextDocument = new VersionedTextDocumentIdentifier { Uri = new Uri("file:///abc/123/d.cs"), Version = 1 }
+                    TextDocument = new OptionalVersionedTextDocumentIdentifier { Uri = new Uri("file:///abc/123/d.cs"), Version = 1 }
                 },
                 collection.Where(x => x.Method == TextDocumentNames.DidChange)
             );
@@ -163,7 +163,7 @@ namespace Lsp.Tests.Matchers
             // When
             var result = handlerMatcher.FindHandler(
                 new DidChangeTextDocumentParams {
-                    TextDocument = new VersionedTextDocumentIdentifier { Uri = new Uri("file:///abc/123/d.cs"), Version = 1 }
+                    TextDocument = new OptionalVersionedTextDocumentIdentifier { Uri = new Uri("file:///abc/123/d.cs"), Version = 1 }
                 },
                 collection.Where(x => x.Method == TextDocumentNames.DidSave)
             );
@@ -192,7 +192,7 @@ namespace Lsp.Tests.Matchers
             // When
             var result = handlerMatcher.FindHandler(
                 new DidCloseTextDocumentParams {
-                    TextDocument = new VersionedTextDocumentIdentifier { Uri = new Uri("file:///abc/123/d.cs"), Version = 1 }
+                    TextDocument = new OptionalVersionedTextDocumentIdentifier { Uri = new Uri("file:///abc/123/d.cs"), Version = 1 }
                 },
                 collection.Where(x => x.Method == TextDocumentNames.DidClose)
             );
@@ -239,7 +239,7 @@ namespace Lsp.Tests.Matchers
             // When
             var result = handlerMatcher.FindHandler(
                 new CodeLensParams {
-                    TextDocument = new VersionedTextDocumentIdentifier { Uri = new Uri("file:///abc/123/d.cs"), Version = 1 }
+                    TextDocument = new OptionalVersionedTextDocumentIdentifier { Uri = new Uri("file:///abc/123/d.cs"), Version = 1 }
                 },
                 collection.Where(x => x.Method == TextDocumentNames.CodeLens)
             );

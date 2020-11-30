@@ -152,20 +152,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 }
             }
 
-            // TODO: Registration needs to be switched around to pass in the capability
-//            if (property.DeclaringType == typeof(SemanticTokensLegend))
-//            {
-//                if (property.PropertyName == nameof(SemanticTokensLegend.TokenModifiers) && _semanticTokenModifier is { Length: > 0 })
-//                {
-//                    property.ValueProvider = new ArrayRangeValueProvider<SemanticTokenModifier>(property.ValueProvider, _semanticTokenModifier);
-//                }
-//
-//                if (property.PropertyName == nameof(SemanticTokensLegend.TokenTypes) && _semanticTokenType is { Length: > 0 })
-//                {
-//                    property.ValueProvider = new ArrayRangeValueProvider<SemanticTokenType>(property.ValueProvider, _semanticTokenType);
-//                }
-//            }
-
             return property;
         }
 

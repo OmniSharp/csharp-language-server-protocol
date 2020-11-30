@@ -146,11 +146,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// that are not following this rule.
             /// </summary>
             /// <remarks>
-            /// TODO: Change this (breaking)
             /// <see cref="uint"/> in the LSP spec
             /// </remarks>
             [Optional]
-            public double? Percentage { get; init; }
+            public int? Percentage { get; init; }
         }
 
         /// <summary>
@@ -196,11 +195,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// that are not following this rule.
             /// </summary>
             /// <remarks>
-            /// TODO: Change this (breaking)
             /// <see cref="uint"/> in the LSP spec
             /// </remarks>
             [Optional]
-            public double? Percentage { get; set; }
+            public int? Percentage { get; set; }
         }
     }
 

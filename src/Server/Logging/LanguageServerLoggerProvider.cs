@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
@@ -6,15 +8,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
     internal class LanguageServerLoggerProvider : ILoggerProvider
     {
         private readonly ILanguageServerFacade _languageServer;
-        private readonly LanguageServerLoggerSettings _settings;
 
-        public LanguageServerLoggerProvider(ILanguageServerFacade languageServer, LanguageServerLoggerSettings settings)
+        public LanguageServerLoggerProvider(ILanguageServerFacade languageServer)
         {
             _languageServer = languageServer;
-            _settings = settings;
         }
 
-        public ILogger CreateLogger(string categoryName) => new LanguageServerLogger(_languageServer, categoryName, () => _settings.MinimumLogLevel);
+        public ILogger CreateLogger(string categoryName) => new LanguageServerLogger(_languageServer, categoryName);
 
         public void Dispose()
         {

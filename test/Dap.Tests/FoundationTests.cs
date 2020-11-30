@@ -535,10 +535,10 @@ namespace Dap.Tests
         {
             var name = SpecialCasedHandlerName(descriptor);
             if (name.StartsWith("Run")
-                // TODO: Change this next breaking change
-                // || name.StartsWith("Set")
-                // || name.StartsWith("Attach")
-                // || name.StartsWith("Read")
+                || name.StartsWith("Set")
+                || name.StartsWith("Attach")
+                || name.StartsWith("Launch")
+                || name.StartsWith("Read")
             )
             {
                 return name;

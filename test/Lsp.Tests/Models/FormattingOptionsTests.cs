@@ -31,7 +31,7 @@ namespace Lsp.Tests.Models
         {
             var model = new FormattingOptions();
             model.InsertSpaces.Should().BeFalse();
-            model.TabSize.Should().Be(-1L);
+            model.TabSize.Should().Be(-1);
             model.InsertFinalNewline.Should().BeFalse();
             model.TrimFinalNewlines.Should().BeFalse();
             model.TrimTrailingWhitespace.Should().BeFalse();

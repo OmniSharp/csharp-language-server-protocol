@@ -34,7 +34,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// to the version after all provided content changes have
             /// been applied.
             /// </summary>
-            public VersionedTextDocumentIdentifier TextDocument { get; init; }
+            public OptionalVersionedTextDocumentIdentifier TextDocument { get; init; }
 
             /// <summary>
             /// The actual content changes.
@@ -87,11 +87,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// The text document to change.
             /// </summary>
-            public VersionedTextDocumentIdentifier TextDocument { get; init; }
+            public OptionalVersionedTextDocumentIdentifier TextDocument { get; init; }
 
             /// <summary>
             /// The edits to be applied.
             /// </summary>
+            /// <remarks>
+            /// This can contain both <see cref="TextEdit"/> and <see cref="AnnotatedTextEdit"/>
+            /// </remarks>
             public TextEditContainer Edits { get; init; }
         }
 
@@ -150,9 +153,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// The document that was saved.
             /// </summary>
-            /// <remarks>
-            /// TODO: Change to RequiredVersionedTextDocumentIdentifier (or in the future will be VersionedTextDocumentIdentifier)
-            /// </remarks>
             public TextDocumentIdentifier TextDocument { get; set; } = null!;
 
             /// <summary>

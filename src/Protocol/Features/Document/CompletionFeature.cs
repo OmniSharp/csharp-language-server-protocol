@@ -177,11 +177,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             ///
             /// @since 3.16.0 additional type `InsertReplaceEdit` - proposed state
             /// </summary>
-            /// <remarks>
-            /// TODO: Update this to union <see cref="TextEdit"/> <see cref="InsertReplaceEdit"/>
-            /// </remarks>
             [Optional]
-            public TextEdit? TextEdit { get; init; }
+            public TextEditOrInsertReplaceEdit? TextEdit { get; init; }
 
             /// <summary>
             /// An optional array of additional text edits that are applied when

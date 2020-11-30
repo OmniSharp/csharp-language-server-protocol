@@ -14,7 +14,7 @@ namespace Lsp.Tests.Models
         [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new VersionedTextDocumentIdentifier {
+            var model = new OptionalVersionedTextDocumentIdentifier {
                 Uri = new Uri("file:///abc/123.cs"),
                 Version = 12
             };
@@ -22,7 +22,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<VersionedTextDocumentIdentifier>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<OptionalVersionedTextDocumentIdentifier>(expected);
             deresult.Should().BeEquivalentTo(model, x => x.UsingStructuralRecordEquality());
         }
     }

@@ -56,7 +56,7 @@ namespace Lsp.Tests.Integration
 
             client.TextDocument.DidChangeTextDocument(
                 new DidChangeTextDocumentParams {
-                    TextDocument = new VersionedTextDocumentIdentifier {
+                    TextDocument = new OptionalVersionedTextDocumentIdentifier {
                         Uri = "/a/file.cs",
                         Version = 123,
                     },

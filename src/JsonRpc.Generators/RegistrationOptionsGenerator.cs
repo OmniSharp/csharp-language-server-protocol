@@ -34,7 +34,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             var textDocumentRegistrationOptionsInterfaceSymbol =
                 compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Models.ITextDocumentRegistrationOptions")!;
             var workDoneProgressOptionsInterfaceSymbol = compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions")!;
-            // TODO:
             var staticRegistrationOptionsInterfaceSymbol = compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Models.IStaticRegistrationOptions")!;
 
             foreach (var registrationOptions in syntaxReceiver.RegistrationOptions)

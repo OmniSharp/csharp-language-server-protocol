@@ -37,5 +37,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// </summary>
         [Optional]
         public bool NormalizesLineEndings { get; set; }
+
+        /// <summary>
+        /// Whether the client in general supports change annotations on text edits,
+        /// create file, rename file and delete file changes.
+        ///
+        /// @since 3.16.0 - proposed state
+        /// </summary>
+        [Optional]
+        public bool ChangeAnnotationSupport { get; set; }
     }
 }

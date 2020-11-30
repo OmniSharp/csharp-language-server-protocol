@@ -22,7 +22,7 @@ namespace Lsp.Tests.Models
                         Text = "abc"
                     }
                 },
-                TextDocument = new VersionedTextDocumentIdentifier {
+                TextDocument = new OptionalVersionedTextDocumentIdentifier {
                     Uri = "/somepath/to/a/file.ext",
                 }
             };
@@ -46,7 +46,7 @@ namespace Lsp.Tests.Models
                         Text = "abc"
                     }
                 },
-                TextDocument = new VersionedTextDocumentIdentifier {
+                TextDocument = new OptionalVersionedTextDocumentIdentifier {
                     Uri = DocumentUri.FromFileSystemPath("c:\\abc\\Mörkö.cs")
                 }
             };

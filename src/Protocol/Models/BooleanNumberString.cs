@@ -6,39 +6,39 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     [JsonConverter(typeof(BooleanNumberStringConverter))]
     public struct BooleanNumberString
     {
-        private long? _long;
+        private int? _int;
         private string? _string;
         private bool? _bool;
 
-        public BooleanNumberString(long value)
+        public BooleanNumberString(int value)
         {
-            _long = value;
+            _int = value;
             _string = null;
             _bool = null;
         }
 
         public BooleanNumberString(string value)
         {
-            _long = null;
+            _int = null;
             _string = value;
             _bool = null;
         }
 
         public BooleanNumberString(bool value)
         {
-            _long = null;
+            _int = null;
             _string = null;
             _bool = value;
         }
 
-        public bool IsLong => _long.HasValue;
+        public bool IsInteger => _int.HasValue;
 
-        public long Long
+        public int Integer
         {
-            get => _long ?? 0;
+            get => _int ?? 0;
             set {
                 _string = null;
-                _long = value;
+                _int = value;
                 _bool = null;
             }
         }
@@ -50,7 +50,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             get => _string ?? string.Empty;
             set {
                 _string = value;
-                _long = null;
+                _int = null;
                 _bool = null;
             }
         }
@@ -62,12 +62,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             get => _bool.HasValue && _bool.Value;
             set {
                 _string = null;
-                _long = null;
+                _int = null;
                 _bool = value;
             }
         }
 
-        public static implicit operator BooleanNumberString(long value) => new BooleanNumberString(value);
+        public static implicit operator BooleanNumberString(int value) => new BooleanNumberString(value);
 
         public static implicit operator BooleanNumberString(string value) => new BooleanNumberString(value);
 

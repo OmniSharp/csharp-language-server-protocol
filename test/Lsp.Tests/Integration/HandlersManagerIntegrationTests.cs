@@ -25,8 +25,8 @@ namespace Lsp.Tests.Integration
             var (_, server) = await Initialize(options => {}, options => {});
 
             var handlersManager = server.GetRequiredService<IHandlersManager>();
-            handlersManager.Descriptors.Should().HaveCount(8);
-            handlersManager.GetHandlers().Should().HaveCount(5);
+            handlersManager.Descriptors.Should().HaveCount(9);
+            handlersManager.GetHandlers().Should().HaveCount(6);
         }
 
         [Fact]
@@ -36,8 +36,8 @@ namespace Lsp.Tests.Integration
 
             server.Register(o => o.AddHandler((IJsonRpcHandler) Substitute.For(new[] { typeof (ICompletionHandler), typeof(ICompletionResolveHandler) }, Array.Empty<object>())));
             var handlersManager = server.GetRequiredService<IHandlersManager>();
-            handlersManager.Descriptors.Should().HaveCount(10);
-            handlersManager.GetHandlers().Should().HaveCount(6);
+            handlersManager.Descriptors.Should().HaveCount(11);
+            handlersManager.GetHandlers().Should().HaveCount(7);
         }
 
         [Fact]

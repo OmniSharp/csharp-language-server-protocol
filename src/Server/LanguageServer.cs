@@ -51,6 +51,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly IEnumerable<IOnLanguageServerInitialized> _initializedHandlers;
         private readonly IEnumerable<IRegistrationOptionsConverter> _registrationOptionsConverters;
         private readonly InstanceHasStarted _instanceHasStarted;
+        private readonly LanguageServerLoggingManager _languageServerLoggingManager;
         private readonly IEnumerable<OnLanguageServerStartedDelegate> _startedDelegates;
         private readonly IEnumerable<IOnLanguageServerStarted> _startedHandlers;
         private readonly ISubject<InitializeResult> _initializeComplete = new AsyncSubject<InitializeResult>();
@@ -149,7 +150,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             ILanguageServerWorkspaceFolderManager workspaceFolderManager, IEnumerable<IOnLanguageServerInitialize> initializeHandlers,
             IEnumerable<IOnLanguageServerInitialized> initializedHandlers,
             IEnumerable<IRegistrationOptionsConverter> registrationOptionsConverters,
-            InstanceHasStarted instanceHasStarted
+            InstanceHasStarted instanceHasStarted,
+            LanguageServerLoggingManager languageServerLoggingManager
         ) : base(handlerCollection, responseRouter)
         {
             Configuration = configuration;
@@ -181,6 +183,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _initializedHandlers = initializedHandlers;
             _registrationOptionsConverters = registrationOptionsConverters;
             _instanceHasStarted = instanceHasStarted;
+            _languageServerLoggingManager = languageServerLoggingManager;
             _concurrency = options.Value.Concurrency;
 
             _capabilityTypes = options
@@ -327,23 +330,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         private void ConfigureServerLogging(InternalInitializeParams internalInitializeParams)
         {
-            if (internalInitializeParams.Trace == InitializeTrace.Verbose)
-            {
-                var loggerSettings = Services.GetService<LanguageServerLoggerSettings>();
-
-                if (loggerSettings?.MinimumLogLevel <= LogLevel.Information)
-                {
-                    loggerSettings.MinimumLogLevel = LogLevel.Trace;
-                }
-
-                var optionsMonitor = Services.GetService<IOptionsMonitor<LoggerFilterOptions>>() as LanguageServerLoggerFilterOptions;
-
-                if (optionsMonitor?.CurrentValue.MinLevel <= LogLevel.Information)
-                {
-                    optionsMonitor.CurrentValue.MinLevel = LogLevel.Trace;
-                    optionsMonitor.Set(optionsMonitor.CurrentValue);
-                }
-            }
+            _languageServerLoggingManager.SetTrace(internalInitializeParams.Trace);
         }
 
         private ClientCapabilities ReadClientCapabilities(
