@@ -35,9 +35,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         [StringEnum]
         public readonly partial struct LoadedSourceReason
         {
-            public static readonly LoadedSourceReason Changed = new LoadedSourceReason("changed");
-            public static readonly LoadedSourceReason New = new LoadedSourceReason("new");
-            public static readonly LoadedSourceReason Removed = new LoadedSourceReason("removed");
+            public static LoadedSourceReason Changed { get; } = new LoadedSourceReason("changed");
+            public static LoadedSourceReason New { get; } = new LoadedSourceReason("new");
+            public static LoadedSourceReason Removed { get; } = new LoadedSourceReason("removed");
         }
     }
 }

@@ -41,8 +41,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         [StringEnum]
         public readonly partial struct ThreadEventReason
         {
-            public static readonly ThreadEventReason Started = new ThreadEventReason("started");
-            public static readonly ThreadEventReason Exited = new ThreadEventReason("exited");
+            public static ThreadEventReason Started { get; } = new ThreadEventReason("started");
+            public static ThreadEventReason Exited { get; } = new ThreadEventReason("exited");
         }
     }
 }

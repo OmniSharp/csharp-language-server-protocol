@@ -15,7 +15,7 @@ namespace OmniSharp.Extensions.JsonRpc
         {
         }
 
-        public static NoopResponseRouter Instance = new NoopResponseRouter();
+        public static NoopResponseRouter Instance { get; } = new NoopResponseRouter();
 
         public void SendNotification(string method)
         {

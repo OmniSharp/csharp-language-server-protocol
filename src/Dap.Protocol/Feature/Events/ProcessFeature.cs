@@ -57,9 +57,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         [StringEnum]
         public readonly partial struct ProcessEventStartMethod
         {
-            public static readonly ProcessEventStartMethod Launch = new ProcessEventStartMethod("launch");
-            public static readonly ProcessEventStartMethod Attach = new ProcessEventStartMethod("attach");
-            public static readonly ProcessEventStartMethod AttachForSuspendedLaunch = new ProcessEventStartMethod("attachForSuspendedLaunch");
+            public static ProcessEventStartMethod Launch { get; } = new ProcessEventStartMethod("launch");
+            public static ProcessEventStartMethod Attach { get; } = new ProcessEventStartMethod("attach");
+            public static ProcessEventStartMethod AttachForSuspendedLaunch { get; } = new ProcessEventStartMethod("attachForSuspendedLaunch");
         }
     }
 }

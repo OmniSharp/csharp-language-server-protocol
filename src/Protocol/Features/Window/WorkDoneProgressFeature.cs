@@ -76,9 +76,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [StringEnum]
         public readonly partial struct WorkDoneProgressKind
         {
-            public static WorkDoneProgressKind Begin = new WorkDoneProgressKind("begin");
-            public static WorkDoneProgressKind End = new WorkDoneProgressKind("end");
-            public static WorkDoneProgressKind Report = new WorkDoneProgressKind("report");
+            public static WorkDoneProgressKind Begin { get; } = new WorkDoneProgressKind("begin");
+            public static WorkDoneProgressKind End { get; } = new WorkDoneProgressKind("end");
+            public static WorkDoneProgressKind Report { get; } = new WorkDoneProgressKind("report");
         }
 
         /// <summary>

@@ -16,8 +16,8 @@ namespace Test {
     [StringEnum]
     public readonly partial struct ThreadEventReason
     {
-        public static readonly ThreadEventReason Started = new ThreadEventReason(""started"");
-        public static readonly ThreadEventReason Exited = new ThreadEventReason(""exited"");
+        public static ThreadEventReason Started { get; } = new ThreadEventReason(""started"");
+        public static ThreadEventReason Exited { get; } = new ThreadEventReason(""exited"");
     }
 }
 ";
@@ -40,7 +40,7 @@ namespace Test
     {
         private static readonly Lazy<IReadOnlyList<ThreadEventReason>> _defaults = new Lazy<IReadOnlyList<ThreadEventReason>>(() =>
         {
-            return typeof(ThreadEventReason).GetFields(BindingFlags.Static | BindingFlags.Public).Select(z => z.GetValue(null)).Cast<ThreadEventReason>().ToArray();
+            return typeof(ThreadEventReason).GetProperties(BindingFlags.Static | BindingFlags.Public).Where(z => z.Name != nameof(Defaults)).Select(z => z.GetValue(null)).Cast<ThreadEventReason>().ToArray();
         });
         public static IEnumerable<ThreadEventReason> Defaults => _defaults.Value;
         private readonly string _value;

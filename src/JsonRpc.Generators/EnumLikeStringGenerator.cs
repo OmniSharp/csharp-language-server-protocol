@@ -185,12 +185,55 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                                                                                                            MemberAccessExpression(
                                                                                                                                                SyntaxKind
                                                                                                                                                   .SimpleMemberAccessExpression,
-                                                                                                                                               TypeOfExpression(
-                                                                                                                                                   IdentifierName(
-                                                                                                                                                       syntax.Identifier.Text
+                                                                                                                                               InvocationExpression(
+                                                                                                                                                       MemberAccessExpression(
+                                                                                                                                                           SyntaxKind
+                                                                                                                                                              .SimpleMemberAccessExpression,
+                                                                                                                                                           TypeOfExpression(
+                                                                                                                                                               IdentifierName(
+                                                                                                                                                                   syntax.Identifier
+                                                                                                                                                                      .Text
+                                                                                                                                                               )
+                                                                                                                                                           ),
+                                                                                                                                                           IdentifierName(
+                                                                                                                                                               "GetProperties"
+                                                                                                                                                           )
+                                                                                                                                                       )
                                                                                                                                                    )
-                                                                                                                                               ),
-                                                                                                                                               IdentifierName("GetFields")
+                                                                                                                                                  .WithArgumentList(
+                                                                                                                                                       ArgumentList(
+                                                                                                                                                           SingletonSeparatedList<
+                                                                                                                                                               ArgumentSyntax>(
+                                                                                                                                                               Argument(
+                                                                                                                                                                   BinaryExpression(
+                                                                                                                                                                       SyntaxKind
+                                                                                                                                                                          .BitwiseOrExpression,
+                                                                                                                                                                       MemberAccessExpression(
+                                                                                                                                                                           SyntaxKind
+                                                                                                                                                                              .SimpleMemberAccessExpression,
+                                                                                                                                                                           IdentifierName(
+                                                                                                                                                                               "BindingFlags"
+                                                                                                                                                                           ),
+                                                                                                                                                                           IdentifierName(
+                                                                                                                                                                               "Static"
+                                                                                                                                                                           )
+                                                                                                                                                                       ),
+                                                                                                                                                                       MemberAccessExpression(
+                                                                                                                                                                           SyntaxKind
+                                                                                                                                                                              .SimpleMemberAccessExpression,
+                                                                                                                                                                           IdentifierName(
+                                                                                                                                                                               "BindingFlags"
+                                                                                                                                                                           ),
+                                                                                                                                                                           IdentifierName(
+                                                                                                                                                                               "Public"
+                                                                                                                                                                           )
+                                                                                                                                                                       )
+                                                                                                                                                                   )
+                                                                                                                                                               )
+                                                                                                                                                           )
+                                                                                                                                                       )
+                                                                                                                                                   ),
+                                                                                                                                               IdentifierName("Where")
                                                                                                                                            )
                                                                                                                                        )
                                                                                                                                       .WithArgumentList(
@@ -198,30 +241,45 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                                                                                                                SingletonSeparatedList<ArgumentSyntax
                                                                                                                                                >(
                                                                                                                                                    Argument(
-                                                                                                                                                       BinaryExpression(
-                                                                                                                                                           SyntaxKind
-                                                                                                                                                              .BitwiseOrExpression,
-                                                                                                                                                           MemberAccessExpression(
-                                                                                                                                                               SyntaxKind
-                                                                                                                                                                  .SimpleMemberAccessExpression,
-                                                                                                                                                               IdentifierName(
-                                                                                                                                                                   "BindingFlags"
-                                                                                                                                                               ),
-                                                                                                                                                               IdentifierName(
-                                                                                                                                                                   "Static"
-                                                                                                                                                               )
-                                                                                                                                                           ),
-                                                                                                                                                           MemberAccessExpression(
-                                                                                                                                                               SyntaxKind
-                                                                                                                                                                  .SimpleMemberAccessExpression,
-                                                                                                                                                               IdentifierName(
-                                                                                                                                                                   "BindingFlags"
-                                                                                                                                                               ),
-                                                                                                                                                               IdentifierName(
-                                                                                                                                                                   "Public"
+                                                                                                                                                       SimpleLambdaExpression(
+                                                                                                                                                               Parameter(
+                                                                                                                                                                   Identifier("z")
                                                                                                                                                                )
                                                                                                                                                            )
-                                                                                                                                                       )
+                                                                                                                                                          .WithExpressionBody(
+                                                                                                                                                               BinaryExpression(
+                                                                                                                                                                   SyntaxKind
+                                                                                                                                                                      .NotEqualsExpression,
+                                                                                                                                                                   MemberAccessExpression(
+                                                                                                                                                                       SyntaxKind
+                                                                                                                                                                          .SimpleMemberAccessExpression,
+                                                                                                                                                                       IdentifierName(
+                                                                                                                                                                           "z"
+                                                                                                                                                                       ),
+                                                                                                                                                                       IdentifierName(
+                                                                                                                                                                           "Name"
+                                                                                                                                                                       )
+                                                                                                                                                                   ),
+                                                                                                                                                                   InvocationExpression(
+                                                                                                                                                                           IdentifierName(
+                                                                                                                                                                               "nameof"
+                                                                                                                                                                           )
+                                                                                                                                                                       )
+                                                                                                                                                                      .WithArgumentList(
+                                                                                                                                                                           ArgumentList(
+                                                                                                                                                                               SingletonSeparatedList
+                                                                                                                                                                               <ArgumentSyntax
+                                                                                                                                                                               >(
+                                                                                                                                                                                   Argument(
+                                                                                                                                                                                       IdentifierName(
+                                                                                                                                                                                           "Defaults"
+                                                                                                                                                                                       )
+                                                                                                                                                                                   )
+                                                                                                                                                                               )
+                                                                                                                                                                           )
+                                                                                                                                                                       )
+                                                                                                                                                               )
+                                                                                                                                                           )
                                                                                                                                                    )
                                                                                                                                                )
                                                                                                                                            )

@@ -77,6 +77,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public int? Offset { get; init; }
         }
     }
+
     namespace Events
     {
         [Parallel]
@@ -104,9 +105,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         [StringEnum]
         public readonly partial struct BreakpointEventReason
         {
-            public static readonly BreakpointEventReason Changed = new BreakpointEventReason("changed");
-            public static readonly BreakpointEventReason New = new BreakpointEventReason("new");
-            public static readonly BreakpointEventReason Removed = new BreakpointEventReason("removed");
+            public static BreakpointEventReason Changed { get; } = new BreakpointEventReason("changed");
+            public static BreakpointEventReason New { get; } = new BreakpointEventReason("new");
+            public static BreakpointEventReason Removed { get; } = new BreakpointEventReason("removed");
         }
     }
 }

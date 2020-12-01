@@ -335,17 +335,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// Base kind for quickfix actions: ''
             /// </summary>
-            public static readonly CodeActionKind Empty = new CodeActionKind("");
+            public static CodeActionKind Empty { get; } = new CodeActionKind("");
 
             /// <summary>
             /// Base kind for quickfix actions: 'quickfix'
             /// </summary>
-            public static readonly CodeActionKind QuickFix = new CodeActionKind("quickfix");
+            public static CodeActionKind QuickFix { get; } = new CodeActionKind("quickfix");
 
             /// <summary>
             /// Base kind for refactoring actions: 'refactor'
             /// </summary>
-            public static readonly CodeActionKind Refactor = new CodeActionKind("refactor");
+            public static CodeActionKind Refactor { get; } = new CodeActionKind("refactor");
 
             /// <summary>
             /// Base kind for refactoring extraction actions: 'refactor.extract'
@@ -358,7 +358,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// - Extract interface from class
             /// - ...
             /// </summary>
-            public static readonly CodeActionKind RefactorExtract = new CodeActionKind("refactor.extract");
+            public static CodeActionKind RefactorExtract { get; } = new CodeActionKind("refactor.extract");
 
             /// <summary>
             /// Base kind for refactoring inline actions: 'refactor.inline'
@@ -370,7 +370,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// - Inline constant
             /// - ...
             /// </summary>
-            public static readonly CodeActionKind RefactorInline = new CodeActionKind("refactor.inline");
+            public static CodeActionKind RefactorInline { get; } = new CodeActionKind("refactor.inline");
 
             /// <summary>
             /// Base kind for refactoring rewrite actions: 'refactor.rewrite'
@@ -384,19 +384,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// - Move method to base class
             /// - ...
             /// </summary>
-            public static readonly CodeActionKind RefactorRewrite = new CodeActionKind("refactor.rewrite");
+            public static CodeActionKind RefactorRewrite { get; } = new CodeActionKind("refactor.rewrite");
 
             /// <summary>
             /// Base kind for source actions: `source`
             ///
             /// Source code actions apply to the entire file.
             /// </summary>
-            public static readonly CodeActionKind Source = new CodeActionKind("source");
+            public static CodeActionKind Source { get; } = new CodeActionKind("source");
 
             /// <summary>
             /// Base kind for an organize imports source action: `source.organizeImports`
             /// </summary>
-            public static readonly CodeActionKind SourceOrganizeImports = new CodeActionKind("source.organizeImports");
+            public static CodeActionKind SourceOrganizeImports { get; } = new CodeActionKind("source.organizeImports");
         }
     }
 

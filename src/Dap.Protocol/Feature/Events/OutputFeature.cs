@@ -53,11 +53,11 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public OutputEventGroup Group { get; set; }
 
             /// <summary>
-             /// If an attribute 'variablesReference' exists and its value is > 0, the
+            /// If an attribute 'variablesReference' exists and its value is > 0, the
             /// output contains objects which can be retrieved by passing
             /// 'variablesReference' to the 'variables' request. The value should be less
             /// than or equal to 2147483647 (2^31-1).
-             /// </summary>
+            /// </summary>
             [Optional]
             public long? VariablesReference { get; init; }
 
@@ -89,18 +89,18 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         [StringEnum]
         public readonly partial struct OutputEventCategory
         {
-            public static readonly OutputEventCategory Console = new OutputEventCategory("console");
-            public static readonly OutputEventCategory StandardOutput = new OutputEventCategory("stdout");
-            public static readonly OutputEventCategory StandardError = new OutputEventCategory("stderr");
-            public static readonly OutputEventCategory Telemetry = new OutputEventCategory("telemetry");
+            public static OutputEventCategory Console { get; } = new OutputEventCategory("console");
+            public static OutputEventCategory StandardOutput { get; } = new OutputEventCategory("stdout");
+            public static OutputEventCategory StandardError { get; } = new OutputEventCategory("stderr");
+            public static OutputEventCategory Telemetry { get; } = new OutputEventCategory("telemetry");
         }
 
         [StringEnum]
         public readonly partial struct OutputEventGroup
         {
-            public static readonly OutputEventGroup Start = new OutputEventGroup("start");
-            public static readonly OutputEventGroup StartCollapsed = new OutputEventGroup("startCollapsed");
-            public static readonly OutputEventGroup End = new OutputEventGroup("end");
+            public static OutputEventGroup Start { get; } = new OutputEventGroup("start");
+            public static OutputEventGroup StartCollapsed { get; } = new OutputEventGroup("startCollapsed");
+            public static OutputEventGroup End { get; } = new OutputEventGroup("end");
         }
     }
 }

@@ -69,15 +69,15 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         [StringEnum]
         public readonly partial struct StoppedEventReason
         {
-            public static readonly StoppedEventReason Step = new StoppedEventReason("step");
-            public static readonly StoppedEventReason Breakpoint = new StoppedEventReason("breakpoint");
-            public static readonly StoppedEventReason Exception = new StoppedEventReason("exception");
-            public static readonly StoppedEventReason Pause = new StoppedEventReason("pause");
-            public static readonly StoppedEventReason Entry = new StoppedEventReason("entry");
-            public static readonly StoppedEventReason Goto = new StoppedEventReason("goto");
-            public static readonly StoppedEventReason FunctionBreakpoint = new StoppedEventReason("function breakpoint");
-            public static readonly StoppedEventReason DataBreakpoint = new StoppedEventReason("data breakpoint");
-            public static readonly StoppedEventReason InstructionBreakpoint = new StoppedEventReason("instruction breakpoint");
+            public static StoppedEventReason Step { get; } = new StoppedEventReason("step");
+            public static StoppedEventReason Breakpoint { get; } = new StoppedEventReason("breakpoint");
+            public static StoppedEventReason Exception { get; } = new StoppedEventReason("exception");
+            public static StoppedEventReason Pause { get; } = new StoppedEventReason("pause");
+            public static StoppedEventReason Entry { get; } = new StoppedEventReason("entry");
+            public static StoppedEventReason Goto { get; } = new StoppedEventReason("goto");
+            public static StoppedEventReason FunctionBreakpoint { get; } = new StoppedEventReason("function breakpoint");
+            public static StoppedEventReason DataBreakpoint { get; } = new StoppedEventReason("data breakpoint");
+            public static StoppedEventReason InstructionBreakpoint { get; } = new StoppedEventReason("instruction breakpoint");
         }
     }
 }

@@ -498,7 +498,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [StringEnum]
         public readonly partial struct SemanticTokenFormat
         {
-            public static readonly SemanticTokenFormat Relative = new SemanticTokenFormat("relative");
+            public static SemanticTokenFormat Relative { get; } = new SemanticTokenFormat("relative");
         }
 
         /// <summary>
@@ -512,16 +512,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [StringEnum]
         public readonly partial struct SemanticTokenModifier
         {
-            public static readonly SemanticTokenModifier Documentation = new SemanticTokenModifier("documentation");
-            public static readonly SemanticTokenModifier Declaration = new SemanticTokenModifier("declaration");
-            public static readonly SemanticTokenModifier Definition = new SemanticTokenModifier("definition");
-            public static readonly SemanticTokenModifier Static = new SemanticTokenModifier("static");
-            public static readonly SemanticTokenModifier Async = new SemanticTokenModifier("async");
-            public static readonly SemanticTokenModifier Abstract = new SemanticTokenModifier("abstract");
-            public static readonly SemanticTokenModifier Deprecated = new SemanticTokenModifier("deprecated");
-            public static readonly SemanticTokenModifier Readonly = new SemanticTokenModifier("readonly");
-            public static readonly SemanticTokenModifier Modification = new SemanticTokenModifier("modification");
-            public static readonly SemanticTokenModifier DefaultLibrary = new SemanticTokenModifier("defaultLibrary");
+            public static SemanticTokenModifier Documentation { get; } = new SemanticTokenModifier("documentation");
+            public static SemanticTokenModifier Declaration { get; } = new SemanticTokenModifier("declaration");
+            public static SemanticTokenModifier Definition { get; } = new SemanticTokenModifier("definition");
+            public static SemanticTokenModifier Static { get; } = new SemanticTokenModifier("static");
+            public static SemanticTokenModifier Async { get; } = new SemanticTokenModifier("async");
+            public static SemanticTokenModifier Abstract { get; } = new SemanticTokenModifier("abstract");
+            public static SemanticTokenModifier Deprecated { get; } = new SemanticTokenModifier("deprecated");
+            public static SemanticTokenModifier Readonly { get; } = new SemanticTokenModifier("readonly");
+            public static SemanticTokenModifier Modification { get; } = new SemanticTokenModifier("modification");
+            public static SemanticTokenModifier DefaultLibrary { get; } = new SemanticTokenModifier("defaultLibrary");
         }
 
 
@@ -536,29 +536,29 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [StringEnum]
         public readonly partial struct SemanticTokenType
         {
-            public static readonly SemanticTokenType Comment = new SemanticTokenType("comment");
-            public static readonly SemanticTokenType Keyword = new SemanticTokenType("keyword");
-            public static readonly SemanticTokenType String = new SemanticTokenType("string");
-            public static readonly SemanticTokenType Number = new SemanticTokenType("number");
-            public static readonly SemanticTokenType Regexp = new SemanticTokenType("regexp");
-            public static readonly SemanticTokenType Operator = new SemanticTokenType("operator");
-            public static readonly SemanticTokenType Namespace = new SemanticTokenType("namespace");
-            public static readonly SemanticTokenType Type = new SemanticTokenType("type");
-            public static readonly SemanticTokenType Struct = new SemanticTokenType("struct");
-            public static readonly SemanticTokenType Class = new SemanticTokenType("class");
-            public static readonly SemanticTokenType Interface = new SemanticTokenType("interface");
-            public static readonly SemanticTokenType Enum = new SemanticTokenType("enum");
-            public static readonly SemanticTokenType TypeParameter = new SemanticTokenType("typeParameter");
-            public static readonly SemanticTokenType Function = new SemanticTokenType("function");
-            public static readonly SemanticTokenType Method = new SemanticTokenType("method");
-            public static readonly SemanticTokenType Property = new SemanticTokenType("property");
-            public static readonly SemanticTokenType Macro = new SemanticTokenType("macro");
-            public static readonly SemanticTokenType Variable = new SemanticTokenType("variable");
-            public static readonly SemanticTokenType Parameter = new SemanticTokenType("parameter");
-            public static readonly SemanticTokenType Label = new SemanticTokenType("label");
-            public static readonly SemanticTokenType Modifier = new SemanticTokenType("modifier");
-            public static readonly SemanticTokenType Event = new SemanticTokenType("event");
-            public static readonly SemanticTokenType EnumMember = new SemanticTokenType("enumMember");
+            public static SemanticTokenType Comment { get; } = new SemanticTokenType("comment");
+            public static SemanticTokenType Keyword { get; } = new SemanticTokenType("keyword");
+            public static SemanticTokenType String { get; } = new SemanticTokenType("string");
+            public static SemanticTokenType Number { get; } = new SemanticTokenType("number");
+            public static SemanticTokenType Regexp { get; } = new SemanticTokenType("regexp");
+            public static SemanticTokenType Operator { get; } = new SemanticTokenType("operator");
+            public static SemanticTokenType Namespace { get; } = new SemanticTokenType("namespace");
+            public static SemanticTokenType Type { get; } = new SemanticTokenType("type");
+            public static SemanticTokenType Struct { get; } = new SemanticTokenType("struct");
+            public static SemanticTokenType Class { get; } = new SemanticTokenType("class");
+            public static SemanticTokenType Interface { get; } = new SemanticTokenType("interface");
+            public static SemanticTokenType Enum { get; } = new SemanticTokenType("enum");
+            public static SemanticTokenType TypeParameter { get; } = new SemanticTokenType("typeParameter");
+            public static SemanticTokenType Function { get; } = new SemanticTokenType("function");
+            public static SemanticTokenType Method { get; } = new SemanticTokenType("method");
+            public static SemanticTokenType Property { get; } = new SemanticTokenType("property");
+            public static SemanticTokenType Macro { get; } = new SemanticTokenType("macro");
+            public static SemanticTokenType Variable { get; } = new SemanticTokenType("variable");
+            public static SemanticTokenType Parameter { get; } = new SemanticTokenType("parameter");
+            public static SemanticTokenType Label { get; } = new SemanticTokenType("label");
+            public static SemanticTokenType Modifier { get; } = new SemanticTokenType("modifier");
+            public static SemanticTokenType Event { get; } = new SemanticTokenType("event");
+            public static SemanticTokenType EnumMember { get; } = new SemanticTokenType("enumMember");
         }
 
         [Obsolete(Constants.Proposal)]

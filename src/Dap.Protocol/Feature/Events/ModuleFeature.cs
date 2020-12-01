@@ -35,9 +35,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         [StringEnum]
         public readonly partial struct ModuleEventReason
         {
-            public static readonly ModuleEventReason Changed = new ModuleEventReason("changed");
-            public static readonly ModuleEventReason New = new ModuleEventReason("new");
-            public static readonly ModuleEventReason Removed = new ModuleEventReason("removed");
+            public static ModuleEventReason Changed { get; } = new ModuleEventReason("changed");
+            public static ModuleEventReason New { get; } = new ModuleEventReason("new");
+            public static ModuleEventReason Removed { get; } = new ModuleEventReason("removed");
         }
     }
 }
