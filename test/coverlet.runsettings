@@ -5,7 +5,7 @@
 				<Configuration>
 					<Format>json,lcov,cobertura,opencover</Format>
 					<Exclude>[Bogus*]*,[Autofac*]*,[FakeItEasy*]*,[Moq*]*,[xunit*]*,[Microsoft.*]*,[XunitXml*]*,[coverlet.*]*,[System.*]*,[*]JetBrains.Annotations*</Exclude>
-					<Include>[Omnisharp.*]*</Include>
+					<Include>[OmniSharp.*]*</Include>
 					<ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute</ExcludeByAttribute>
 				</Configuration>
 			</DataCollector>
