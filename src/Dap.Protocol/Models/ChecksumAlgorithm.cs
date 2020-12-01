@@ -7,16 +7,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
     /// <summary>
     /// Names of checksum algorithms that may be supported by a debug adapter.
     /// </summary>
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum ChecksumAlgorithm
-    {
-        Md5, Sha1, Sha256, Timestamp
-    }
-
     [StringEnum]
-    public readonly partial struct PathFormat
+    public readonly partial struct  ChecksumAlgorithm
     {
-        public static PathFormat Path { get; } = new PathFormat("path");
-        public static PathFormat Uri { get; } = new PathFormat("uri");
+        public static ChecksumAlgorithm Md5 { get; } = new ChecksumAlgorithm("MD5");
+        public static ChecksumAlgorithm Sha1 { get; } = new ChecksumAlgorithm("SHA1");
+        public static ChecksumAlgorithm Sha256 { get; } = new ChecksumAlgorithm("SHA256");
+        public static ChecksumAlgorithm Timestamp { get; } = new ChecksumAlgorithm("timestamp");
     }
 }
