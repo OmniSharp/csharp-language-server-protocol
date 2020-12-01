@@ -2,6 +2,5 @@
     "commands": [
         "command1",
         "command2"
-    ],
-    "workDoneProgress": false
+    ]
 }

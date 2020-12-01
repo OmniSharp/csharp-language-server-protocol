@@ -24,5 +24,27 @@ namespace Lsp.Tests.Models
             var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<TextEdit>(expected);
             deresult.Should().BeEquivalentTo(model, x => x.UsingStructuralRecordEquality());
         }
+
+        [Theory]
+        [JsonFixture]
+        public void AnnotatedTest(string expected)
+        {
+            var model = new AnnotatedTextEdit {
+                NewText = "new text",
+                Range = new Range(new Position(1, 1), new Position(2, 2)),
+                Annotation = new ChangeAnnotation() {
+                    Description = "Cool story",
+                    Label = "Heck ya",
+                    NeedsConfirmation = true
+                }
+            };
+            var result = Fixture.SerializeObject(model);
+
+            result.Should().Be(expected);
+
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<TextEdit>(expected);
+            deresult.Should().BeOfType<AnnotatedTextEdit>();
+            deresult.Should().BeEquivalentTo(model, x => x.UsingStructuralRecordEquality());
+        }
     }
 }

@@ -1,8 +1,7 @@
 {
     "applyEdit": true,
     "workspaceEdit": {
-        "documentChanges": true,
-        "normalizesLineEndings": false
+        "documentChanges": true
     },
     "didChangeConfiguration": {
         "dynamicRegistration": true

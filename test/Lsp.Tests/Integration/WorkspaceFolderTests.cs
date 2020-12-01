@@ -14,6 +14,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog.Events;
 using Xunit;
@@ -67,6 +68,19 @@ namespace Lsp.Tests.Integration
             folders.Should().HaveCount(1);
             folders[0].Event.Should().Be(WorkspaceFolderEvent.Add);
             folders[0].Folder.Name.Should().Be(nameof(Should_Add_A_Workspace_Folder));
+        }
+
+        [Fact]
+        public async Task Should_Allow_Null_Response()
+        {
+            var (client, server) = await Initialize(
+                options => {
+                    ConfigureClient(options);
+                    options.OnWorkspaceFolders(@params => Task.FromResult<Container<WorkspaceFolder>?>(null));
+                }, ConfigureServer);
+
+            Func<Task> a = () => server.WorkspaceFolderManager.Refresh().LastOrDefaultAsync().ToTask();
+            a.Should().NotThrow();
         }
 
         [Fact]

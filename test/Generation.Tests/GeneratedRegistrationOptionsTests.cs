@@ -171,6 +171,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         ///
         /// @since 3.16.0
         /// </summary>
+        [Optional]
         public bool ResolveProvider { get; set; }
     }
 }
@@ -248,6 +249,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             ///
             /// @since 3.16.0
             /// </summary>
+            [Optional]
             public bool ResolveProvider
             {
                 get;
@@ -310,6 +312,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         ///
         /// @since 3.16.0
         /// </summary>
+        [Optional]
         public bool ResolveProvider { get; set; }
 
         class CodeActionRegistrationOptionsConverter : RegistrationOptionsConverterBase<CodeActionRegistrationOptions, StaticCodeActionRegistrationOptions>
@@ -393,6 +396,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             ///
             /// @since 3.16.0
             /// </summary>
+            [Optional]
             public bool ResolveProvider
             {
                 get;

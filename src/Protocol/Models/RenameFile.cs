@@ -27,5 +27,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         [Optional]
         public RenameFileOptions? Options { get; init; }
+
+        /// <summary>
+        /// An optional annotation describing the operation.
+        ///
+        /// @since 3.16.0 - proposed state
+        /// </summary>
+        [Optional]
+        public ChangeAnnotation? Annotation { get; init; }
     }
 }

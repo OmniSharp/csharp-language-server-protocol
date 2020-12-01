@@ -11,19 +11,18 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
     [Obsolete(Constants.Proposal)]
     class SemanticTokensDeltaPipeline<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse?>
         where TRequest : notnull
-        where TResponse : class?
     {
-        public async Task<TResponse?> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse?> next)
+        public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
         {
             if (request is SemanticTokensParams semanticTokensParams)
             {
                 var response = await next().ConfigureAwait(false);
                 if (GetResponse(semanticTokensParams, response, out var result) && string.IsNullOrEmpty(result.ResultId))
                 {
-                    return result with { ResultId = Guid.NewGuid().ToString() } as TResponse;
+                    result = result with { ResultId = Guid.NewGuid().ToString() };
                 }
 
-                return response;
+                return result is TResponse r ? r : response;
             }
 
             if (request is SemanticTokensDeltaParams semanticTokensDeltaParams)
@@ -33,16 +32,15 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
                 {
                     if (result.IsFull && string.IsNullOrEmpty(result.Full!.ResultId))
                     {
-                        return result with { Full = result.Full with { ResultId = semanticTokensDeltaParams.PreviousResultId } } as TResponse;
+                        result = result with { Full = result.Full with { ResultId = semanticTokensDeltaParams.PreviousResultId } };
                     }
-
-                    if (result.IsDelta && string.IsNullOrEmpty(result.Delta!.ResultId))
+                    else if (result.IsDelta && string.IsNullOrEmpty(result.Delta!.ResultId))
                     {
-                        return result with { Delta = result.Delta with {ResultId = semanticTokensDeltaParams.PreviousResultId} } as TResponse;
+                        result = result with { Delta = result.Delta with {ResultId = semanticTokensDeltaParams.PreviousResultId} };
                     }
                 }
 
-                return response;
+                return result is TResponse r ? r : response;
             }
 
             return await next().ConfigureAwait(false);
@@ -58,6 +56,16 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
 
             result = default!;
             return false;
+        }
+
+        private TR ToResponse<TR>(IRequest<TR> request, object? response)
+        {
+            if (response is TR r)
+            {
+                return r;
+            }
+
+            return default!;
         }
     }
 }

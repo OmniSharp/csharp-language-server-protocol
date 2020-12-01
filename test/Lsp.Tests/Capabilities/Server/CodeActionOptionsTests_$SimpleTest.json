@@ -3,6 +3,5 @@
         "quickfix",
         "refactor"
     ],
-    "resolveProvider": true,
-    "workDoneProgress": false
+    "resolveProvider": true
 }

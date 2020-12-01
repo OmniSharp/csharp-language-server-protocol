@@ -72,7 +72,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             var providedConfiguration = options.Services.FirstOrDefault(z => z.ServiceType == typeof(IConfiguration) && z.ImplementationInstance is IConfiguration);
             container.RegisterDelegate<IConfiguration>(
                 _ => {
-                    var builder = new ConfigurationBuilder();
+                    var builder = options.ConfigurationBuilder;
                     var outerConfiguration = outerServiceProvider?.GetService<IConfiguration>();
                     if (outerConfiguration != null)
                     {

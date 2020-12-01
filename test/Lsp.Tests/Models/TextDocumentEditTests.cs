@@ -16,7 +16,7 @@ namespace Lsp.Tests.Models
         public void SimpleTest(string expected)
         {
             var model = new TextDocumentEdit {
-                TextDocument = new VersionedTextDocumentIdentifier {
+                TextDocument = new OptionalVersionedTextDocumentIdentifier {
                     Version = 1,
                     Uri = new Uri("file:///abc/123/d.cs"),
                 },

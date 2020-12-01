@@ -3,9 +3,8 @@ using System.Diagnostics;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    // TODO: Rename to confirm with spec VersionedTextDocumentIdentifier
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    public record RequiredVersionedTextDocumentIdentifier : TextDocumentIdentifier
+    public record VersionedTextDocumentIdentifier : TextDocumentIdentifier
     {
         /// <summary>
         /// The version number of this document.

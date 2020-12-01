@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -19,21 +21,20 @@ namespace Lsp.Tests.Integration
 {
     public class LanguageServerLoggingTests : LanguageProtocolTestBase
     {
-        public LanguageServerLoggingTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions())
+        public LanguageServerLoggingTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().WithCancellationTimeout(TimeSpan.FromMinutes(2)))
         {
         }
-
-        private readonly List<LogMessageParams> _logs = new List<LogMessageParams>();
 
         [Fact]
         public async Task Logs_Are_Sent_To_Client_From_Server()
         {
+            var logs = new ConcurrentBag<LogMessageParams>();
             var (client, server) = await Initialize(
-                options => {  },
+                options => { options.Trace = InitializeTrace.Verbose; },
                 options => {
                     options.ConfigureLogging(
                         z => z
-                            .AddLanguageProtocolLogging(LogLevel.Trace)
+                            .AddLanguageProtocolLogging()
                             .SetMinimumLevel(LogLevel.Trace)
                     );
                 }
@@ -41,7 +42,7 @@ namespace Lsp.Tests.Integration
 
             await SettleNext();
 
-            using var _ = client.Register(r => r.OnLogMessage(x => { _logs.Add(x); }));
+            using var _ = client.Register(r => r.OnLogMessage(x => { logs.Add(x); }));
 
             var logger = server.GetRequiredService<ILogger<ILanguageServer>>();
 
@@ -52,24 +53,26 @@ namespace Lsp.Tests.Integration
             logger.LogTrace("Just gotta let you trace!");
             logger.LogDebug("Just gotta let you debug!");
 
-            await _logs.DelayUntilCount(6, CancellationToken);
+            await logs.DelayUntilCount(6, CancellationToken);
+            var items = logs.Take(6).ToList();
 
-            _logs.Should().HaveCount(6);
-            _logs.Where(z => z.Type == MessageType.Error).Should().HaveCount(2);
-            _logs.Where(z => z.Type == MessageType.Info).Should().HaveCount(1);
-            _logs.Where(z => z.Type == MessageType.Warning).Should().HaveCount(1);
-            _logs.Where(z => z.Type == MessageType.Log).Should().HaveCount(2);
+            items.Should().HaveCount(6);
+            items.Where(z => z.Type == MessageType.Error).Should().HaveCount(2);
+            items.Where(z => z.Type == MessageType.Info).Should().HaveCount(1);
+            items.Where(z => z.Type == MessageType.Warning).Should().HaveCount(1);
+            items.Where(z => z.Type == MessageType.Log).Should().HaveCount(2);
         }
 
         [Fact]
         public async Task Logs_Are_Sent_To_Client_From_Server_Respecting_SetMinimumLevel()
         {
+            var logs = new ConcurrentBag<LogMessageParams>();
             var (client, server) = await Initialize(
                 options => { },
                 options => {
                     options.ConfigureLogging(
                         z => z
-                            .AddLanguageProtocolLogging(LogLevel.Trace)
+                            .AddLanguageProtocolLogging()
                             .SetMinimumLevel(LogLevel.Warning)
                     );
                 }
@@ -77,7 +80,7 @@ namespace Lsp.Tests.Integration
 
             await SettleNext();
 
-            using var _ = client.Register(r => r.OnLogMessage(x => { _logs.Add(x); }));
+            using var _ = client.Register(r => r.OnLogMessage(x => { logs.Add(x); }));
 
             var logger = server.GetRequiredService<ILogger<ILanguageServer>>();
 
@@ -88,24 +91,26 @@ namespace Lsp.Tests.Integration
             logger.LogTrace("Just gotta let you trace!");
             logger.LogDebug("Just gotta let you debug!");
 
-            await _logs.DelayUntilCount(3, CancellationToken);
+            await logs.DelayUntilCount(3, CancellationToken);
+            var items = logs.Take(3).ToList();
 
-            _logs.Should().HaveCount(3);
-            _logs.Where(z => z.Type == MessageType.Error).Should().HaveCount(2);
-            _logs.Where(z => z.Type == MessageType.Info).Should().HaveCount(0);
-            _logs.Where(z => z.Type == MessageType.Warning).Should().HaveCount(1);
-            _logs.Where(z => z.Type == MessageType.Log).Should().HaveCount(0);
+            items.Should().HaveCount(3);
+            items.Where(z => z.Type == MessageType.Error).Should().HaveCount(2);
+            items.Where(z => z.Type == MessageType.Info).Should().HaveCount(0);
+            items.Where(z => z.Type == MessageType.Warning).Should().HaveCount(1);
+            items.Where(z => z.Type == MessageType.Log).Should().HaveCount(0);
         }
 
         [Fact]
         public async Task Logs_Are_Sent_To_Client_From_Server_Respecting_TraceLevel()
         {
+            var logs = new ConcurrentBag<LogMessageParams>();
             var (client, server) = await Initialize(
-                options => {  },
+                options => { options.Trace = InitializeTrace.Messages; },
                 options => {
                     options.ConfigureLogging(
                         z => z
-                            .AddLanguageProtocolLogging(LogLevel.Information)
+                            .AddLanguageProtocolLogging()
                             .SetMinimumLevel(LogLevel.Trace)
                     );
                 }
@@ -113,7 +118,7 @@ namespace Lsp.Tests.Integration
 
             await SettleNext();
 
-            using var _ = client.Register(r => r.OnLogMessage(x => { _logs.Add(x); }));
+            using var _ = client.Register(r => r.OnLogMessage(x => { logs.Add(x); }));
 
             var logger = server.GetRequiredService<ILogger<ILanguageServer>>();
 
@@ -124,13 +129,144 @@ namespace Lsp.Tests.Integration
             logger.LogTrace("Just gotta let you trace!");
             logger.LogDebug("Just gotta let you debug!");
 
-            await _logs.DelayUntilCount(4, CancellationToken);
+            await logs.DelayUntilCount(4, CancellationToken);
+            var items = logs.Take(4).ToList();
 
-            _logs.Should().HaveCount(4);
-            _logs.Where(z => z.Type == MessageType.Error).Should().HaveCount(2);
-            _logs.Where(z => z.Type == MessageType.Info).Should().HaveCount(1);
-            _logs.Where(z => z.Type == MessageType.Warning).Should().HaveCount(1);
-            _logs.Where(z => z.Type == MessageType.Log).Should().HaveCount(0);
+            items.Should().HaveCount(4);
+            items.Where(z => z.Type == MessageType.Error).Should().HaveCount(2);
+            items.Where(z => z.Type == MessageType.Info).Should().HaveCount(1);
+            items.Where(z => z.Type == MessageType.Warning).Should().HaveCount(1);
+            items.Where(z => z.Type == MessageType.Log).Should().HaveCount(0);
+        }
+
+        [Fact]
+        public async Task Client_Can_Dynamically_Change_Server_Trace_Level_Off_To_Verbose()
+        {
+            var logs = new ConcurrentBag<LogMessageParams>();
+            var (client, server) = await Initialize(
+                options => { },
+                options => {
+                    options.ConfigureLogging(
+                        z => z
+                            .AddLanguageProtocolLogging()
+                            .SetMinimumLevel(LogLevel.Trace)
+                    );
+                }
+            );
+
+            await SettleNext();
+
+            using var _ = client.Register(r => r.OnLogMessage(x => { logs.Add(x); }));
+
+            var logger = server.GetRequiredService<ILogger<ILanguageServer>>();
+
+            logger.LogCritical("holy cow!");
+            logger.LogError("Something bad happened...");
+            logger.LogInformation("Here's something cool...");
+            logger.LogWarning("Uh-oh...");
+            logger.LogTrace("Just gotta let you trace!");
+            logger.LogDebug("Just gotta let you debug!");
+
+            await logs.DelayUntilCount(3, CancellationToken);
+            {
+                var items = logs.Take(3).ToList();
+                ;
+
+                items.Should().HaveCount(3);
+                items.Where(z => z.Type == MessageType.Error).Should().HaveCount(2);
+                items.Where(z => z.Type == MessageType.Info).Should().HaveCount(0);
+                items.Where(z => z.Type == MessageType.Warning).Should().HaveCount(1);
+                items.Where(z => z.Type == MessageType.Log).Should().HaveCount(0);
+            }
+
+            client.SetTrace(new() { Value = InitializeTrace.Verbose });
+            await SettleNext();
+
+            logs.Clear();
+
+            logger.LogCritical("holy cow!");
+            logger.LogError("Something bad happened...");
+            logger.LogInformation("Here's something cool...");
+            logger.LogWarning("Uh-oh...");
+            logger.LogTrace("Just gotta let you trace!");
+            logger.LogDebug("Just gotta let you debug!");
+
+            await logs.DelayUntilCount(6, CancellationToken);
+            {
+                var items = logs.Take(6).ToList();
+                ;
+
+                items.Should().HaveCount(6);
+                items.Where(z => z.Type == MessageType.Error).Should().HaveCount(2);
+                items.Where(z => z.Type == MessageType.Info).Should().HaveCount(1);
+                items.Where(z => z.Type == MessageType.Warning).Should().HaveCount(1);
+                items.Where(z => z.Type == MessageType.Log).Should().HaveCount(2);
+            }
+        }
+
+        [Fact]
+        public async Task Client_Can_Dynamically_Change_Server_Trace_Level_Verbose_To_Off()
+        {
+            var logs = new ConcurrentBag<LogMessageParams>();
+            var (client, server) = await Initialize(
+                options => {
+                    options.Trace = InitializeTrace.Verbose;
+                },
+                options => {
+                    options.ConfigureLogging(
+                        z => z
+                            .AddLanguageProtocolLogging()
+                            .SetMinimumLevel(LogLevel.Trace)
+                    );
+                }
+            );
+
+            await SettleNext();
+
+            using var _ = client.Register(r => r.OnLogMessage(x => { logs.Add(x); }));
+
+            var logger = server.GetRequiredService<ILogger<ILanguageServer>>();
+
+            logger.LogCritical("holy cow!");
+            logger.LogError("Something bad happened...");
+            logger.LogInformation("Here's something cool...");
+            logger.LogWarning("Uh-oh...");
+            logger.LogTrace("Just gotta let you trace!");
+            logger.LogDebug("Just gotta let you debug!");
+
+            await logs.DelayUntilCount(6, CancellationToken);
+            {
+                var items = logs.Take(6).ToList();
+
+                items.Should().HaveCount(6);
+                items.Where(z => z.Type == MessageType.Error).Should().HaveCount(2);
+                items.Where(z => z.Type == MessageType.Info).Should().HaveCount(1);
+                items.Where(z => z.Type == MessageType.Warning).Should().HaveCount(1);
+                items.Where(z => z.Type == MessageType.Log).Should().HaveCount(2);
+            }
+
+            client.SetTrace(new() { Value = InitializeTrace.Off });
+            await SettleNext();
+
+            logs.Clear();
+
+            logger.LogCritical("holy cow!");
+            logger.LogError("Something bad happened...");
+            logger.LogInformation("Here's something cool...");
+            logger.LogWarning("Uh-oh...");
+            logger.LogTrace("Just gotta let you trace!");
+            logger.LogDebug("Just gotta let you debug!");
+
+            await logs.DelayUntilCount(3, CancellationToken);
+            {
+                var items = logs.Take(3).ToList();
+
+                items.Should().HaveCount(3);
+                items.Where(z => z.Type == MessageType.Error).Should().HaveCount(2);
+                items.Where(z => z.Type == MessageType.Info).Should().HaveCount(0);
+                items.Where(z => z.Type == MessageType.Warning).Should().HaveCount(1);
+                items.Where(z => z.Type == MessageType.Log).Should().HaveCount(0);
+            }
         }
     }
 }

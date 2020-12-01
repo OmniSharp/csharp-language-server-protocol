@@ -90,7 +90,6 @@
                 "kind": "delete",
                 "uri": "file:///abc/123/c.cs",
                 "options": {
-                    "recursive": false,
                     "ignoreIfNotExists": true
                 }
             }

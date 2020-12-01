@@ -48,24 +48,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// </summary>
         [Optional]
         public RegularExpressionsClientCapabilities? RegularExpressions { get; set; }
-    }
-
-    /// <summary>
-    /// Client capabilities specific to regular expressions.
-    ///
-    /// @since 3.16.0 - proposed state
-    /// </summary>
-    public class RegularExpressionsClientCapabilities
-    {
-        /// <summary>
-        /// The engine's name.
-        /// </summary>
-        public string Engine { get; set; } = null!;
 
         /// <summary>
-        /// The engine's version.
+        /// Client capabilities specific to the client's markdown parser.
+        ///
+        /// @since 3.16.0 - proposed state
         /// </summary>
-        [Optional]
-        public string? Version { get; set; }
+        [Optional] public MarkdownClientCapabilities? Markdown { get; set; }
     }
 }

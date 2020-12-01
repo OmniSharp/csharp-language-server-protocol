@@ -173,7 +173,29 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// @since version 3.16.0
             /// </summary>
             [Optional]
-            public bool PrepareSupportDefaultBehavior { get; set; }
+            public PrepareSupportDefaultBehavior PrepareSupportDefaultBehavior { get; set; }
+
+            /// <summary>
+            /// Whether th client honors the change annotations in
+            /// text edits and resource operations returned via the
+            /// `CodeAction#edit` property by for example presenting
+            /// the workspace edit in the user interface and asking
+            /// for confirmation.
+            ///
+            /// @since 3.16.0 - proposed state
+            /// </summary>
+            [Optional]
+            public bool HonorsChangeAnnotations { get; set; }
+        }
+
+
+        public enum PrepareSupportDefaultBehavior
+        {
+            /// <summary>
+            /// The client's default behavior is to select the identifier
+            /// according the to language's syntax rule.
+            /// </summary>
+            Identifier = 1
         }
     }
 

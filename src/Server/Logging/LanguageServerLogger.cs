@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
@@ -14,27 +15,22 @@ namespace OmniSharp.Extensions.LanguageServer.Server
     {
         private readonly ILanguageServerFacade _responseRouter;
         private readonly string _categoryName;
-        private readonly Func<LogLevel> _logLevelGetter;
 
-        public LanguageServerLogger(ILanguageServerFacade responseRouter, string categoryName, Func<LogLevel> logLevelGetter)
-        {
-            _logLevelGetter = logLevelGetter;
+        public LanguageServerLogger(ILanguageServerFacade responseRouter, string categoryName)
+        {;
             _responseRouter = responseRouter;
             _categoryName = categoryName;
         }
 
         public IDisposable BeginScope<TState>(TState state) => new CompositeDisposable();
 
-        public bool IsEnabled(LogLevel logLevel) => logLevel >= _logLevelGetter();
+        public bool IsEnabled(LogLevel logLevel) => true;
 
         public void Log<TState>(
             LogLevel logLevel, EventId eventId, TState state, Exception? exception,
             Func<TState, Exception?, string> formatter
         )
         {
-            if (logLevel < _logLevelGetter())
-                return;
-
             if (TryGetMessageType(logLevel, out var messageType))
             {
                 _responseRouter.Window.Log(

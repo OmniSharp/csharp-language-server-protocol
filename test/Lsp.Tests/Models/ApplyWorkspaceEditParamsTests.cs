@@ -82,7 +82,7 @@ namespace Lsp.Tests.Models
                 Edit = new WorkspaceEdit {
                     DocumentChanges = new Container<WorkspaceEditDocumentChange>(
                         new TextDocumentEdit {
-                            TextDocument = new VersionedTextDocumentIdentifier {
+                            TextDocument = new OptionalVersionedTextDocumentIdentifier {
                                 Version = 1,
                                 Uri = new Uri("file:///abc/123/d.cs"),
                             },
@@ -98,7 +98,7 @@ namespace Lsp.Tests.Models
                             }
                         },
                         new TextDocumentEdit {
-                            TextDocument = new VersionedTextDocumentIdentifier {
+                            TextDocument = new OptionalVersionedTextDocumentIdentifier {
                                 Version = 1,
                                 Uri = new Uri("file:///abc/123/b.cs"),
                             },

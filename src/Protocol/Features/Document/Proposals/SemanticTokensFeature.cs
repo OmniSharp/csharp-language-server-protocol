@@ -629,7 +629,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static readonly SemanticTokenType Enum = new SemanticTokenType("enum");
             public static readonly SemanticTokenType TypeParameter = new SemanticTokenType("typeParameter");
             public static readonly SemanticTokenType Function = new SemanticTokenType("function");
-            public static readonly SemanticTokenType Member = new SemanticTokenType("member");
+            public static readonly SemanticTokenType Method = new SemanticTokenType("method");
             public static readonly SemanticTokenType Property = new SemanticTokenType("property");
             public static readonly SemanticTokenType Macro = new SemanticTokenType("macro");
             public static readonly SemanticTokenType Variable = new SemanticTokenType("variable");

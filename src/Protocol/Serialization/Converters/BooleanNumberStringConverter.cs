@@ -9,7 +9,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
         public override void WriteJson(JsonWriter writer, BooleanNumberString value, JsonSerializer serializer)
         {
             if (value.IsBool) serializer.Serialize(writer, value.Bool);
-            else if (value.IsLong) serializer.Serialize(writer, value.Long);
+            else if (value.IsInteger) serializer.Serialize(writer, value.Integer);
             else if (value.IsString) serializer.Serialize(writer, value.String);
             else writer.WriteNull();
         }
@@ -18,7 +18,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
         {
             if (reader.TokenType == JsonToken.Integer)
             {
-                return new BooleanNumberString((long) reader.Value);
+                return new BooleanNumberString(Convert.ToInt32((long)reader.Value));
             }
 
             if (reader.TokenType == JsonToken.String)
