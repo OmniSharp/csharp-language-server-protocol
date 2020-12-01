@@ -411,53 +411,78 @@ namespace OmniSharp.Extensions.JsonRpc
             {
                 if (item.IsRequest && item.Request != null)
                 {
-                    // _logger.LogDebug("Handling Request {Method} {ResponseId}", item.Request.Method, item.Request.Id);
-                    var descriptor = _requestRouter.GetDescriptors(item.Request);
-                    if (descriptor.Default is null)
+                    try
                     {
-                        _logger.LogDebug("Request handler was not found (or not setup) {Method} {ResponseId}", item.Request.Method, item.Request.Id);
-                        _outputHandler.Send(new MethodNotFound(item.Request.Id, item.Request.Method));
-                        return;
-                    }
+                        // _logger.LogDebug("Handling Request {Method} {ResponseId}", item.Request.Method, item.Request.Id);
+                        var descriptor = _requestRouter.GetDescriptors(item.Request);
+                        if (descriptor.Default is null)
+                        {
+                            _logger.LogDebug("Request handler was not found (or not setup) {Method} {ResponseId}", item.Request.Method, item.Request.Id);
+                            _outputHandler.Send(new MethodNotFound(item.Request.Id, item.Request.Method));
+                            return;
+                        }
 
-                    var type = _requestProcessIdentifier.Identify(descriptor.Default);
-                    _scheduler.Add(type, $"{item.Request.Method}:{item.Request.Id}", RouteRequest(descriptor, item.Request));
+                        var type = _requestProcessIdentifier.Identify(descriptor.Default);
+                        _scheduler.Add(type, $"{item.Request.Method}:{item.Request.Id}", RouteRequest(descriptor, item.Request));
+                    }
+                    catch (JsonReaderException e)
+                    {
+                        _outputHandler.Send(new ParseError(item.Request.Id, item.Request.Method));
+                        _logger.LogCritical(e, "Error parsing request");
+                    }
+                    catch (Exception e)
+                    {
+                        _outputHandler.Send(new InternalError(item.Request.Id, item.Request.Method));
+                        _logger.LogCritical(e, "Unknown error handling request");
+                    }
                 }
 
                 if (item.IsNotification && item.Notification != null)
                 {
-                    // We need to special case cancellation so that we can cancel any request that is currently in flight.
-                    if (item.Notification.Method == JsonRpcNames.CancelRequest)
+                    try
                     {
-                        _logger.LogDebug("Found cancellation request {Method}", item.Notification.Method);
-                        var cancelParams = item.Notification.Params?.ToObject<CancelParams>();
-                        if (cancelParams == null)
+                        // We need to special case cancellation so that we can cancel any request that is currently in flight.
+                        if (item.Notification.Method == JsonRpcNames.CancelRequest)
                         {
-                            _logger.LogDebug("Got incorrect cancellation params", item.Notification.Method);
+                            _logger.LogDebug("Found cancellation request {Method}", item.Notification.Method);
+                            var cancelParams = item.Notification.Params?.ToObject<CancelParams>();
+                            if (cancelParams == null)
+                            {
+                                _logger.LogDebug("Got incorrect cancellation params", item.Notification.Method);
+                                continue;
+                            }
+
+                            _logger.LogDebug("Cancelling pending request", item.Notification.Method);
+                            if (_requests.TryGetValue(cancelParams.Id, out var d))
+                            {
+                                d.cancellationTokenSource.Cancel();
+                            }
+
                             continue;
                         }
 
-                        _logger.LogDebug("Cancelling pending request", item.Notification.Method);
-                        if (_requests.TryGetValue(cancelParams.Id, out var d))
+                        // _logger.LogDebug("Handling Request {Method}", item.Notification.Method);
+                        var descriptor = _requestRouter.GetDescriptors(item.Notification);
+                        if (descriptor.Default is null)
                         {
-                            d.cancellationTokenSource.Cancel();
+                            _logger.LogDebug("Notification handler was not found (or not setup) {Method}", item.Notification.Method);
+                            // TODO: Figure out a good way to send this feedback back.
+                            // _outputHandler.Send(new RpcError(null, new ErrorMessage(-32601, $"Method not found - {item.Notification.Method}")));
+                            return;
                         }
 
-                        continue;
-                    }
+                        var type = _requestProcessIdentifier.Identify(descriptor.Default);
+                        _scheduler.Add(type, item.Notification.Method, RouteNotification(descriptor, item.Notification));
 
-                    // _logger.LogDebug("Handling Request {Method}", item.Notification.Method);
-                    var descriptor = _requestRouter.GetDescriptors(item.Notification);
-                    if (descriptor.Default is null)
+                    }
+                    catch (JsonReaderException e)
                     {
-                        _logger.LogDebug("Notification handler was not found (or not setup) {Method}", item.Notification.Method);
-                        // TODO: Figure out a good way to send this feedback back.
-                        // _outputHandler.Send(new RpcError(null, new ErrorMessage(-32601, $"Method not found - {item.Notification.Method}")));
-                        return;
+                        _logger.LogCritical(e, "Error parsing notification");
                     }
-
-                    var type = _requestProcessIdentifier.Identify(descriptor.Default);
-                    _scheduler.Add(type, item.Notification.Method, RouteNotification(descriptor, item.Notification));
+                    catch (Exception e)
+                    {
+                        _logger.LogCritical(e, "Unknown error handling notification");
+                    }
                 }
 
                 if (item.IsError)
