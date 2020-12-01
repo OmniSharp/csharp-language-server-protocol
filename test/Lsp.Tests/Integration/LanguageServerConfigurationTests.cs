@@ -6,13 +6,17 @@ using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json.Linq;
 using NSubstitute;
 using NSubstitute.Extensions;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog.Events;
 using TestingUtils;
@@ -39,6 +43,20 @@ namespace Lsp.Tests.Integration
             await SettleNext();
 
             server.Configuration.AsEnumerable().Should().BeEmpty();
+        }
+
+        [Fact]
+        public async Task Should_Allow_Null_Response()
+        {
+            var (client, server) = await Initialize(
+                options => {
+                    options.WithCapability(new DidChangeConfigurationCapability());
+                    options.OnConfiguration(@params => Task.FromResult(new Container<JToken>(@params.Items.Select(z => (JToken?)null))));
+                    ConfigureClient(options);
+                }, ConfigureServer);
+
+            Func<Task> a = () => server.Configuration.GetConfiguration(new ConfigurationItem() { Section = "mysection" });
+            a.Should().NotThrow();
         }
 
         [Fact]
