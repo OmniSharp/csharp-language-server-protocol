@@ -11,6 +11,7 @@ using MediatR;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.JsonRpc.Serialization.Converters;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
@@ -493,44 +494,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.16.0
         /// </summary>
-        [JsonConverter(typeof(EnumLikeStringConverter))]
         [Obsolete(Constants.Proposal)]
-        [DebuggerDisplay("{_value}")]
-        public readonly struct SemanticTokenFormat : IEquatable<SemanticTokenFormat>, IEnumLikeString
+        [StringEnum]
+        public readonly partial struct SemanticTokenFormat
         {
-            private static readonly Lazy<IReadOnlyList<SemanticTokenFormat>> _defaults =
-                new Lazy<IReadOnlyList<SemanticTokenFormat>>(
-                    () => {
-                        return typeof(SemanticTokenFormat)
-                              .GetFields(BindingFlags.Static | BindingFlags.Public)
-                              .Select(z => z.GetValue(null))
-                              .Cast<SemanticTokenFormat>()
-                              .ToArray();
-                    }
-                );
-
-            public static IEnumerable<SemanticTokenFormat> Defaults => _defaults.Value;
-
             public static readonly SemanticTokenFormat Relative = new SemanticTokenFormat("relative");
-
-            private readonly string _value;
-
-            public SemanticTokenFormat(string modifier) => _value = modifier;
-
-            public static implicit operator SemanticTokenFormat(string kind) => new SemanticTokenFormat(kind);
-
-            public static implicit operator string(SemanticTokenFormat kind) => kind._value;
-
-            public override string ToString() => _value;
-            public bool Equals(SemanticTokenFormat other) => _value == other._value;
-
-            public override bool Equals(object obj) => obj is SemanticTokenFormat other && Equals(other);
-
-            public override int GetHashCode() => _value.GetHashCode();
-
-            public static bool operator ==(SemanticTokenFormat left, SemanticTokenFormat right) => left.Equals(right);
-
-            public static bool operator !=(SemanticTokenFormat left, SemanticTokenFormat right) => !left.Equals(right);
         }
 
         /// <summary>
@@ -540,24 +508,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.16.0
         /// </summary>
-        [JsonConverter(typeof(EnumLikeStringConverter))]
         [Obsolete(Constants.Proposal)]
-        [DebuggerDisplay("{_value}")]
-        public readonly struct SemanticTokenModifier : IEquatable<SemanticTokenModifier>, IEnumLikeString
+        [StringEnum]
+        public readonly partial struct SemanticTokenModifier
         {
-            private static readonly Lazy<IReadOnlyList<SemanticTokenModifier>> _defaults =
-                new Lazy<IReadOnlyList<SemanticTokenModifier>>(
-                    () => {
-                        return typeof(SemanticTokenModifier)
-                              .GetFields(BindingFlags.Static | BindingFlags.Public)
-                              .Select(z => z.GetValue(null))
-                              .Cast<SemanticTokenModifier>()
-                              .ToArray();
-                    }
-                );
-
-            public static IEnumerable<SemanticTokenModifier> Defaults => _defaults.Value;
-
             public static readonly SemanticTokenModifier Documentation = new SemanticTokenModifier("documentation");
             public static readonly SemanticTokenModifier Declaration = new SemanticTokenModifier("declaration");
             public static readonly SemanticTokenModifier Definition = new SemanticTokenModifier("definition");
@@ -568,25 +522,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static readonly SemanticTokenModifier Readonly = new SemanticTokenModifier("readonly");
             public static readonly SemanticTokenModifier Modification = new SemanticTokenModifier("modification");
             public static readonly SemanticTokenModifier DefaultLibrary = new SemanticTokenModifier("defaultLibrary");
-
-            private readonly string _value;
-
-            public SemanticTokenModifier(string modifier) => _value = modifier;
-
-            public static implicit operator SemanticTokenModifier(string kind) => new SemanticTokenModifier(kind);
-
-            public static implicit operator string(SemanticTokenModifier kind) => kind._value;
-
-            public override string ToString() => _value;
-            public bool Equals(SemanticTokenModifier other) => _value == other._value;
-
-            public override bool Equals(object obj) => obj is SemanticTokenModifier other && Equals(other);
-
-            public override int GetHashCode() => _value.GetHashCode();
-
-            public static bool operator ==(SemanticTokenModifier left, SemanticTokenModifier right) => left.Equals(right);
-
-            public static bool operator !=(SemanticTokenModifier left, SemanticTokenModifier right) => !left.Equals(right);
         }
 
 
@@ -597,24 +532,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.16.0
         /// </summary>
-        [JsonConverter(typeof(EnumLikeStringConverter))]
         [Obsolete(Constants.Proposal)]
-        [DebuggerDisplay("{_value}")]
-        public readonly struct SemanticTokenType : IEquatable<SemanticTokenType>, IEnumLikeString
+        [StringEnum]
+        public readonly partial struct SemanticTokenType
         {
-            private static readonly Lazy<IReadOnlyList<SemanticTokenType>> _defaults =
-                new Lazy<IReadOnlyList<SemanticTokenType>>(
-                    () => {
-                        return typeof(SemanticTokenType)
-                              .GetFields(BindingFlags.Static | BindingFlags.Public)
-                              .Select(z => z.GetValue(null))
-                              .Cast<SemanticTokenType>()
-                              .ToArray();
-                    }
-                );
-
-            public static IEnumerable<SemanticTokenType> Defaults => _defaults.Value;
-
             public static readonly SemanticTokenType Comment = new SemanticTokenType("comment");
             public static readonly SemanticTokenType Keyword = new SemanticTokenType("keyword");
             public static readonly SemanticTokenType String = new SemanticTokenType("string");
@@ -638,25 +559,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static readonly SemanticTokenType Modifier = new SemanticTokenType("modifier");
             public static readonly SemanticTokenType Event = new SemanticTokenType("event");
             public static readonly SemanticTokenType EnumMember = new SemanticTokenType("enumMember");
-
-            private readonly string _value;
-
-            public SemanticTokenType(string type) => _value = type;
-
-            public static implicit operator SemanticTokenType(string kind) => new SemanticTokenType(kind);
-
-            public static implicit operator string(SemanticTokenType kind) => kind._value;
-
-            public override string ToString() => _value;
-            public bool Equals(SemanticTokenType other) => _value == other._value;
-
-            public override bool Equals(object obj) => obj is SemanticTokenType other && Equals(other);
-
-            public override int GetHashCode() => _value.GetHashCode();
-
-            public static bool operator ==(SemanticTokenType left, SemanticTokenType right) => left.Equals(right);
-
-            public static bool operator !=(SemanticTokenType left, SemanticTokenType right) => !left.Equals(right);
         }
 
         [Obsolete(Constants.Proposal)]

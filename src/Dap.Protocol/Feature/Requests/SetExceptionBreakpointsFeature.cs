@@ -26,6 +26,15 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// IDs of checked exception options.The set of IDs is returned via the 'exceptionBreakpointFilters' capability.
             /// </summary>
             public Container<string> Filters { get; init; }
+            /// <summary>
+            ///  Set of exception filters and their options. The set of all possible
+                ///  exception filters is defined by the 'exceptionBreakpointFilters'
+            ///  capability. This attribute is only honored by a debug adapter if the
+                ///  capability 'supportsExceptionFilterOptions' is true. The 'filter' and
+   /// 'filterOptions' sets are additive.
+                /// </summary>
+            [Optional]
+            public Container<ExceptionFilterOptions>? FilterOptions { get; init; }
 
             /// <summary>
             /// Configuration options for selected exceptions.

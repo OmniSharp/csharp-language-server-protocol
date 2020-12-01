@@ -1,8 +1,16 @@
-﻿using System.Threading;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Newtonsoft.Json;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.JsonRpc.Serialization.Converters;
 
 // ReSharper disable once CheckNamespace
 namespace OmniSharp.Extensions.DebugAdapter.Protocol
@@ -22,12 +30,19 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// The reason for the event.
             /// Values: 'started', 'exited', etc.
             /// </summary>
-            public string Reason { get; init; }
+            public ThreadEventReason Reason { get; init; }
 
             /// <summary>
             /// The identifier of the thread.
             /// </summary>
             public long ThreadId { get; init; }
+        }
+
+        [StringEnum]
+        public readonly partial struct ThreadEventReason
+        {
+            public static readonly ThreadEventReason Started = new ThreadEventReason("started");
+            public static readonly ThreadEventReason Exited = new ThreadEventReason("exited");
         }
     }
 }

@@ -40,13 +40,22 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// etc.
             /// </summary>
             [Optional]
-            public string? Context { get; init; }
+            public EvaluateArgumentsContext? Context { get; init; }
 
             /// <summary>
             /// Specifies details on how to format the Evaluate result.
             /// </summary>
             [Optional]
             public ValueFormat? Format { get; init; }
+        }
+
+        [StringEnum]
+        public readonly partial struct EvaluateArgumentsContext
+        {
+            public static EvaluateArgumentsContext Watch { get; } = new EvaluateArgumentsContext("watch");
+            public static EvaluateArgumentsContext Repl { get; } = new EvaluateArgumentsContext("repl");
+            public static EvaluateArgumentsContext Hover { get; } = new EvaluateArgumentsContext("hover");
+            public static EvaluateArgumentsContext Clipboard { get; } = new EvaluateArgumentsContext("clipboard");
         }
 
         public record EvaluateResponse

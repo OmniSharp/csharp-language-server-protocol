@@ -32,10 +32,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public Module Module { get; init; }
         }
 
-        [JsonConverter(typeof(StringEnumConverter))]
-        public enum ModuleEventReason
+        [StringEnum]
+        public readonly partial struct ModuleEventReason
         {
-            New, Changed, Removed
+            public static readonly ModuleEventReason Changed = new ModuleEventReason("changed");
+            public static readonly ModuleEventReason New = new ModuleEventReason("new");
+            public static readonly ModuleEventReason Removed = new ModuleEventReason("removed");
         }
     }
 }

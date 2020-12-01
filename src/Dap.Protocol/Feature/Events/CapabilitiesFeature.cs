@@ -221,8 +221,16 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// </summary>
             [Optional]
             public bool SupportsInstructionBreakpoints { get; set; }
+
+            /// <summary>
+            /// The debug adapter supports 'filterOptions' as an argument on the
+            /// 'setExceptionBreakpoints' request.
+            /// </summary>
+            [Optional]
+            public bool SupportsExceptionFilterOptions { get; set; }
         }
     }
+
     namespace Events
     {
         [Parallel]

@@ -92,12 +92,21 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// The reason for the event.
             /// Values: 'changed', 'new', 'removed', etc.
             /// </summary>
-            public string Reason { get; init; }
+            public BreakpointEventReason Reason { get; init; }
 
             /// <summary>
             /// The 'id' attribute is used to find the target breakpoint and the other attributes are used as the new values.
             /// </summary>
             public Breakpoint Breakpoint { get; init; }
+        }
+
+
+        [StringEnum]
+        public readonly partial struct BreakpointEventReason
+        {
+            public static readonly BreakpointEventReason Changed = new BreakpointEventReason("changed");
+            public static readonly BreakpointEventReason New = new BreakpointEventReason("new");
+            public static readonly BreakpointEventReason Removed = new BreakpointEventReason("removed");
         }
     }
 }

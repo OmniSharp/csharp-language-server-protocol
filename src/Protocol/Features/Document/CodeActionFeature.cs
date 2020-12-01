@@ -17,6 +17,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.JsonRpc.Serialization.Converters;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
@@ -328,23 +329,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// A set of predefined code action kinds
         /// </summary>
-        [DebuggerDisplay("{" + nameof(_value) + "}")]
-        [JsonConverter(typeof(EnumLikeStringConverter))]
-        public readonly struct CodeActionKind : IEquatable<CodeActionKind>, IEnumLikeString
+        [StringEnum]
+        public readonly partial struct CodeActionKind
         {
-            private static readonly Lazy<IReadOnlyList<CodeActionKind>> _defaults =
-                new Lazy<IReadOnlyList<CodeActionKind>>(
-                    () => {
-                        return typeof(CodeActionKind)
-                              .GetFields(BindingFlags.Static | BindingFlags.Public)
-                              .Select(z => z.GetValue(null))
-                              .Cast<CodeActionKind>()
-                              .ToArray();
-                    }
-                );
-
-            public static IEnumerable<CodeActionKind> Defaults => _defaults.Value;
-
             /// <summary>
             /// Base kind for quickfix actions: ''
             /// </summary>
@@ -410,27 +397,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// Base kind for an organize imports source action: `source.organizeImports`
             /// </summary>
             public static readonly CodeActionKind SourceOrganizeImports = new CodeActionKind("source.organizeImports");
-
-            private readonly string? _value;
-
-            public CodeActionKind(string kind) => _value = kind;
-
-            public static implicit operator CodeActionKind(string kind) => new CodeActionKind(kind);
-
-            public static implicit operator string(CodeActionKind kind) => kind._value ?? string.Empty;
-
-            /// <inheritdoc />
-            public override string ToString() => _value ?? string.Empty;
-
-            public bool Equals(CodeActionKind other) => _value == other._value;
-
-            public override bool Equals(object obj) => obj is CodeActionKind other && Equals(other);
-
-            public override int GetHashCode() => _value != null ? _value.GetHashCode() : 0;
-
-            public static bool operator ==(CodeActionKind left, CodeActionKind right) => left.Equals(right);
-
-            public static bool operator !=(CodeActionKind left, CodeActionKind right) => !left.Equals(right);
         }
     }
 

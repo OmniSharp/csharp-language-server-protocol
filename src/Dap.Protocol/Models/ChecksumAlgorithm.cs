@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using OmniSharp.Extensions.JsonRpc.Generation;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
@@ -10,5 +11,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
     public enum ChecksumAlgorithm
     {
         Md5, Sha1, Sha256, Timestamp
+    }
+
+    [StringEnum]
+    public readonly partial struct PathFormat
+    {
+        public static PathFormat Path { get; } = new PathFormat("path");
+        public static PathFormat Uri { get; } = new PathFormat("uri");
     }
 }
