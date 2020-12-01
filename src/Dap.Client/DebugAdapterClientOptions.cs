@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Shared;
 using OmniSharp.Extensions.JsonRpc;
@@ -24,12 +25,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
         public string? Locale { get; set; }
         public bool LinesStartAt1 { get; set; }
         public bool ColumnsStartAt1 { get; set; }
-        public string? PathFormat { get; set; }
+        public PathFormat? PathFormat { get; set; }
         public bool SupportsVariableType { get; set; }
         public bool SupportsVariablePaging { get; set; }
         public bool SupportsRunInTerminalRequest { get; set; }
         public bool SupportsMemoryReferences { get; set; }
         public bool SupportsProgressReporting { get; set; }
+        public bool SupportsInvalidatedEvent { get; set; }
 
         IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions? options) =>
             AddHandler(method, handler, options);

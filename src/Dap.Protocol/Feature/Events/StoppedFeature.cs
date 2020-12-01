@@ -1,9 +1,16 @@
-﻿using System.Threading;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Newtonsoft.Json;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.JsonRpc.Serialization.Converters;
 
 // ReSharper disable once CheckNamespace
 namespace OmniSharp.Extensions.DebugAdapter.Protocol
@@ -24,7 +31,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// For backward compatibility this string is shown in the UI if the 'description' attribute is missing (but it must not be translated).
             /// Values: 'step', 'breakpoint', 'exception', 'pause', 'entry', 'goto', 'function breakpoint', 'data breakpoint', etc.
             /// </summary>
-            public string Reason { get; init; }
+            public StoppedEventReason Reason { get; init; }
 
             /// <summary>
             /// The full reason for the event, e.g. 'Paused on exception'. This string is shown in the UI as is and must be translated.
@@ -57,6 +64,20 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// </summary>
             [Optional]
             public bool AllThreadsStopped { get; init; }
+        }
+
+        [StringEnum]
+        public readonly partial struct StoppedEventReason
+        {
+            public static StoppedEventReason Step { get; } = new StoppedEventReason("step");
+            public static StoppedEventReason Breakpoint { get; } = new StoppedEventReason("breakpoint");
+            public static StoppedEventReason Exception { get; } = new StoppedEventReason("exception");
+            public static StoppedEventReason Pause { get; } = new StoppedEventReason("pause");
+            public static StoppedEventReason Entry { get; } = new StoppedEventReason("entry");
+            public static StoppedEventReason Goto { get; } = new StoppedEventReason("goto");
+            public static StoppedEventReason FunctionBreakpoint { get; } = new StoppedEventReason("function breakpoint");
+            public static StoppedEventReason DataBreakpoint { get; } = new StoppedEventReason("data breakpoint");
+            public static StoppedEventReason InstructionBreakpoint { get; } = new StoppedEventReason("instruction breakpoint");
         }
     }
 }

@@ -4,6 +4,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
     {
         public const string Initialized = "initialized";
         public const string Stopped = "stopped";
+        public const string Invalidated = "invalidated";
         public const string Continued = "continued";
         public const string Exited = "exited";
         public const string Terminated = "terminated";

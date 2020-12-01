@@ -1,4 +1,5 @@
 ﻿using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
+using OmniSharp.Extensions.JsonRpc.Generation;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
@@ -25,7 +26,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// etc.
         /// </summary>
         [Optional]
-        public string? Kind { get; init; }
+        public VariablePresentationHintKind? Kind { get; init; }
 
         /// <summary>
         /// Set of attributes represented as an array of strings. Before introducing additional values, try to use the listed values.
@@ -40,13 +41,51 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// etc.
         /// </summary>
         [Optional]
-        public Container<string>? Attributes { get; init; }
+        public Container<VariableAttributes>? Attributes { get; init; }
 
         /// <summary>
         /// Visibility of variable. Before introducing additional values, try to use the listed values.
         /// Values: 'public', 'private', 'protected', 'internal', 'final', etc.
         /// </summary>
         [Optional]
-        public string? Visibility { get; init; }
+        public VariableVisibility? Visibility { get; init; }
+    }
+
+    [StringEnum]
+    public readonly partial struct VariablePresentationHintKind
+    {
+        public static VariablePresentationHintKind Property { get; } = new("property");
+        public static VariablePresentationHintKind Method { get; } = new("method");
+        public static VariablePresentationHintKind Class { get; } = new("class");
+        public static VariablePresentationHintKind Data { get; } = new("data");
+        public static VariablePresentationHintKind Event { get; } = new("event");
+        public static VariablePresentationHintKind BaseClass { get; } = new("baseClass");
+        public static VariablePresentationHintKind InnerClass { get; } = new("innerClass");
+        public static VariablePresentationHintKind Interface { get; } = new("interface");
+        public static VariablePresentationHintKind MostDerivedClass { get; } = new("mostDerivedClass");
+        public static VariablePresentationHintKind Virtual { get; } = new("virtual");
+        public static VariablePresentationHintKind DataBreakpoint { get; } = new("dataBreakpoint");
+    }
+
+    [StringEnum]
+    public readonly partial struct VariableAttributes
+    {
+        public static VariableAttributes Static { get; } = new("static");
+        public static VariableAttributes Constant { get; } = new("constant");
+        public static VariableAttributes ReadOnly { get; } = new("readOnly");
+        public static VariableAttributes RawString { get; } = new("rawString");
+        public static VariableAttributes HasObjectId { get; } = new("hasObjectId");
+        public static VariableAttributes CanHaveObjectId { get; } = new("canHaveObjectId");
+        public static VariableAttributes HasSideEffects { get; } = new("hasSideEffects");
+    }
+
+    [StringEnum]
+    public readonly partial struct VariableVisibility
+    {
+        public static VariableVisibility Public { get; } = new("public");
+        public static VariableVisibility Private { get; } = new("private");
+        public static VariableVisibility Protected { get; } = new("protected");
+        public static VariableVisibility Internal { get; } = new("internal");
+        public static VariableVisibility Final { get; } = new("final");
     }
 }

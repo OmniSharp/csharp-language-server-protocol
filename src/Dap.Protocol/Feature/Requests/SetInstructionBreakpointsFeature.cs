@@ -22,7 +22,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// The contents of this array replaces all existing data breakpoints. An empty array clears all data breakpoints.
             /// </summary>
-            public Container<DataBreakpoint> Breakpoints { get; init; }
+            public Container<InstructionBreakpoint> Breakpoints { get; init; }
         }
 
         public record SetInstructionBreakpointsResponse

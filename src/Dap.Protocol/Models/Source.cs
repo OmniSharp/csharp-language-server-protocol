@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
+using OmniSharp.Extensions.JsonRpc.Generation;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
@@ -57,5 +58,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// </summary>
         [Optional]
         public Container<Checksum>? Checksums { get; init; }
+    }
+
+    [StringEnum()]
+    public readonly partial struct SourcePresentationHint
+    {
+        public static SourcePresentationHint Normal { get; } = new SourcePresentationHint("normal");
+        public static SourcePresentationHint Emphasize { get; } = new SourcePresentationHint("emphasize");
+        public static SourcePresentationHint Deemphasize { get; } = new SourcePresentationHint("deemphasize");
     }
 }

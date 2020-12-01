@@ -23,5 +23,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// </summary>
         [Optional]
         public bool Default { get; init; }
+
+        /// <summary>
+        /// Controls whether a condition can be specified for this filter option. If
+        /// false or missing, a condition can not be set.
+        /// </summary>
+        [Optional]
+        public bool SupportsCondition { get; init; }
     }
 }

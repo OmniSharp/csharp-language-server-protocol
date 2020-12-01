@@ -21,6 +21,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog.Events;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -32,7 +33,7 @@ namespace Lsp.Tests.Integration
         {
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Logs_should_be_allowed_during_startup()
         {
             await Initialize(ConfigureClient, ConfigureServer);
@@ -41,7 +42,7 @@ namespace Lsp.Tests.Integration
             _logs.Should().ContainInOrder("OnInitialize", "OnInitialized");
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Facades_should_be_resolvable()
         {
             var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
@@ -53,7 +54,7 @@ namespace Lsp.Tests.Integration
             response.Should().NotBeNull();
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Not_Be_Able_To_Send_Messages_Unit_Initialization()
         {
             if (!(TestOptions.ClientLoggerFactory is TestLoggerFactory loggerFactory)) throw new Exception("wtf");
@@ -95,7 +96,7 @@ namespace Lsp.Tests.Integration
             onInitializedNotify.Received(1).Invoke();
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Be_Able_To_Register_Before_Initialize()
         {
             var (client, server) = Create(options => options.EnableDynamicRegistration().EnableAllCapabilities(), options => { });

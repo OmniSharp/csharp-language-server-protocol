@@ -85,7 +85,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public string Instruction { get; init; }
 
             /// <summary>
-            /// Name of the symbol that correponds with the location of this instruction, if any.
+            /// Name of the symbol that corresponds with the location of this instruction, if any.
             /// </summary>
             [Optional]
             public string? Symbol { get; init; }

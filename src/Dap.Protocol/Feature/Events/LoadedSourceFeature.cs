@@ -32,10 +32,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public Source Source { get; init; }
         }
 
-        [JsonConverter(typeof(StringEnumConverter))]
-        public enum LoadedSourceReason
+        [StringEnum]
+        public readonly partial struct LoadedSourceReason
         {
-            New, Changed, Removed
+            public static LoadedSourceReason Changed { get; } = new LoadedSourceReason("changed");
+            public static LoadedSourceReason New { get; } = new LoadedSourceReason("new");
+            public static LoadedSourceReason Removed { get; } = new LoadedSourceReason("removed");
         }
     }
 }

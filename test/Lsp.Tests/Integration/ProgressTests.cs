@@ -9,6 +9,7 @@ using Lsp.Tests.Integration.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -25,7 +26,7 @@ namespace Lsp.Tests.Integration
             public string Value { get; set; } = "Value";
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Send_Progress_From_Server_To_Client()
         {
             var token = new ProgressToken(Guid.NewGuid().ToString());
@@ -73,7 +74,7 @@ namespace Lsp.Tests.Integration
             data.Should().ContainInOrder(new[] { "1", "3", "2", "4", "5" });
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Send_Progress_From_Client_To_Server()
         {
             var token = new ProgressToken(Guid.NewGuid().ToString());
@@ -121,14 +122,14 @@ namespace Lsp.Tests.Integration
             data.Should().ContainInOrder(new[] { "1", "3", "2", "4", "5" });
         }
 
-        [Fact]
+        [RetryFact]
         public void WorkDone_Should_Be_Supported()
         {
             Server.WorkDoneManager.IsSupported.Should().BeTrue();
             Client.WorkDoneManager.IsSupported.Should().BeTrue();
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Support_Creating_Work_Done_From_Sever_To_Client()
         {
             var token = new ProgressToken(Guid.NewGuid().ToString());
@@ -190,7 +191,7 @@ namespace Lsp.Tests.Integration
             results.Should().ContainInOrder("Begin", "Report 1", "Report 2", "Report 3", "Report 4", "End");
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Support_Observing_Work_Done_From_Client_To_Server_Request()
         {
             var token = new ProgressToken(Guid.NewGuid().ToString());
@@ -252,7 +253,7 @@ namespace Lsp.Tests.Integration
             results.Should().ContainInOrder("Begin", "Report 1", "Report 2", "Report 3", "Report 4", "End");
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Support_Cancelling_Work_Done_From_Client_To_Server_Request()
         {
             var token = new ProgressToken(Guid.NewGuid().ToString());

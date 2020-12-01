@@ -54,10 +54,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public long? PointerSize { get; init; }
         }
 
-        [JsonConverter(typeof(StringEnumConverter))]
-        public enum ProcessEventStartMethod
+        [StringEnum]
+        public readonly partial struct ProcessEventStartMethod
         {
-            Launch, Attach, AttachForSuspendedLaunch
+            public static ProcessEventStartMethod Launch { get; } = new ProcessEventStartMethod("launch");
+            public static ProcessEventStartMethod Attach { get; } = new ProcessEventStartMethod("attach");
+            public static ProcessEventStartMethod AttachForSuspendedLaunch { get; } = new ProcessEventStartMethod("attachForSuspendedLaunch");
         }
     }
 }

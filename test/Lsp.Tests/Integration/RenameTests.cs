@@ -32,7 +32,7 @@ namespace Lsp.Tests.Integration
             _rename = Substitute.For<Func<RenameParams, RenameCapability, CancellationToken, Task<WorkspaceEdit?>>>();
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Handle_Rename_With_No_Value()
         {
             _prepareRename.Invoke(Arg.Any<PrepareRenameParams>(), Arg.Any<RenameCapability>(), Arg.Any<CancellationToken>())
@@ -88,7 +88,7 @@ namespace Lsp.Tests.Integration
             capability1.Should().BeSameAs(capability2);
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Handle_Prepare_Rename_With_No_Value()
         {
             _prepareRename.Invoke(Arg.Any<PrepareRenameParams>(), Arg.Any<RenameCapability>(), Arg.Any<CancellationToken>())
@@ -106,7 +106,7 @@ namespace Lsp.Tests.Integration
             result.Should().BeNull();
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Handle_Prepare_Rename_With_Range()
         {
             _prepareRename.Invoke(Arg.Any<PrepareRenameParams>(), Arg.Any<RenameCapability>(), Arg.Any<CancellationToken>())
@@ -135,7 +135,7 @@ namespace Lsp.Tests.Integration
             result!.IsRange.Should().BeTrue();
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Handle_Prepare_Rename_With_PlaceholderRange()
         {
             _prepareRename.Invoke(Arg.Any<PrepareRenameParams>(), Arg.Any<RenameCapability>(), Arg.Any<CancellationToken>())
@@ -168,7 +168,7 @@ namespace Lsp.Tests.Integration
             result!.IsPlaceholderRange.Should().BeTrue();
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Handle_Prepare_Rename_With_DefaultBehavior()
         {
             _prepareRename.Invoke(Arg.Any<PrepareRenameParams>(), Arg.Any<RenameCapability>(), Arg.Any<CancellationToken>())
@@ -193,7 +193,7 @@ namespace Lsp.Tests.Integration
             result!.IsDefaultBehavior.Should().BeTrue();
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Not_Register_Prepare_Rename()
         {
             var (client, _) = await Initialize(ClientOptionsAction, ServerOptionsAction);

@@ -63,7 +63,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// Values: 'path', 'uri', etc.
             /// </summary>
             [Optional]
-            public string? PathFormat { get; set; }
+            public PathFormat? PathFormat { get; set; }
 
             /// <summary>
             /// Client supports the optional type attribute for variables.
@@ -94,6 +94,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// </summary>
             [Optional]
             public bool SupportsProgressReporting { get; set; }
+
+            /// <summary>
+            /// Client supports the invalidated event.
+            /// </summary>
+            [Optional]
+            public bool SupportsInvalidatedEvent { get; set; }
         }
 
         public record InitializeResponse : Capabilities

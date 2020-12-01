@@ -8,6 +8,7 @@ using MediatR;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.JsonRpc.Serialization.Converters;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -72,44 +73,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public string? Message { get; init; }
         }
 
-        [JsonConverter(typeof(EnumLikeStringConverter))]
-        public readonly struct WorkDoneProgressKind : IEquatable<WorkDoneProgressKind>, IEnumLikeString
+        [StringEnum]
+        public readonly partial struct WorkDoneProgressKind
         {
-            private static readonly Lazy<IReadOnlyList<WorkDoneProgressKind>> _defaults =
-                new Lazy<IReadOnlyList<WorkDoneProgressKind>>(
-                    () => {
-                        return typeof(WorkDoneProgressKind)
-                              .GetFields(BindingFlags.Static | BindingFlags.Public)
-                              .Select(z => z.GetValue(null))
-                              .Cast<WorkDoneProgressKind>()
-                              .ToArray();
-                    }
-                );
-
-            public static IEnumerable<WorkDoneProgressKind> Defaults => _defaults.Value;
-
-            public static WorkDoneProgressKind Begin = new WorkDoneProgressKind("begin");
-            public static WorkDoneProgressKind End = new WorkDoneProgressKind("end");
-            public static WorkDoneProgressKind Report = new WorkDoneProgressKind("report");
-
-            private readonly string _value;
-
-            public WorkDoneProgressKind(string modifier) => _value = modifier;
-
-            public static implicit operator WorkDoneProgressKind(string kind) => new WorkDoneProgressKind(kind);
-
-            public static implicit operator string(WorkDoneProgressKind kind) => kind._value;
-
-            public override string ToString() => _value;
-            public bool Equals(WorkDoneProgressKind other) => _value == other._value;
-
-            public override bool Equals(object obj) => obj is WorkDoneProgressKind other && Equals(other);
-
-            public override int GetHashCode() => _value.GetHashCode();
-
-            public static bool operator ==(WorkDoneProgressKind left, WorkDoneProgressKind right) => left.Equals(right);
-
-            public static bool operator !=(WorkDoneProgressKind left, WorkDoneProgressKind right) => !left.Equals(right);
+            public static WorkDoneProgressKind Begin { get; } = new WorkDoneProgressKind("begin");
+            public static WorkDoneProgressKind End { get; } = new WorkDoneProgressKind("end");
+            public static WorkDoneProgressKind Report { get; } = new WorkDoneProgressKind("report");
         }
 
         /// <summary>

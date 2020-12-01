@@ -1,4 +1,5 @@
-﻿using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
+﻿using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
@@ -44,7 +45,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// Values: 'path', 'uri', etc.
         /// </summary>
         [Optional]
-        string? PathFormat { get; set; }
+        PathFormat? PathFormat { get; set; }
 
         /// <summary>
         /// Client supports the optional type attribute for variables.
@@ -75,5 +76,11 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// </summary>
         [Optional]
         bool SupportsProgressReporting { get; set; }
+
+        /// <summary>
+        /// Client supports the invalidated event.
+        /// </summary>
+        [Optional]
+        bool SupportsInvalidatedEvent { get; set; }
     }
 }

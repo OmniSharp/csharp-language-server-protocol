@@ -1,4 +1,5 @@
 ﻿using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
+using OmniSharp.Extensions.JsonRpc.Generation;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
@@ -64,5 +65,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// </summary>
         [Optional]
         public StackFramePresentationHint? PresentationHint { get; init; }
+    }
+
+    [StringEnum]
+    public readonly partial struct StackFramePresentationHint
+    {
+        public static SourcePresentationHint Normal { get; } = new SourcePresentationHint("normal");
+        public static SourcePresentationHint Label { get; } = new SourcePresentationHint("label");
+        public static SourcePresentationHint Subtle { get; } = new SourcePresentationHint("subtle");
     }
 }
