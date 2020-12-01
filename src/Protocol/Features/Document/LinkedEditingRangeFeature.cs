@@ -19,19 +19,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         [Parallel]
         [Obsolete(Constants.Proposal)]
-        [Method(TextDocumentNames.OnTypeRename, Direction.ClientToServer)]
+        [Method(TextDocumentNames.LinkedEditingRange, Direction.ClientToServer)]
         [
             GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
             GenerateHandlerMethods,
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
-        [RegistrationOptions(typeof(OnTypeRenameRegistrationOptions)), Capability(typeof(OnTypeRenameClientCapabilities))]
-        public partial record OnTypeRenameParams : TextDocumentPositionParams, IWorkDoneProgressParams, IRequest<OnTypeRenameRanges>
+        [RegistrationOptions(typeof(LinkedEditingRangeRegistrationOptions)), Capability(typeof(LinkedEditingRangeClientCapabilities))]
+        public partial record LinkedEditingRangeParams : TextDocumentPositionParams, IWorkDoneProgressParams, IRequest<LinkedEditingRanges>
         {
         }
 
         [Obsolete(Constants.Proposal)]
-        public partial record OnTypeRenameRanges
+        public partial record LinkedEditingRanges
         {
             /// <summary>
             /// A list of ranges that can be renamed together. The ranges must have
@@ -49,16 +49,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         [Obsolete(Constants.Proposal)]
-        [GenerateRegistrationOptions(nameof(ServerCapabilities.OnTypeRenameProvider))]
-        public partial class OnTypeRenameRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions { }
+        [GenerateRegistrationOptions(nameof(ServerCapabilities.LinkedEditingRangeProvider))]
+        public partial class LinkedEditingRangeRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions { }
 
     }
 
     namespace Client.Capabilities
     {
         [Obsolete(Constants.Proposal)]
-        [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.OnTypeRename))]
-        public partial class OnTypeRenameClientCapabilities : DynamicCapability, ConnectedCapability<IOnTypeRenameHandler> { }
+        [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.LinkedEditingRange))]
+        public partial class LinkedEditingRangeClientCapabilities : DynamicCapability, ConnectedCapability<ILinkedEditingRangeHandler> { }
     }
 
     namespace Document

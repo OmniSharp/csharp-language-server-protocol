@@ -191,7 +191,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// </summary>
         [Optional]
         [Obsolete(Constants.Proposal)]
-        public BooleanOr<OnTypeRenameRegistrationOptions.StaticOptions>? OnTypeRenameProvider { get; set; }
+        public BooleanOr<LinkedEditingRangeRegistrationOptions.StaticOptions>? LinkedEditingRangeProvider { get; set; }
 
         /// <summary>
         /// The server provides folding provider support.

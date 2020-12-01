@@ -117,11 +117,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         public Supports<SelectionRangeCapability?> SelectionRange { get; set; }
 
         /// <summary>
-        /// Capabilities specific to the `textDocument/onTypeRename` request.
+        /// Capabilities specific to the `textDocument/linkedEditingRange` request.
         ///
         /// Since 3.16.0
         /// </summary>
-        public Supports<OnTypeRenameClientCapabilities?> OnTypeRename { get; set; }
+        public Supports<LinkedEditingRangeClientCapabilities?> LinkedEditingRange { get; set; }
 
         /// <summary>
         /// Capabilities specific to `textDocument/publishDiagnostics`.

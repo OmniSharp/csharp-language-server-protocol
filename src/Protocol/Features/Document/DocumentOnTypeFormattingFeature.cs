@@ -24,7 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
-        [RegistrationOptions(typeof(OnTypeRenameRegistrationOptions)), Capability(typeof(DocumentOnTypeFormattingCapability))]
+        [RegistrationOptions(typeof(DocumentOnTypeFormattingRegistrationOptions)), Capability(typeof(DocumentOnTypeFormattingCapability))]
         public partial record DocumentOnTypeFormattingParams : ITextDocumentIdentifierParams, IRequest<TextEditContainer?>
         {
             /// <summary>
