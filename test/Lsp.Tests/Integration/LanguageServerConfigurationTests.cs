@@ -233,7 +233,7 @@ namespace Lsp.Tests.Integration
             options.Value.Port.Should().Be(443);
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Support_Options_Monitor()
         {
             var (_, server, configuration) = await InitializeWithConfiguration(ConfigureClient, options => {
