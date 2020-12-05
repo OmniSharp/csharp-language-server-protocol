@@ -63,21 +63,6 @@ namespace OmniSharp.Extensions.JsonRpc
             return _outputFilters.Any(z => z.ShouldOutput(value));
         }
 
-        public OutputHandler(
-            PipeWriter pipeWriter,
-            ISerializer serializer,
-            IEnumerable<IOutputFilter> outputFilters,
-            ILogger<OutputHandler> logger
-        ) : this(
-            pipeWriter,
-            serializer,
-            outputFilters,
-            TaskPoolScheduler.Default,
-            logger
-        )
-        {
-        }
-
         public void Send(object? value)
         {
             if (_queue.IsDisposed || _disposable.IsDisposed || value == null) return;
