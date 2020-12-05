@@ -147,7 +147,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                            .WithExpressionBody(
                                 GetPartialResultsCapabilityHandlerExpression(
                                     GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, request.Response.Syntax,
-                                    partialItemsSyntax, capability.Syntax
+                                    partialItems.Syntax, capability.Syntax
                                 )
                             )
                     );

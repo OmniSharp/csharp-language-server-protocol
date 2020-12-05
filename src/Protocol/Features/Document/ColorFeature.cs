@@ -18,38 +18,59 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     namespace Models
     {
         [Parallel]
-        [Method(TextDocumentNames.ColorPresentation, Direction.ClientToServer)]
+        [Method(TextDocumentNames.DocumentColor, Direction.ClientToServer)]
         [
             GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
             GenerateHandlerMethods,
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(DocumentColorRegistrationOptions)), Capability(typeof(ColorProviderCapability))]
-        public partial record ColorPresentationParams : IRequest<Container<ColorPresentation>>
+        public partial record DocumentColorParams : IPartialItemsRequest<Container<ColorInformation>, ColorInformation>, IWorkDoneProgressParams
         {
             /// <summary>
-            /// The document to provide document links for.
+            /// The text document.
             /// </summary>
             public TextDocumentIdentifier TextDocument { get; init; }
+        }
+
+        public partial record ColorInformation
+        {
+            /// <summary>
+            /// The range in the document where this color appears.
+            /// </summary>
+            public Range Range { get; init; }
 
             /// <summary>
             /// The actual color value for this color range.
             /// </summary>
             public DocumentColor Color { get; init; }
 
-            /// <summary>
-            /// The range in the document where this color appers.
-            /// </summary>
-            public Range Range { get; init; }
+            public ColorPresentationParams For(TextDocumentIdentifier textDocumentIdentifier)
+            {
+                return new ColorPresentationParams() {
+                    Color = Color,
+                    Range = Range,
+                    TextDocument = textDocumentIdentifier
+                };
+            }
         }
 
         [Parallel]
+        [Method(TextDocumentNames.ColorPresentation, Direction.ClientToServer)]
         [
             GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
             GenerateHandlerMethods,
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
-        [RegistrationOptions(typeof(DocumentColorRegistrationOptions)), Capability(typeof(ColorProviderCapability))]
+        [Capability(typeof(ColorProviderCapability))]
+        public partial record ColorPresentationParams : ColorInformation, IRequest<Container<ColorPresentation>>, IDoesNotParticipateInRegistration
+        {
+            /// <summary>
+            /// The document to provide document links for.
+            /// </summary>
+            public TextDocumentIdentifier TextDocument { get; init; }
+        }
+
         public partial record ColorPresentation
         {
             /// <summary>
@@ -73,35 +94,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             [Optional]
             public TextEditContainer? AdditionalTextEdits { get; init; }
-        }
-
-        [Parallel]
-        [Method(TextDocumentNames.DocumentColor, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(DocumentColorRegistrationOptions)), Capability(typeof(ColorProviderCapability))]
-        public partial record DocumentColorParams : IPartialItemsRequest<Container<ColorInformation>, ColorInformation>, IWorkDoneProgressParams
-        {
-            /// <summary>
-            /// The text document.
-            /// </summary>
-            public TextDocumentIdentifier TextDocument { get; init; }
-        }
-
-        public partial record ColorInformation
-        {
-            /// <summary>
-            /// The range in the document where this color appers.
-            /// </summary>
-            public Range Range { get; init; }
-
-            /// <summary>
-            /// The actual color value for this color range.
-            /// </summary>
-            public DocumentColor Color { get; init; }
         }
 
         /// <summary>

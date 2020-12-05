@@ -60,7 +60,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateContainer("CompletionList"),
             GenerateTypedData
         ]
-        [RegistrationOptions(typeof(CompletionRegistrationOptions)), Capability(typeof(CompletionCapability))]
+        [Capability(typeof(CompletionCapability))]
         public partial record CompletionItem : ICanBeResolved, IRequest<CompletionItem>, IDoesNotParticipateInRegistration
         {
             /// <summary>

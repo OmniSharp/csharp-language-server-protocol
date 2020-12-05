@@ -17,7 +17,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     public static class AbstractHandlers
     {
         public abstract class Base<TRegistrationOptions, TCapability> :
-            IRegistration<TRegistrationOptions, TCapability>
+            IRegistration<TRegistrationOptions, TCapability>,
+            ICapability<TCapability>
             where TRegistrationOptions : class, new()
             where TCapability : ICapability
         {
@@ -32,6 +33,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 Capability = capability;
                 return RegistrationOptions = CreateRegistrationOptions(capability, clientCapabilities);
             }
+
+            void ICapability<TCapability>.SetCapability(TCapability capability, ClientCapabilities clientCapabilities)
+            {
+                Capability = capability;
+            }
         }
 
         public abstract class BaseCapability<TCapability> :
@@ -40,7 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         {
             protected TCapability Capability { get; private set; } = default!;
 
-            void ICapability<TCapability>.SetCapability(TCapability capability)
+            void ICapability<TCapability>.SetCapability(TCapability capability, ClientCapabilities clientCapabilities)
             {
                 Capability = capability;
             }

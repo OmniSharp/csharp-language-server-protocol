@@ -519,7 +519,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                         Argument(
                             MemberAccessExpression(
                                 SyntaxKind.SimpleMemberAccessExpression,
-                                responseName is NullableTypeSyntax nts ? nts.ElementType : responseName,
+                                responseName.EnsureNotNullable(),
                                 IdentifierName("From")
                             )
                         )
