@@ -71,9 +71,17 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             var descriptors = new List<ILspHandlerDescriptor>();
             foreach (var descriptor in collection)
             {
-                if (descriptor is LspHandlerDescriptor lspHandlerDescriptor &&
-                    lspHandlerDescriptor.TypeDescriptor?.HandlerType != null &&
-                    typeof(IDoesNotParticipateInRegistration).IsAssignableFrom(lspHandlerDescriptor.TypeDescriptor.HandlerType))
+                if (
+                    descriptor is LspHandlerDescriptor lspHandlerDescriptor &&
+                    ( lspHandlerDescriptor.TypeDescriptor is { } &&
+                      (
+                          typeof(IDoesNotParticipateInRegistration).IsAssignableFrom(lspHandlerDescriptor.TypeDescriptor.HandlerType)
+                       || typeof(IDoesNotParticipateInRegistration).IsAssignableFrom(lspHandlerDescriptor.TypeDescriptor.ParamsType)
+                      )
+                   || typeof(IDoesNotParticipateInRegistration).IsAssignableFrom(lspHandlerDescriptor.HandlerType)
+                   || typeof(IDoesNotParticipateInRegistration).IsAssignableFrom(lspHandlerDescriptor.Params)
+                    )
+                )
                 {
                     continue;
                 }

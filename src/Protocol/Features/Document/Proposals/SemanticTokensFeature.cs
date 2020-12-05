@@ -94,7 +94,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         {
             /// <summary>
             /// The text document.
-            /// </summary>  
+            /// </summary>
             public TextDocumentIdentifier TextDocument { get; init; }
 
             /// <summary>
