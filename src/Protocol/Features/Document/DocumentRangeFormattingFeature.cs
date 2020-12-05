@@ -43,6 +43,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.DocumentRangeFormattingProvider))]
+        [RegistrationName(TextDocumentNames.RangeFormatting)]
         public partial class DocumentRangeFormattingRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions
         {
         }

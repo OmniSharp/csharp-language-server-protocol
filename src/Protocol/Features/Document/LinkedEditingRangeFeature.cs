@@ -50,6 +50,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         [Obsolete(Constants.Proposal)]
         [GenerateRegistrationOptions(nameof(ServerCapabilities.LinkedEditingRangeProvider))]
+        [RegistrationName(TextDocumentNames.LinkedEditingRange)]
         public partial class LinkedEditingRangeRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions { }
 
     }

@@ -88,7 +88,6 @@ namespace OmniSharp.Extensions.JsonRpc
                 supportContentModified,
                 concurrency,
                 TaskPoolScheduler.Default
-                // new EventLoopScheduler(_ => new Thread(_) {IsBackground = true, Name = "InputHandler"})
             );
             _headersBuffer = new Memory<byte>(new byte[HeadersFinishedLength]);
             _contentLengthBuffer = new Memory<byte>(new byte[ContentLengthLength]);

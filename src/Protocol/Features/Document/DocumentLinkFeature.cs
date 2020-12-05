@@ -60,7 +60,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateContainer
         ]
         [RegistrationOptions(typeof(DocumentLinkRegistrationOptions)), Capability(typeof(DocumentLinkCapability))]
-        public partial record DocumentLink : ICanBeResolved, IRequest<DocumentLink>
+        public partial record DocumentLink : ICanBeResolved, IRequest<DocumentLink>, IDoesNotParticipateInRegistration
         {
             /// <summary>
             /// The range this link applies to.
@@ -99,6 +99,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.DocumentLinkProvider))]
+        [RegistrationName(TextDocumentNames.DocumentLink)]
         [RegistrationOptionsConverter(typeof(DocumentLinkRegistrationOptionsConverter))]
         public partial class DocumentLinkRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions
         {

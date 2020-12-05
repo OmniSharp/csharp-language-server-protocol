@@ -24,7 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             KnownHandlers = HandlerTypeDescriptorProvider
                            .GetDescriptors(assemblies)
                            .Select(x => new LspHandlerTypeDescriptor(x.HandlerType) as ILspHandlerTypeDescriptor)
-                           .ToLookup(x => x.Method, x => x, StringComparer.Ordinal);
+                           .ToLookup(x => x.RegistrationMethod ?? x.Method, x => x, StringComparer.Ordinal);
         }
 
         public string? GetMethodForRegistrationOptions(object registrationOptions)

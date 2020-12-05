@@ -47,6 +47,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// </summary>
         [GenerateRegistrationOptions(nameof(ServerCapabilities.ExecuteCommandProvider))]
         [RegistrationOptionsConverter(typeof(ExecuteCommandRegistrationOptionsConverter))]
+        [RegistrationName(WorkspaceNames.ExecuteCommand)]
         public partial class ExecuteCommandRegistrationOptions : IWorkDoneProgressOptions
         {
             /// <summary>

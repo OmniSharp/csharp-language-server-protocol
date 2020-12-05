@@ -40,8 +40,9 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             _registrations = new ConcurrentDictionary<string, Registration>(StringComparer.OrdinalIgnoreCase);
         }
 
-        Task<Unit> IRequestHandler<RegistrationParams, Unit>.Handle(RegistrationParams request, CancellationToken cancellationToken)
+        async Task<Unit> IRequestHandler<RegistrationParams, Unit>.Handle(RegistrationParams request, CancellationToken cancellationToken)
         {
+            await Task.Yield();
             lock (this)
             {
                 Register(request.Registrations.ToArray());
@@ -52,11 +53,12 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 _registrationSubject.OnNext(_registrations.Values);
             }
 
-            return Unit.Task;
+            return Unit.Value;
         }
 
-        Task<Unit> IRequestHandler<UnregistrationParams, Unit>.Handle(UnregistrationParams request, CancellationToken cancellationToken)
+        async Task<Unit> IRequestHandler<UnregistrationParams, Unit>.Handle(UnregistrationParams request, CancellationToken cancellationToken)
         {
+            await Task.Yield();
             lock (this)
             {
                 foreach (var item in request.Unregisterations ?? new UnregistrationContainer())
@@ -70,7 +72,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 _registrationSubject.OnNext(_registrations.Values);
             }
 
-            return Unit.Task;
+            return Unit.Value;
         }
 
         public void RegisterCapabilities(ServerCapabilities serverCapabilities)
@@ -123,19 +125,25 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         private void Register(params Registration[] registrations)
         {
+            var newRegistrations = new List<Registration>();
             foreach (var registration in registrations)
             {
-                Register(registration);
+                newRegistrations.Add(Register(registration));
+            }
+
+            foreach (var reg in newRegistrations)
+            {
+                _registrations.AddOrUpdate(reg.Id, reg, (a, b) => reg);
             }
         }
 
-        private void Register(Registration registration)
+        private Registration Register(Registration registration)
         {
             var registrationType = _handlerTypeDescriptorProvider.GetRegistrationType(registration.Method);
             if (registrationType == null)
             {
-                _registrations.AddOrUpdate(registration.Id, x => registration, (a, b) => registration);
-                return;
+                // vscode client throws if given an unknown registration type
+                throw new NotSupportedException($"Unknown Registration Type '{registration.Method}'");
             }
 
             var deserializedRegistration = new Registration {
@@ -145,7 +153,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                     ? token.ToObject(registrationType, _serializer.JsonSerializer)
                     : registration.RegisterOptions
             };
-            _registrations.AddOrUpdate(deserializedRegistration.Id, x => deserializedRegistration, (a, b) => deserializedRegistration);
+
+            return deserializedRegistration;
         }
 
         public IObservable<IEnumerable<Registration>> Registrations

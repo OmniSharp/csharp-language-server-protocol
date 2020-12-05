@@ -78,6 +78,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.WorkspaceSymbolProvider))]
+        [RegistrationName(WorkspaceNames.WorkspaceSymbol)]
         public partial class WorkspaceSymbolRegistrationOptions : IWorkDoneProgressOptions { }
     }
     namespace Client.Capabilities

@@ -68,6 +68,7 @@ namespace Lsp.Tests.Matchers
                         executeCommandHandler.GetType(),
                         typeof(ExecuteCommandParams),
                         typeof(ExecuteCommandRegistrationOptions),
+                        "workspace/executeCommand",
                         registrationsOptions,
                         typeof(ExecuteCommandCapability),
                         null,

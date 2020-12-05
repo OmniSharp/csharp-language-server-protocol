@@ -7,6 +7,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
     {
         bool HasRegistration { get; }
         Type? RegistrationType { get; }
+        string RegistrationMethod { get; }
         bool HasCapability { get; }
         Type? CapabilityType { get; }
         bool IsDynamicCapability { get; }

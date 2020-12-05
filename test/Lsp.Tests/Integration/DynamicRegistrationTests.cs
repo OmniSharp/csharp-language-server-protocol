@@ -81,7 +81,7 @@ namespace Lsp.Tests.Integration
                 );
             }
 
-            [Fact]
+            [Fact(Skip = "Not sure if this applies so well")]
             public async Task Should_Gather_Linked_Registrations()
             {
                 var (client, server) = await Initialize(new ConfigureClient().Configure, new ConfigureServer().Configure);

@@ -113,6 +113,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.FoldingRangeProvider))]
+        [RegistrationName(TextDocumentNames.FoldingRange)]
         public partial class FoldingRangeRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions, IStaticRegistrationOptions
         {
         }

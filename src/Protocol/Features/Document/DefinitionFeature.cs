@@ -28,6 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.DefinitionProvider))]
+        [RegistrationName(TextDocumentNames.Definition)]
         public partial class DefinitionRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions
         {
         }
