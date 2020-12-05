@@ -15,7 +15,15 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
             }
 
             container = container.AddJsonRpcServerCore(options);
-            container.RegisterInstanceMany(new HandlerTypeDescriptorProvider(options.Assemblies), nonPublicServiceTypes: true);
+
+            if (options.UseAssemblyAttributeScanning)
+            {
+                container.RegisterInstanceMany(new AssemblyAttributeHandlerTypeDescriptorProvider(options.Assemblies), nonPublicServiceTypes: true);
+            }
+            else
+            {
+                container.RegisterInstanceMany(new AssemblyScanningHandlerTypeDescriptorProvider(options.Assemblies), nonPublicServiceTypes: true);
+            }
 
             container.RegisterInstanceMany(options.Serializer);
             container.RegisterInstance(options.RequestProcessIdentifier);

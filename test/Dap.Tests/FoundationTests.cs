@@ -459,9 +459,9 @@ namespace Dap.Tests
         {
             public TypeHandlerData()
             {
-                var handlerTypeDescriptorProvider = new HandlerTypeDescriptorProvider(
+                var handlerTypeDescriptorProvider = new AssemblyScanningHandlerTypeDescriptorProvider(
                     new[] {
-                        typeof(HandlerTypeDescriptorProvider).Assembly,
+                        typeof(AssemblyScanningHandlerTypeDescriptorProvider).Assembly,
                         typeof(DebugAdapterRpcOptionsBase<>).Assembly,
                         typeof(DebugAdapterClient).Assembly,
                         typeof(DebugAdapterServer).Assembly,
@@ -485,9 +485,9 @@ namespace Dap.Tests
         {
             public TypeHandlerExtensionData()
             {
-                var handlerTypeDescriptorProvider = new HandlerTypeDescriptorProvider(
+                var handlerTypeDescriptorProvider = new AssemblyScanningHandlerTypeDescriptorProvider(
                     new[] {
-                        typeof(HandlerTypeDescriptorProvider).Assembly,
+                        typeof(AssemblyScanningHandlerTypeDescriptorProvider).Assembly,
                         typeof(DebugAdapterRpcOptionsBase<>).Assembly,
                         typeof(DebugAdapterClient).Assembly,
                         typeof(DebugAdapterServer).Assembly,

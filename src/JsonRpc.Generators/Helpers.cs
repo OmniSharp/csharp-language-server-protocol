@@ -530,44 +530,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             );
         }
 
-        public static ArrowExpressionClauseSyntax GetRequestHandlerExpression(ExpressionSyntax nameExpression, ITypeSymbol requestType, ITypeSymbol responseType)
-        {
-            var requestName = ResolveTypeName(requestType);
-            var responseName = ResolveTypeName(responseType);
-            return ArrowExpressionClause(
-                AddHandler(
-                    Argument(nameExpression),
-                    Argument(
-                        CreateHandlerArgument(
-                                IdentifierName("LanguageProtocolDelegatingHandlers"),
-                                "Request",
-                                requestName,
-                                responseName
-                            )
-                           .WithArgumentList(GetHandlerArgumentList())
-                    )
-                )
-            );
-        }
-
-        public static ArrowExpressionClauseSyntax GetRequestHandlerExpression(ExpressionSyntax nameExpression, ITypeSymbol requestType)
-        {
-            var requestName = ResolveTypeName(requestType);
-            return ArrowExpressionClause(
-                AddHandler(
-                    Argument(nameExpression),
-                    Argument(
-                        CreateHandlerArgument(
-                                IdentifierName("LanguageProtocolDelegatingHandlers"),
-                                "Request",
-                                requestName
-                            )
-                           .WithArgumentList(GetHandlerArgumentList())
-                    )
-                )
-            );
-        }
-
         public static ArrowExpressionClauseSyntax GetPartialResultCapabilityHandlerExpression(
             ExpressionSyntax nameExpression, TypeSyntax requestName, TypeSyntax itemType, TypeSyntax responseType,
             TypeSyntax capabilityName

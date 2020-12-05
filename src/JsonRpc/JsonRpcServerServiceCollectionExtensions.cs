@@ -147,7 +147,16 @@ namespace OmniSharp.Extensions.JsonRpc
             }
 
             container = container.AddJsonRpcServerCore(options);
-            container.RegisterInstanceMany(new HandlerTypeDescriptorProvider(options.Assemblies), nonPublicServiceTypes: true);
+
+            if (options.UseAssemblyAttributeScanning)
+            {
+                container.RegisterInstanceMany(new AssemblyAttributeHandlerTypeDescriptorProvider(options.Assemblies), nonPublicServiceTypes: true);
+            }
+            else
+            {
+                container.RegisterInstanceMany(new AssemblyScanningHandlerTypeDescriptorProvider(options.Assemblies), nonPublicServiceTypes: true);
+            }
+
 
             container.RegisterInstance(options.Serializer);
             if (options.Receiver == null)

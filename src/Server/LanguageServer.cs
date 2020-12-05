@@ -184,13 +184,16 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _languageServerLoggingManager = languageServerLoggingManager;
             _concurrency = options.Value.Concurrency;
 
-            _capabilityTypes = options
-                              .Value.Assemblies
-                              .SelectMany(z => z.ExportedTypes)
-                              .Where(z => z.IsClass && !z.IsAbstract)
-                              .Where(z => typeof(ICapability).IsAssignableFrom(z))
-                              .Where(z => z.GetCustomAttributes<CapabilityKeyAttribute>().Any())
-                              .ToLookup(z => string.Join(".", z.GetCustomAttribute<CapabilityKeyAttribute>().Keys));
+            _capabilityTypes = options.Value.UseAssemblyAttributeScanning
+                ? options.Value.Assemblies
+                         .SelectMany(z => z.GetCustomAttributes<AssemblyCapabilityKeyAttribute>())
+                         .ToLookup(z => z.CapabilityKey, z => z.CapabilityType)
+                : options.Value.Assemblies
+                         .SelectMany(z => z.ExportedTypes)
+                         .Where(z => z.IsClass && !z.IsAbstract)
+                         .Where(z => typeof(ICapability).IsAssignableFrom(z))
+                         .Where(z => z.GetCustomAttributes<CapabilityKeyAttribute>().Any())
+                         .ToLookup(z => string.Join(".", z.GetCustomAttribute<CapabilityKeyAttribute>().Keys));
 
             _disposable.Add(_collection.Add(this));
         }
@@ -291,7 +294,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 )
             );
 
-            var result = ReadServerCapabilities( clientCapabilities, windowCapabilities, textDocumentCapabilities);
+            var result = ReadServerCapabilities(clientCapabilities, windowCapabilities, textDocumentCapabilities);
 
             await LanguageProtocolEventingHelper.Run(
                 _initializedDelegates,
@@ -391,7 +394,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _collection.Initialize();
         }
 
-        private InitializeResult ReadServerCapabilities(ClientCapabilities clientCapabilities, WindowClientCapabilities windowCapabilities, TextDocumentClientCapabilities textDocumentCapabilities)
+        private InitializeResult ReadServerCapabilities(
+            ClientCapabilities clientCapabilities, WindowClientCapabilities windowCapabilities, TextDocumentClientCapabilities textDocumentCapabilities
+        )
         {
             var serverCapabilities = new ServerCapabilities();
 
@@ -452,7 +457,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                                .Select(x => x.Handler)
                                .OfType<IDidChangeTextDocumentHandler>()
                                .Select(
-                                    x => ( (TextDocumentChangeRegistrationOptions?)x.GetRegistrationOptions(textDocumentCapabilities.Synchronization!, clientCapabilities) )?.SyncKind
+                                    x => ( (TextDocumentChangeRegistrationOptions?) x.GetRegistrationOptions(textDocumentCapabilities.Synchronization!, clientCapabilities) )
+                                       ?.SyncKind
                                       ?? TextDocumentSyncKind.None
                                 )
                                .Where(x => x != TextDocumentSyncKind.None)

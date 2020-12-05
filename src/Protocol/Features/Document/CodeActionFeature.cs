@@ -296,7 +296,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
                 private readonly IHandlersManager _handlersManager;
 
-                public CodeActionRegistrationOptionsConverter(IHandlersManager handlersManager) : base(nameof(ServerCapabilities.CodeActionProvider))
+                public CodeActionRegistrationOptionsConverter(IHandlersManager handlersManager)
                 {
                     _handlersManager = handlersManager;
                 }

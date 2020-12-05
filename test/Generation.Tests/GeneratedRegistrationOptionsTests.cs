@@ -29,6 +29,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 #nullable enable
 namespace Test
 {
+    [RegistrationOptionsKey(nameof(ServerCapabilities.WorkspaceSymbolProvider))]
     [RegistrationOptionsConverterAttribute(typeof(WorkspaceSymbolRegistrationOptionsConverter))]
     public partial class WorkspaceSymbolRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions, OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions
     {
@@ -41,7 +42,7 @@ namespace Test
 
         class WorkspaceSymbolRegistrationOptionsConverter : RegistrationOptionsConverterBase<WorkspaceSymbolRegistrationOptions, StaticOptions>
         {
-            public WorkspaceSymbolRegistrationOptionsConverter(): base(nameof(ServerCapabilities.WorkspaceSymbolProvider))
+            public WorkspaceSymbolRegistrationOptionsConverter()
             {
             }
 
@@ -51,6 +52,7 @@ namespace Test
             }
         }
 
+        [RegistrationOptionsKey(nameof(ServerCapabilities.WorkspaceSymbolProvider))]
         public partial class StaticOptions : OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions
         {
             [Optional]
@@ -91,6 +93,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 #nullable enable
 namespace Test
 {
+    [RegistrationOptionsKey(nameof(ServerCapabilities.WorkspaceSymbolProvider))]
     [RegistrationOptionsConverterAttribute(typeof(WorkspaceSymbolRegistrationOptionsConverter))]
     public partial class WorkspaceSymbolRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions
     {
@@ -103,7 +106,7 @@ namespace Test
 
         class WorkspaceSymbolRegistrationOptionsConverter : RegistrationOptionsConverterBase<WorkspaceSymbolRegistrationOptions, StaticOptions>
         {
-            public WorkspaceSymbolRegistrationOptionsConverter(): base(nameof(ServerCapabilities.WorkspaceSymbolProvider))
+            public WorkspaceSymbolRegistrationOptionsConverter()
             {
             }
 
@@ -113,6 +116,7 @@ namespace Test
             }
         }
 
+        [RegistrationOptionsKey(nameof(ServerCapabilities.WorkspaceSymbolProvider))]
         public partial class StaticOptions : IWorkDoneProgressOptions
         {
             [Optional]
@@ -199,6 +203,7 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 #nullable enable
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 {
+    [RegistrationOptionsKey(nameof(ServerCapabilities.CodeActionProvider))]
     [RegistrationOptionsConverterAttribute(typeof(CodeActionRegistrationOptionsConverter))]
     public partial class CodeActionRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions, OmniSharp.Extensions.LanguageServer.Protocol.Models.ITextDocumentRegistrationOptions, OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions
     {
@@ -217,7 +222,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 
         class CodeActionRegistrationOptionsConverter : RegistrationOptionsConverterBase<CodeActionRegistrationOptions, StaticOptions>
         {
-            public CodeActionRegistrationOptionsConverter(): base(nameof(ServerCapabilities.CodeActionProvider))
+            public CodeActionRegistrationOptionsConverter()
             {
             }
 
@@ -227,6 +232,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             }
         }
 
+        [RegistrationOptionsKey(nameof(ServerCapabilities.CodeActionProvider))]
         public partial class StaticOptions : OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions
         {
             /// <summary>
@@ -319,7 +325,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         {
             private readonly IHandlersManager _handlersManager;
 
-            public Converter(IHandlersManager handlersManager) : base(nameof(ServerCapabilities.CodeActionProvider))
+            public Converter(IHandlersManager handlersManager)
             {
                 _handlersManager = handlersManager;
             }
@@ -359,6 +365,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 #nullable enable
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 {
+    [RegistrationOptionsKey(nameof(ServerCapabilities.CodeActionProvider))]
     public partial class CodeActionRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions
     {
         public DocumentSelector? DocumentSelector
@@ -374,6 +381,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             set;
         }
 
+        [RegistrationOptionsKey(nameof(ServerCapabilities.CodeActionProvider))]
         public partial class StaticOptions : IWorkDoneProgressOptions
         {
             /// <summary>

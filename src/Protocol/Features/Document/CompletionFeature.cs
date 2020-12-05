@@ -292,7 +292,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
                 private readonly IHandlersManager _handlersManager;
 
-                public CompletionRegistrationOptionsConverter(IHandlersManager handlersManager) : base(nameof(ServerCapabilities.CompletionProvider))
+                public CompletionRegistrationOptionsConverter(IHandlersManager handlersManager)
                 {
                     _handlersManager = handlersManager;
                 }

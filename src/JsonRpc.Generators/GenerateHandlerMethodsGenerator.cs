@@ -22,6 +22,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             ReportCacheDiagnostic<TypeDeclarationSyntax> cacheDiagnostic
         )
         {
+            var handlers = new List<AttributeArgumentSyntax>();
             foreach (var candidateClass in syntaxReceiver.Candidates)
             {
 //                context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.Message, null, $"candidate: {candidateClass.Identifier.ToFullString()}"));
@@ -135,6 +136,27 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     candidateClass,
                     cu.NormalizeWhitespace().GetText(Encoding.UTF8)
                 );
+
+                handlers.AddRange(actionItem.AssemblyJsonRpcHandlersAttributeArguments);
+            }
+
+            {
+                var namespaces = new HashSet<string>() { "OmniSharp.Extensions.JsonRpc" };
+                if (handlers.Any())
+                {
+                    var cu = CompilationUnit()
+                            .WithUsings(List(namespaces.OrderBy(z => z).Select(z => UsingDirective(ParseName(z)))))
+                            .AddAttributeLists(
+                                 AttributeList(
+                                     target: AttributeTargetSpecifier(Token(SyntaxKind.AssemblyKeyword)),
+                                     SingletonSeparatedList(Attribute(IdentifierName("AssemblyJsonRpcHandlers"), AttributeArgumentList(SeparatedList(handlers))))
+                                 )
+                             )
+                            .WithLeadingTrivia(Comment(Preamble.GeneratedByATool))
+                            .WithTrailingTrivia(CarriageReturnLineFeed);
+
+                    context.AddSource("GeneratedAssemblyJsonRpcHandlers.cs", cu.NormalizeWhitespace().GetText(Encoding.UTF8));
+                }
             }
         }
 

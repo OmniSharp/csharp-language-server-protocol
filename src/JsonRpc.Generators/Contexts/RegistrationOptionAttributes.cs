@@ -6,7 +6,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
 {
     record RegistrationOptionAttributes(
         SyntaxAttributeData? GenerateRegistrationOptions,
-        string? ServerCapabilityKey,
+        string? Key,
+        ExpressionSyntax? KeyExpression,
         bool SupportsWorkDoneProgress,
         bool SupportsDocumentSelector,
         bool SupportsStaticRegistrationOptions,
@@ -81,14 +82,17 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
             }
 
             string? value = null;
+            ExpressionSyntax? valueSyntax = null;
             if (data is { ConstructorArguments: { Length: > 0 } arguments } && arguments[0].Kind is TypedConstantKind.Primitive && arguments[0].Value is string)
             {
                 value = arguments[0].Value as string;
+                valueSyntax = attributeSyntax.ArgumentList!.Arguments[0].Expression;
             }
 
             return new RegistrationOptionAttributes(
                 new SyntaxAttributeData(attributeSyntax, data),
                 value,
+                valueSyntax,
                 supportsWorkDoneProgress,
                 supportsDocumentSelector,
                 supportsStaticRegistrationOptions,

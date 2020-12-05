@@ -100,7 +100,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
                 private readonly IHandlersManager _handlersManager;
 
-                public DocumentLinkRegistrationOptionsConverter(IHandlersManager handlersManager) : base(nameof(ServerCapabilities.DocumentLinkProvider))
+                public DocumentLinkRegistrationOptionsConverter(IHandlersManager handlersManager)
                 {
                     _handlersManager = handlersManager;
                 }

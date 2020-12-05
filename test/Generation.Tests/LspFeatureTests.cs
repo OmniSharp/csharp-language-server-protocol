@@ -168,7 +168,8 @@ namespace Lsp.Tests.Integration.Fixtures
 }
 #nullable restore";
 
-            var expectedOptions = @"using MediatR;
+            var expectedOptions = @"
+using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -183,6 +184,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 #nullable enable
 namespace Lsp.Tests.Integration.Fixtures
 {
+    [RegistrationOptionsKey(""unitTestDiscovery"")]
     [RegistrationOptionsConverterAttribute(typeof(UnitTestRegistrationOptionsConverter))]
     public partial class UnitTestRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions
     {
@@ -195,7 +197,7 @@ namespace Lsp.Tests.Integration.Fixtures
 
         class UnitTestRegistrationOptionsConverter : RegistrationOptionsConverterBase<UnitTestRegistrationOptions, StaticOptions>
         {
-            public UnitTestRegistrationOptionsConverter(): base(""unitTestDiscovery"")
+            public UnitTestRegistrationOptionsConverter()
             {
             }
 
@@ -205,6 +207,7 @@ namespace Lsp.Tests.Integration.Fixtures
             }
         }
 
+        [RegistrationOptionsKey(""unitTestDiscovery"")]
         public partial class StaticOptions : IWorkDoneProgressOptions
         {
             [Optional]

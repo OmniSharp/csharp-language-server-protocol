@@ -80,6 +80,26 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                         staticRegistrationOptions = staticRegistrationOptions.WithBaseList(null);
                     }
 
+                    if (data.KeyExpression is { })
+                    {
+                        var attributeList =
+                            AttributeList(
+                                SingletonSeparatedList(
+                                    Attribute(
+                                        IdentifierName("RegistrationOptionsKey"), AttributeArgumentList(
+                                            SingletonSeparatedList(
+                                                AttributeArgument(
+                                                    data.KeyExpression
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                            );
+                        extendedRegistrationOptions = extendedRegistrationOptions.AddAttributeLists(attributeList);
+                        staticRegistrationOptions = staticRegistrationOptions.AddAttributeLists(attributeList);
+                    }
+
                     if (data.SupportsDocumentSelector && !data.ImplementsDocumentSelector)
                     {
                         if (registrationOptions.BaseList?.Types.Any(z => z.Type.ToFullString().Contains(textDocumentRegistrationOptionsInterfaceSymbol.Name)) != true)
@@ -190,6 +210,36 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 }
             }
 
+            {
+                var namespaces = new HashSet<string>() { "OmniSharp.Extensions.LanguageServer.Protocol" };
+                var types = syntaxReceiver.FoundNodes
+                                          .Concat(syntaxReceiver.RegistrationOptions)
+                                          .Select(
+                                               options => {
+                                                   var semanticModel = context.Compilation.GetSemanticModel(options.SyntaxTree);
+                                                   var typeSymbol = semanticModel.GetDeclaredSymbol(options)!;
+                                                   namespaces.Add(typeSymbol.ContainingNamespace.ToDisplayString());
+                                                   return AttributeArgument(TypeOfExpression(IdentifierName(typeSymbol.Name)));
+                                               }
+                                           )
+                                          .ToArray();
+                if (types.Any())
+                {
+                    var cu = CompilationUnit()
+                            .WithUsings(List(namespaces.OrderBy(z => z).Select(z => UsingDirective(ParseName(z)))))
+                            .AddAttributeLists(
+                                 AttributeList(
+                                     target: AttributeTargetSpecifier(Token(SyntaxKind.AssemblyKeyword)),
+                                     SingletonSeparatedList(Attribute(IdentifierName("AssemblyRegistrationOptions"), AttributeArgumentList(SeparatedList(types))))
+                                 )
+                             )
+                            .WithLeadingTrivia(Comment(Preamble.GeneratedByATool))
+                            .WithTrailingTrivia(CarriageReturnLineFeed);
+
+                    context.AddSource("AssemblyRegistrationOptions.cs", cu.NormalizeWhitespace().GetText(Encoding.UTF8));
+                }
+            }
+
             static TypeDeclarationSyntax ExtendAndImplementInterface(TypeDeclarationSyntax syntax, ITypeSymbol symbolToExtendFrom)
             {
                 return syntax switch {
@@ -279,12 +329,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                            new MemberDeclarationSyntax[] {
                                ConstructorDeclaration(Identifier($"{syntax.Identifier.Text}Converter"))
                                   .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
-                                  .WithInitializer(
-                                       ConstructorInitializer(
-                                           SyntaxKind.BaseConstructorInitializer,
-                                           ArgumentList(SingletonSeparatedList(Argument(expression)))
-                                       )
-                                   )
                                   .WithBody(Block()),
                                MethodDeclaration(IdentifierName("StaticOptions"), Identifier("Convert"))
                                   .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.OverrideKeyword)))

@@ -50,6 +50,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Cache
             {
                 context.AddSource(item.Name, item.SourceText);
             }
+
             foreach (var item in syntaxReceiver.CachedDiagnostics)
             {
                 context.ReportDiagnostic(item);
@@ -58,6 +59,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Cache
             syntaxReceiver.Finish(context);
         }
 
-        protected abstract void Execute(GeneratorExecutionContext context, T syntaxReceiver, AddCacheSource<TSyntax> addCacheSource, ReportCacheDiagnostic<TSyntax> cacheDiagnostic);
+        protected abstract void Execute(
+            GeneratorExecutionContext context, T syntaxReceiver, AddCacheSource<TSyntax> addCacheSource, ReportCacheDiagnostic<TSyntax> cacheDiagnostic
+        );
     }
 }

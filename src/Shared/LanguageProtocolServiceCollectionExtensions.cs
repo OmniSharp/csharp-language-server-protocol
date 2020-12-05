@@ -1,11 +1,13 @@
 using System;
 using System.Linq;
 using System.Reactive.Concurrency;
+using System.Reflection;
 using DryIoc;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 
@@ -27,7 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             options.Services.AddLogging(builder => options.LoggingBuilderAction?.Invoke(builder));
 
             container = container.AddJsonRpcServerCore(options);
-            container.RegisterInstanceMany(new LspHandlerTypeDescriptorProvider(options.Assemblies), nonPublicServiceTypes: true);
+            container.RegisterInstanceMany(new LspHandlerTypeDescriptorProvider(options.Assemblies, options.UseAssemblyAttributeScanning), nonPublicServiceTypes: true);
 
             container.RegisterInstanceMany(options.Serializer);
             container.RegisterInstance(options.RequestProcessIdentifier);
@@ -50,8 +52,10 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
             container.RegisterMany(
                 options.Assemblies
-                       .SelectMany(z => z.GetTypes())
-                       .Where(z => z.IsClass && !z.IsAbstract)
+                       .SelectMany(z => z.GetCustomAttributes<AssemblyRegistrationOptionsAttribute>())
+                       .SelectMany(z => z.Types)
+                       .SelectMany(z => z.GetCustomAttributes<RegistrationOptionsConverterAttribute>())
+                       .Select(z => z.ConverterType)
                        .Where(z => typeof(IRegistrationOptionsConverter).IsAssignableFrom(z)),
                 reuse: Reuse.Singleton
             );

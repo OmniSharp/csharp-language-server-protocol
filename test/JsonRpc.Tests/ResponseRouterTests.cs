@@ -19,7 +19,7 @@ namespace JsonRpc.Tests
         public async Task WorksWithResultType()
         {
             var outputHandler = Substitute.For<IOutputHandler>();
-            var router = new ResponseRouter(new Lazy<IOutputHandler>(() => outputHandler), new JsonRpcSerializer(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
+            var router = new ResponseRouter(new Lazy<IOutputHandler>(() => outputHandler), new JsonRpcSerializer(), new AssemblyScanningHandlerTypeDescriptorProvider(new [] { typeof(AssemblyScanningHandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
 
             outputHandler
                .When(x => x.Send(Arg.Is<object>(z => z.GetType() == typeof(OutgoingRequest))))
@@ -43,7 +43,7 @@ namespace JsonRpc.Tests
         public async Task WorksWithUnitType()
         {
             var outputHandler = Substitute.For<IOutputHandler>();
-            var router = new ResponseRouter(new Lazy<IOutputHandler>(() => outputHandler), new JsonRpcSerializer(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
+            var router = new ResponseRouter(new Lazy<IOutputHandler>(() => outputHandler), new JsonRpcSerializer(), new AssemblyScanningHandlerTypeDescriptorProvider(new [] { typeof(AssemblyScanningHandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
 
             outputHandler
                .When(x => x.Send(Arg.Is<object>(z => z.GetType() == typeof(OutgoingRequest))))
@@ -64,7 +64,7 @@ namespace JsonRpc.Tests
         public async Task WorksWithNotification()
         {
             var outputHandler = Substitute.For<IOutputHandler>();
-            var router = new ResponseRouter(new Lazy<IOutputHandler>(() => outputHandler), new JsonRpcSerializer(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
+            var router = new ResponseRouter(new Lazy<IOutputHandler>(() => outputHandler), new JsonRpcSerializer(), new AssemblyScanningHandlerTypeDescriptorProvider(new [] { typeof(AssemblyScanningHandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
 
             router.SendNotification(new NotificationParams());
 
