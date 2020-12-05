@@ -49,7 +49,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
                                       }
 
                                       return Timer(_options.WaitTime, _scheduler)
-                                         .Select(v => Unit.Default);
+                                         .Select(_ => Unit.Default);
                                   }
                               )
                              .Replay(1, _scheduler);

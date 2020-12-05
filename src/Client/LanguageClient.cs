@@ -33,7 +33,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
     {
         private readonly Connection _connection;
         private readonly ClientInfo _clientInfo;
-        private readonly ILspClientReceiver _receiver;
+        private readonly IReceiver _receiver;
         private readonly TextDocumentIdentifiers _textDocumentIdentifiers;
 
         private readonly SharedHandlerCollection _collection;
@@ -128,7 +128,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             IEnumerable<ICapability> capabilities,
             ClientInfo clientInfo,
             ClientCapabilities clientCapabilities,
-            ILspClientReceiver lspClientReceiver,
+            IReceiver lspClientReceiver,
             TextDocumentIdentifiers textDocumentIdentifiers,
             IResolverContext resolverContext,
             IEnumerable<OnLanguageClientStartedDelegate> startedDelegates,

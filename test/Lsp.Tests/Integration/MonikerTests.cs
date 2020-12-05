@@ -12,6 +12,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog.Events;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -25,7 +26,7 @@ namespace Lsp.Tests.Integration
             _request = Substitute.For<Func<MonikerParams, CancellationToken, Task<Container<Moniker>?>>>();
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Get_Monikers()
         {
             _request.Invoke(Arg.Any<MonikerParams>(), Arg.Any<CancellationToken>())

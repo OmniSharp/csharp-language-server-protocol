@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -89,7 +88,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                                        .Select(z => z is { Key: "MethodName", Value: { Value: string value } } ? value : null)
                                        .FirstOrDefault(z => z is not null) ?? attributes.HandlerMethodName,
                     HandlerRegistries = GetHandlerRegistries(
-                        context,
                         a => cacheDiagnostic(syntax, a),
                         generateHandlerMethodsData,
                         symbol,
@@ -108,7 +106,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                                        .Select(z => z is { Key: "MethodName", Value: { Value: string value } } ? value : null)
                                        .FirstOrDefault(z => z is not null) ?? attributes.RequestMethodName,
                     RequestProxies = GetRequestProxies(
-                        context,
                         (a) => cacheDiagnostic(syntax, a),
                         generateRequestMethodsData,
                         symbol,
@@ -121,7 +118,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
         }
 
         private static IEnumerable<TypeSyntax> GetHandlerRegistries(
-            GeneratorExecutionContext context,
             Action<CacheDiagnosticFactory<TypeDeclarationSyntax>> cacheDiagnostic,
             AttributeData attributeData,
             INamedTypeSymbol interfaceType,
@@ -226,7 +222,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
 
 
         private static IEnumerable<TypeSyntax> GetRequestProxies(
-            GeneratorExecutionContext context,
             Action<CacheDiagnosticFactory<TypeDeclarationSyntax>> cacheDiagnostic,
             AttributeData attributeData,
             INamedTypeSymbol interfaceType,
@@ -265,6 +260,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                  */
 
                 additionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol");
+                additionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol.Models");
                 additionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol.Server");
                 additionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol.Client");
                 if (( direction & 0b0001 ) == 0b0001)
@@ -297,8 +293,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                 ClientToServer = 0b0010,
                 Bidirectional = 0b0011
                  */
-                var maskedDirection = 0b0011 & direction;
                 additionalUsings.Add("OmniSharp.Extensions.DebugAdapter.Protocol");
+                additionalUsings.Add("OmniSharp.Extensions.DebugAdapter.Protocol.Models");
 
                 if (( direction & 0b0001 ) == 0b0001)
                 {

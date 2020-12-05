@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using OmniSharp.Extensions.JsonRpc.Generators.Contexts;
@@ -66,7 +65,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             if (request.PartialItems is not null)
             {
                 request.AdditionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol.Progress");
-                var partialItemsSyntax = SyntaxFactory.GenericName("IEnumerable").WithTypeArgumentList(SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList<TypeSyntax>(new[] { request.PartialItems!.Syntax })));
+                var partialItemsSyntax = SyntaxFactory.GenericName("IEnumerable").WithTypeArgumentList(SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList(new[] { request.PartialItems!.Syntax })));
                 yield return SyntaxFactory.MethodDeclaration(
                                                SyntaxFactory.GenericName(
                                                                  SyntaxFactory.Identifier("IRequestProgressObservable")
@@ -74,7 +73,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                                             .WithTypeArgumentList(
                                                                  SyntaxFactory.TypeArgumentList(
                                                                      SyntaxFactory.SeparatedList(
-                                                                         new TypeSyntax[] {
+                                                                         new[] {
                                                                              partialItemsSyntax,
                                                                              request.Response!.Syntax
                                                                          }
@@ -92,14 +91,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                           .WithParameterList(parameterList)
                                           .WithExpressionBody(Helpers.GetPartialInvokeExpression(request.Response.Syntax))
                                           .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
-                ;
                 yield break;
             }
 
 
             var responseSyntax = request.Response.Syntax.GetSyntaxName() == "Unit"
                 ? SyntaxFactory.IdentifierName("Task") as NameSyntax
-                : SyntaxFactory.GenericName("Task").WithTypeArgumentList(SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList<TypeSyntax>(new[] { request.Response.Syntax })));
+                : SyntaxFactory.GenericName("Task").WithTypeArgumentList(SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList(new[] { request.Response.Syntax })));
             yield return SyntaxFactory.MethodDeclaration(responseSyntax, item.JsonRpcAttributes.RequestMethodName)
                                       .WithModifiers(
                                            SyntaxFactory.TokenList(

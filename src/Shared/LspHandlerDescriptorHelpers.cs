@@ -1,10 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 
 namespace OmniSharp.Extensions.LanguageServer.Shared
 {

@@ -1,9 +1,5 @@
-using System;
-using System.Reactive.Disposables;
-using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
-using DryIoc;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;

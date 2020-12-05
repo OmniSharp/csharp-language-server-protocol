@@ -4,17 +4,13 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
 using OmniSharp.Extensions.JsonRpc.Generators.Cache;
 using OmniSharp.Extensions.JsonRpc.Generators.Contexts;
 using OmniSharp.Extensions.JsonRpc.Generators.Strategies;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static OmniSharp.Extensions.JsonRpc.Generators.Helpers;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators
 {
@@ -80,6 +76,33 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 );
 
                 if (!members.Any()) continue;
+
+                var namespacesMapping = new Dictionary<string, string[]>() {
+                    ["OmniSharp.Extensions.DebugAdapter"] = new[] {
+                        "OmniSharp.Extensions.DebugAdapter.Protocol",
+                        "OmniSharp.Extensions.DebugAdapter.Protocol.Models",
+                        "OmniSharp.Extensions.DebugAdapter.Protocol.Events",
+                        "OmniSharp.Extensions.DebugAdapter.Protocol.Requests"
+                    },
+                    ["OmniSharp.Extensions.LanguageProtocol"] = new[] {
+                        "OmniSharp.Extensions.LanguageServer.Protocol",
+                        "OmniSharp.Extensions.LanguageServer.Protocol.Models"
+                    },
+                };
+
+                foreach (var assembly in actionItem.Context.Compilation.References
+                                                   .Select(actionItem.Context.Compilation.GetAssemblyOrModuleSymbol)
+                                                   .OfType<IAssemblySymbol>()
+                                                   .Concat(new[] { actionItem.Context.Compilation.Assembly }))
+                {
+                    if (namespacesMapping.TryGetValue(assembly.Name, out var additionalNamespaceUsings))
+                    {
+                        foreach (var item in additionalNamespaceUsings)
+                        {
+                            additionalUsings.Add(item);
+                        }
+                    }
+                }
 
                 var existingUsings = candidateClass.SyntaxTree.GetCompilationUnitRoot()
                                                    .Usings

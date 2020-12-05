@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
@@ -25,7 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public static LanguageServerOptions WithReceiver(
             this LanguageServerOptions options,
-            ILspServerReceiver serverReceiver
+            IReceiver serverReceiver
         )
         {
             options.Services.AddSingleton(serverReceiver);

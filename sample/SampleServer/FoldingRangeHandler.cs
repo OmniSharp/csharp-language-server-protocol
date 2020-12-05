@@ -13,11 +13,11 @@ namespace SampleServer
                 DocumentSelector = DocumentSelector.ForLanguage("csharp")
             };
 
-        public Task<Container<FoldingRange>> Handle(
+        public Task<Container<FoldingRange>?> Handle(
             FoldingRangeRequestParam request,
             CancellationToken cancellationToken
         ) =>
-            Task.FromResult(
+            Task.FromResult<Container<FoldingRange>?>(
                 new Container<FoldingRange>(
                     new FoldingRange {
                         StartLine = 10,

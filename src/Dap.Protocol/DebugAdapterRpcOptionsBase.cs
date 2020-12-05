@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 using ISerializer = OmniSharp.Extensions.JsonRpc.ISerializer;
 
@@ -17,7 +16,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             RequestProcessIdentifier = new ParallelRequestProcessIdentifier();
         }
 
-        public ISerializer Serializer { get; set; } = new DapProtocolSerializer();
+        public ISerializer Serializer { get; set; } = new DapSerializer();
         internal bool AddDefaultLoggingProvider { get; set; }
         internal Action<ILoggingBuilder> LoggingBuilderAction { get; set; } = _ => { };
         internal Action<IConfigurationBuilder> ConfigurationBuilderAction { get; set; } = _ => { };

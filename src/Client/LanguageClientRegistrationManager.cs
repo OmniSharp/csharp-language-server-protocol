@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Shared;
@@ -93,7 +93,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                         Method = method,
                         RegisterOptions = registrationOptions
                     };
-                    _registrations.AddOrUpdate(registrationOptions.Id, x => reg, (a, b) => reg);
+                    _registrations.AddOrUpdate(registrationOptions.Id, _ => reg, (_, _) => reg);
                 }
             }
 
@@ -115,7 +115,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                             Method = method,
                             RegisterOptions = registrationOptions
                         };
-                        _registrations.AddOrUpdate(registrationOptions.Id, x => reg, (a, b) => reg);
+                        _registrations.AddOrUpdate(registrationOptions.Id, _ => reg, (_, _) => reg);
                     }
                 }
             }
@@ -133,7 +133,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
             foreach (var reg in newRegistrations)
             {
-                _registrations.AddOrUpdate(reg.Id, reg, (a, b) => reg);
+                _registrations.AddOrUpdate(reg.Id, reg, (_, _) => reg);
             }
         }
 
@@ -177,8 +177,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             _registrations
                .Select(z => z.Value)
                .Where(
-                    x => x.RegisterOptions is ITextDocumentRegistrationOptions ro &&
-                         ro.DocumentSelector != null &&
+                    x => x.RegisterOptions is ITextDocumentRegistrationOptions { DocumentSelector: { } } ro &&
                          ro.DocumentSelector
                            .Join(
                                 documentSelector,
@@ -187,7 +186,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                                     z.HasPattern ? z.Pattern : string.Empty,
                                 z => z.HasLanguage ? z.Language :
                                     z.HasScheme ? z.Scheme :
-                                    z.HasPattern ? z.Pattern : string.Empty, (a, b) => a
+                                    z.HasPattern ? z.Pattern : string.Empty, (a, _) => a
                             )
                            .Any(y => y.HasLanguage || y.HasPattern || y.HasScheme)
                 );

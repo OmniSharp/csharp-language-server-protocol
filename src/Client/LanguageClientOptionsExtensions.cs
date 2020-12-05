@@ -2,11 +2,11 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Client
 {
@@ -20,7 +20,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         public static LanguageClientOptions WithReceiver(
             this LanguageClientOptions options,
-            ILspClientReceiver serverReceiver
+            IReceiver serverReceiver
         )
         {
             options.Services.AddSingleton(serverReceiver);

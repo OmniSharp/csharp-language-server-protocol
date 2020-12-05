@@ -24,7 +24,7 @@ namespace Lsp.Tests.Integration
 
         private readonly List<ShowMessageParams> _receivedMessages = new List<ShowMessageParams>();
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Show_Messages_Through_Window_Extension_Methods()
         {
             var (_, server) = await Initialize(ConfigureClient, ConfigureServer);
@@ -53,7 +53,7 @@ namespace Lsp.Tests.Integration
             _receivedMessages.Should().Contain(z => z.Type == MessageType.Log).And.Subject.Count(z => z.Type == MessageType.Log).Should().Be(3);
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Show_Messages_Through_Server_Extension_Methods()
         {
             var (_, server) = await Initialize(ConfigureClient, ConfigureServer);

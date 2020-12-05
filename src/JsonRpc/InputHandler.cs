@@ -514,7 +514,7 @@ namespace OmniSharp.Extensions.JsonRpc
                                                                 }
                                                             ),
                                                             Observable.Timer(_requestTimeout, scheduler).Select(
-                                                                z => new ErrorResponse(new RequestCancelled(request.Id, request.Method))
+                                                                _ => new ErrorResponse(new RequestCancelled(request.Id, request.Method))
                                                             ),
                                                             Observable.FromAsync(
                                                                 async ct => {
@@ -582,13 +582,13 @@ namespace OmniSharp.Extensions.JsonRpc
         }
 
         private SchedulerDelegate RouteNotification(IRequestDescriptor<IHandlerDescriptor?> descriptors, Notification notification) =>
-            (contentModifiedToken, scheduler) =>
+            (_, scheduler) =>
                 // ITS A RACE!
                 Observable.Amb(
                     Observable.Timer(_requestTimeout, scheduler)
-                              .Select(z => Unit.Default)
+                              .Select(_ => Unit.Default)
                               .Do(
-                                   z => _logger.LogTrace("Notification was cancelled due to timeout")
+                                   _ => _logger.LogTrace("Notification was cancelled due to timeout")
                                ),
                     Observable.FromAsync(
                         async ct => {

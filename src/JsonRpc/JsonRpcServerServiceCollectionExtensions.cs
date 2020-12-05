@@ -93,7 +93,7 @@ namespace OmniSharp.Extensions.JsonRpc
             return container;
         }
 
-        class RequestHandler<T, R> : IRequestHandler<T, R> where T : IRequest<R>
+        class RequestHandler<T, TR> : IRequestHandler<T, TR> where T : IRequest<TR>
         {
             private readonly IRequestContext _requestContext;
 
@@ -101,36 +101,36 @@ namespace OmniSharp.Extensions.JsonRpc
             {
                 _requestContext = requestContext;
             }
-            public Task<R> Handle(T request, CancellationToken cancellationToken)
+            public Task<TR> Handle(T request, CancellationToken cancellationToken)
             {
-                return ((IRequestHandler<T, R>) _requestContext.Descriptor.Handler).Handle(request, cancellationToken);
+                return ((IRequestHandler<T, TR>) _requestContext.Descriptor.Handler).Handle(request, cancellationToken);
             }
         }
 
-        class RequestHandlerDecorator<T, R> : IRequestHandler<T, R> where T : IRequest<R>
+        class RequestHandlerDecorator<T, TR> : IRequestHandler<T, TR> where T : IRequest<TR>
         {
-            private readonly IRequestHandler<T, R>? _handler;
+            private readonly IRequestHandler<T, TR>? _handler;
             private readonly IRequestContext? _requestContext;
 
-            public RequestHandlerDecorator(IRequestHandler<T, R>? handler = null, IRequestContext? requestContext = null)
+            public RequestHandlerDecorator(IRequestHandler<T, TR>? handler = null, IRequestContext? requestContext = null)
             {
                 _handler = handler;
                 _requestContext = requestContext;
             }
-            public Task<R> Handle(T request, CancellationToken cancellationToken)
+            public Task<TR> Handle(T request, CancellationToken cancellationToken)
             {
                 if (_requestContext == null)
                 {
                     if (_handler == null)
                     {
-                        throw new NotImplementedException($"No request handler was registered for type {typeof(IRequestHandler<T, R>).FullName}");
+                        throw new NotImplementedException($"No request handler was registered for type {typeof(IRequestHandler<T, TR>).FullName}");
 
                     }
 
                     return _handler.Handle(request, cancellationToken);
                 }
 
-                return ((IRequestHandler<T, R>) _requestContext.Descriptor.Handler).Handle(request, cancellationToken);
+                return ((IRequestHandler<T, TR>) _requestContext.Descriptor.Handler).Handle(request, cancellationToken);
             }
         }
 
@@ -161,7 +161,7 @@ namespace OmniSharp.Extensions.JsonRpc
             container.RegisterMany<AlwaysOutputFilter>(Reuse.Singleton, nonPublicServiceTypes: true);
 
             container.RegisterInstance(options.RequestProcessIdentifier);
-            container.RegisterInstance(options.OnUnhandledException ?? ( e => { } ));
+            container.RegisterInstance(options.OnUnhandledException ?? ( _ => { } ));
 
             container.RegisterMany<RequestRouter>(Reuse.Singleton);
             container.RegisterMany<HandlerCollection>(

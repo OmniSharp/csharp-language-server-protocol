@@ -10,7 +10,6 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
-using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 
 namespace OmniSharp.Extensions.LanguageServer.Shared
 {
@@ -53,7 +52,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
             if (@params == null || descriptor.Params == null) return new RequestDescriptor<ILspHandlerDescriptor>(descriptor);
 
-            object? paramsValue = null;
+            object? paramsValue;
             if (descriptor.IsDelegatingHandler)
             {
                 var o = @params.ToObject(descriptor.Params.GetGenericArguments()[0], _serializer.JsonSerializer);

@@ -12,6 +12,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -23,7 +24,7 @@ namespace Lsp.Tests.Integration
         {
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Support_Custom_Execute_Command_Handlers()
         {
             var (client, _) = await Initialize(
@@ -43,7 +44,7 @@ namespace Lsp.Tests.Integration
             response.Should().BeEquivalentTo(JToken.FromObject(new { someValue = "custom" }));
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Support_Mixed_Execute_Command_Handlers()
         {
             var (client, _) = await Initialize(

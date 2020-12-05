@@ -1,7 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using OmniSharp.Extensions.LanguageServer.Server.Logging;
 
+// ReSharper disable once CheckNamespace
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
     public static class LanguageServerLoggerExtensions

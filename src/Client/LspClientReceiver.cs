@@ -4,12 +4,10 @@ using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
-using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
 namespace OmniSharp.Extensions.LanguageServer.Client
 {
-    public class LspClientReceiver : Receiver, ILspClientReceiver
+    public class LspClientReceiver : Receiver
     {
         private readonly ILogger<LspClientReceiver> _logger;
 

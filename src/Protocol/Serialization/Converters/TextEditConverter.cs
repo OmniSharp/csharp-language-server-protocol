@@ -27,7 +27,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
         public override TextEdit ReadJson(JsonReader reader, Type objectType, TextEdit existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             var result = JObject.Load(reader);
-            var isAnnotated = result.ContainsKey("annotation");
             TextEdit edit;
             if (result["annotation"] is { Type: JTokenType.Object } annotation)
             {

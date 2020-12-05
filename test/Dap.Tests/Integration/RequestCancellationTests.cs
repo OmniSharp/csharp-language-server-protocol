@@ -9,6 +9,7 @@ using OmniSharp.Extensions.DebugAdapter.Server;
 using OmniSharp.Extensions.DebugAdapter.Testing;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Testing;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -20,7 +21,7 @@ namespace Dap.Tests.Integration
         {
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Cancel_Pending_Requests()
         {
             var (client, _) = await Initialize(ConfigureClient, ConfigureServer);

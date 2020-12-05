@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reactive.Disposables;
 using System.Threading;
 using OmniSharp.Extensions.DebugAdapter.Protocol;

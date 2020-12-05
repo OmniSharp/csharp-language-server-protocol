@@ -24,7 +24,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             }
             else
             {
-                container.RegisterDelegate(_ => new OnUnhandledExceptionHandler(e => { }), Reuse.Singleton);
+                container.RegisterDelegate(_ => new OnUnhandledExceptionHandler(_ => { }), Reuse.Singleton);
             }
 
             container.RegisterInstance<IOptionsFactory<DebugAdapterServerOptions>>(new ValueOptionsFactory<DebugAdapterServerOptions>(options));

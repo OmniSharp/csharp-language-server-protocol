@@ -13,6 +13,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generation
     [Conditional("CodeGeneration")]
     public class GenerateRequestMethodsAttribute : Attribute
     {
+        // ReSharper disable once UnusedParameter.Local
         public GenerateRequestMethodsAttribute(params Type[] proxyTypes)
         {
         }

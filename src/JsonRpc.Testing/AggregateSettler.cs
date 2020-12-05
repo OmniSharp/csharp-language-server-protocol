@@ -25,6 +25,6 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
                     }
                 )
                .DistinctUntilChanged()
-               .Select(z => Unit.Default);
+               .Select(_ => Unit.Default);
     }
 }

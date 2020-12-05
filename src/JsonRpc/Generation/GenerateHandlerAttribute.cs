@@ -13,6 +13,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generation
     [Conditional("CodeGeneration")]
     public class GenerateHandlerAttribute : Attribute
     {
+        // ReSharper disable once UnusedParameter.Local
         public GenerateHandlerAttribute(string? @namespace = null) { }
 
         public string? Name { get; init; }

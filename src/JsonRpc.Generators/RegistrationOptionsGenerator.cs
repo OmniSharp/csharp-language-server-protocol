@@ -9,14 +9,13 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using OmniSharp.Extensions.JsonRpc.Generators.Cache;
 using OmniSharp.Extensions.JsonRpc.Generators.Contexts;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using SyntaxTrivia = Microsoft.CodeAnalysis.SyntaxTrivia;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators
 {
     [Generator]
     public class RegistrationOptionsGenerator : CachedSourceGenerator<RegistrationOptionsGenerator.SyntaxReceiver, TypeDeclarationSyntax>
     {
-        private static string[] RequiredUsings = new[] {
+        private static string[] RequiredUsings = {
             "OmniSharp.Extensions.LanguageServer.Protocol",
             "OmniSharp.Extensions.LanguageServer.Protocol.Serialization",
             "OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities",
@@ -27,7 +26,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             ReportCacheDiagnostic<TypeDeclarationSyntax> cacheDiagnostic
         )
         {
-            var options = ( context.Compilation as CSharpCompilation )?.SyntaxTrees[0].Options as CSharpParseOptions;
             var compilation = context.Compilation;
 
             var registrationOptionsInterfaceSymbol = compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions")!;

@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
-using OmniSharp.Extensions.JsonRpc.Serialization.Converters;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
@@ -301,37 +298,37 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public bool IsDelta => Delta != null;
             public SemanticTokensDelta? Delta { get;init; }
 
-            [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("semanticTokensDelta")]
+            [return: NotNullIfNotNull("semanticTokensDelta")]
             public static SemanticTokensFullOrDelta? From(SemanticTokensDelta? semanticTokensDelta) => semanticTokensDelta switch {
                 not null => new(semanticTokensDelta),
                 _        => null
             };
 
-            [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("semanticTokensDelta")]
+            [return: NotNullIfNotNull("semanticTokensDelta")]
             public static implicit operator SemanticTokensFullOrDelta?(SemanticTokensDelta? semanticTokensDelta) => semanticTokensDelta switch {
                 not null => new(semanticTokensDelta),
                 _        => null
             };
 
-            [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("semanticTokens")]
+            [return: NotNullIfNotNull("semanticTokens")]
             public static SemanticTokensFullOrDelta? From(SemanticTokens? semanticTokens) => semanticTokens switch {
                 not null => new(semanticTokens),
                 _        => null
             };
 
-            [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("semanticTokens")]
+            [return: NotNullIfNotNull("semanticTokens")]
             public static implicit operator SemanticTokensFullOrDelta?(SemanticTokens? semanticTokens) => semanticTokens switch {
                 not null => new(semanticTokens),
                 _        => null
             };
 
-            [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("semanticTokens")]
+            [return: NotNullIfNotNull("semanticTokens")]
             public static SemanticTokensFullOrDelta? From(SemanticTokensFullOrDeltaPartialResult? semanticTokens) => semanticTokens switch {
                 not null => new(semanticTokens),
                 _        => null
             };
 
-            [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("semanticTokens")]
+            [return: NotNullIfNotNull("semanticTokens")]
             public static implicit operator SemanticTokensFullOrDelta?(SemanticTokensFullOrDeltaPartialResult? semanticTokens) =>
                 semanticTokens switch {
                     not null => new(semanticTokens),
@@ -602,7 +599,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                         Full = source.Full,
                         Range = source.Range
                     };
-                    if (result.Full != null && result.Full?.Value.Delta != true)
+                    if (result.Full != null && result.Full?.Value?.Delta != true)
                     {
                         var edits = _handlersManager.Descriptors.Any(z => z.HandlerType == typeof(ISemanticTokensDeltaHandler));
                         if (edits)
@@ -760,8 +757,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 return builder.Commit().GetSemanticTokens(request.Range);
             }
 
-            public virtual void SetCapability(SemanticTokensCapability capability) => Capability = capability;
-            protected SemanticTokensCapability Capability { get; private set; } = null!;
             protected abstract Task Tokenize(SemanticTokensBuilder builder, ITextDocumentIdentifierParams identifier, CancellationToken cancellationToken);
             protected abstract Task<SemanticTokensDocument> GetSemanticTokensDocument(ITextDocumentIdentifierParams @params, CancellationToken cancellationToken);
         }
@@ -775,15 +770,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     Full = new SemanticTokensCapabilityRequestFull()
                 };
                 registrationOptions.Range ??= new SemanticTokensCapabilityRequestRange();
-                if (registrationOptions.Full?.IsValue == true)
+                if (registrationOptions is { Full: { IsValue: true, Value: {} } })
                 {
                     registrationOptions.Full.Value.Delta = true;
                 }
 
                 // Ensure the legend is created properly.
                 registrationOptions.Legend = new SemanticTokensLegend() {
-                    TokenModifiers = SemanticTokenModifier.Defaults.Join(capability.TokenModifiers, z => z, z => z, (a, b) => a).ToArray(),
-                    TokenTypes = SemanticTokenType.Defaults.Join(capability.TokenTypes, z => z, z => z, (a, b) => a).ToArray(),
+                    TokenModifiers = SemanticTokenModifier.Defaults.Join(capability.TokenModifiers, z => z, z => z, (a, _) => a).ToArray(),
+                    TokenTypes = SemanticTokenType.Defaults.Join(capability.TokenTypes, z => z, z => z, (a, _) => a).ToArray(),
                 };
 
                 return registrationOptions;
@@ -850,7 +845,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     Func<SemanticTokensBuilder, ITextDocumentIdentifierParams, SemanticTokensCapability, CancellationToken, Task> tokenize,
                     Func<ITextDocumentIdentifierParams, SemanticTokensCapability, CancellationToken, Task<SemanticTokensDocument>> getSemanticTokensDocument,
                     RegistrationOptionsDelegate<SemanticTokensRegistrationOptions, SemanticTokensCapability> registrationOptionsFactory
-                ) : base()
+                )
                 {
                     _tokenize = tokenize;
                     _getSemanticTokensDocument = getSemanticTokensDocument;

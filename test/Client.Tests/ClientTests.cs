@@ -55,7 +55,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                 },
                 serverOptions => {
                     serverOptions.OnHover(
-                        (request, token) => {
+                        (request, _) => {
                             Assert.NotNull(request.TextDocument);
 
                             Assert.Equal(
@@ -148,7 +148,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                 },
                 serverOptions => {
                     serverOptions.OnCompletion(
-                        (request, cancellationToken) => {
+                        (request, _) => {
                             Assert.NotNull(request.TextDocument);
 
                             Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);

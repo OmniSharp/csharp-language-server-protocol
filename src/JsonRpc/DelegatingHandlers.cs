@@ -13,10 +13,6 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             private readonly Func<TParams, CancellationToken, Task<TResult>> _handler;
 
-            public Request(Func<TParams, Task<TResult>> handler) : this((a, ct) => handler(a))
-            {
-            }
-
             public Request(Func<TParams, CancellationToken, Task<TResult>> handler) => _handler = handler;
 
             Task<TResult> IRequestHandler<TParams, TResult>.
@@ -29,10 +25,6 @@ namespace OmniSharp.Extensions.JsonRpc
             where TParams : IRequest
         {
             private readonly Func<TParams, CancellationToken, Task> _handler;
-
-            public Request(Func<TParams, Task> handler) : this((a, ct) => handler(a))
-            {
-            }
 
             public Request(Func<TParams, CancellationToken, Task> handler) => _handler = handler;
 
@@ -48,15 +40,6 @@ namespace OmniSharp.Extensions.JsonRpc
             where TParams : IRequest
         {
             private readonly Func<TParams, CancellationToken, Task> _handler;
-
-            public Notification(Action<TParams, CancellationToken> handler) : this(
-                (p, ct) => {
-                    handler(p, ct);
-                    return Task.CompletedTask;
-                }
-            )
-            {
-            }
 
             public Notification(Func<TParams, CancellationToken, Task> handler) => _handler = handler;
 

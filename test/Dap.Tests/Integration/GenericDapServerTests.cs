@@ -5,6 +5,7 @@ using NSubstitute;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Testing;
 using OmniSharp.Extensions.JsonRpc.Testing;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -16,7 +17,7 @@ namespace Dap.Tests.Integration
         {
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Supports_Multiple_Handlers_On_A_Single_Class()
         {
             var handler = new Handler();

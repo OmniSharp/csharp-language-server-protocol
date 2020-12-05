@@ -45,7 +45,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
         public void Update(string section, DocumentUri? documentUri, IConfiguration? configuration)
         {
             if (configuration == null) return;
-            _scopedConfigurations.AddOrUpdate(( section, documentUri ), configuration, (a, _) => configuration);
+            _scopedConfigurations.AddOrUpdate(( section, documentUri ), configuration, (_, _) => configuration);
             TriggerChange();
         }
 

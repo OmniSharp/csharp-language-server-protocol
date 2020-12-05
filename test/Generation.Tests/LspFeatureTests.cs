@@ -15,8 +15,13 @@ namespace Generation.Tests
             var expected = @"
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
@@ -277,6 +282,10 @@ namespace Lsp.Tests.Integration.Fixtures
 using Lsp.Tests.Integration.Fixtures;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -412,6 +421,10 @@ namespace Lsp.Tests.Integration.Fixtures
 using Lsp.Tests.Integration.Fixtures;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -448,8 +461,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute, System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     public static partial class RegisterCapabilityExtensions
     {
-        public static ILanguageClientRegistry OnRegisterCapability(this ILanguageClientRegistry registry, Func<RegistrationParams, Task> handler) => registry.AddHandler(ClientNames.RegisterCapability, new DelegatingHandlers.Request<RegistrationParams>(handler));
-        public static ILanguageClientRegistry OnRegisterCapability(this ILanguageClientRegistry registry, Func<RegistrationParams, CancellationToken, Task> handler) => registry.AddHandler(ClientNames.RegisterCapability, new DelegatingHandlers.Request<RegistrationParams>(handler));
+        public static ILanguageClientRegistry OnRegisterCapability(this ILanguageClientRegistry registry, Func<RegistrationParams, Task> handler) => registry.AddHandler(ClientNames.RegisterCapability, new DelegatingHandlers.Request<RegistrationParams>(HandlerAdapter.Adapt<RegistrationParams>(handler)));
+        public static ILanguageClientRegistry OnRegisterCapability(this ILanguageClientRegistry registry, Func<RegistrationParams, CancellationToken, Task> handler) => registry.AddHandler(ClientNames.RegisterCapability, new DelegatingHandlers.Request<RegistrationParams>(HandlerAdapter.Adapt<RegistrationParams>(handler)));
     }
 #nullable restore
 }";

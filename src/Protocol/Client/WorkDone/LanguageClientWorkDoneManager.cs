@@ -45,7 +45,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
                 _progressManager.Monitor(progressToken, Parse),
                 Disposable.Create(() => _router.SendWorkDoneProgressCancel(progressToken))
             );
-            _pendingWork.AddOrUpdate(progressToken, x => data, (a, b) => data);
+            _pendingWork.AddOrUpdate(progressToken, _ => data, (_, _) => data);
             data.Subscribe(
                 _ => { }, () => {
                     if (_pendingWork.TryRemove(data.ProgressToken, out var item))

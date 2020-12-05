@@ -10,6 +10,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generation
     [Conditional("CodeGeneration")]
     public class StringEnumAttribute : Attribute
     {
+        // ReSharper disable once UnusedParameter.Local
         public StringEnumAttribute(string? @namespace = null) { }
     }
 }

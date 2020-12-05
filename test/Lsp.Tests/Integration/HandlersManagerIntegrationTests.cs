@@ -8,6 +8,7 @@ using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -19,7 +20,7 @@ namespace Lsp.Tests.Integration
         {
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Return_Default_Handlers()
         {
             var (_, server) = await Initialize(options => {}, options => {});
@@ -29,7 +30,7 @@ namespace Lsp.Tests.Integration
             handlersManager.GetHandlers().Should().HaveCount(6);
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Return_Additional_Handlers()
         {
             var (_, server) = await Initialize(options => {}, options => {});
@@ -40,7 +41,7 @@ namespace Lsp.Tests.Integration
             handlersManager.GetHandlers().Should().HaveCount(7);
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Link_Should_Fail_If_No_Handler_Is_Defined()
         {
             var (_, server) = await Initialize(options => {}, options => {});
@@ -51,7 +52,7 @@ namespace Lsp.Tests.Integration
             a.Should().Throw<ArgumentException>().Which.Message.Should().Contain("Descriptors must be registered before links can be created");
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Link_Should_Fail_If_Link_Is_On_The_Wrong_Side()
         {
             var (_, server) = await Initialize(options => {}, options => {});
