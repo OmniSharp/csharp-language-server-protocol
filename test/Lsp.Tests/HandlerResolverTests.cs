@@ -242,7 +242,7 @@ handler.Initialize();
             handler.Add((codeLensHandler as IJsonRpcHandler)!);
 
             var descriptor = handler.OfType<LspHandlerDescriptor>().Select(x => x.Key);
-            descriptor.Should().BeEquivalentTo("[foo]", "[foo]");
+            descriptor.Should().BeEquivalentTo("[foo]", "default");
         }
 
         public static IEnumerable<object[]> Should_DealWithClassesThatImplementMultipleHandlers_WithoutConflictingRegistrations_Data()

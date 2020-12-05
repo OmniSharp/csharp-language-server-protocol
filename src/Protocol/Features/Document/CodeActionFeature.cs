@@ -98,7 +98,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateTypedData,
             GenerateContainer
         ]
-        [RegistrationOptions(typeof(CodeActionRegistrationOptions)), Capability(typeof(CodeActionCapability))]
+        [Capability(typeof(CodeActionCapability))]
         public partial record CodeAction : ICanBeResolved, IRequest<CodeAction>
         {
             /// <summary>

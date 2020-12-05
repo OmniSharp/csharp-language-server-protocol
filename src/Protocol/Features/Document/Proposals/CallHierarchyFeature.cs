@@ -149,7 +149,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
-        [RegistrationOptions(typeof(CallHierarchyRegistrationOptions)), Capability(typeof(CallHierarchyCapability))]
+        [Capability(typeof(CallHierarchyCapability))]
         public partial record CallHierarchyIncomingCallsParams : CallHierarchyBaseCallParams, IWorkDoneProgressParams,
                                                                 IPartialItemsRequest<Container<CallHierarchyIncomingCall>?, CallHierarchyIncomingCall>
         {
@@ -201,7 +201,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
-        [RegistrationOptions(typeof(CallHierarchyRegistrationOptions)), Capability(typeof(CallHierarchyCapability))]
+        [Capability(typeof(CallHierarchyCapability))]
         public partial record CallHierarchyOutgoingCallsParams : CallHierarchyBaseCallParams, IWorkDoneProgressParams,
                                                                 IPartialItemsRequest<Container<CallHierarchyOutgoingCall>?, CallHierarchyOutgoingCall>
 

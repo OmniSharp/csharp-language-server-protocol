@@ -89,7 +89,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                 {
                     SetCapabilityInnerMethod
                        .MakeGenericMethod(capabilityType)
-                       .Invoke(null, new[] { handler, capability });
+                       .Invoke(null, new[] { handler, capability, _clientCapabilities });
                 }
 
                 return null;
@@ -121,7 +121,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                                                                        .GetTypeInfo()
                                                                        .GetMethod(nameof(SetCapabilityInner), BindingFlags.NonPublic | BindingFlags.Static)!;
 
-        private static void SetCapabilityInner<T>(ICapability<T> capability, T instance) => capability.SetCapability(instance);
+        private static void SetCapabilityInner<T>(ICapability<T> capability, T instance, ClientCapabilities clientCapabilities) => capability.SetCapability(instance, clientCapabilities);
 
         private static readonly MethodInfo SetRegistrationCapabilityInnerMethod = typeof(SupportedCapabilitiesBase)
                                                                                  .GetTypeInfo()

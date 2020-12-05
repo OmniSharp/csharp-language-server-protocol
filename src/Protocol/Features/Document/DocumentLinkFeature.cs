@@ -59,7 +59,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateTypedData,
             GenerateContainer
         ]
-        [RegistrationOptions(typeof(DocumentLinkRegistrationOptions)), Capability(typeof(DocumentLinkCapability))]
+        [Capability(typeof(DocumentLinkCapability))]
         public partial record DocumentLink : ICanBeResolved, IRequest<DocumentLink>
         {
             /// <summary>

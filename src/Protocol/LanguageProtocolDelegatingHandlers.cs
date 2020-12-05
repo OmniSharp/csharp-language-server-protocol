@@ -595,14 +595,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             where TResponse : IEnumerable<TItem>?
             where TCapability : ICapability
         {
-            private readonly Action<TParams, TCapability, IObserver<IEnumerable<TItem>>, CancellationToken> _handler;
+            private readonly Action<TParams, IObserver<IEnumerable<TItem>>, TCapability, CancellationToken> _handler;
             private readonly IProgressManager _progressManager;
             private readonly Func<IEnumerable<TItem>, TResponse?> _factory;
             private readonly Guid _id;
             Guid ICanBeIdentifiedHandler.Id => _id;
 
             public PartialResultsCapability(
-                Action<TParams, TCapability, IObserver<IEnumerable<TItem>>, CancellationToken> handler, IProgressManager progressManager,
+                Action<TParams, IObserver<IEnumerable<TItem>>, TCapability, CancellationToken> handler, IProgressManager progressManager,
                 Func<IEnumerable<TItem>, TResponse?> factory
             ) :
                 this(Guid.Empty, handler, progressManager, factory)
@@ -610,7 +610,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }
 
             public PartialResultsCapability(
-                Guid id, Action<TParams, TCapability, IObserver<IEnumerable<TItem>>, CancellationToken> handler, IProgressManager progressManager,
+                Guid id, Action<TParams, IObserver<IEnumerable<TItem>>, TCapability, CancellationToken> handler, IProgressManager progressManager,
                 Func<IEnumerable<TItem>, TResponse?> factory
             )
             {
@@ -625,7 +625,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 var observer = _progressManager.For(request, cancellationToken);
                 if (observer != ProgressObserver<IEnumerable<TItem>>.Noop)
                 {
-                    _handler(request, Capability, observer, cancellationToken);
+                    _handler(request, observer, Capability, cancellationToken);
                     await observer;
                     return _factory(Enumerable.Empty<TItem>());
                 }
@@ -638,7 +638,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                        }
                                    )
                                   .ToTask(cancellationToken);
-                _handler(request, Capability, subject, cancellationToken);
+                _handler(request, subject, Capability, cancellationToken);
                 var result = _factory(await task.ConfigureAwait(false));
                 return result;
             }

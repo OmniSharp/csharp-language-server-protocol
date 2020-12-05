@@ -76,9 +76,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             return Unit.Task;
         }
 
-        public object GetRegistrationOptions() => new object();
-
-        public void SetCapability(DidChangeConfigurationCapability capability) => _capability = capability;
+        public void SetCapability(DidChangeConfigurationCapability capability, ClientCapabilities clientCapabilities) => _capability = capability;
         public bool IsSupported => _capability != null;
 
         Task IOnLanguageServerStarted.OnStarted(ILanguageServer server, CancellationToken cancellationToken) => GetWorkspaceConfigurationAsync(cancellationToken);

@@ -403,10 +403,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                             )
                         ),
                         Argument(
-                            SimpleLambdaExpression(
-                                Parameter(Identifier("values")),
-                                ObjectCreationExpression(responseName is NullableTypeSyntax nts ? nts.ElementType : responseName)
-                                   .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("values")))))
+                            MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                responseName.EnsureNotNullable(),
+                                IdentifierName("From")
                             )
                         )
                     }
@@ -429,10 +429,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                             )
                         ),
                         Argument(
-                            SimpleLambdaExpression(
-                                Parameter(Identifier("values")),
-                                ObjectCreationExpression(responseName)
-                                   .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("values")))))
+                            MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                responseName.EnsureNotNullable(),
+                                IdentifierName("From")
                             )
                         )
                     }
@@ -591,12 +591,15 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                     itemType,
                                     capabilityName
                                 )
-                               .AddArgumentListArguments(
-                                    GetHandlerAdapterArgument(
-                                        TypeArgumentList(SeparatedList(new[] { requestName, itemType })),
-                                        HandlerArgument,
-                                        capabilityName,
-                                        true
+                               .WithArgumentList(
+                                    GetPartialResultArgumentList(
+                                        responseType,
+                                        GetHandlerAdapterArgument(
+                                            TypeArgumentList(SeparatedList(new[] { requestName, itemType })),
+                                            HandlerArgument,
+                                            capabilityName,
+                                            true
+                                        )
                                     )
                                 )
                         )
@@ -633,7 +636,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
         public static ArrowExpressionClauseSyntax GetPartialResultsCapabilityHandlerExpression(
             ExpressionSyntax nameExpression, TypeSyntax requestName, TypeSyntax responseType,
-            NameSyntax itemName, TypeSyntax capabilityName
+            TypeSyntax itemName, TypeSyntax capabilityName
         )
         {
             return ArrowExpressionClause(
@@ -652,12 +655,15 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                     itemName,
                                     capabilityName
                                 )
-                               .AddArgumentListArguments(
-                                    GetHandlerAdapterArgument(
-                                        TypeArgumentList(SeparatedList(new[] { requestName, itemName })),
-                                        HandlerArgument,
-                                        capabilityName,
-                                        true
+                               .WithArgumentList(
+                                    GetPartialResultArgumentList(
+                                        responseType,
+                                        GetHandlerAdapterArgument(
+                                            TypeArgumentList(SeparatedList(new[] { requestName, itemName })),
+                                            HandlerArgument,
+                                            capabilityName,
+                                            true
+                                        )
                                     )
                                 )
                         )
@@ -686,7 +692,17 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                     responseType,
                                     itemName
                                 )
-                               .WithArgumentList(GetPartialItemsArgumentList(responseType, HandlerArgument))
+                               .WithArgumentList(
+                                    GetPartialItemsArgumentList(
+                                        responseType,
+                                        GetHandlerAdapterArgument(
+                                            TypeArgumentList(SeparatedList(new[] { requestName, itemName })),
+                                            HandlerArgument,
+                                            null,
+                                            true
+                                        )
+                                    )
+                                )
                         )
                     )
                 )

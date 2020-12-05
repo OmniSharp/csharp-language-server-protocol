@@ -62,7 +62,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateTypedData,
             GenerateContainer
         ]
-        [RegistrationOptions(typeof(CodeLensRegistrationOptions)), Capability(typeof(CodeLensCapability))]
+        [Capability(typeof(CodeLensCapability))]
         public partial record CodeLens : IRequest<CodeLens>, ICanBeResolved
         {
             /// <summary>
