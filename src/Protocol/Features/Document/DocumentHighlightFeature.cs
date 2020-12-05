@@ -72,6 +72,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.DocumentHighlightProvider))]
+        [RegistrationName(TextDocumentNames.DocumentHighlight)]
         public partial class DocumentHighlightRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions
         {
         }

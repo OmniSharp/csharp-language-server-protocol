@@ -50,6 +50,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.DocumentOnTypeFormattingProvider))]
+        [RegistrationName(TextDocumentNames.OnTypeFormatting)]
         public partial class DocumentOnTypeFormattingRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions
         {
             /// <summary>

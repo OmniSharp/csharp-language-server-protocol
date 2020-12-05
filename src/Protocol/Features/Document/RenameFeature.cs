@@ -143,8 +143,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public bool DefaultBehavior { get; init; }
         }
 
-        [RegistrationName(TextDocumentNames.Rename)]
         [GenerateRegistrationOptions(nameof(ServerCapabilities.RenameProvider))]
+        [RegistrationName(TextDocumentNames.Rename)]
         public partial class RenameRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions, IStaticRegistrationOptions
         {
             /// <summary>

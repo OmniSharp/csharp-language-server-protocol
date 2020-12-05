@@ -57,6 +57,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.SelectionRangeProvider))]
+        [RegistrationName(TextDocumentNames.SelectionRange)]
         public partial class SelectionRangeRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions, IStaticRegistrationOptions { }
     }
 

@@ -63,7 +63,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateContainer
         ]
         [RegistrationOptions(typeof(CodeLensRegistrationOptions)), Capability(typeof(CodeLensCapability))]
-        public partial record CodeLens : IRequest<CodeLens>, ICanBeResolved
+        public partial record CodeLens : IRequest<CodeLens>, ICanBeResolved, IDoesNotParticipateInRegistration
         {
             /// <summary>
             /// The range in which this code lens is valid. Should only span a single line.
@@ -91,6 +91,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.CodeLensProvider))]
         [RegistrationOptionsConverter(typeof(CodeLensRegistrationOptionsConverter))]
+        [RegistrationName(TextDocumentNames.CodeLens)]
         public partial class CodeLensRegistrationOptions : IWorkDoneProgressOptions, ITextDocumentRegistrationOptions
         {
             /// <summary>

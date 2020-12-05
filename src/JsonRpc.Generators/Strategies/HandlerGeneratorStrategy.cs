@@ -40,6 +40,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                   .WithModifiers(item.TypeDeclaration.Modifiers)
                                   .AddBaseListTypes(SimpleBaseType(GetBaseHandlerInterface(item)));
 
+            if (item.Request.Symbol.AllInterfaces.Any(z => z.Name == "IDoesNotParticipateInRegistration"))
+            {
+                handlerInterface = handlerInterface.AddBaseListTypes(SimpleBaseType(IdentifierName("IDoesNotParticipateInRegistration")));
+            }
+
             if (!handlerInterface.Modifiers.Any(z => z.IsKind(SyntaxKind.PartialKeyword)))
             {
                 handlerInterface = handlerInterface.AddModifiers(Token(SyntaxKind.PartialKeyword));

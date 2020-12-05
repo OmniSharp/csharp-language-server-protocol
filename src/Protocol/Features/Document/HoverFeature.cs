@@ -54,6 +54,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.HoverProvider))]
+        [RegistrationName(TextDocumentNames.Hover)]
         public partial class HoverRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions { }
     }
 
