@@ -73,6 +73,7 @@ namespace Lsp.Tests.Matchers
                 null,
                 null,
                 null,
+                null,
                 () => { },
                 Substitute.For<ILspHandlerTypeDescriptor>()
             );
@@ -113,6 +114,7 @@ namespace Lsp.Tests.Matchers
                                                     null,
                                                     null,
                                                     null,
+                                                    null,
                                                     () => { },
                                                     Substitute.For<ILspHandlerTypeDescriptor>()
                                                 ),
@@ -123,6 +125,7 @@ namespace Lsp.Tests.Matchers
                                                     resolveHandler2,
                                                     typeof(ICodeLensResolveHandler),
                                                     typeof(CodeLens),
+                                                    null,
                                                     null,
                                                     null,
                                                     null,
@@ -157,6 +160,7 @@ namespace Lsp.Tests.Matchers
                                                     resolveHandler,
                                                     resolveHandler.GetType(),
                                                     typeof(CompletionItem),
+                                                    null,
                                                     null,
                                                     null,
                                                     null,
@@ -199,6 +203,7 @@ namespace Lsp.Tests.Matchers
                                                     null,
                                                     null,
                                                     null,
+                                                    null,
                                                     () => { },
                                                     Substitute.For<ILspHandlerTypeDescriptor>()
                                                 ),
@@ -209,6 +214,7 @@ namespace Lsp.Tests.Matchers
                                                     resolveHandler2!,
                                                     typeof(ICompletionResolveHandler),
                                                     typeof(CompletionItem),
+                                                    null,
                                                     null,
                                                     null,
                                                     null,
@@ -244,6 +250,7 @@ namespace Lsp.Tests.Matchers
                 (resolveHandler as IJsonRpcHandler)!,
                 resolveHandler.GetType(),
                 typeof(CompletionParams),
+                null,
                 null,
                 null,
                 null,
@@ -298,6 +305,7 @@ namespace Lsp.Tests.Matchers
                 null,
                 null,
                 null,
+                null,
                 () => { },
                 Substitute.For<ILspHandlerTypeDescriptor>()
             );
@@ -344,6 +352,7 @@ namespace Lsp.Tests.Matchers
                 (resolveHandler as IJsonRpcHandler)!,
                 resolveHandler.GetType(),
                 typeof(CodeLens),
+                null,
                 null,
                 null,
                 null,

@@ -64,7 +64,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ]
         [RegistrationOptions(typeof(SemanticTokensRegistrationOptions)), Capability(typeof(SemanticTokensCapability))]
         public partial record SemanticTokensDeltaParams : IWorkDoneProgressParams, ITextDocumentIdentifierParams,
-                                                         IPartialItemRequest<SemanticTokensFullOrDelta?, SemanticTokensFullOrDeltaPartialResult>
+                                                         IPartialItemRequest<SemanticTokensFullOrDelta?, SemanticTokensFullOrDeltaPartialResult>, IDoesNotParticipateInRegistration
         {
             /// <summary>
             /// The text document.
@@ -90,11 +90,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ]
         [RegistrationOptions(typeof(SemanticTokensRegistrationOptions)), Capability(typeof(SemanticTokensCapability))]
         public partial record SemanticTokensRangeParams : IWorkDoneProgressParams, ITextDocumentIdentifierParams,
-                                                         IPartialItemRequest<SemanticTokens?, SemanticTokensPartialResult>
+                                                         IPartialItemRequest<SemanticTokens?, SemanticTokensPartialResult>, IDoesNotParticipateInRegistration
         {
             /// <summary>
             /// The text document.
-            /// </summary>
+            /// </summary>  
             public TextDocumentIdentifier TextDocument { get; init; }
 
             /// <summary>

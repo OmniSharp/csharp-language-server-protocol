@@ -140,6 +140,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.DocumentSymbolProvider))]
+        [RegistrationName(TextDocumentNames.DocumentSymbol)]
         public partial class DocumentSymbolRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions
         {
             /// <summary>

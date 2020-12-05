@@ -8,6 +8,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
         Guid Id { get; }
         bool HasRegistration { get; }
         Type? RegistrationType { get; }
+        string RegistrationMethod { get; }
         object? RegistrationOptions { get; }
 
         bool HasCapability { get; }

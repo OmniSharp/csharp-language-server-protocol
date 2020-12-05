@@ -104,21 +104,19 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                                  var registrations = new HashSet<Registration>();
                                  foreach (var descriptor in descriptors)
                                  {
-                                     if (descriptor.HasCapability && supportedCapabilities.AllowsDynamicRegistration(descriptor.CapabilityType!))
+                                     if (!descriptor.HasCapability || !supportedCapabilities.AllowsDynamicRegistration(descriptor.CapabilityType!)) continue;
+                                     if (descriptor.RegistrationOptions is IWorkDoneProgressOptions wdpo)
                                      {
-                                         if (descriptor.RegistrationOptions is IWorkDoneProgressOptions wdpo)
-                                         {
-                                             wdpo.WorkDoneProgress = serverWorkDoneManager.IsSupported;
-                                         }
-
-                                         registrations.Add(
-                                             new Registration {
-                                                 Id = descriptor.Id.ToString(),
-                                                 Method = RegistrationNameAttribute.From(descriptor.RegistrationType)?.Method ?? descriptor.Method,
-                                                 RegisterOptions = descriptor.RegistrationOptions
-                                             }
-                                         );
+                                         wdpo.WorkDoneProgress = serverWorkDoneManager.IsSupported;
                                      }
+
+                                     registrations.Add(
+                                         new Registration {
+                                             Id = descriptor.Id.ToString(),
+                                             Method = descriptor.RegistrationMethod,
+                                             RegisterOptions = descriptor.RegistrationOptions
+                                         }
+                                     );
                                  }
 
                                  return registrations.Distinct(new Registration.TextDocumentComparer()).ToArray();

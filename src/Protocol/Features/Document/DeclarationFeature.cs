@@ -30,6 +30,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public partial record DeclarationParams : TextDocumentPositionParams, IWorkDoneProgressParams, IPartialItemsRequest<LocationOrLocationLinks, LocationOrLocationLink> { }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.DeclarationProvider))]
+        [RegistrationName(TextDocumentNames.Declaration)]
         public partial class DeclarationRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions, IStaticRegistrationOptions
         {
         }

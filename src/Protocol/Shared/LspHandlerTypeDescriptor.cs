@@ -30,6 +30,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             RegistrationType = HandlerTypeDescriptorHelper.UnwrapGenericType(typeof(IRegistration<>), handlerType)
                             ?? HandlerTypeDescriptorHelper.UnwrapGenericType(typeof(IRegistration<,>), handlerType, 0);
             HasRegistration = RegistrationType != null && RegistrationType != typeof(object);
+            RegistrationMethod = RegistrationNameAttribute.AllFrom(RegistrationType).FirstOrDefault()?.Method ?? Method;
             if (!HasRegistration) RegistrationType = null;
 
             CapabilityType = HandlerTypeDescriptorHelper.UnwrapGenericType(typeof(ICapability<>), handlerType)
@@ -47,6 +48,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
         public bool HasPartialItem { get; }
         public bool HasRegistration { get; }
         public Type? RegistrationType { get; }
+        public string RegistrationMethod { get; }
         public bool HasCapability { get; }
         public Type? CapabilityType { get; }
         public bool IsDynamicCapability { get; }

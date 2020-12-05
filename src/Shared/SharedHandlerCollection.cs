@@ -277,6 +277,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                 @interface,
                 @params,
                 registrationType,
+                typeDescriptor?.RegistrationMethod ?? RegistrationNameAttribute.AllFrom(registrationType).FirstOrDefault()?.Method ?? method,
                 null,
                 capabilityType,
                 requestProcessType,

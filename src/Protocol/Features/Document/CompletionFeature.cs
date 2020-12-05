@@ -61,7 +61,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateTypedData
         ]
         [RegistrationOptions(typeof(CompletionRegistrationOptions)), Capability(typeof(CompletionCapability))]
-        public partial record CompletionItem : ICanBeResolved, IRequest<CompletionItem>
+        public partial record CompletionItem : ICanBeResolved, IRequest<CompletionItem>, IDoesNotParticipateInRegistration
         {
             /// <summary>
             /// The label of this completion item. By default
@@ -217,8 +217,57 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public override string ToString() => DebuggerDisplay;
         }
 
+        /// <summary>
+        /// Completion item tags are extra annotations that tweak the rendering of a completion
+        /// item.
+        ///
+        /// @since 3.15.0
+        /// </summary>
+        [JsonConverter(typeof(NumberEnumConverter))]
+        public enum CompletionItemTag
+        {
+            /// <summary>
+            /// Render a completion as obsolete, usually using a strike-out.
+            /// </summary>
+            Deprecated = 1
+        }
+
+        /// <summary>
+        /// The kind of a completion entry.
+        /// </summary>
+        [JsonConverter(typeof(NumberEnumConverter))]
+        public enum CompletionItemKind
+        {
+            Text = 1,
+            Method = 2,
+            Function = 3,
+            Constructor = 4,
+            Field = 5,
+            Variable = 6,
+            Class = 7,
+            Interface = 8,
+            Module = 9,
+            Property = 10,
+            Unit = 11,
+            Value = 12,
+            Enum = 13,
+            Keyword = 14,
+            Snippet = 15,
+            Color = 16,
+            File = 17,
+            Reference = 18,
+            Folder = 19,
+            EnumMember = 20,
+            Constant = 21,
+            Struct = 22,
+            Event = 23,
+            Operator = 24,
+            TypeParameter = 25,
+        }
+
         [GenerateRegistrationOptions(nameof(ServerCapabilities.CompletionProvider))]
         [RegistrationOptionsConverter(typeof(CompletionRegistrationOptionsConverter))]
+        [RegistrationName(TextDocumentNames.Completion)]
         public partial class CompletionRegistrationOptions : IWorkDoneProgressOptions, ITextDocumentRegistrationOptions
         {
             /// <summary>
@@ -291,6 +340,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             [Optional]
             public string? TriggerCharacter { get; init; }
+        }
+
+        [JsonConverter(typeof(NumberEnumConverter))]
+        public enum CompletionTriggerKind
+        {
+            /// <summary>
+            /// Completion was triggered by typing an identifier (24x7 code complete), manual invocation (e.g Ctrl+Space) or via API.
+            /// </summary>
+            Invoked = 1,
+
+            /// <summary>
+            /// Completion was triggered by a trigger character specified by the `triggerCharacters` properties of the `CompletionRegistrationOptions`.
+            /// </summary>
+            TriggerCharacter = 2,
+
+            /// <summary>
+            /// Completion was re-triggered as the current completion list is incomplete.
+            /// </summary>
+            TriggerForIncompleteCompletions = 3,
         }
 
         /// <summary>
@@ -512,73 +580,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             [Optional]
             public Container<CompletionItemKind>? ValueSet { get; set; }
-        }
-
-        /// <summary>
-        /// Completion item tags are extra annotations that tweak the rendering of a completion
-        /// item.
-        ///
-        /// @since 3.15.0
-        /// </summary>
-        [JsonConverter(typeof(NumberEnumConverter))]
-        public enum CompletionItemTag
-        {
-            /// <summary>
-            /// Render a completion as obsolete, usually using a strike-out.
-            /// </summary>
-            Deprecated = 1
-        }
-
-        /// <summary>
-        /// The kind of a completion entry.
-        /// </summary>
-        [JsonConverter(typeof(NumberEnumConverter))]
-        public enum CompletionItemKind
-        {
-            Text = 1,
-            Method = 2,
-            Function = 3,
-            Constructor = 4,
-            Field = 5,
-            Variable = 6,
-            Class = 7,
-            Interface = 8,
-            Module = 9,
-            Property = 10,
-            Unit = 11,
-            Value = 12,
-            Enum = 13,
-            Keyword = 14,
-            Snippet = 15,
-            Color = 16,
-            File = 17,
-            Reference = 18,
-            Folder = 19,
-            EnumMember = 20,
-            Constant = 21,
-            Struct = 22,
-            Event = 23,
-            Operator = 24,
-            TypeParameter = 25,
-        }
-
-        [JsonConverter(typeof(NumberEnumConverter))]
-        public enum CompletionTriggerKind
-        {
-            /// <summary>
-            /// Completion was triggered by typing an identifier (24x7 code complete), manual invocation (e.g Ctrl+Space) or via API.
-            /// </summary>
-            Invoked = 1,
-
-            /// <summary>
-            /// Completion was triggered by a trigger character specified by the `triggerCharacters` properties of the `CompletionRegistrationOptions`.
-            /// </summary>
-            TriggerCharacter = 2,
-
-            /// <summary>
-            /// Completion was re-triggered as the current completion list is incomplete.
-            /// </summary>
-            TriggerForIncompleteCompletions = 3,
         }
 
         public class CompletionItemTagSupportCapabilityOptions
