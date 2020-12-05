@@ -151,7 +151,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ]
         [Capability(typeof(CallHierarchyCapability))]
         public partial record CallHierarchyIncomingCallsParams : CallHierarchyBaseCallParams, IWorkDoneProgressParams,
-                                                                IPartialItemsRequest<Container<CallHierarchyIncomingCall>?, CallHierarchyIncomingCall>
+                                                                IPartialItemsRequest<Container<CallHierarchyIncomingCall>?, CallHierarchyIncomingCall>, IDoesNotParticipateInRegistration
         {
         }
 
@@ -163,7 +163,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Obsolete(Constants.Proposal)]
         [Method(TextDocumentNames.CallHierarchyIncoming, Direction.ClientToServer)]
         public partial record  CallHierarchyIncomingCallsParams<T> : CallHierarchyBaseCallParams<T>, IWorkDoneProgressParams,
-                                                                     IPartialItemsRequest<Container<CallHierarchyIncomingCall>?, CallHierarchyIncomingCall>
+                                                                     IPartialItemsRequest<Container<CallHierarchyIncomingCall>?, CallHierarchyIncomingCall>, IDoesNotParticipateInRegistration
             where T : class?, IHandlerIdentity?
         {
         }
@@ -203,7 +203,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ]
         [Capability(typeof(CallHierarchyCapability))]
         public partial record CallHierarchyOutgoingCallsParams : CallHierarchyBaseCallParams, IWorkDoneProgressParams,
-                                                                IPartialItemsRequest<Container<CallHierarchyOutgoingCall>?, CallHierarchyOutgoingCall>
+                                                                IPartialItemsRequest<Container<CallHierarchyOutgoingCall>?, CallHierarchyOutgoingCall>, IDoesNotParticipateInRegistration
 
         {
             public static CallHierarchyOutgoingCallsParams<T> Create<T>(CallHierarchyOutgoingCallsParams item)
@@ -225,7 +225,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Obsolete(Constants.Proposal)]
         [Method(TextDocumentNames.CallHierarchyOutgoing, Direction.ClientToServer)]
         public partial record CallHierarchyOutgoingCallsParams<T> : CallHierarchyBaseCallParams<T>, IWorkDoneProgressParams,
-                                                                   IPartialItemsRequest<Container<CallHierarchyOutgoingCall>?, CallHierarchyOutgoingCall>
+                                                                   IPartialItemsRequest<Container<CallHierarchyOutgoingCall>?, CallHierarchyOutgoingCall>, IDoesNotParticipateInRegistration
             where T : class?, IHandlerIdentity?
         {
             public static CallHierarchyOutgoingCallsParams Create(CallHierarchyOutgoingCallsParams<T> item)
@@ -269,6 +269,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// </summary>
         [Obsolete(Constants.Proposal)]
         [GenerateRegistrationOptions(nameof(ServerCapabilities.CallHierarchyProvider))]
+        [RegistrationName(TextDocumentNames.PrepareCallHierarchy)]
         public partial class CallHierarchyRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions, IStaticRegistrationOptions
         {
         }

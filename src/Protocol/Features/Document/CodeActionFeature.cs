@@ -99,7 +99,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateContainer
         ]
         [Capability(typeof(CodeActionCapability))]
-        public partial record CodeAction : ICanBeResolved, IRequest<CodeAction>
+        public partial record CodeAction : ICanBeResolved, IRequest<CodeAction>, IDoesNotParticipateInRegistration
         {
             /// <summary>
             /// A short, human-readable, title for this code action.
@@ -286,6 +286,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.CodeActionProvider))]
         [RegistrationOptionsConverter(typeof(CodeActionRegistrationOptionsConverter))]
+        [RegistrationName(TextDocumentNames.CodeAction)]
         public partial class CodeActionRegistrationOptions : IWorkDoneProgressOptions, ITextDocumentRegistrationOptions
         {
             /// <summary>

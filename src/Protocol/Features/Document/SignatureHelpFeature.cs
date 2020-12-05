@@ -218,6 +218,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.SignatureHelpProvider))]
+        [RegistrationName(TextDocumentNames.SignatureHelp)]
         public partial class SignatureHelpRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions
         {
             /// <summary>

@@ -131,6 +131,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         [Obsolete(Constants.Proposal)]
         [GenerateRegistrationOptions(nameof(ServerCapabilities.MonikerProvider))]
+        [RegistrationName(TextDocumentNames.Moniker)]
         public partial class MonikerRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions
         {
         }

@@ -36,6 +36,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.ReferencesProvider))]
+        [RegistrationName(TextDocumentNames.References)]
         public partial class ReferenceRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions { }
     }
 

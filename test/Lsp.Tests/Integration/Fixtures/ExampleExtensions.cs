@@ -39,6 +39,7 @@ namespace Lsp.Tests.Integration.Fixtures
     }
 
     [GenerateRegistrationOptions("unitTestDiscovery")]
+    [RegistrationName("unitTestDiscovery")]
     public partial class UnitTestRegistrationOptions : IWorkDoneProgressOptions
     {
         [Optional] public bool SupportsDebugging { get; set; }

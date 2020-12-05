@@ -24,6 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             Type handlerType,
             Type? @params,
             Type? registrationType,
+            string registrationMethod,
             object? registrationOptions,
             Type? capabilityType,
             RequestProcessType? requestProcessType,
@@ -31,7 +32,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             ILspHandlerTypeDescriptor? typeDescriptor
         ) : this(
             index,
-            method, key, handler, handlerType, @params, registrationType, registrationOptions, capabilityType, requestProcessType, disposeAction,
+            method, key, handler, handlerType, @params, registrationType, registrationMethod, registrationOptions, capabilityType, requestProcessType, disposeAction,
             typeDescriptor, null
         )
         {
@@ -45,6 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             Type handlerType,
             Type? @params,
             Type? registrationType,
+            string registrationMethod,
             object? registrationOptions,
             Type? capabilityType,
             RequestProcessType? requestProcessType,
@@ -62,6 +64,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             HandlerType = handlerType;
             Params = @params;
             RegistrationType = registrationType;
+            RegistrationMethod = registrationMethod;
             RegistrationOptions = registrationOptions;
             CapabilityType = capabilityType;
 
@@ -95,7 +98,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             LspHandlerDescriptor descriptor,
             string key,
             object? registrationOptions
-        ) : this(descriptor.Index, descriptor.Method, key, descriptor.Handler, descriptor.HandlerType, descriptor.Params, descriptor.RegistrationType, registrationOptions, descriptor.CapabilityType, descriptor.RequestProcessType, descriptor._disposeAction, descriptor.TypeDescriptor, descriptor.Id)
+        ) : this(descriptor.Index, descriptor.Method, key, descriptor.Handler, descriptor.HandlerType, descriptor.Params, descriptor.RegistrationType, descriptor.RegistrationMethod, registrationOptions, descriptor.CapabilityType, descriptor.RequestProcessType, descriptor._disposeAction, descriptor.TypeDescriptor, descriptor.Id)
         {
         }
 
@@ -107,6 +110,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
         public Guid Id { get; }
         public bool HasRegistration => RegistrationType != null;
         public Type? RegistrationType { get; }
+        public string RegistrationMethod { get; }
         public object? RegistrationOptions { get; }
 
         public bool HasCapability => CapabilityType != null;

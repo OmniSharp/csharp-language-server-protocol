@@ -129,6 +129,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.ColorProvider))]
+        [RegistrationName(TextDocumentNames.DocumentColor)]
         public partial class DocumentColorRegistrationOptions : IWorkDoneProgressOptions, ITextDocumentRegistrationOptions, IStaticRegistrationOptions
         {
         }

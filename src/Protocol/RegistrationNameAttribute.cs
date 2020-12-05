@@ -15,15 +15,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public static RegistrationNameAttribute? From(Type? type) => AllFrom(type).FirstOrDefault();
 
         public static IEnumerable<RegistrationNameAttribute> AllFrom(Type? type) =>
-            CollectMethodAttributes(type)
+            CollectRegistrationNameAttributes(type)
                .Concat(
                     type
                       ?.GetInterfaces()
-                       .SelectMany(CollectMethodAttributes)
+                       .SelectMany(CollectRegistrationNameAttributes)
                  ?? Enumerable.Empty<RegistrationNameAttribute>()
                 );
 
-        private static IEnumerable<RegistrationNameAttribute> CollectMethodAttributes(Type? type)
+        private static IEnumerable<RegistrationNameAttribute> CollectRegistrationNameAttributes(Type? type)
         {
             if (type == null) return Enumerable.Empty<RegistrationNameAttribute>();
             if (type.IsGenericType && typeof(IRequestHandler<,>) == type.GetGenericTypeDefinition())
