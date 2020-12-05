@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -35,7 +36,8 @@ namespace JsonRpc.Tests
             IRequestProcessIdentifier requestProcessIdentifier,
             IRequestRouter<IHandlerDescriptor?> requestRouter,
             ILoggerFactory loggerFactory,
-            IResponseRouter responseRouter
+            IResponseRouter responseRouter,
+            IScheduler? scheduler = null
         ) =>
             new InputHandler(
                 inputStream,
@@ -49,7 +51,8 @@ namespace JsonRpc.Tests
                 null,
                 TimeSpan.FromSeconds(30),
                 true,
-                null
+                null,
+                scheduler ?? TaskPoolScheduler.Default
             );
 
         [Fact]

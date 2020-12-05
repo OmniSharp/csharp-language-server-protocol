@@ -1,6 +1,7 @@
 using System;
 using System.IO.Pipelines;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
@@ -32,6 +33,8 @@ namespace OmniSharp.Extensions.JsonRpc
             container.RegisterInstance(options.MaximumRequestTimeout, serviceKey: nameof(options.MaximumRequestTimeout));
             container.RegisterInstance(options.SupportsContentModified, serviceKey: nameof(options.SupportsContentModified));
             container.RegisterInstance(options.Concurrency ?? -1, serviceKey: nameof(options.Concurrency));
+            container.RegisterInstance(options.InputScheduler, serviceKey: nameof(options.InputScheduler));
+            container.RegisterInstance(options.OutputScheduler, serviceKey: nameof(options.OutputScheduler));
             if (options.CreateResponseException != null)
             {
                 container.RegisterInstance(options.CreateResponseException);
@@ -40,7 +43,8 @@ namespace OmniSharp.Extensions.JsonRpc
             container.RegisterMany<OutputHandler>(
                 nonPublicServiceTypes: true,
                 made: Parameters.Of
-                                .Type<PipeWriter>(serviceKey: nameof(options.Output)),
+                                .Type<PipeWriter>(serviceKey: nameof(options.Output))
+                                .Type<IScheduler>(serviceKey: nameof(options.OutputScheduler)),
                 reuse: Reuse.Singleton
             );
             container.Register<Connection>(
@@ -48,7 +52,9 @@ namespace OmniSharp.Extensions.JsonRpc
                                                       .Type<PipeReader>(serviceKey: nameof(options.Input))
                                                       .Type<TimeSpan>(serviceKey: nameof(options.MaximumRequestTimeout))
                                                       .Type<bool>(serviceKey: nameof(options.SupportsContentModified))
-                                                      .Name("concurrency", serviceKey: nameof(options.Concurrency)),
+                                                      .Name("concurrency", serviceKey: nameof(options.Concurrency))
+                                                      .Type<IScheduler>(serviceKey: nameof(options.InputScheduler))
+               ,
                 reuse: Reuse.Singleton
             );
 

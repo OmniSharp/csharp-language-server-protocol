@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,6 +32,8 @@ namespace OmniSharp.Extensions.JsonRpc
         public IEnumerable<Assembly> Assemblies { get; set; } = Enumerable.Empty<Assembly>();
         public IRequestProcessIdentifier? RequestProcessIdentifier { get; set; }
         public int? Concurrency { get; set; }
+        public IScheduler InputScheduler { get; set; } = TaskPoolScheduler.Default;
+        public IScheduler OutputScheduler { get; set; } = TaskPoolScheduler.Default;
         public CreateResponseExceptionHandler? CreateResponseException { get; set; }
         public OnUnhandledExceptionHandler? OnUnhandledException { get; set; }
         public bool SupportsContentModified { get; set; } = true;

@@ -70,7 +70,8 @@ namespace OmniSharp.Extensions.JsonRpc
             CreateResponseExceptionHandler? getException,
             TimeSpan requestTimeout,
             bool supportContentModified,
-            int? concurrency
+            int? concurrency,
+            IScheduler scheduler
         )
         {
             _pipeReader = pipeReader;
@@ -87,7 +88,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 loggerFactory,
                 supportContentModified,
                 concurrency,
-                TaskPoolScheduler.Default
+                scheduler
             );
             _headersBuffer = new Memory<byte>(new byte[HeadersFinishedLength]);
             _contentLengthBuffer = new Memory<byte>(new byte[ContentLengthLength]);
