@@ -10,6 +10,12 @@ namespace OmniSharp.Extensions.JsonRpc
             return options;
         }
 
+        public static JsonRpcServerOptions WithAssemblyAttributeScanning(this JsonRpcServerOptions options, bool value)
+        {
+            options.UseAssemblyAttributeScanning = value;
+            return options;
+        }
+
         /// <summary>
         /// Sets both input and output schedulers to the same scheduler
         /// </summary>

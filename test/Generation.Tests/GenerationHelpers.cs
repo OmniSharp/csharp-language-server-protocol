@@ -110,7 +110,7 @@ namespace Generation.Tests
             Assert.Empty(diagnostics.Where(x => x.Severity >= DiagnosticSeverity.Warning));
 
             // the syntax tree added by the generator will be the last one in the compilation
-            return outputCompilation.SyntaxTrees.Last();
+            return outputCompilation.SyntaxTrees.Last(z => !z.FilePath.Contains("AssemblyRegistrationOptions") && !z.FilePath.Contains("GeneratedAssemblyJsonRpcHandlers"));
         }
 
         public static Project CreateProject(params string[] sources)

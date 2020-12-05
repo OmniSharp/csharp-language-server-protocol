@@ -18,12 +18,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
         SyntaxSymbol? PartialItem,
         SyntaxSymbol? PartialItems,
         HashSet<string> AdditionalUsings,
+        List<AttributeArgumentSyntax> AssemblyJsonRpcHandlersAttributeArguments,
         SemanticModel Model,
         GeneratorExecutionContext Context
     ) : GeneratorData(
         TypeDeclaration, TypeSymbol,
         JsonRpcAttributes, LspAttributes, DapAttributes, Request, Capability, RegistrationOptions,
-        AdditionalUsings, Model, Context
+        AdditionalUsings, AssemblyJsonRpcHandlersAttributeArguments, Model, Context
     );
 
 //    record PartialItem(TypeSyntax Syntax, INamedTypeSymbol Symbol, SyntaxSymbol Item) : SyntaxSymbol(Syntax, Symbol);

@@ -8,11 +8,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     [AttributeUsage(AttributeTargets.Class)]
     public class RegistrationOptionsKeyAttribute : Attribute
     {
-        public RegistrationOptionsKeyAttribute(string serverCapabilitiesKey)
+        public RegistrationOptionsKeyAttribute(string key)
         {
-            ServerCapabilitiesKey = serverCapabilitiesKey;
+            Key = key;
         }
 
-        public string ServerCapabilitiesKey { get; }
+        public string Key { get; }
     }
 }

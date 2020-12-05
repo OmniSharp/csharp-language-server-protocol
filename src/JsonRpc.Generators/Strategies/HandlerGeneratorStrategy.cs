@@ -25,7 +25,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                 )
             );
 
-            var handlerInterface = InterfaceDeclaration(Identifier($"I{item.JsonRpcAttributes.HandlerName}Handler"))
+            var interfaceName = $"I{item.JsonRpcAttributes.HandlerName}Handler";
+            item.AssemblyJsonRpcHandlersAttributeArguments.Add(AttributeArgument(TypeOfExpression(ParseName($"{item.JsonRpcAttributes.HandlerNamespace}.{interfaceName}"))));
+            var handlerInterface = InterfaceDeclaration(Identifier(interfaceName))
                                   .WithAttributeLists(
                                        List(
                                            new[] {

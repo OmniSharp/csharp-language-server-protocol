@@ -19,12 +19,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
 
         internal readonly ILookup<string, ILspHandlerTypeDescriptor> KnownHandlers;
 
-        internal LspHandlerTypeDescriptorProvider(IEnumerable<Assembly> assemblies)
+        internal LspHandlerTypeDescriptorProvider(IEnumerable<Assembly> assemblies, bool useAssemblyAttributeScanning = false)
         {
-            KnownHandlers = HandlerTypeDescriptorProvider
-                           .GetDescriptors(assemblies)
-                           .Select(x => new LspHandlerTypeDescriptor(x.HandlerType) as ILspHandlerTypeDescriptor)
-                           .ToLookup(x => x.Method, x => x, StringComparer.Ordinal);
+            KnownHandlers =
+                ( useAssemblyAttributeScanning
+                    ? AssemblyAttributeHandlerTypeDescriptorProvider.GetDescriptors(assemblies)
+                    : AssemblyScanningHandlerTypeDescriptorProvider
+                       .GetDescriptors(assemblies)
+                )
+               .Select(x => new LspHandlerTypeDescriptor(x.HandlerType) as ILspHandlerTypeDescriptor)
+               .ToLookup(x => x.Method, x => x, StringComparer.Ordinal);
         }
 
         public string? GetMethodForRegistrationOptions(object registrationOptions)

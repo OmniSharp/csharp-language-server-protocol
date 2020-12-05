@@ -9,4 +9,18 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public RequestProcessType Type { get; }
     }
+
+    /// <summary>
+    /// Used by source generation to known handlers to the assembly metadata
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+    public class AssemblyJsonRpcHandlersAttribute : Attribute
+    {
+        public Type[] Types { get; }
+
+        public AssemblyJsonRpcHandlersAttribute(params Type[] handlerTypes)
+        {
+            Types = handlerTypes;
+        }
+    }
 }

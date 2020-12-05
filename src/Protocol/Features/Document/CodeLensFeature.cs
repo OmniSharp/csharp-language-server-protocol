@@ -93,7 +93,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
                 private readonly IHandlersManager _handlersManager;
 
-                public CodeLensRegistrationOptionsConverter(IHandlersManager handlersManager) : base(nameof(ServerCapabilities.CodeLensProvider))
+                public CodeLensRegistrationOptionsConverter(IHandlersManager handlersManager)
                 {
                     _handlersManager = handlersManager;
                 }

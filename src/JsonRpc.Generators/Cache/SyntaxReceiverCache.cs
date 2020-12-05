@@ -14,6 +14,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Cache
         private readonly ImmutableDictionary<string, ImmutableArray<CacheDiagnosticFactory<T>>.Builder>.Builder _foundDiagnosticFactories;
         private readonly List<SourceTextCache> _cachedSources = new();
         private readonly List<Diagnostic> _cachedDiagnostics = new();
+        private readonly List<T> _foundNodes = new();
 
         protected SyntaxReceiverCache(CacheContainer<T> cache)
         {
@@ -62,6 +63,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Cache
 
         public IEnumerable<SourceTextCache> CachedSources => _cachedSources;
         public IEnumerable<Diagnostic> CachedDiagnostics => _cachedDiagnostics;
+        public IEnumerable<T> FoundNodes => _foundNodes;
 
         public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
         {
@@ -78,10 +80,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Cache
                 {
                     _foundDiagnosticFactories.Add(key, diagnostics.ToBuilder());
                     _cachedDiagnostics.AddRange(diagnostics.Select(f => f(v)));
-                    return;
                 }
 
-                if (_foundSourceTexts.ContainsKey(key)) return;
+                if (_foundSourceTexts.ContainsKey(key) || _foundDiagnosticFactories.ContainsKey(key))
+                {
+                    _foundNodes.Add(v);
+                    return;
+                }
             }
 
             OnVisitNode(v);

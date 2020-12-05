@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
@@ -6,7 +7,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         Type SourceType { get; }
         Type DestinationType { get; }
-        string Key { get; }
+        string? Key { get; }
         object? Convert(object source);
     }
 
@@ -21,14 +22,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         where TSource : IRegistrationOptions
         where TDestination : class
     {
-        public RegistrationOptionsConverterBase(string key)
+        public RegistrationOptionsConverterBase()
         {
-            Key = key;
+            Key = typeof(TSource).GetCustomAttribute<RegistrationOptionsKeyAttribute>()?.Key;
         }
 
         public Type SourceType { get; } = typeof(TSource);
         public Type DestinationType { get; }= typeof(TDestination);
-        public string Key { get; }
+        public string? Key { get; }
         public object? Convert(object source) => source is TSource value ? Convert(value) : null;
         public abstract TDestination Convert(TSource source);
     }

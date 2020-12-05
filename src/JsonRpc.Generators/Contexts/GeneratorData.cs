@@ -19,6 +19,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
         SyntaxSymbol? Capability,
         SyntaxSymbol? RegistrationOptions,
         HashSet<string> AdditionalUsings,
+        List<AttributeArgumentSyntax> AssemblyJsonRpcHandlersAttributeArguments,
         SemanticModel Model,
         GeneratorExecutionContext Context
     )
@@ -73,6 +74,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                     GetPartialItem(candidateClass, symbol, requestType),
                     GetPartialItems(candidateClass, symbol, requestType),
                     additionalUsings,
+                    new List<AttributeArgumentSyntax>(),
                     model,
                     context
                 ) { CacheDiagnosticDelegate = cacheDiagnostic, AddCacheSourceDelegate = addCacheSource };
@@ -90,6 +92,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                     GetCapability(candidateClass, symbol, lspAttributes),
                     GetRegistrationOptions(candidateClass, symbol, lspAttributes),
                     additionalUsings,
+                    new List<AttributeArgumentSyntax>(),
                     model,
                     context
                 ) { CacheDiagnosticDelegate = cacheDiagnostic, AddCacheSourceDelegate = addCacheSource };

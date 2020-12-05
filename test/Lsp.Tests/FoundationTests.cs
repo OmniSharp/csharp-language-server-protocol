@@ -661,7 +661,7 @@ namespace Lsp.Tests
                 var handlerTypeDescriptorProvider =
                     new LspHandlerTypeDescriptorProvider(
                         new[] {
-                            typeof(HandlerTypeDescriptorProvider).Assembly,
+                            typeof(AssemblyScanningHandlerTypeDescriptorProvider).Assembly,
                             typeof(LspHandlerTypeDescriptorProvider).Assembly,
                             typeof(LanguageServer).Assembly,
                             typeof(LanguageClient).Assembly,
@@ -694,7 +694,7 @@ namespace Lsp.Tests
                 var handlerTypeDescriptorProvider =
                     new LspHandlerTypeDescriptorProvider(
                         new[] {
-                            typeof(HandlerTypeDescriptorProvider).Assembly,
+                            typeof(AssemblyScanningHandlerTypeDescriptorProvider).Assembly,
                             typeof(LspHandlerTypeDescriptorProvider).Assembly,
                             typeof(LanguageServer).Assembly,
                             typeof(LanguageClient).Assembly,

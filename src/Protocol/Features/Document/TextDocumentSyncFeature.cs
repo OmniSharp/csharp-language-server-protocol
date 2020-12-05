@@ -203,7 +203,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
                 private readonly IHandlersManager _handlersManager;
 
-                public Converter(IHandlersManager handlersManager) : base(nameof(ServerCapabilities.TextDocumentSync))
+                public Converter(IHandlersManager handlersManager)
                 {
                     _handlersManager = handlersManager;
                 }

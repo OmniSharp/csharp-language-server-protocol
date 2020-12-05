@@ -586,7 +586,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
                 private readonly IHandlersManager _handlersManager;
 
-                public SemanticTokensRegistrationOptionsConverter(IHandlersManager handlersManager) : base(nameof(ServerCapabilities.SemanticTokensProvider))
+                public SemanticTokensRegistrationOptionsConverter(IHandlersManager handlersManager)
                 {
                     _handlersManager = handlersManager;
                 }

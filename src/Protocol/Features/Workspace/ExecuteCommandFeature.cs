@@ -59,7 +59,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
                 private readonly IHandlersManager _handlersManager;
 
-                public ExecuteCommandRegistrationOptionsConverter(IHandlersManager handlersManager) : base(nameof(ServerCapabilities.ExecuteCommandProvider))
+                public ExecuteCommandRegistrationOptionsConverter(IHandlersManager handlersManager)
                 {
                     _handlersManager = handlersManager;
                 }

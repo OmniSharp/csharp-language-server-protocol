@@ -29,6 +29,14 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Cache
             {
                 Append(a);
             }
+
+            if (typeSyntax is GenericNameSyntax gns)
+            {
+                foreach (var item in gns.TypeArgumentList.Arguments)
+                {
+                    Append(item);
+                }
+            }
         }
 
         public void Append(TypeParameterListSyntax? typeParameterListSyntax)

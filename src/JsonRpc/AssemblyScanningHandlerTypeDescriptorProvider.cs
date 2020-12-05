@@ -72,14 +72,13 @@ namespace OmniSharp.Extensions.JsonRpc
                 ?.GetGenericArguments()[arity];
     }
 
-    class HandlerTypeDescriptorProvider : IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?>
+    class AssemblyScanningHandlerTypeDescriptorProvider : IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?>
     {
-        private readonly ConcurrentDictionary<Type, string> _methodNames =
-            new ConcurrentDictionary<Type, string>();
+        private readonly ConcurrentDictionary<Type, string> _methodNames = new();
 
         internal readonly ILookup<string, IHandlerTypeDescriptor> KnownHandlers;
 
-        internal HandlerTypeDescriptorProvider(IEnumerable<Assembly> assemblies)
+        internal AssemblyScanningHandlerTypeDescriptorProvider(IEnumerable<Assembly> assemblies)
         {
             try
             {
@@ -119,6 +118,81 @@ namespace OmniSharp.Extensions.JsonRpc
                 }
             )
            .Where(z => MethodAttribute.From(z) != null)
+           .Where(z => !z.Name.EndsWith("Manager")) // Manager interfaces are generally specializations around the handlers
+           .Select(HandlerTypeDescriptorHelper.GetMethodType)
+           .Distinct()
+           .ToLookup(x => MethodAttribute.From(x)!.Method)
+           .SelectMany(
+                x => x
+                    .Distinct()
+                    .Select(z => new HandlerTypeDescriptor(z!) as IHandlerTypeDescriptor)
+            );
+
+        public IHandlerTypeDescriptor? GetHandlerTypeDescriptor<TA>() => GetHandlerTypeDescriptor(typeof(TA));
+
+        public IHandlerTypeDescriptor? GetHandlerTypeDescriptor(Type type)
+        {
+            var @default = KnownHandlers
+                          .SelectMany(g => g)
+                          .FirstOrDefault(x => x.InterfaceType == type || x.HandlerType == type || x.ParamsType == type);
+            if (@default != null)
+            {
+                return @default;
+            }
+
+            var methodName = GetMethodName(type)!;
+            return string.IsNullOrWhiteSpace(methodName) ? null : KnownHandlers[methodName].FirstOrDefault();
+        }
+
+        public string? GetMethodName<T>() where T : IJsonRpcHandler => GetMethodName(typeof(T));
+
+        public bool IsMethodName(string name, params Type[] types) => types.Any(z => GetMethodName(z)?.Equals(name) == true);
+
+        public string? GetMethodName(Type type)
+        {
+            if (_methodNames.TryGetValue(type, out var method)) return method;
+
+            // Custom method
+            var attribute = MethodAttribute.From(type);
+
+            var handler = KnownHandlers.SelectMany(z => z)
+                                       .FirstOrDefault(z => z.InterfaceType == type || z.HandlerType == type || z.ParamsType == type);
+            if (handler != null)
+            {
+                return handler.Method;
+            }
+
+            if (attribute is null)
+            {
+                return null;
+            }
+
+            _methodNames.TryAdd(type, attribute.Method);
+            return attribute.Method;
+        }
+    }
+
+    class AssemblyAttributeHandlerTypeDescriptorProvider : IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?>
+    {
+        private readonly ConcurrentDictionary<Type, string> _methodNames = new();
+
+        internal readonly ILookup<string, IHandlerTypeDescriptor> KnownHandlers;
+
+        internal AssemblyAttributeHandlerTypeDescriptorProvider(IEnumerable<Assembly> assemblies)
+        {
+            try
+            {
+                KnownHandlers = GetDescriptors(assemblies)
+                   .ToLookup(x => x.Method, StringComparer.Ordinal);
+            }
+            catch (Exception e)
+            {
+                throw new AggregateException("Failed", e);
+            }
+        }
+
+        internal static IEnumerable<IHandlerTypeDescriptor> GetDescriptors(IEnumerable<Assembly> assemblies) => assemblies.SelectMany(x => x.GetCustomAttributes<AssemblyJsonRpcHandlersAttribute>())
+           .SelectMany(z => z.Types)
            .Where(z => !z.Name.EndsWith("Manager")) // Manager interfaces are generally specializations around the handlers
            .Select(HandlerTypeDescriptorHelper.GetMethodType)
            .Distinct()
