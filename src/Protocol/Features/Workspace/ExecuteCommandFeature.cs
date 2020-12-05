@@ -287,7 +287,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 registry.AddHandler(
                     _ => new Handler<T>(
                         command,
-                        (arg1, capability, token) => handler(arg1, token),
+                        (arg1, _, token) => handler(arg1, token),
                         _.GetRequiredService<ISerializer>()
                     )
                 );
@@ -296,7 +296,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 registry.AddHandler(
                     _ => new Handler<T>(
                         command,
-                        (arg1, capability, token) => handler(arg1),
+                        (arg1, _, _) => handler(arg1),
                         _.GetRequiredService<ISerializer>()
                     )
                 );
@@ -323,7 +323,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 registry.AddHandler(
                     _ => new Handler<T, T2>(
                         command,
-                        (arg1, arg2, capability, token) => handler(arg1, arg2, token),
+                        (arg1, arg2, _, token) => handler(arg1, arg2, token),
                         _.GetRequiredService<ISerializer>()
                     )
                 );
@@ -332,7 +332,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 registry.AddHandler(
                     _ => new Handler<T, T2>(
                         command,
-                        (arg1, arg2, capability, token) => handler(arg1, arg2),
+                        (arg1, arg2, _, _) => handler(arg1, arg2),
                         _.GetRequiredService<ISerializer>()
                     )
                 );
@@ -361,7 +361,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 registry.AddHandler(
                     _ => new Handler<T, T2, T3>(
                         command,
-                        (arg1, arg2, arg3, capability, token) => handler(arg1, arg2, arg3, token),
+                        (arg1, arg2, arg3, _, token) => handler(arg1, arg2, arg3, token),
                         _.GetRequiredService<ISerializer>()
                     )
                 );
@@ -370,7 +370,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 registry.AddHandler(
                     _ => new Handler<T, T2, T3>(
                         command,
-                        (arg1, arg2, arg3, capability, token) => handler(arg1, arg2, arg3),
+                        (arg1, arg2, arg3, _, _) => handler(arg1, arg2, arg3),
                         _.GetRequiredService<ISerializer>()
                     )
                 );
@@ -399,7 +399,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 registry.AddHandler(
                     _ => new Handler<T, T2, T3, T4>(
                         command,
-                        (arg1, arg2, arg3, arg4, capability, token) => handler(arg1, arg2, arg3, arg4, token),
+                        (arg1, arg2, arg3, arg4, _, token) => handler(arg1, arg2, arg3, arg4, token),
                         _.GetRequiredService<ISerializer>()
                     )
                 );
@@ -408,7 +408,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 registry.AddHandler(
                     _ => new Handler<T, T2, T3, T4>(
                         command,
-                        (arg1, arg2, arg3, arg4, capability, token) => handler(arg1, arg2, arg3, arg4),
+                        (arg1, arg2, arg3, arg4, _, _) => handler(arg1, arg2, arg3, arg4),
                         _.GetRequiredService<ISerializer>()
                     )
                 );
@@ -439,7 +439,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 registry.AddHandler(
                     _ => new Handler<T, T2, T3, T4, T5>(
                         command,
-                        (arg1, arg2, arg3, arg4, arg5, capability, token) => handler(arg1, arg2, arg3, arg4, arg5, token),
+                        (arg1, arg2, arg3, arg4, arg5, _, token) => handler(arg1, arg2, arg3, arg4, arg5, token),
                         _.GetRequiredService<ISerializer>()
                     )
                 );
@@ -450,7 +450,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 registry.AddHandler(
                     _ => new Handler<T, T2, T3, T4, T5>(
                         command,
-                        (arg1, arg2, arg3, arg4, arg5, capability, token) => handler(arg1, arg2, arg3, arg4, arg5),
+                        (arg1, arg2, arg3, arg4, arg5, _, _) => handler(arg1, arg2, arg3, arg4, arg5),
                         _.GetRequiredService<ISerializer>()
                     )
                 );
@@ -479,7 +479,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 registry.AddHandler(
                     _ => new Handler<T, T2, T3, T4, T5, T6>(
                         command,
-                        (arg1, arg2, arg3, arg4, arg5, arg6, capability, token) => handler(arg1, arg2, arg3, arg4, arg5, arg6, token),
+                        (arg1, arg2, arg3, arg4, arg5, arg6, _, token) => handler(arg1, arg2, arg3, arg4, arg5, arg6, token),
                         _.GetRequiredService<ISerializer>()
                     )
                 );
@@ -490,7 +490,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 registry.AddHandler(
                     _ => new Handler<T, T2, T3, T4, T5, T6>(
                         command,
-                        (arg1, arg2, arg3, arg4, arg5, arg6, capability, token) => handler(arg1, arg2, arg3, arg4, arg5, arg6),
+                        (arg1, arg2, arg3, arg4, arg5, arg6, _, _) => handler(arg1, arg2, arg3, arg4, arg5, arg6),
                         _.GetRequiredService<ISerializer>()
                     )
                 );

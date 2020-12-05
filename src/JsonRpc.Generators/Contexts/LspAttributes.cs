@@ -1,5 +1,4 @@
 using System.Linq;
-using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using OmniSharp.Extensions.JsonRpc.Generators.Cache;
@@ -36,8 +35,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
 
             attributes = attributes with
                 {
-                CanBeResolved = syntax.BaseList?.Types.Any(z => z.Type.GetSyntaxName()?.Contains("ICanBeResolved") == true) == true || symbol.AllInterfaces.Any(z => z.ToDisplayString().Contains("ICanBeResolved")) == true,
-                CanHaveData = syntax.BaseList?.Types.Any(z => z.Type.GetSyntaxName()?.Contains("ICanHaveData") == true) == true || symbol.AllInterfaces.Any(z => z.ToDisplayString().Contains("ICanHaveData")) == true,
+                CanBeResolved = syntax.BaseList?.Types.Any(z => z.Type.GetSyntaxName()?.Contains("ICanBeResolved") == true) == true || symbol.AllInterfaces.Any(z => z.ToDisplayString().Contains("ICanBeResolved")),
+                CanHaveData = syntax.BaseList?.Types.Any(z => z.Type.GetSyntaxName()?.Contains("ICanHaveData") == true) == true || symbol.AllInterfaces.Any(z => z.ToDisplayString().Contains("ICanHaveData")),
                 };
 
             {

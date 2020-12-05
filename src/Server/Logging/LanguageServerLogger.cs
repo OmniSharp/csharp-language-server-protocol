@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
-namespace OmniSharp.Extensions.LanguageServer.Server
+namespace OmniSharp.Extensions.LanguageServer.Server.Logging
 {
     internal class LanguageServerLogger : ILogger
     {
@@ -17,7 +16,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly string _categoryName;
 
         public LanguageServerLogger(ILanguageServerFacade responseRouter, string categoryName)
-        {;
+        {
             _responseRouter = responseRouter;
             _categoryName = categoryName;
         }

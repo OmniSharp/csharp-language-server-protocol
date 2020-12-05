@@ -1,13 +1,8 @@
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using Microsoft.CodeAnalysis.Text;
 using OmniSharp.Extensions.JsonRpc.Generators.Contexts;
-using static OmniSharp.Extensions.JsonRpc.Generators.Helpers;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 {
@@ -349,12 +344,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             responseType = item.Response.Syntax is NullableTypeSyntax ? NullableType(responseType) : responseType;
 
             TypeSyntax observerType = null!;
-            if (item is { PartialItem: { } partialItem })
+            if (item is { PartialItem: { } })
             {
                 observerType = GenericName("IObserver").WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(resolveType)));
             }
 
-            if (item is { PartialItems: { } partialItems })
+            if (item is { PartialItems: { } })
             {
                 observerType = GenericName("IObserver")
                    .WithTypeArgumentList(

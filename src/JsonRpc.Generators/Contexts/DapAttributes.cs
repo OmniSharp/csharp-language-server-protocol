@@ -4,7 +4,7 @@ using OmniSharp.Extensions.JsonRpc.Generators.Cache;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
 {
-    record DapAttributes()
+    record DapAttributes
     {
         public static DapAttributes? Parse(
             GeneratorExecutionContext context,

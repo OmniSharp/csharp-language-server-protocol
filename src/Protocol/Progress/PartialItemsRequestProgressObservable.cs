@@ -45,7 +45,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
             ).ToTask(cancellationToken);
 #pragma warning disable VSTHRD105
 #pragma warning disable VSTHRD110
-            _task.ContinueWith(x => Dispose());
+            _task.ContinueWith(_ => Dispose());
 #pragma warning restore VSTHRD110
 #pragma warning restore VSTHRD105
 

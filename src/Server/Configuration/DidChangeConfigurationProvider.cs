@@ -145,7 +145,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                                        source.Update(group.items);
                                    }
                                )
-                              .Select(x => System.Reactive.Unit.Default)
+                              .Select(_ => System.Reactive.Unit.Default)
                               .Subscribe(observer);
                     }
                 ),

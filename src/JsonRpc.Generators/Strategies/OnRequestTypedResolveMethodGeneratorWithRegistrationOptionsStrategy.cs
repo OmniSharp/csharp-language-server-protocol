@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using OmniSharp.Extensions.JsonRpc.Generators.Contexts;
@@ -84,12 +83,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                 }
             }
 
-            if (request.PartialItems is { } partialItems)
+            if (request.PartialItems is { })
             {
                 var enumerableType = GenericName("IEnumerable")
                    .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(resolveType)));
-                var observerType = GenericName("IObserver")
-                   .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList<TypeSyntax>(enumerableType)));
                 factory = methodFactory(
                     method
                        .WithIdentifier(Identifier(item.JsonRpcAttributes.PartialHandlerMethodName))
@@ -122,10 +119,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                 }
             }
 
-            if (request.PartialItem is { } partialItem )
+            if (request.PartialItem is { })
             {
-                var observerType = GenericName("IObserver").WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(resolveType)));
-
                 factory = methodFactory(
                     method
                        .WithIdentifier(Identifier(item.JsonRpcAttributes.PartialHandlerMethodName))

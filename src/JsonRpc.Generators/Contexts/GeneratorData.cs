@@ -5,7 +5,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using OmniSharp.Extensions.JsonRpc.Generators.Cache;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static OmniSharp.Extensions.JsonRpc.Generators.Helpers;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts

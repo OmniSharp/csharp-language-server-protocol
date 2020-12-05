@@ -14,6 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Generation
     [Conditional("CodeGeneration")]
     public class GenerateContainerAttribute : Attribute
     {
+        // ReSharper disable once UnusedParameter.Local
         public GenerateContainerAttribute(string? className = null)
         {
 

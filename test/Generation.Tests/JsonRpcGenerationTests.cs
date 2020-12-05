@@ -39,6 +39,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             var expected = @"
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -117,14 +121,20 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events.Test
     public interface ICapabilitiesHandler : IJsonRpcNotificationHandler<CapabilitiesEvent> { }
 }";
 
-            var expected = @"using MediatR;
+            var expected = @"
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Events.Test;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -175,6 +185,10 @@ namespace Test
             var expected = @"
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -233,6 +247,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             var expected = @"
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -321,6 +339,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             var expected = @"
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -407,6 +429,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             var expected = @"
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -492,6 +518,10 @@ namespace Test
             var expected = @"
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -556,6 +586,10 @@ namespace Test
             var source = @"
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -577,6 +611,10 @@ namespace Test
             var expected = @"
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -624,14 +662,20 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
     [GenerateHandler(AllowDerivedRequests = true), GenerateHandlerMethods, GenerateRequestMethods]
     public class AttachRequestArguments: IRequest<AttachResponse> { }
 }";
-            var expected = @"using MediatR;
+            var expected = @"
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Bogus;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -700,14 +744,20 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
     [GenerateHandler(AllowDerivedRequests = true), GenerateHandlerMethods, GenerateRequestMethods]
     public class AttachRequestArguments: IRequest<AttachResponse?> { }
 }";
-            var expected = @"using MediatR;
+            var expected = @"
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Bogus;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -776,14 +826,20 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
     [GenerateHandler(AllowDerivedRequests = true), GenerateHandlerMethods, GenerateRequestMethods]
     public class AttachRequestArguments: IRequest<AttachResponse> { }
 }";
-            var expected = @"using MediatR;
+            var expected = @"
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Bogus;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -865,6 +921,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Bogus
             var expected = @"
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;

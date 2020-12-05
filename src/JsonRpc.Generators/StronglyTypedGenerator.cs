@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,11 +5,9 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
 using OmniSharp.Extensions.JsonRpc.Generators.Cache;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static OmniSharp.Extensions.JsonRpc.Generators.Helpers;
-using SyntaxTrivia = Microsoft.CodeAnalysis.SyntaxTrivia;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators
 {
@@ -73,7 +70,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 }
 
                 addCacheSource(
-                    $"{containerName ?? ( classToContain.Identifier.Text + "Container" )}.cs",
+                    $"{containerName ?? classToContain.Identifier.Text + "Container"}.cs",
                     classToContain,
                     cu.NormalizeWhitespace().GetText(Encoding.UTF8)
                 );
@@ -128,8 +125,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                        GetFromMethod(candidate, includeHandlerIdentity)
                                    );
 
-                var compilationMembers = new List<MemberDeclarationSyntax>() {
-                };
+                var compilationMembers = new List<MemberDeclarationSyntax>();
 
 
                 var convertFromOperator = GetConvertFromOperator(candidate);
@@ -141,7 +137,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                 .AddMembers(
                                      GetWithDataMethod(candidate, HandlerIdentityConstraintClause(includeHandlerIdentity, IdentifierName("TData"))),
                                      GetExplicitProperty(property, dataInterfaceName),
-                                     GetJDataProperty(dataInterfaceName),
+                                     GetJDataProperty(),
                                      convertFromOperator,
                                      convertToOperator,
                                      GetGenericFromMethod(candidate)
@@ -471,7 +467,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                   .WithAccessorList(CommonElements.GetInitAccessor);
         }
 
-        private static PropertyDeclarationSyntax GetJDataProperty(IdentifierNameSyntax interfaceName)
+        private static PropertyDeclarationSyntax GetJDataProperty()
         {
             return PropertyDeclaration(NullableType(IdentifierName("JToken")), Identifier("JData"))
                   .WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword)))

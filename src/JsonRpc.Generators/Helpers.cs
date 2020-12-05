@@ -2,9 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -63,9 +61,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                         { Identifier: { Text: "IRequest" }, Arity: 1 }               => gns.TypeArgumentList.Arguments[0],
                         _                                                            => null
                     },
-                    SimpleNameSyntax sns and { Identifier: { Text: "IRequest" } }        => ParseName("MediatR.Unit"),
-                    SimpleNameSyntax sns and { Identifier: { Text: "IJsonRpcRequest" } } => ParseName("MediatR.Unit"),
-                    _                                                                    => null
+                    SimpleNameSyntax and { Identifier: { Text: "IRequest" } }    => ParseName("MediatR.Unit"),
+                    SimpleNameSyntax and { Identifier: { Text: "IJsonRpcRequest" } } => ParseName("MediatR.Unit"),
+                    _                                                                => null
                 };
                 if (type != null) break;
             }
@@ -75,7 +73,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             var handlerInterface = symbol.AllInterfaces.FirstOrDefault(z => z.Name == "IRequestHandler" && z.TypeArguments.Length == 2);
             if (handlerInterface?.TypeArguments[1] is INamedTypeSymbol ns)
                 return new SyntaxSymbol(type, ns);
-            handlerInterface = symbol.AllInterfaces.FirstOrDefault(z => ( z.Name == "IRequest" && z.Arity == 1 ));
+            handlerInterface = symbol.AllInterfaces.FirstOrDefault(z => z.Name == "IRequest" && z.Arity == 1);
             if (handlerInterface?.TypeArguments[0] is INamedTypeSymbol ns2)
                 return new SyntaxSymbol(type, ns2);
             throw new ArgumentException($"Response Type {symbol.ToDisplayString()} is not a name symbol", nameof(symbol));
@@ -122,7 +120,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             var handlerInterface = symbol.AllInterfaces
                                          .FirstOrDefault(z => z.Name == "IRequestHandler" && z.TypeArguments.Length == 2);
             var arg = handlerInterface?.TypeArguments[0]
-                   ?? ( symbol.AllInterfaces.Any(z => ( z.Name == "IRequest" && z.Arity == 1 ) || z.Name == "IJsonRpcRequest") ? symbol as ITypeSymbol : null );
+                   ?? ( symbol.AllInterfaces.Any(z => z.Name == "IRequest" && z.Arity == 1 || z.Name == "IJsonRpcRequest") ? symbol as ITypeSymbol : null );
             if (arg is ITypeParameterSymbol typeParameterSymbol)
             {
                 return new SyntaxSymbol(
@@ -219,7 +217,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             var handlerInterface = symbol.AllInterfaces
                                          .FirstOrDefault(z => z.Name == "IPartialItems" && z.TypeArguments.Length == 1)
                                 ?? requestType.Symbol.AllInterfaces.FirstOrDefault(z => z.Name == "IPartialItems" && z.TypeArguments.Length == 1);
-            var localSymbol = ( handlerInterface?.TypeArguments[0] as INamedTypeSymbol );
+            var localSymbol = handlerInterface?.TypeArguments[0] as INamedTypeSymbol;
             if (localSymbol == null) return null;
             var type = syntax.BaseList?.Types
                              .Select(z => z.Type is GenericNameSyntax genericNameSyntax ? genericNameSyntax : null)
@@ -236,7 +234,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             var handlerInterface = symbol.AllInterfaces
                                          .FirstOrDefault(z => z.Name == "IPartialItem" && z.TypeArguments.Length == 1)
                                 ?? requestType.Symbol.AllInterfaces.FirstOrDefault(z => z.Name == "IPartialItem" && z.TypeArguments.Length == 1);
-            var localSymbol = ( handlerInterface?.TypeArguments[0] as INamedTypeSymbol );
+            var localSymbol = handlerInterface?.TypeArguments[0] as INamedTypeSymbol;
             if (localSymbol == null) return null;
             var type = syntax.BaseList?.Types
                              .Select(z => z.Type is GenericNameSyntax genericNameSyntax ? genericNameSyntax : null)
@@ -268,7 +266,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         {
             var typeArguments = new List<TypeSyntax> {
                 requestType,
-                GenericName("IObserver").WithTypeArgumentList(TypeArgumentList(SeparatedList(new TypeSyntax[] { partialType }))),
+                GenericName("IObserver").WithTypeArgumentList(TypeArgumentList(SeparatedList(new[] { partialType }))),
             };
             typeArguments.AddRange(types);
             if (withCancellationToken)
@@ -766,7 +764,18 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                            .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(item.Request.Syntax)))
                                                     )
                                                 )
-                                               .WithArgumentList(ArgumentList(SingletonSeparatedList(HandlerArgument)))
+                                               .WithArgumentList(
+                                                    ArgumentList(
+                                                        SingletonSeparatedList(
+                                                            GetHandlerAdapterArgument(
+                                                                TypeArgumentList(SeparatedList(new[] { item.Request.Syntax })),
+                                                                HandlerArgument,
+                                                                null,
+                                                                false
+                                                            )
+                                                        )
+                                                    )
+                                                )
                                             : InvocationExpression(
                                                     MemberAccessExpression(
                                                         SyntaxKind.SimpleMemberAccessExpression,

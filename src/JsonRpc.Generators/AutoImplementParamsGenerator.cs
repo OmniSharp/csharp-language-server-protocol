@@ -5,10 +5,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.Text;
 using OmniSharp.Extensions.JsonRpc.Generators.Cache;
-using OmniSharp.Extensions.JsonRpc.Generators.Contexts;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static OmniSharp.Extensions.JsonRpc.Generators.CommonElements;
 

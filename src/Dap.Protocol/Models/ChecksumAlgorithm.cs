@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using OmniSharp.Extensions.JsonRpc.Generation;
+﻿using OmniSharp.Extensions.JsonRpc.Generation;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {

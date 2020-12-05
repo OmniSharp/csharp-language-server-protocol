@@ -13,6 +13,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generation
     [Conditional("CodeGeneration")]
     public class GenerateHandlerMethodsAttribute : Attribute
     {
+        // ReSharper disable once UnusedParameter.Local
         public GenerateHandlerMethodsAttribute(params Type[] registryTypes)
         {
         }

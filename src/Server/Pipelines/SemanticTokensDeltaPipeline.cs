@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
     class SemanticTokensDeltaPipeline<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse?>
         where TRequest : notnull
     {
-        public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+        public async Task<TResponse?> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse?> next)
         {
             if (request is SemanticTokensParams semanticTokensParams)
             {
@@ -30,11 +30,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
                 var response = await next().ConfigureAwait(false);
                 if (GetResponse(semanticTokensDeltaParams, response, out var result))
                 {
-                    if (result.IsFull && string.IsNullOrEmpty(result.Full!.ResultId))
+                    if (result is { IsFull: true, Full: { ResultId: null or { Length: 0 } } })
                     {
                         result = result with { Full = result.Full with { ResultId = semanticTokensDeltaParams.PreviousResultId } };
                     }
-                    else if (result.IsDelta && string.IsNullOrEmpty(result.Delta!.ResultId))
+                    else if (result  is { IsDelta: true, Delta: { ResultId: null or { Length: 0 } } })
                     {
                         result = result with { Delta = result.Delta with {ResultId = semanticTokensDeltaParams.PreviousResultId} };
                     }
@@ -46,6 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
             return await next().ConfigureAwait(false);
         }
 
+        // ReSharper disable once UnusedParameter.Local
         private bool GetResponse<TR>(IRequest<TR> request, object? response, [NotNullWhen(true)] out TR result)
         {
             if (response is TR r)
@@ -56,16 +57,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
 
             result = default!;
             return false;
-        }
-
-        private TR ToResponse<TR>(IRequest<TR> request, object? response)
-        {
-            if (response is TR r)
-            {
-                return r;
-            }
-
-            return default!;
         }
     }
 }

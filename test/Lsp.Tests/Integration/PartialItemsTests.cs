@@ -63,7 +63,7 @@ namespace Lsp.Tests.Integration
                 items.Select(z => z.Command!.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3");
             }
 
-            [Fact]
+            [RetryFact]
             public async Task Should_Behave_Like_An_Observable_Without_Progress_Support()
             {
                 var response = await Client.SendRequest(
@@ -120,7 +120,7 @@ namespace Lsp.Tests.Integration
             {
             }
 
-            [Fact]
+            [RetryFact]
             public async Task Should_Behave_Like_An_Observable_With_WorkDone()
             {
                 var items = new List<CodeLens>();

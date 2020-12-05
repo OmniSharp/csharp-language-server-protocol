@@ -8,7 +8,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using OmniSharp.Extensions.JsonRpc.Generators.Contexts;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static OmniSharp.Extensions.JsonRpc.Generators.Helpers;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 {

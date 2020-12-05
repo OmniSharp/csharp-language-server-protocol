@@ -10,8 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
@@ -41,7 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly Connection _connection;
         private ClientVersion? _clientVersion;
         private readonly ServerInfo _serverInfo;
-        private readonly ILspServerReceiver _serverReceiver;
+        private readonly IReceiver _serverReceiver;
         private readonly LspSerializer _serializer;
         private readonly TextDocumentIdentifiers _textDocumentIdentifiers;
         private readonly SharedHandlerCollection _collection;
@@ -129,7 +127,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             IOptions<LanguageServerOptions> options,
             ILanguageServerConfiguration configuration,
             ServerInfo serverInfo,
-            ILspServerReceiver receiver,
+            IReceiver receiver,
             LspSerializer serializer,
             IResolverContext resolverContext,
             ISupportedCapabilities supportedCapabilities,
@@ -285,7 +283,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             _disposable.Add(
                 LanguageServerHelpers.RegisterHandlers(
-                    _initializeComplete.Select(z => System.Reactive.Unit.Default),
+                    _initializeComplete.Select(_ => System.Reactive.Unit.Default),
                     Client,
                     WorkDoneManager,
                     _supportedCapabilities,
@@ -333,7 +331,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _languageServerLoggingManager.SetTrace(internalInitializeParams.Trace);
         }
 
-        private ClientCapabilities ReadClientCapabilities(
+        private void ReadClientCapabilities(
             InternalInitializeParams request,
             out ClientCapabilities clientCapabilities,
             out TextDocumentClientCapabilities textDocumentCapabilities,
@@ -391,8 +389,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             windowCapabilities = ClientSettings.Capabilities.Window ??= new WindowClientCapabilities();
             WorkDoneManager.Initialized(windowCapabilities);
             _collection.Initialize();
-
-            return clientCapabilities;
         }
 
         private InitializeResult ReadServerCapabilities(ClientCapabilities clientCapabilities, WindowClientCapabilities windowCapabilities, TextDocumentClientCapabilities textDocumentCapabilities)
@@ -517,7 +513,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 LanguageServerHelpers.InitHandlers(this, result, _supportedCapabilities);
             }
 
-            return LanguageServerHelpers.RegisterHandlers(_initializeComplete.Select(z => System.Reactive.Unit.Default), Client, WorkDoneManager, _supportedCapabilities, result);
+            return LanguageServerHelpers.RegisterHandlers(_initializeComplete.Select(_ => System.Reactive.Unit.Default), Client, WorkDoneManager, _supportedCapabilities, result);
             //            return LanguageServerHelpers.RegisterHandlers(_initializingTask ?? _initializeComplete.ToTask(), Client, WorkDoneManager, _supportedCapabilities, result);
         }
 

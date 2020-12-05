@@ -79,7 +79,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Testing
 
             return await Observable.FromAsync(_client.Initialize).ForkJoin(
                 Observable.FromAsync(_server.Initialize),
-                (a, b) => ( _client, _server )
+                (_, _) => ( _client, _server )
             ).ToTask(CancellationToken).ConfigureAwait(false);
         }
     }

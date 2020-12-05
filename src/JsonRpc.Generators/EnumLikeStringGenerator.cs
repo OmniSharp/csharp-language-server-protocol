@@ -5,12 +5,8 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.Text;
 using OmniSharp.Extensions.JsonRpc.Generators.Cache;
-using OmniSharp.Extensions.JsonRpc.Generators.Contexts;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static OmniSharp.Extensions.JsonRpc.Generators.CommonElements;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators
 {
@@ -144,7 +140,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                    )
                                            )
                                           .WithVariables(
-                                               SingletonSeparatedList<VariableDeclaratorSyntax>(
+                                               SingletonSeparatedList(
                                                    VariableDeclarator(Identifier("_defaults"))
                                                       .WithInitializer(
                                                            EqualsValueClause(
@@ -165,7 +161,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                                    )
                                                                   .WithArgumentList(
                                                                        ArgumentList(
-                                                                           SingletonSeparatedList<ArgumentSyntax>(
+                                                                           SingletonSeparatedList(
                                                                                Argument(
                                                                                    ParenthesizedLambdaExpression()
                                                                                       .WithBlock(
@@ -202,8 +198,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                                                                                                                    )
                                                                                                                                                   .WithArgumentList(
                                                                                                                                                        ArgumentList(
-                                                                                                                                                           SingletonSeparatedList<
-                                                                                                                                                               ArgumentSyntax>(
+                                                                                                                                                           SingletonSeparatedList(
                                                                                                                                                                Argument(
                                                                                                                                                                    BinaryExpression(
                                                                                                                                                                        SyntaxKind
@@ -238,8 +233,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                                                                                                        )
                                                                                                                                       .WithArgumentList(
                                                                                                                                            ArgumentList(
-                                                                                                                                               SingletonSeparatedList<ArgumentSyntax
-                                                                                                                                               >(
+                                                                                                                                               SingletonSeparatedList(
                                                                                                                                                    Argument(
                                                                                                                                                        SimpleLambdaExpression(
                                                                                                                                                                Parameter(
@@ -267,9 +261,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                                                                                                                                        )
                                                                                                                                                                       .WithArgumentList(
                                                                                                                                                                            ArgumentList(
-                                                                                                                                                                               SingletonSeparatedList
-                                                                                                                                                                               <ArgumentSyntax
-                                                                                                                                                                               >(
+                                                                                                                                                                               SingletonSeparatedList(
                                                                                                                                                                                    Argument(
                                                                                                                                                                                        IdentifierName(
                                                                                                                                                                                            "Defaults"
@@ -289,7 +281,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                                                                                            )
                                                                                                                           .WithArgumentList(
                                                                                                                                ArgumentList(
-                                                                                                                                   SingletonSeparatedList<ArgumentSyntax>(
+                                                                                                                                   SingletonSeparatedList(
                                                                                                                                        Argument(
                                                                                                                                            SimpleLambdaExpression(
                                                                                                                                                    Parameter(
@@ -309,8 +301,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                                                                                                                        )
                                                                                                                                                       .WithArgumentList(
                                                                                                                                                            ArgumentList(
-                                                                                                                                                               SingletonSeparatedList
-                                                                                                                                                                   <ArgumentSyntax>(
+                                                                                                                                                               SingletonSeparatedList(
                                                                                                                                                                        Argument(
                                                                                                                                                                            LiteralExpression(
                                                                                                                                                                                SyntaxKind
@@ -402,7 +393,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                )
                                            )
                                           .WithVariables(
-                                               SingletonSeparatedList<VariableDeclaratorSyntax>(
+                                               SingletonSeparatedList(
                                                    VariableDeclarator(
                                                        Identifier("_value")
                                                    )
@@ -427,7 +418,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                    )
                                   .WithParameterList(
                                        ParameterList(
-                                           SingletonSeparatedList<ParameterSyntax>(
+                                           SingletonSeparatedList(
                                                Parameter(
                                                        Identifier("type")
                                                    )
@@ -465,7 +456,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                    )
                                   .WithParameterList(
                                        ParameterList(
-                                           SingletonSeparatedList<ParameterSyntax>(
+                                           SingletonSeparatedList(
                                                Parameter(
                                                        Identifier("kind")
                                                    )
@@ -484,7 +475,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                )
                                               .WithArgumentList(
                                                    ArgumentList(
-                                                       SingletonSeparatedList<ArgumentSyntax>(
+                                                       SingletonSeparatedList(
                                                            Argument(
                                                                IdentifierName("kind")
                                                            )
@@ -512,7 +503,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                    )
                                   .WithParameterList(
                                        ParameterList(
-                                           SingletonSeparatedList<ParameterSyntax>(
+                                           SingletonSeparatedList(
                                                Parameter(
                                                        Identifier("kind")
                                                    )
@@ -569,7 +560,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                    )
                                   .WithParameterList(
                                        ParameterList(
-                                           SingletonSeparatedList<ParameterSyntax>(
+                                           SingletonSeparatedList(
                                                Parameter(
                                                        Identifier("other")
                                                    )
@@ -608,7 +599,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                    )
                                   .WithParameterList(
                                        ParameterList(
-                                           SingletonSeparatedList<ParameterSyntax>(
+                                           SingletonSeparatedList(
                                                Parameter(
                                                        Identifier("other")
                                                    )
@@ -648,7 +639,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                    )
                                   .WithParameterList(
                                        ParameterList(
-                                           SingletonSeparatedList<ParameterSyntax>(
+                                           SingletonSeparatedList(
                                                Parameter(
                                                        Identifier("obj")
                                                    )
@@ -681,7 +672,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                        )
                                                       .WithArgumentList(
                                                            ArgumentList(
-                                                               SingletonSeparatedList<ArgumentSyntax>(
+                                                               SingletonSeparatedList(
                                                                    Argument(
                                                                        IdentifierName("s")
                                                                    )
@@ -705,7 +696,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                        )
                                                       .WithArgumentList(
                                                            ArgumentList(
-                                                               SingletonSeparatedList<ArgumentSyntax>(
+                                                               SingletonSeparatedList(
                                                                    Argument(
                                                                        IdentifierName("other")
                                                                    )
@@ -793,7 +784,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                )
                                               .WithArgumentList(
                                                    ArgumentList(
-                                                       SingletonSeparatedList<ArgumentSyntax>(
+                                                       SingletonSeparatedList(
                                                            Argument(
                                                                IdentifierName("right")
                                                            )
@@ -853,7 +844,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                    )
                                                   .WithArgumentList(
                                                        ArgumentList(
-                                                           SingletonSeparatedList<ArgumentSyntax>(
+                                                           SingletonSeparatedList(
                                                                Argument(
                                                                    IdentifierName("right")
                                                                )

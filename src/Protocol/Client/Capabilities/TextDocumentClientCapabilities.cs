@@ -121,6 +121,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         ///
         /// Since 3.16.0
         /// </summary>
+        [Obsolete(Constants.Proposal)]
         public Supports<LinkedEditingRangeClientCapabilities?> LinkedEditingRange { get; set; }
 
         /// <summary>

@@ -15,89 +15,69 @@ namespace OmniSharp.Extensions.JsonRpc
             AddHandler(method, _ => new DelegatingJsonRequestHandler(handler), options);
 
         public T OnJsonRequest(string method, Func<JToken, Task<JToken>> handler, JsonRpcHandlerOptions? options = null) =>
-            OnJsonRequest(method, (request, ct) => handler(request), options);
+            OnJsonRequest(method, HandlerAdapter.Adapt(handler), options);
 
         public T OnRequest<TParams, TResponse>(string method, Func<TParams, Task<TResponse>> handler, JsonRpcHandlerOptions? options = null) =>
-            OnRequest<TParams, TResponse>(method, (value, cancellationToken) => handler(value), options);
+            OnRequest<TParams, TResponse>(method, HandlerAdapter.Adapt(handler), options);
 
         public T OnRequest<TResponse>(string method, Func<Task<TResponse>> handler, JsonRpcHandlerOptions? options = null) =>
-            OnRequest<Unit, TResponse>(method, (value, cancellationToken) => handler(), options);
+            OnRequest<Unit, TResponse>(method, (_, _) => handler(), options);
 
         public T OnRequest<TParams, TResponse>(string method, Func<TParams, CancellationToken, Task<TResponse>> handler, JsonRpcHandlerOptions? options = null) => AddHandler(
             method, _ => new DelegatingRequestHandler<TParams, TResponse>(_.GetRequiredService<ISerializer>(), handler), options
         );
 
         public T OnRequest<TResponse>(string method, Func<CancellationToken, Task<TResponse>> handler, JsonRpcHandlerOptions? options = null) =>
-            OnRequest<Unit, TResponse>(method, (value, cancellationToken) => handler(cancellationToken), options);
+            OnRequest<Unit, TResponse>(method, (_, cancellationToken) => handler(cancellationToken), options);
 
         public T OnRequest<TParams>(string method, Func<TParams, Task> handler, JsonRpcHandlerOptions? options = null) =>
-            OnRequest<TParams>(method, (value, cancellationToken) => handler(value), options);
+            OnRequest<TParams>(method, HandlerAdapter.Adapt(handler), options);
 
         public T OnRequest<TParams>(string method, Func<TParams, CancellationToken, Task> handler, JsonRpcHandlerOptions? options = null) => AddHandler(
             method, _ => new DelegatingRequestHandler<TParams>(_.GetRequiredService<ISerializer>(), handler), options
         );
 
         public T OnRequest<TParams>(string method, Func<CancellationToken, Task> handler, JsonRpcHandlerOptions? options = null) =>
-            OnRequest<TParams>(method, (value, cancellationToken) => handler(cancellationToken), options);
+            OnRequest<TParams>(method, (_, cancellationToken) => handler(cancellationToken), options);
 
         public T OnJsonNotification(string method, Action<JToken, CancellationToken> handler, JsonRpcHandlerOptions? options = null) =>
-            OnJsonNotification(
-                method, (value, cancellationToken) => {
-                    handler(value, cancellationToken);
-                    return Task.CompletedTask;
-                }, options
-            );
+            OnJsonNotification(method, HandlerAdapter.Adapt(handler), options);
 
         public T OnJsonNotification(string method, Action<JToken> handler, JsonRpcHandlerOptions? options = null) =>
-            OnJsonNotification(
-                method, (value, cancellationToken) => {
-                    handler(value);
-                    return Task.CompletedTask;
-                }, options
-            );
+            OnJsonNotification(method, HandlerAdapter.Adapt(handler), options);
 
         public T OnJsonNotification(string method, Func<JToken, CancellationToken, Task> handler, JsonRpcHandlerOptions? options = null) =>
             AddHandler(method, _ => new DelegatingJsonNotificationHandler(handler), options);
 
         public T OnJsonNotification(string method, Func<JToken, Task> handler, JsonRpcHandlerOptions? options = null) =>
-            OnJsonNotification(method, (value, cancellationToken) => handler(value), options);
+            OnJsonNotification(method, HandlerAdapter.Adapt(handler), options);
 
         public T OnNotification<TParams>(string method, Action<TParams, CancellationToken> handler, JsonRpcHandlerOptions? options = null) =>
-            OnNotification<TParams>(
-                method, (value, cancellationToken) => {
-                    handler(value, cancellationToken);
-                    return Task.CompletedTask;
-                }, options
-            );
+            OnNotification<TParams>(method, HandlerAdapter.Adapt(handler), options);
 
         public T OnNotification<TParams>(string method, Action<TParams> handler, JsonRpcHandlerOptions? options = null) =>
-            OnNotification<TParams>(
-                method, (value, cancellationToken) => {
-                    handler(value);
-                    return Task.CompletedTask;
-                }, options
-            );
+            OnNotification<TParams>(method, HandlerAdapter.Adapt(handler), options);
 
         public T OnNotification<TParams>(string method, Func<TParams, CancellationToken, Task> handler, JsonRpcHandlerOptions? options = null) => AddHandler(
             method, _ => new DelegatingNotificationHandler<TParams>(_.GetRequiredService<ISerializer>(), handler), options
         );
 
         public T OnNotification<TParams>(string method, Func<TParams, Task> handler, JsonRpcHandlerOptions? options = null) =>
-            OnNotification<TParams>(method, (value, cancellationToken) => handler(value), options);
+            OnNotification<TParams>(method, HandlerAdapter.Adapt(handler), options);
 
         public T OnNotification(string method, Action handler, JsonRpcHandlerOptions? options = null) =>
             OnNotification<Unit>(
-                method, (value, cancellationToken) => {
+                method, (_, _) => {
                     handler();
                     return Task.CompletedTask;
                 }, options
             );
 
         public T OnNotification(string method, Func<CancellationToken, Task> handler, JsonRpcHandlerOptions? options = null) => AddHandler(
-            method, _ => new DelegatingNotificationHandler<Unit>(_.GetRequiredService<ISerializer>(), (unit, token) => handler(token)), options
+            method, _ => new DelegatingNotificationHandler<Unit>(_.GetRequiredService<ISerializer>(), (_, token) => handler(token)), options
         );
 
-        public T OnNotification(string method, Func<Task> handler, JsonRpcHandlerOptions? options = null) => OnNotification(method, cancellationToken => handler(), options);
+        public T OnNotification(string method, Func<Task> handler, JsonRpcHandlerOptions? options = null) => OnNotification(method, _ => handler(), options);
 
         #endregion
 

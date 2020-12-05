@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
@@ -47,7 +45,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             => (a, o, _) => handler(a, o);
     }
 
-
     public static class PartialAdapter<TCapability>
         where TCapability : ICapability
     {
@@ -82,25 +79,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         public static Action<TParams, IObserver<TItem>, TCapability, CancellationToken> Adapt<TParams, TItem>(Action<TParams, IObserver<TItem>, CancellationToken> handler)
             => (a, o, _, t) => handler(a, o, t);
-    }
-
-    public static class HandlerAdapter
-    {
-        public static Func<TParams, CancellationToken, Task<TResult>> Adapt<TParams, TResult>(Func<TParams, Task<TResult>> handler) => (a, _) => handler(a);
-        public static Func<TParams, CancellationToken, Task<TResult>> Adapt<TParams, TResult>(Func<TParams, CancellationToken, Task<TResult>> handler) => handler;
-
-        public static Func<TParams, CancellationToken, Task> Adapt<TParams>(Func<TParams, Task> handler) => (a, _) => handler(a);
-        public static Func<TParams, CancellationToken, Task> Adapt<TParams>(Func<TParams, CancellationToken, Task> handler) => handler;
-
-        public static Func<TParams, CancellationToken, Task> Adapt<TParams>(Action<TParams> handler) => (a, _) => {
-            handler(a);
-            return Task.CompletedTask;
-        };
-
-        public static Func<TParams, CancellationToken, Task> Adapt<TParams>(Action<TParams, CancellationToken> handler) => (a, t) => {
-            handler(a, t);
-            return Task.CompletedTask;
-        };
     }
 
     public static class HandlerAdapter<TCapability, TExtra>

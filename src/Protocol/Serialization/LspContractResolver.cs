@@ -66,7 +66,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                     property.GetIsSpecified = o => {
                         var propertyValue = property.ValueProvider.GetValue(o);
                         if (propertyValue == null) return false;
-                        return isSupportedGetter.GetValue(propertyValue) as bool? == true;
+                        return isSupportedGetter?.GetValue(propertyValue) as bool? == true;
                     };
                 }
             }
@@ -217,7 +217,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 var value = _valueProvider.GetValue(target);
                 if (value is IEnumerable<T> values)
                 {
-                    return values.Join(_validValues, z => z, z => z, (a, b) => a).ToArray();
+                    return values.Join(_validValues, z => z, z => z, (a, _) => a).ToArray();
                 }
 
                 return null;

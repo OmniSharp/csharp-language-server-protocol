@@ -11,6 +11,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -22,7 +23,7 @@ namespace Lsp.Tests.Integration
         {
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Handle_Malformed_Request()
         {
             var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
@@ -45,7 +46,7 @@ namespace Lsp.Tests.Integration
             a.Should().Throw<ParseErrorException>();
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Handle_Malformed_Notification()
         {
             var (client, server) = await Initialize(ConfigureClient, ConfigureServer);

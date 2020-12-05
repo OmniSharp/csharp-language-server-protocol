@@ -26,7 +26,7 @@ namespace Lsp.Tests.Integration
         {
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Cancel_Pending_Requests()
         {
             var (client, _) = await Initialize(ConfigureClient, ConfigureServer);
@@ -43,7 +43,7 @@ namespace Lsp.Tests.Integration
             action.Should().Throw<TaskCanceledException>();
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Abandon_Pending_Requests_For_Text_Changes()
         {
             var (client, _) = await Initialize(ConfigureClient, ConfigureServer);
@@ -68,7 +68,7 @@ namespace Lsp.Tests.Integration
             action.Should().Throw<ContentModifiedException>();
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Cancel_Requests_After_Timeout()
         {
             Func<Task> action = async () => {
@@ -88,7 +88,7 @@ namespace Lsp.Tests.Integration
             action.Should().Throw<RequestCancelledException>();
         }
 
-        [Fact]
+        [RetryFact]
         public void Should_Cancel_Requests_After_Timeout_without_Content_Modified()
         {
             Func<Task> action = async () => {
@@ -108,7 +108,7 @@ namespace Lsp.Tests.Integration
             action.Should().Throw<RequestCancelledException>();
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Can_Publish_Diagnostics_Delayed()
         {
             var (_, server) = await Initialize(

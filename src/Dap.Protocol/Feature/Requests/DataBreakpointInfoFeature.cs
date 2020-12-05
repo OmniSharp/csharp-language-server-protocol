@@ -1,8 +1,4 @@
-using System.Threading;
-using System.Threading.Tasks;
 using MediatR;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.JsonRpc;

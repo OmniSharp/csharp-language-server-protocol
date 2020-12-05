@@ -1,19 +1,10 @@
 using System;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
-using OmniSharp.Extensions.JsonRpc.Serialization.Converters;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
-using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
-using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
 // ReSharper disable once CheckNamespace
@@ -101,7 +92,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// A set of predefined code action kinds
         /// </summary>
         [StringEnum]
-        public readonly partial struct UniquenessLevel : IEquatable<UniquenessLevel>, IEnumLikeString
+        public readonly partial struct UniquenessLevel
         {
             /// <summary>
             /// The moniker is only unique inside a document

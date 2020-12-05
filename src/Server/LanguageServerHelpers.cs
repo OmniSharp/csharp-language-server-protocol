@@ -133,7 +133,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                         .Where(z => z.Any())
                         .SelectMany(
                              registrations => Observable.FromAsync(ct => client.RegisterCapability(new RegistrationParams { Registrations = registrations.ToArray() }, ct)),
-                             (a, b) => a
+                             (a, _) => a
                          )
                         .Aggregate(Array.Empty<Registration>(), (z, _) => z)
                         .Subscribe(

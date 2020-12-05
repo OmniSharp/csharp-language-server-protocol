@@ -1,14 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Net.Mail;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using OmniSharp.Extensions.JsonRpc.Generators.Contexts;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static OmniSharp.Extensions.JsonRpc.Generators.Helpers;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 {
@@ -281,7 +278,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 
                     members.Add(handlerClass);
 
-                    if (resolver is { LspAttributes: { GenerateTypedData: true } } && handlerClass is { })
+                    if (resolver is { LspAttributes: { GenerateTypedData: true } })
                     {
                         members.Add(
                             GenerateTypedPartialHandler(
@@ -293,7 +290,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                         );
                     }
 
-                    if (request is { LspAttributes: { GenerateTypedData: true } } && handlerClass is { })
+                    if (request is { LspAttributes: { GenerateTypedData: true } })
                     {
                         members.Add(
                             GenerateTypedPartialHandler(
@@ -318,10 +315,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
         private static GenericNameSyntax GetBaseHandlerInterface(GeneratorData item)
         {
             var requestType = item.JsonRpcAttributes.AllowDerivedRequests ? IdentifierName("T") : item.Request.Syntax;
-            if (item is NotificationItem notification)
+            if (item is NotificationItem)
             {
                 return GenericName("IJsonRpcNotificationHandler")
-                   .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList<TypeSyntax>(requestType)));
+                   .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(requestType)));
             }
 
             if (item is RequestItem request)
@@ -348,7 +345,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                 types.Add(item.Capability.Syntax);
             }
 
-            if (item is NotificationItem notification)
+            if (item is NotificationItem)
             {
                 return QualifiedName(
                     IdentifierName("AbstractHandlers"),
@@ -690,7 +687,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                                                           .WithTypeArgumentList(
                                                                                TypeArgumentList(
                                                                                    SeparatedList(
-                                                                                       new TypeSyntax[] {
+                                                                                       new[] {
                                                                                            GenericName(Identifier(resolver.Response.Symbol.Name))
                                                                                               .WithTypeArgumentList(
                                                                                                    TypeArgumentList(

@@ -1,9 +1,7 @@
-using System.Diagnostics;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
-namespace OmniSharp.Extensions.LanguageServer.Server
+namespace OmniSharp.Extensions.LanguageServer.Server.Logging
 {
     internal class LanguageServerLoggerProvider : ILoggerProvider
     {

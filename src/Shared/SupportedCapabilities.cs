@@ -139,7 +139,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                                                                               .GetTypeInfo()
                                                                               .GetMethod(nameof(GetRegistrationOptionsInner), BindingFlags.NonPublic | BindingFlags.Static)!;
 
-        private ClientCapabilities _clientCapabilities;
+        private ClientCapabilities _clientCapabilities = null!;
 
         private static object GetRegistrationOptionsInner<TR>(IRegistration<TR> capability, ClientCapabilities clientCapabilities) where TR : class
         {

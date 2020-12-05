@@ -53,7 +53,7 @@ namespace Lsp.Tests.Integration
                 items.Select(z => z.Data.Length).Should().ContainInOrder(1, 2, 3);
             }
 
-            [Fact]
+            [RetryFact]
             public async Task Should_Behave_Like_An_Observable_Without_Progress_Support()
             {
                 var response = await Client.SendRequest(new SemanticTokensParams { TextDocument = new TextDocumentIdentifier(@"c:\test.cs") }, CancellationToken);

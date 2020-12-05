@@ -2,7 +2,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reactive.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -71,7 +70,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
                 _serializer,
                 request.PartialResultToken!,
                 MakeRequest(request),
-                (x, f) => factory(x),
+                (x, _) => factory(x),
                 cancellationToken, () => _activeObservables.TryRemove(request.PartialResultToken!, out _)
             );
             _activeObservables.TryAdd(request.PartialResultToken!, observable);

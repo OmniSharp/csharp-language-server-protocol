@@ -7,6 +7,7 @@ using OmniSharp.Extensions.DebugAdapter.Server;
 using OmniSharp.Extensions.DebugAdapter.Testing;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Testing;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 #pragma warning disable CS0162
@@ -21,7 +22,7 @@ namespace Dap.Tests.Integration
         {
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Server_Should_Stay_Alive_When_Requests_Throw_An_Exception()
         {
             var (client, _) = await Initialize(ConfigureClient, ConfigureServer);
@@ -36,7 +37,7 @@ namespace Dap.Tests.Integration
             result.Should().BeTrue();
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Client_Should_Stay_Alive_When_Requests_Throw_An_Exception()
         {
             var (_, server) = await Initialize(ConfigureClient, ConfigureServer);
@@ -51,7 +52,7 @@ namespace Dap.Tests.Integration
             result.Should().BeTrue();
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Server_Should_Support_Links()
         {
             var (client, _) = await Initialize(ConfigureClient, ConfigureServer);
@@ -66,7 +67,7 @@ namespace Dap.Tests.Integration
             result.Should().BeTrue();
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Client_Should_Support_Links()
         {
             var (_, server) = await Initialize(ConfigureClient, ConfigureServer);

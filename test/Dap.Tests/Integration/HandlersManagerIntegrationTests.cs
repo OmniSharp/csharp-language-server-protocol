@@ -7,6 +7,7 @@ using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Testing;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Testing;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -18,7 +19,7 @@ namespace Dap.Tests.Integration
         {
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Return_Default_Handlers()
         {
             var (_, server) = await Initialize(options => {}, options => {});
@@ -28,7 +29,7 @@ namespace Dap.Tests.Integration
             handlersManager.GetHandlers().Should().HaveCount(2);
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Link_Should_Fail_If_No_Handler_Is_Defined()
         {
             var (_, server) = await Initialize(options => {}, options => {});
@@ -39,7 +40,7 @@ namespace Dap.Tests.Integration
             a.Should().Throw<ArgumentException>().Which.Message.Should().Contain("Descriptors must be registered before links can be created");
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Link_Should_Fail_If_Link_Is_On_The_Wrong_Side()
         {
             var (_, server) = await Initialize(options => {}, options => {});

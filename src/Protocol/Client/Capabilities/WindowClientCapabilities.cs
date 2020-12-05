@@ -1,3 +1,5 @@
+using System;
+
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
     /// <summary>
@@ -11,10 +13,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         public Supports<bool> WorkDoneProgress { get; set; }
 
         /// <summary>
-		 /// Capabilities specific to the showMessage request
+        /// Capabilities specific to the showMessage request
         ///
         /// @since 3.16.0 - proposed state
-         /// </summary>
+        /// </summary>
+        [Obsolete(Constants.Proposal)]
         public Supports<ShowMessageRequestClientCapabilities> ShowMessage { get; set; }
 
         /// <summary>
@@ -22,6 +25,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         ///
         /// @since 3.16.0 - proposed state
         /// </summary>
+        [Obsolete(Constants.Proposal)]
         public Supports<ShowDocumentClientCapabilities> ShowDocument { get; set; }
     }
 }

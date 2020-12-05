@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models

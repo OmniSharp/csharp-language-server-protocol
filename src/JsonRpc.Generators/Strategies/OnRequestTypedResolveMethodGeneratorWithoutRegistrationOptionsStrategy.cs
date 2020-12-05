@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using OmniSharp.Extensions.JsonRpc.Generators.Contexts;
@@ -147,7 +145,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                 }
             }
 
-            if (request.PartialItem is { } partialItem)
+            if (request.PartialItem is { })
             {
                 var observerType = GenericName("IObserver").WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(resolveType)));
                 factory = methodFactory(
