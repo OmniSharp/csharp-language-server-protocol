@@ -46,9 +46,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             if (allowDerivedRequests)
             {
                 var genericFactory = MakeGenericFactory(factory, notification.Request.Syntax);
-                yield return genericFactory(CreateAction(IdentifierName("T")));
-                yield return genericFactory(CreateAsyncAction(false, IdentifierName("T")));
+                yield return genericFactory(CreateAction(false, IdentifierName("T")));
                 yield return genericFactory(CreateAction(true, IdentifierName("T")));
+                yield return genericFactory(CreateAsyncAction(false, IdentifierName("T")));
                 yield return genericFactory(CreateAsyncAction(true, IdentifierName("T")));
             }
 
