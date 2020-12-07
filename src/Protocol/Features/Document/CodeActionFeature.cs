@@ -389,7 +389,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     namespace Client.Capabilities
     {
         [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.CodeAction))]
-        public partial class CodeActionCapability : DynamicCapability, ConnectedCapability<ICodeActionHandler>
+        public partial class CodeActionCapability : DynamicCapability
         {
             /// <summary>
             /// The client support code action literals as a valid

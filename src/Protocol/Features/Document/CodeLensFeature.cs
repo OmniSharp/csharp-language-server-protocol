@@ -125,7 +125,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     namespace Client.Capabilities
     {
         [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.CodeLens))]
-        public partial class CodeLensCapability : DynamicCapability, ConnectedCapability<ICodeLensHandler>
+        public partial class CodeLensCapability : DynamicCapability
         {
         }
 

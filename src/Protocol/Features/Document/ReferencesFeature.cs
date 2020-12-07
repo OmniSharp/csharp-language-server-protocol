@@ -39,7 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     namespace Client.Capabilities
     {
         [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.References))]
-        public partial class ReferenceCapability : DynamicCapability, ConnectedCapability<IReferencesHandler>
+        public partial class ReferenceCapability : DynamicCapability
         {
         }
     }

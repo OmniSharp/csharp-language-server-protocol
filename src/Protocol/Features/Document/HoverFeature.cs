@@ -59,7 +59,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     namespace Client.Capabilities
     {
         [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.Hover))]
-        public partial class HoverCapability : DynamicCapability, ConnectedCapability<IHoverHandler>
+        public partial class HoverCapability : DynamicCapability
         {
             /// <summary>
             /// Client supports the follow content formats for the content property. The order describes the preferred format of the client.

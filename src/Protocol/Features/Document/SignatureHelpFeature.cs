@@ -241,7 +241,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
     namespace Client.Capabilities
     {
-        public partial class SignatureHelpCapability : DynamicCapability, ConnectedCapability<ISignatureHelpHandler>
+        public partial class SignatureHelpCapability : DynamicCapability
         {
             /// <summary>
             /// The client supports the following `SignatureInformation`

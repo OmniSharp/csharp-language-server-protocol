@@ -30,7 +30,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     namespace Client.Capabilities
     {
         [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.Implementation))]
-        public partial class ImplementationCapability : LinkSupportCapability, ConnectedCapability<IImplementationHandler>
+        public partial class ImplementationCapability : LinkSupportCapability
         {
         }
     }

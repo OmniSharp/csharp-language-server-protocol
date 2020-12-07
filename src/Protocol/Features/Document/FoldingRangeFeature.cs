@@ -119,7 +119,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     namespace Client.Capabilities
     {
         [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.FoldingRange))]
-        public partial class FoldingRangeCapability : DynamicCapability, ConnectedCapability<IFoldingRangeHandler>
+        public partial class FoldingRangeCapability : DynamicCapability
         {
             /// <summary>
             /// The maximum number of folding ranges that the client prefers to receive per document. The value serves as a

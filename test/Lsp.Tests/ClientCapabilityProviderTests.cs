@@ -10,6 +10,7 @@ using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Server;
@@ -21,12 +22,8 @@ namespace Lsp.Tests
     public class ClientCapabilityProviderTests
     {
         private static readonly Type[] Capabilities = typeof(ClientCapabilities).Assembly.GetTypes()
-                                                                                .Where(
-                                                                                     x => x.GetInterfaces().Any(
-                                                                                         i =>
-                                                                                             i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ConnectedCapability<>)
-                                                                                     )
-                                                                                 )
+                                                                                .Where(x => typeof(ICapability).IsAssignableFrom(x) && x.IsClass && !x.IsAbstract)
+                                                                                .Where(z => typeof(IDynamicCapability).IsAssignableFrom(z))
                                                                                 .ToArray();
 
         [Theory]
@@ -37,8 +34,15 @@ namespace Lsp.Tests
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
-                                            new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }))
+                new SharedHandlerCollection(
+                        SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
+                        new LspHandlerTypeDescriptorProvider(
+                            new[] {
+                                typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly,
+                                typeof(LspRequestRouter).Assembly
+                            }
+                        )
+                    )
                     { textDocumentSyncHandler, handler };
             var provider = new ClientCapabilityProvider(collection, true);
 
@@ -49,6 +53,7 @@ namespace Lsp.Tests
             GetItems(
                 Capabilities, type => {
                     var handlerTypes = GetHandlerTypes(type);
+                    if (handlerTypes is { Length: 0 }) return null;
                     var handler = Substitute.For(handlerTypes.ToArray(), new object[0]);
                     return new[] {
                         handler,
@@ -68,8 +73,15 @@ namespace Lsp.Tests
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
-                                            new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }))
+                new SharedHandlerCollection(
+                        SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
+                        new LspHandlerTypeDescriptorProvider(
+                            new[] {
+                                typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly,
+                                typeof(LspRequestRouter).Assembly
+                            }
+                        )
+                    )
                     { textDocumentSyncHandler, handler };
             var provider = new ClientCapabilityProvider(collection, true);
 
@@ -80,7 +92,8 @@ namespace Lsp.Tests
             GetItems(
                 Capabilities, type => {
                     var handlerTypes = GetHandlerTypes(type);
-                    var handler = Substitute.For(handlerTypes.ToArray(), new object[0]);
+                    if (handlerTypes is { Length: 0 }) return null;
+                    var handler = Substitute.For(handlerTypes, new object[0]);
                     return new[] { handler, Activator.CreateInstance(typeof(Supports<>).MakeGenericType(type), false) };
                 }
             );
@@ -93,8 +106,15 @@ namespace Lsp.Tests
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
-                                            new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }))
+                new SharedHandlerCollection(
+                        SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
+                        new LspHandlerTypeDescriptorProvider(
+                            new[] {
+                                typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly,
+                                typeof(LspRequestRouter).Assembly
+                            }
+                        )
+                    )
                     { textDocumentSyncHandler, handler };
             var provider = new ClientCapabilityProvider(collection, true);
 
@@ -105,6 +125,7 @@ namespace Lsp.Tests
             GetItems(
                 Capabilities, type => {
                     var handlerTypes = GetHandlerTypes(type);
+                    if (handlerTypes is { Length: 0 }) return null;
                     var handler = Substitute.For(handlerTypes.ToArray(), new object[0]);
                     return new[] { handler, Activator.CreateInstance(typeof(Supports<>).MakeGenericType(type), true) };
                 }
@@ -119,18 +140,26 @@ namespace Lsp.Tests
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
-                                            new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }))
+                new SharedHandlerCollection(
+                        SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
+                        new LspHandlerTypeDescriptorProvider(
+                            new[] {
+                                typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly,
+                                typeof(LspRequestRouter).Assembly
+                            }
+                        )
+                    )
                     { textDocumentSyncHandler, handler };
             var provider = new ClientCapabilityProvider(collection, true);
 
             HasHandler(provider, instance).Should().BeFalse();
         }
 
-        public static IEnumerable<object?[]> DisallowDynamicSupportsCapabilities() =>
+        public static IEnumerable<object?[]>? DisallowDynamicSupportsCapabilities() =>
             GetItems(
                 Capabilities, type => {
                     var handlerTypes = GetHandlerTypes(type);
+                    if (handlerTypes is { Length: 0 }) return null;
                     var handler = Substitute.For(handlerTypes.ToArray(), new object[0]);
                     var capability = Activator.CreateInstance(type);
                     if (capability is DynamicCapability dyn) dyn.DynamicRegistration = true;
@@ -150,8 +179,15 @@ namespace Lsp.Tests
             var typeDefinitionHandler = Substitute.For<ITypeDefinitionHandler>();
 
             var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
-                                            new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }))
+                new SharedHandlerCollection(
+                        SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
+                        new LspHandlerTypeDescriptorProvider(
+                            new[] {
+                                typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly,
+                                typeof(LspRequestRouter).Assembly
+                            }
+                        )
+                    )
                     { textDocumentSyncHandler, codeActionHandler, definitionHandler, typeDefinitionHandler };
             var provider = new ClientCapabilityProvider(collection, true);
             var capabilities = new ClientCapabilities {
@@ -182,8 +218,15 @@ namespace Lsp.Tests
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
-                                            new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }))
+                new SharedHandlerCollection(
+                        SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
+                        new LspHandlerTypeDescriptorProvider(
+                            new[] {
+                                typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly,
+                                typeof(LspRequestRouter).Assembly
+                            }
+                        )
+                    )
                     { textDocumentSyncHandler };
             var provider = new ClientCapabilityProvider(collection, true);
             var capabilities = new ClientCapabilities {
@@ -210,8 +253,15 @@ namespace Lsp.Tests
             var didSaveTextDocumentHandler = Substitute.For<IDidSaveTextDocumentHandler>();
 
             var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
-                                            new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly })) {
+                new SharedHandlerCollection(
+                    SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
+                    new LspHandlerTypeDescriptorProvider(
+                        new[] {
+                            typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly,
+                            typeof(LspRequestRouter).Assembly
+                        }
+                    )
+                ) {
                     textDocumentSyncHandler, willSaveTextDocumentHandler, willSaveWaitUntilTextDocumentHandler,
                     didSaveTextDocumentHandler
                 };
@@ -233,21 +283,33 @@ namespace Lsp.Tests
         private static bool HasHandler(ClientCapabilityProvider provider, object instance) =>
             (bool) typeof(ClientCapabilityProviderTests).GetTypeInfo()
                                                         .GetMethod(nameof(GenericHasHandler), BindingFlags.Static | BindingFlags.NonPublic)!
-                                                        .MakeGenericMethod(instance.GetType().GetTypeInfo().GetGenericArguments()[0])
-                                                        .Invoke(null, new[] { provider, instance })!;
+                  .MakeGenericMethod(instance.GetType().GetTypeInfo().GetGenericArguments()[0])
+                  .Invoke(null, new[] { provider, instance })!;
 
         private static bool GenericHasHandler<T>(ClientCapabilityProvider provider, Supports<T> supports)
-            where T : DynamicCapability, ConnectedCapability<IJsonRpcHandler> =>
+            where T : DynamicCapability =>
             provider.HasStaticHandler(supports);
 
-        private static IEnumerable<object?[]> GetItems<T>(IEnumerable<T> types, Func<T, IEnumerable<object?>> func) => types.Select(x => func(x).ToArray());
+        private static IEnumerable<object?[]> GetItems<T>(IEnumerable<T> types, Func<T, IEnumerable<object?>?> func) =>
+            types.Select(func).Where(z => z is not null).Select(z => z!.ToArray());
 
-        private static IEnumerable<Type> GetHandlerTypes(Type type) =>
-            type.GetTypeInfo().ImplementedInterfaces
-                .Where(
-                     x => x.GetTypeInfo().IsGenericType &&
-                          x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ConnectedCapability<>)
-                 )
-                .Select(x => x.GetTypeInfo().GetGenericArguments()[0]);
+        private static Type[] GetHandlerTypes(Type type) =>
+            HandlerProvider.KnownHandlers
+                           .SelectMany(z => z.AsEnumerable())
+                           .Where(x => x.HasCapability && x.CapabilityType == type)
+                           .Select(z => z.HandlerType)
+                           .Where(z => z.IsInterface) // only testing our interfaces
+                           .ToArray();
+
+        private static LspHandlerTypeDescriptorProvider HandlerProvider = new LspHandlerTypeDescriptorProvider(
+            new[] {
+                typeof(AssemblyScanningHandlerTypeDescriptorProvider).Assembly,
+                typeof(LspHandlerTypeDescriptorProvider).Assembly,
+                typeof(LanguageServer).Assembly,
+                typeof(LanguageClient).Assembly,
+                typeof(ISupports).Assembly,
+                typeof(HandlerResolverTests).Assembly
+            }
+        );
     }
 }

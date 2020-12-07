@@ -61,7 +61,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     namespace Client.Capabilities
     {
         [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.SelectionRange))]
-        public partial class SelectionRangeCapability : DynamicCapability, ConnectedCapability<ISelectionRangeHandler>
+        public partial class SelectionRangeCapability : DynamicCapability
         {
             /// <summary>
             /// The maximum number of folding ranges that the client prefers to receive per document. The value serves as a

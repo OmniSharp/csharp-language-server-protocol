@@ -56,7 +56,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         [Obsolete(Constants.Proposal)]
         [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.LinkedEditingRange))]
-        public partial class LinkedEditingRangeClientCapabilities : DynamicCapability, ConnectedCapability<ILinkedEditingRangeHandler> { }
+        public partial class LinkedEditingRangeClientCapabilities : DynamicCapability { }
     }
 
     namespace Document
