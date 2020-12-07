@@ -6,6 +6,7 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Shared;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
@@ -15,28 +16,25 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly IHandlerCollection _collection;
         private readonly bool _supportsProgress;
 
-        public ClientCapabilityProvider(IHandlerCollection collection, bool supportsProgress)
+        public ClientCapabilityProvider(
+        IHandlerCollection collection,
+            bool supportsProgress)
         {
             _collection = collection;
             _supportsProgress = supportsProgress;
         }
 
         public bool HasStaticHandler<T>(Supports<T> capability)
-            where T : ConnectedCapability<IJsonRpcHandler>?, IDynamicCapability?
+            where T : IDynamicCapability?
         {
             // Dynamic registration will cause us to double register things if we report our capabilities statically.
             // However if the client does not tell us it's capabilities we should just assume that they do not support
             // dynamic registrations but we should report any capabilities statically
             if (capability.IsSupported && capability.Value != null && capability.Value.DynamicRegistration) return false;
-
-            var handlerTypes = typeof(T).GetTypeInfo().ImplementedInterfaces
-                                        .Where(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ConnectedCapability<>))
-                                        .Select(x => x.GetTypeInfo().GetGenericArguments()[0].GetTypeInfo());
-
-            return handlerTypes.Any(_collection.ContainsHandler);
+            return _collection.Any(z => z.HasCapability &&z.CapabilityType == typeof(T));
         }
 
-        public IOptionsGetter GetStaticOptions<T>(Supports<T> capability) where T : DynamicCapability?, ConnectedCapability<IJsonRpcHandler>?
+        public IOptionsGetter GetStaticOptions<T>(Supports<T> capability) where T : DynamicCapability
             => !HasStaticHandler(capability) ? Null : new OptionsGetter(_collection, _supportsProgress);
 
         private static readonly IOptionsGetter Null = new NullOptionsGetter();

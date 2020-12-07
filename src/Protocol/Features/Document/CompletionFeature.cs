@@ -424,7 +424,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     namespace Client.Capabilities
     {
         [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.Completion))]
-        public partial class CompletionCapability : DynamicCapability, ConnectedCapability<ICompletionHandler>
+        public partial class CompletionCapability : DynamicCapability
         {
             /// <summary>
             /// The client supports the following `CompletionItem` specific

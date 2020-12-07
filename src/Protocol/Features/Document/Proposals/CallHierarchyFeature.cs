@@ -283,8 +283,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// </summary>
         [Obsolete(Constants.Proposal)]
         [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.CallHierarchy))]
-        public partial class CallHierarchyCapability : DynamicCapability, ConnectedCapability<ICallHierarchyPrepareHandler>,
-                                                       ConnectedCapability<ICallHierarchyIncomingHandler>, ConnectedCapability<ICallHierarchyOutgoingHandler>
+        public partial class CallHierarchyCapability : DynamicCapability
         {
         }
     }

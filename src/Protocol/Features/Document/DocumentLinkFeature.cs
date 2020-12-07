@@ -116,7 +116,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     namespace Client.Capabilities
     {
         [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.DocumentLink))]
-        public partial class DocumentLinkCapability : DynamicCapability, ConnectedCapability<IDocumentLinkHandler>
+        public partial class DocumentLinkCapability : DynamicCapability
         {
             /// <summary>
             /// Whether the client support the `tooltip` property on `DocumentLink`.

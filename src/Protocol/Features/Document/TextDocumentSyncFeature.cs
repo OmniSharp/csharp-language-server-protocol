@@ -336,13 +336,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     namespace Client.Capabilities
     {
         [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.Synchronization))]
-        public class SynchronizationCapability : DynamicCapability,
-                                                 ConnectedCapability<IDidChangeTextDocumentHandler>,
-                                                 ConnectedCapability<IDidCloseTextDocumentHandler>,
-                                                 ConnectedCapability<IDidOpenTextDocumentHandler>,
-                                                 ConnectedCapability<IDidSaveTextDocumentHandler>,
-                                                 ConnectedCapability<IWillSaveTextDocumentHandler>,
-                                                 ConnectedCapability<IWillSaveWaitUntilTextDocumentHandler>
+        public class SynchronizationCapability : DynamicCapability
+
         {
             /// <summary>
             /// The client supports sending will save notifications.

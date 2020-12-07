@@ -154,7 +154,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     namespace Client.Capabilities
     {
         [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.DocumentSymbol))]
-        public partial class DocumentSymbolCapability : DynamicCapability, ConnectedCapability<IDocumentSymbolHandler>
+        public partial class DocumentSymbolCapability : DynamicCapability
         {
             /// <summary>
             /// Specific capabilities for the `SymbolKind` in the `textDocument/symbol` request.

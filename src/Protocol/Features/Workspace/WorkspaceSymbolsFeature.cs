@@ -80,7 +80,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     namespace Client.Capabilities
     {
         [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(WorkspaceClientCapabilities.Symbol))]
-        public partial class WorkspaceSymbolCapability : DynamicCapability//, ConnectedCapability<IWorkspaceSymbolsHandler>
+        public partial class WorkspaceSymbolCapability : DynamicCapability//
         {
             /// <summary>
             /// Specific capabilities for the `SymbolKind` in the `workspace/symbol` request.
