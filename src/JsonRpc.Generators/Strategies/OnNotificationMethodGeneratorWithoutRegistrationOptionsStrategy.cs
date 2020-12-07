@@ -12,21 +12,21 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
     {
         public IEnumerable<MemberDeclarationSyntax> Apply(ExtensionMethodContext extensionMethodContext, GeneratorData item)
         {
-            if (item is { RegistrationOptions: {} }) yield break;
+            if (item is { RegistrationOptions: { } }) yield break;
             if (item is not NotificationItem notification) yield break;
             if (extensionMethodContext is not { IsRegistry: true }) yield break;
 
             var allowDerivedRequests = item.JsonRpcAttributes.AllowDerivedRequests;
 
             var method = MethodDeclaration(extensionMethodContext.Item, item.JsonRpcAttributes.HandlerMethodName)
-                                      .WithModifiers(
-                                           TokenList(
-                                               Token(SyntaxKind.PublicKeyword),
-                                               Token(SyntaxKind.StaticKeyword)
-                                           )
-                                       )
-                                      .WithExpressionBody(GetNotificationHandlerExpression(GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration)))
-                                      .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+                        .WithModifiers(
+                             TokenList(
+                                 Token(SyntaxKind.PublicKeyword),
+                                 Token(SyntaxKind.StaticKeyword)
+                             )
+                         )
+                        .WithExpressionBody(GetNotificationHandlerExpression(GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration)))
+                        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
 
             var factory = MakeMethodFactory(method, extensionMethodContext.GetRegistryParameterList());
             yield return factory(CreateAction(false, item.Request.Syntax));
@@ -37,9 +37,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             if (allowDerivedRequests)
             {
                 var genericFactory = MakeGenericFactory(factory, notification.Request.Syntax);
-                yield return genericFactory(CreateAction(IdentifierName("T")));
-                yield return genericFactory(CreateAsyncAction(false, IdentifierName("T")));
+                yield return genericFactory(CreateAction(false, IdentifierName("T")));
                 yield return genericFactory(CreateAction(true, IdentifierName("T")));
+                yield return genericFactory(CreateAsyncAction(false, IdentifierName("T")));
                 yield return genericFactory(CreateAsyncAction(true, IdentifierName("T")));
             }
 

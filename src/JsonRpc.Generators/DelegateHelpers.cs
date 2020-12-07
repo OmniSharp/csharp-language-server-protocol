@@ -89,10 +89,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                .WithTypeArgumentList(TypeArgumentList(SeparatedList(typeArguments)));
         }
 
-        public static GenericNameSyntax CreateAction(params TypeSyntax[] arguments) => CreateAction(true, arguments);
-
-        public static GenericNameSyntax CreateAsyncAction(params TypeSyntax[] arguments) => CreateAsyncFunc(null, true, arguments);
-
         public static GenericNameSyntax CreateAsyncAction(bool withCancellationToken, params TypeSyntax[] arguments) => CreateAsyncFunc(null, withCancellationToken, arguments);
 
         public static GenericNameSyntax CreateAsyncFunc(TypeSyntax? returnType, bool withCancellationToken, params TypeSyntax[] arguments)

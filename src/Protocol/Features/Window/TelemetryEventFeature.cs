@@ -9,15 +9,18 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 // ReSharper disable once CheckNamespace
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-
     namespace Models
     {
         [Parallel]
         [Method(WindowNames.TelemetryEvent, Direction.ServerToClient)]
-        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Window"), GenerateHandlerMethods, GenerateRequestMethods(typeof(IWindowLanguageServer), typeof(ILanguageServer))]
+        [
+            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Window", AllowDerivedRequests = true),
+            GenerateHandlerMethods,
+            GenerateRequestMethods(typeof(IWindowLanguageServer), typeof(ILanguageServer))
+        ]
         public record TelemetryEventParams : IRequest
         {
-            [JsonExtensionData] public IDictionary<string, JToken> Data { get; init; } = new Dictionary<string, JToken>();
+            [JsonExtensionData] public IDictionary<string, object> ExtensionData { get; init; } = new Dictionary<string, object>();
         }
     }
 
