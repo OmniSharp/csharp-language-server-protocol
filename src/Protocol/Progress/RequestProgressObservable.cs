@@ -30,10 +30,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         {
             _serializer = serializer;
             _dataSubject = new ReplaySubject<TItem>(1);
-            var request = requestResult.Do(_ => { }, OnError, OnCompleted).Replay(1);
-            _disposable = new CompositeDisposable { request.Connect(), Disposable.Create(disposal) };
+            var request = requestResult
+                         .Do(_ => { }, OnError, OnCompleted)
+                         .Replay(1);
+            _disposable = new CompositeDisposable {
+                request.Connect(),
+                Disposable.Create(disposal)
+            };
 
-            _task = _dataSubject.ForkJoin(requestResult, factory).ToTask(cancellationToken);
+            _task = _dataSubject
+                   .ForkJoin(requestResult, factory)
+                   .ToTask(cancellationToken);
 #pragma warning disable VSTHRD105
 #pragma warning disable VSTHRD110
             _task.ContinueWith(_ => Dispose());
@@ -50,13 +57,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         public ProgressToken ProgressToken { get; }
         public Type ParamsType { get; } = typeof(TItem);
 
-        public void OnCompleted()
+        void IObserver<JToken>.OnCompleted() => OnCompleted();
+        void IObserver<JToken>.OnError(Exception error) => OnError(error);
+
+        private void OnCompleted()
         {
             if (_dataSubject.IsDisposed) return;
             _dataSubject.OnCompleted();
         }
 
-        public void OnError(Exception error)
+        private void OnError(Exception error)
         {
             if (_dataSubject.IsDisposed) return;
             _dataSubject.OnError(error);
