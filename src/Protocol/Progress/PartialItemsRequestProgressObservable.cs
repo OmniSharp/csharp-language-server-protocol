@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -7,6 +8,7 @@ using System.Reactive.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using ImTools;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -35,14 +37,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
             var request = requestResult.Do(_ => { }, OnError, OnCompleted).Replay(1);
             _disposable = new CompositeDisposable { request.Connect(), Disposable.Create(disposal) };
 
-            _task = request.Amb(
-                _dataSubject.Scan(
-                    new List<TItem>(), (acc, data) => {
-                        acc.AddRange(data);
-                        return acc;
-                    }
-                ).Select(factory)
-            ).ToTask(cancellationToken);
+            _task = _dataSubject
+                   .StartWith(Array.Empty<TItem>())
+                   .Scan(
+                        new List<TItem>(), (acc, data) => {
+                            acc.AddRange(data);
+                            return acc;
+                        }
+                    )
+                   .Select(factory)
+                   .ForkJoin(request, (items, result) => items?.Count() > result?.Count() ? items : result)
+                   .ToTask(cancellationToken);
 #pragma warning disable VSTHRD105
 #pragma warning disable VSTHRD110
             _task.ContinueWith(_ => Dispose());

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -51,9 +52,19 @@ namespace TestingUtils
             return DelayUntil(() => value, func, cancellationToken, delay);
         }
 
-        public static Task DelayUntilCount<T>(this T value, int count, CancellationToken cancellationToken, TimeSpan? delay = null) where T : IEnumerable
+        public static Task DelayUntilCount<T>(this IEnumerable<T> value, int count, CancellationToken cancellationToken, TimeSpan? delay = null)
         {
-            return DelayUntil(() => value.OfType<object>().Count() >= count, cancellationToken, delay);
+            return DelayUntil(() => value.ToArray().Length >= count, cancellationToken, delay);
+        }
+
+        public static Task DelayUntilCount<T>(this ICollection<T> value, int count, CancellationToken cancellationToken, TimeSpan? delay = null)
+        {
+            return DelayUntil(() => value.Count >= count, cancellationToken, delay);
+        }
+
+        public static Task DelayUntilCount<T>(this T[] value, int count, CancellationToken cancellationToken, TimeSpan? delay = null)
+        {
+            return DelayUntil(() => value.Length >= count, cancellationToken, delay);
         }
     }
 }
