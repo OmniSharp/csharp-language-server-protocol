@@ -62,9 +62,11 @@ namespace Lsp.Tests.Integration
                 }
             );
 
+            observer.OnCompleted();
+
             await Observable.Create<Unit>(
                 innerObserver => new CompositeDisposable() {
-                    observable.Select(z => z.Value).Take(5).Subscribe(v => innerObserver.OnNext(Unit.Default), innerObserver.OnCompleted),
+                    observable.Take(5).Select(z => z.Value).Subscribe(v => innerObserver.OnNext(Unit.Default), innerObserver.OnCompleted),
                     workDoneObservable
                 }
             ).ToTask(CancellationToken);
@@ -110,9 +112,11 @@ namespace Lsp.Tests.Integration
                 }
             );
 
+            observer.OnCompleted();
+
             await Observable.Create<Unit>(
                 innerObserver => new CompositeDisposable() {
-                    observable.Select(z => z.Value).Take(5).Subscribe(v => innerObserver.OnNext(Unit.Default), innerObserver.OnCompleted),
+                    observable.Take(5).Select(z => z.Value).Subscribe(v => innerObserver.OnNext(Unit.Default), innerObserver.OnCompleted),
                     workDoneObservable
                 }
             ).ToTask(CancellationToken);

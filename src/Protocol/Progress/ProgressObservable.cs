@@ -28,7 +28,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 
         public ProgressToken ProgressToken { get; }
         public Type ParamsType { get; } = typeof(T);
-        public void Next(JToken value) => OnNext(value);
 
         void IObserver<JToken>.OnCompleted()
         {
