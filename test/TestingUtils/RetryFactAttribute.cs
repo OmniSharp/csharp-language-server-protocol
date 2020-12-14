@@ -33,7 +33,7 @@ namespace TestingUtils
                 throw new ArgumentOutOfRangeException(nameof(delayBetweenRetriesMs) + " must be >= 0");
             }
 
-            MaxRetries = UnitTestDetector.IsCI() ? maxRetries : 1;
+            MaxRetries = maxRetries;
             DelayBetweenRetriesMs = delayBetweenRetriesMs;
         }
     }
