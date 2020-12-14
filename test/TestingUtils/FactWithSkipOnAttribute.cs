@@ -54,7 +54,16 @@ namespace TestingUtils
 
         public static Task DelayUntilCount<T>(this IEnumerable<T> value, int count, CancellationToken cancellationToken, TimeSpan? delay = null)
         {
-            return DelayUntil(() => value.ToArray().Length >= count, cancellationToken, delay);
+            return DelayUntil(() => {
+                try
+                {
+                    return value.Count() >= count;
+                }
+                catch (InvalidOperationException)
+                {
+                    return false;
+                }
+            }, cancellationToken, delay);
         }
 
         public static Task DelayUntilCount<T>(this ICollection<T> value, int count, CancellationToken cancellationToken, TimeSpan? delay = null)
