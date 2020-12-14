@@ -144,16 +144,22 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 var namespaces = new HashSet<string>() { "OmniSharp.Extensions.JsonRpc" };
                 if (handlers.Any())
                 {
+                    var types = handlers.ToArray();
                     var cu = CompilationUnit()
                             .WithUsings(List(namespaces.OrderBy(z => z).Select(z => UsingDirective(ParseName(z)))))
-                            .AddAttributeLists(
-                                 AttributeList(
-                                     target: AttributeTargetSpecifier(Token(SyntaxKind.AssemblyKeyword)),
-                                     SingletonSeparatedList(Attribute(IdentifierName("AssemblyJsonRpcHandlers"), AttributeArgumentList(SeparatedList(handlers))))
-                                 )
-                             )
                             .WithLeadingTrivia(Comment(Preamble.GeneratedByATool))
                             .WithTrailingTrivia(CarriageReturnLineFeed);
+                    while (types.Length > 0)
+                    {
+                        var innerTypes = types.Take(10).ToArray();
+                        types = types.Skip(10).ToArray();
+                        cu = cu.AddAttributeLists(
+                            AttributeList(
+                                target: AttributeTargetSpecifier(Token(SyntaxKind.AssemblyKeyword)),
+                                SingletonSeparatedList(Attribute(IdentifierName("AssemblyJsonRpcHandlers"), AttributeArgumentList(SeparatedList(innerTypes))))
+                            )
+                        );
+                    }
 
                     context.AddSource("GeneratedAssemblyJsonRpcHandlers.cs", cu.NormalizeWhitespace().GetText(Encoding.UTF8));
                 }

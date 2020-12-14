@@ -52,74 +52,75 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         public Range Replace { get; init; }
 
-        private string DebuggerDisplay => $"{Insert} / {Replace} {( string.IsNullOrWhiteSpace(NewText) ? string.Empty : NewText.Length > 30 ? NewText.Substring(0, 30) : NewText )}";
+        private string DebuggerDisplay =>
+            $"{Insert} / {Replace} {( string.IsNullOrWhiteSpace(NewText) ? string.Empty : NewText.Length > 30 ? NewText.Substring(0, 30) : NewText )}";
 
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
     }
 
-        [JsonConverter(typeof(TextEditOrInsertReplaceEditConverter))]
-        [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-        [GenerateContainer]
-        public record TextEditOrInsertReplaceEdit
+    [JsonConverter(typeof(TextEditOrInsertReplaceEditConverter))]
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+    [GenerateContainer]
+    public record TextEditOrInsertReplaceEdit
+    {
+        private TextEdit? _textEdit;
+        private InsertReplaceEdit? _insertReplaceEdit;
+
+        public TextEditOrInsertReplaceEdit(TextEdit value)
         {
-            private TextEdit? _textEdit;
-            private InsertReplaceEdit? _insertReplaceEdit;
-
-            public TextEditOrInsertReplaceEdit(TextEdit value)
-            {
-                _textEdit = value;
-                _insertReplaceEdit = default;
-            }
-
-            public TextEditOrInsertReplaceEdit(InsertReplaceEdit value)
-            {
-                _textEdit = default;
-                _insertReplaceEdit = value;
-            }
-
-            public bool IsInsertReplaceEdit => _insertReplaceEdit != null;
-
-            public InsertReplaceEdit? InsertReplaceEdit
-            {
-                get => _insertReplaceEdit;
-                set {
-                    _insertReplaceEdit = value;
-                    _textEdit = null;
-                }
-            }
-
-            public bool IsTextEdit => _textEdit != null;
-
-            public TextEdit? TextEdit
-            {
-                get => _textEdit;
-                set {
-                    _insertReplaceEdit = default;
-                    _textEdit = value;
-                }
-            }
-
-            public object? RawValue
-            {
-                get {
-                    if (IsTextEdit) return TextEdit!;
-                    if (IsInsertReplaceEdit) return InsertReplaceEdit!;
-                    return default;
-                }
-            }
-
-            public static TextEditOrInsertReplaceEdit From(TextEdit value) => new(value);
-            public static implicit operator TextEditOrInsertReplaceEdit(TextEdit value) => new(value);
-
-            public static TextEditOrInsertReplaceEdit From(InsertReplaceEdit value) => new(value);
-            public static implicit operator TextEditOrInsertReplaceEdit(InsertReplaceEdit value) => new(value);
-
-            private string DebuggerDisplay => $"{( IsInsertReplaceEdit ? $"insert: {InsertReplaceEdit}" : IsTextEdit ? $"edit: {TextEdit}" : "..." )}";
-
-            /// <inheritdoc />
-            public override string ToString() => DebuggerDisplay;
+            _textEdit = value;
+            _insertReplaceEdit = default;
         }
+
+        public TextEditOrInsertReplaceEdit(InsertReplaceEdit value)
+        {
+            _textEdit = default;
+            _insertReplaceEdit = value;
+        }
+
+        public bool IsInsertReplaceEdit => _insertReplaceEdit != null;
+
+        public InsertReplaceEdit? InsertReplaceEdit
+        {
+            get => _insertReplaceEdit;
+            set {
+                _insertReplaceEdit = value;
+                _textEdit = null;
+            }
+        }
+
+        public bool IsTextEdit => _textEdit != null;
+
+        public TextEdit? TextEdit
+        {
+            get => _textEdit;
+            set {
+                _insertReplaceEdit = default;
+                _textEdit = value;
+            }
+        }
+
+        public object? RawValue
+        {
+            get {
+                if (IsTextEdit) return TextEdit!;
+                if (IsInsertReplaceEdit) return InsertReplaceEdit!;
+                return default;
+            }
+        }
+
+        public static TextEditOrInsertReplaceEdit From(TextEdit value) => new(value);
+        public static implicit operator TextEditOrInsertReplaceEdit(TextEdit value) => new(value);
+
+        public static TextEditOrInsertReplaceEdit From(InsertReplaceEdit value) => new(value);
+        public static implicit operator TextEditOrInsertReplaceEdit(InsertReplaceEdit value) => new(value);
+
+        private string DebuggerDisplay => $"{( IsInsertReplaceEdit ? $"insert: {InsertReplaceEdit}" : IsTextEdit ? $"edit: {TextEdit}" : "..." )}";
+
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
+    }
 
     /// <summary>
     /// Additional information that describes document changes.
@@ -149,6 +150,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public string? Description { get; init; }
     }
 
+    public record ChangeAnnotationIdentifier
+    {
+        /// <summary>
+        /// An optional annotation identifer describing the operation.
+        ///
+        /// @since 3.16.0 - proposed state
+        /// </summary>
+        public string Identifier { get; init; }
+
+        public static implicit operator string(ChangeAnnotationIdentifier identifier) => identifier.Identifier;
+
+        public static implicit operator ChangeAnnotationIdentifier(string identifier) => new() { Identifier = identifier };
+    }
+
     /// <summary>
     /// A special text edit with an additional change annotation.
     ///
@@ -161,9 +176,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The actual annotation
         /// </summary>
-        public ChangeAnnotation Annotation { get; init; }
+        public ChangeAnnotationIdentifier AnnotationId { get; init; }
 
-        private string DebuggerDisplay => $"annotated: {Range} {( string.IsNullOrWhiteSpace(NewText) ? string.Empty : NewText.Length > 30 ? NewText.Substring(0, 30) : NewText )}";
+        private string DebuggerDisplay =>
+            $"annotationId: {Range} {( string.IsNullOrWhiteSpace(NewText) ? string.Empty : NewText.Length > 30 ? NewText.Substring(0, 30) : NewText )}";
 
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;

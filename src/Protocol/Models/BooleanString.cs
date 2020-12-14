@@ -1,3 +1,4 @@
+using System;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
@@ -8,6 +9,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     {
         private string? _string;
         private bool? _bool;
+
+        public BooleanString(Guid value)
+        {
+            _string = value.ToString();
+            _bool = null;
+        }
 
         public BooleanString(string value)
         {
@@ -44,6 +51,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         }
 
         public static implicit operator BooleanString(string value) => new BooleanString(value);
+        public static implicit operator BooleanString(Guid value) => new BooleanString(value.ToString());
 
         public static implicit operator BooleanString(bool value) => new BooleanString(value);
     }

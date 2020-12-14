@@ -55,7 +55,7 @@ namespace Lsp.Tests.Integration
             var serverAction = Substitute.For<Action<DidChangeWorkspaceFoldersParams>>();
             var (client, server) = await Initialize(
                 options => options.OnWorkspaceFolders(clientAction),
-                options => options.OnDidChangeWorkspaceFolders(serverAction)
+                options => options.OnDidChangeWorkspaceFolders(serverAction, x => new () { Supported = x.Workspace?.WorkspaceFolders.IsSupported == true})
             );
 
             var clientManager = client.Services.GetRequiredService<IHandlersManager>();
@@ -63,7 +63,7 @@ namespace Lsp.Tests.Integration
             clientManager.Descriptors.Should().ContainSingle(f => f.Method == WorkspaceNames.WorkspaceFolders);
 
             var serverManager = server.Services.GetRequiredService<IHandlersManager>();
-            serverManager.Descriptors.Should().Contain(f => f.Handler is DelegatingHandlers.Notification<DidChangeWorkspaceFoldersParams>);
+            serverManager.Descriptors.Should().Contain(f => f.Handler is LanguageProtocolDelegatingHandlers.Notification<DidChangeWorkspaceFoldersParams, DidChangeWorkspaceFolderRegistrationOptions>);
             serverManager.Descriptors.Should().ContainSingle(f => f.Method == WorkspaceNames.DidChangeWorkspaceFolders);
         }
 
@@ -74,7 +74,7 @@ namespace Lsp.Tests.Integration
             var (client, server) = await Initialize(
                 options => { },
                 options => options
-                   .OnDidChangeWorkspaceFolders(action)
+                   .OnDidChangeWorkspaceFolders(action, x => new () { Supported = x.Workspace?.WorkspaceFolders.IsSupported == true})
             );
 
             var config = client.Services.GetRequiredService<TestConfigurationProvider>();

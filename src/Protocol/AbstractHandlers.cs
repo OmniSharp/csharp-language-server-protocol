@@ -24,6 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         {
             protected TRegistrationOptions RegistrationOptions { get; private set; } = default!;
             protected TCapability Capability { get; private set; } = default!;
+            protected ClientCapabilities ClientCapabilities { get; private set; } = default!;
             protected internal abstract TRegistrationOptions CreateRegistrationOptions(TCapability capability, ClientCapabilities clientCapabilities);
 
             TRegistrationOptions IRegistration<TRegistrationOptions, TCapability>.GetRegistrationOptions(TCapability capability, ClientCapabilities clientCapabilities)
@@ -31,11 +32,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 // ReSharper disable twice ConditionIsAlwaysTrueOrFalse
                 if (RegistrationOptions is not null && Capability is not null) return RegistrationOptions;
                 Capability = capability;
+                ClientCapabilities = clientCapabilities;
                 return RegistrationOptions = CreateRegistrationOptions(capability, clientCapabilities);
             }
 
             void ICapability<TCapability>.SetCapability(TCapability capability, ClientCapabilities clientCapabilities)
             {
+                ClientCapabilities = clientCapabilities;
                 Capability = capability;
             }
         }
@@ -45,9 +48,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             where TCapability : ICapability
         {
             protected TCapability Capability { get; private set; } = default!;
+            protected ClientCapabilities ClientCapabilities { get; private set; } = default!;
 
             void ICapability<TCapability>.SetCapability(TCapability capability, ClientCapabilities clientCapabilities)
             {
+                ClientCapabilities = clientCapabilities;
                 Capability = capability;
             }
         }
@@ -57,12 +62,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             where TRegistrationOptions : class, new()
         {
             protected TRegistrationOptions RegistrationOptions { get; private set; } = default!;
+            protected ClientCapabilities ClientCapabilities { get; private set; } = default!;
             protected abstract TRegistrationOptions CreateRegistrationOptions(ClientCapabilities clientCapabilities);
 
             TRegistrationOptions IRegistration<TRegistrationOptions>.GetRegistrationOptions(ClientCapabilities clientCapabilities)
             {
                 // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                 if (RegistrationOptions is not null) return RegistrationOptions;
+                ClientCapabilities = clientCapabilities;
                 return RegistrationOptions = CreateRegistrationOptions(clientCapabilities);
             }
         }

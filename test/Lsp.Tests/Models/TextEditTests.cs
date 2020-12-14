@@ -32,11 +32,7 @@ namespace Lsp.Tests.Models
             var model = new AnnotatedTextEdit {
                 NewText = "new text",
                 Range = new Range(new Position(1, 1), new Position(2, 2)),
-                Annotation = new ChangeAnnotation() {
-                    Description = "Cool story",
-                    Label = "Heck ya",
-                    NeedsConfirmation = true
-                }
+                AnnotationId = "Cool story"
             };
             var result = Fixture.SerializeObject(model);
 

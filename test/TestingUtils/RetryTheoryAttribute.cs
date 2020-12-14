@@ -11,7 +11,7 @@ namespace TestingUtils
     /// Attribute that is applied to a method to indicate that it is a theory that should be run
     /// by the test runner up to MaxRetries times, until it succeeds.
     /// </summary>
-    [XunitTestCaseDiscoverer("xRetry.RetryTheoryDiscoverer", "xRetry")]
+    [XunitTestCaseDiscoverer("TestingUtils.RetryTheoryDiscoverer", "TestingUtils")]
     [AttributeUsage(AttributeTargets.Method)]
     public class RetryTheoryAttribute : RetryFactAttribute
     {

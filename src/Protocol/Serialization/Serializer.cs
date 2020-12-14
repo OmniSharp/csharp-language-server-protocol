@@ -130,6 +130,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             ReplaceConverter(converters, new RangeOrPlaceholderRangeConverter());
             ReplaceConverter(converters, new EnumLikeStringConverter());
             ReplaceConverter(converters, new DocumentUriConverter());
+            ReplaceConverter(converters, new ChangeAnnotationIdentifierConverter());
             //            ReplaceConverter(converters, new AggregateConverter<CodeLensContainer>());
             //            ReplaceConverter(converters, new AggregateConverter<DocumentLinkContainer>());
             //            ReplaceConverter(converters, new AggregateConverter<LocationContainer>());

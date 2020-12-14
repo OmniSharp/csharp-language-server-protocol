@@ -7,9 +7,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
 {
     public interface ISupportedCapabilities
     {
-        bool AllowsDynamicRegistration(Type capabilityType);
+        bool AllowsDynamicRegistration(Type? capabilityType);
         object? GetRegistrationOptions(ILspHandlerTypeDescriptor handlerTypeDescriptor, IJsonRpcHandler handler);
-        object? GetRegistrationOptions(ILspHandlerDescriptor handlerTypeDescriptor, IJsonRpcHandler handler);
+        object? GetRegistrationOptions(ILspHandlerDescriptor handlerTypeDescriptor);
         void Add(IEnumerable<ISupports> supports);
         void Add(ICapability capability);
         void Initialize(ClientCapabilities clientCapabilities);

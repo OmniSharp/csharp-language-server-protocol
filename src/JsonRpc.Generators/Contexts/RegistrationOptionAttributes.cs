@@ -1,5 +1,8 @@
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
@@ -7,7 +10,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
     record RegistrationOptionAttributes(
         SyntaxAttributeData? GenerateRegistrationOptions,
         string? Key,
-        ExpressionSyntax? KeyExpression,
+        ExpressionSyntax[]? KeyExpression,
         bool SupportsWorkDoneProgress,
         bool SupportsDocumentSelector,
         bool SupportsStaticRegistrationOptions,
@@ -19,13 +22,16 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
     {
         public static RegistrationOptionAttributes? Parse(GeneratorExecutionContext context, TypeDeclarationSyntax syntax, INamedTypeSymbol symbol)
         {
-            var registrationOptionsAttributeSymbol = context.Compilation.GetTypeByMetadataName($"OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateRegistrationOptionsAttribute");
-            var registrationOptionsConverterAttributeSymbol = context.Compilation.GetTypeByMetadataName($"OmniSharp.Extensions.LanguageServer.Protocol.RegistrationOptionsConverterAttribute");
+            var registrationOptionsAttributeSymbol =
+                context.Compilation.GetTypeByMetadataName($"OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateRegistrationOptionsAttribute");
+            var registrationOptionsConverterAttributeSymbol =
+                context.Compilation.GetTypeByMetadataName($"OmniSharp.Extensions.LanguageServer.Protocol.RegistrationOptionsConverterAttribute");
 //            var registrationOptionsInterfaceSymbol = context.Compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions");
             var textDocumentRegistrationOptionsInterfaceSymbol =
                 context.Compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Models.ITextDocumentRegistrationOptions");
             var workDoneProgressOptionsInterfaceSymbol = context.Compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions");
-            var staticRegistrationOptionsInterfaceSymbol = context.Compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Models.IStaticRegistrationOptions");
+            var staticRegistrationOptionsInterfaceSymbol =
+                context.Compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Models.IStaticRegistrationOptions");
 
             if (!( symbol.GetAttribute(registrationOptionsAttributeSymbol) is { } data )) return null;
             if (!( data.ApplicationSyntaxReference?.GetSyntax() is AttributeSyntax attributeSyntax )) return null;
@@ -34,12 +40,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
             ITypeSymbol? converter = null;
 
             var supportsDocumentSelector = data.NamedArguments.Any(z => z is { Key: nameof(SupportsDocumentSelector), Value: { Value: true } })
-                                    || symbol.AllInterfaces.Length > 0 && symbol.AllInterfaces.Any(
-                                           z => SymbolEqualityComparer.Default.Equals(z, textDocumentRegistrationOptionsInterfaceSymbol)
-                                       )
-                                    || textDocumentRegistrationOptionsInterfaceSymbol is { } && syntax.BaseList?.Types.Any(
-                                           type => type.Type.GetSyntaxName()?.Contains(textDocumentRegistrationOptionsInterfaceSymbol.Name) == true
-                                       ) == true;
+                                        || symbol.AllInterfaces.Length > 0 && symbol.AllInterfaces.Any(
+                                               z => SymbolEqualityComparer.Default.Equals(z, textDocumentRegistrationOptionsInterfaceSymbol)
+                                           )
+                                        || textDocumentRegistrationOptionsInterfaceSymbol is { } && syntax.BaseList?.Types.Any(
+                                               type => type.Type.GetSyntaxName()?.Contains(textDocumentRegistrationOptionsInterfaceSymbol.Name) == true
+                                           ) == true;
             var supportsWorkDoneProgress = data.NamedArguments.Any(z => z is { Key: nameof(SupportsWorkDoneProgress), Value: { Value: true } })
                                         || symbol.AllInterfaces.Length > 0 && symbol.AllInterfaces.Any(
                                                z => SymbolEqualityComparer.Default.Equals(z, workDoneProgressOptionsInterfaceSymbol)
@@ -82,17 +88,47 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
             }
 
             string? value = null;
-            ExpressionSyntax? valueSyntax = null;
+            ExpressionSyntax[]? valueExpressionSyntaxes = null;
             if (data is { ConstructorArguments: { Length: > 0 } arguments } && arguments[0].Kind is TypedConstantKind.Primitive && arguments[0].Value is string)
             {
-                value = arguments[0].Value as string;
-                valueSyntax = attributeSyntax.ArgumentList!.Arguments[0].Expression;
+                static IEnumerable<string> getStringValue(TypedConstant constant)
+                {
+                    if (constant.Kind is TypedConstantKind.Primitive && constant.Value is string s)
+                    {
+                        yield return s;
+                    }
+
+                    if (constant.Kind is TypedConstantKind.Array)
+                    {
+                        foreach (var i in constant.Values.SelectMany(getStringValue))
+                        {
+                            yield return i;
+                        }
+                    }
+                }
+
+                static IEnumerable<ExpressionSyntax> getStringExpressionSyntaxes(AttributeArgumentSyntax syntax)
+                {
+                    switch (syntax.Expression)
+                    {
+                        case LiteralExpressionSyntax literalExpressionSyntax when literalExpressionSyntax.Token.IsKind(SyntaxKind.StringLiteralToken):
+                            yield return literalExpressionSyntax;
+                            break;
+                        case InvocationExpressionSyntax
+                            { Expression: IdentifierNameSyntax { Identifier: { Text: "nameof" } } }:
+                            yield return syntax.Expression;
+                            break;
+                    }
+                }
+
+                value = string.Join(".", arguments.SelectMany(getStringValue));
+                valueExpressionSyntaxes = attributeSyntax.ArgumentList!.Arguments.SelectMany(getStringExpressionSyntaxes).ToArray();
             }
 
             return new RegistrationOptionAttributes(
                 new SyntaxAttributeData(attributeSyntax, data),
                 value,
-                valueSyntax,
+                valueExpressionSyntaxes,
                 supportsWorkDoneProgress,
                 supportsDocumentSelector,
                 supportsStaticRegistrationOptions,

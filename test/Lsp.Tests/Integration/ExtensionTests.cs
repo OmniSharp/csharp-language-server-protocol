@@ -40,18 +40,27 @@ namespace Lsp.Tests.Integration
                .Invoke(Arg.Any<UnitTest>(), Arg.Any<UnitTestCapability>(), Arg.Any<CancellationToken>())
                .Returns(Task.CompletedTask);
             var (client, server) = await Initialize(
-                options =>
-                    options.WithCapability(
-                        new UnitTestCapability() {
-                            DynamicRegistration = true,
-                            Property = "Abcd"
-                        }
-                    ), options => {
-                    options.OnDiscoverUnitTests(onDiscoverHandler, (_, _) => new UnitTestRegistrationOptions());
-                    options.OnRunUnitTest(onRunUnitHandler, (_, _) => new UnitTestRegistrationOptions() {
-                        SupportsDebugging = true,
-                        WorkDoneProgress = true
-                    });
+                options => {
+                    options.UseAssemblyAttributeScanning = false;
+                    options
+                       .WithAssemblies(typeof(UnitTestCapability).Assembly)
+                       .WithCapability(
+                            new UnitTestCapability() {
+                                DynamicRegistration = true,
+                                Property = "Abcd"
+                            }
+                        );
+                }, options => {
+                    options.UseAssemblyAttributeScanning = false;
+                    options
+                       .WithAssemblies(typeof(UnitTestCapability).Assembly)
+                       .OnDiscoverUnitTests(onDiscoverHandler, (_, _) => new UnitTestRegistrationOptions())
+                       .OnRunUnitTest(
+                            onRunUnitHandler, (_, _) => new UnitTestRegistrationOptions() {
+                                SupportsDebugging = true,
+                                WorkDoneProgress = true
+                            }
+                        );
                 }
             );
 
@@ -72,14 +81,15 @@ namespace Lsp.Tests.Integration
 
             {
                 await client.RegistrationManager.Registrations.Throttle(TimeSpan.FromMilliseconds(300)).Take(1).ToTask(CancellationToken);
-                client.RegistrationManager.CurrentRegistrations.Should().Contain(z => z.Method == "tests/discover");
-                client.RegistrationManager.CurrentRegistrations.Should().Contain(z => z.Method == "tests/run");
+                client.RegistrationManager.CurrentRegistrations.Should().Contain(z => z.Method == "tests").And.HaveCount(1);
             }
 
-            await client.RequestDiscoverUnitTests(new DiscoverUnitTestsParams() {
-            PartialResultToken = new ProgressToken(1),
-            WorkDoneToken = new ProgressToken(1),
-            }, CancellationToken);
+            await client.RequestDiscoverUnitTests(
+                new DiscoverUnitTestsParams() {
+                    PartialResultToken = new ProgressToken(1),
+                    WorkDoneToken = new ProgressToken(1),
+                }, CancellationToken
+            );
             await client.RunUnitTest(new UnitTest(), CancellationToken);
 
             onDiscoverHandler.Received(1).Invoke(Arg.Any<DiscoverUnitTestsParams>(), Arg.Is<UnitTestCapability>(x => x.Property == "Abcd"), Arg.Any<CancellationToken>());
@@ -98,8 +108,12 @@ namespace Lsp.Tests.Integration
                .Invoke(Arg.Any<UnitTest>(), Arg.Any<UnitTestCapability>(), Arg.Any<CancellationToken>())
                .Returns(Task.CompletedTask);
             var (client, server) = await Initialize(
-                options => { options.ClientCapabilities.Workspace!.ExtensionData["unitTests"] = JToken.FromObject(new { property = "Abcd", dynamicRegistration = true }); },
                 options => {
+                    options.UseAssemblyAttributeScanning = false;
+                    options.ClientCapabilities.Workspace!.ExtensionData["unitTests"] = JToken.FromObject(new { property = "Abcd", dynamicRegistration = true }); },
+                options => {
+
+                    options.UseAssemblyAttributeScanning = false;
                     options.OnDiscoverUnitTests(onDiscoverHandler, (_, _) => new UnitTestRegistrationOptions());
                     options.OnRunUnitTest(onRunUnitHandler, (_, _) => new UnitTestRegistrationOptions());
                 }
@@ -117,8 +131,7 @@ namespace Lsp.Tests.Integration
 
             {
                 await client.RegistrationManager.Registrations.Throttle(TimeSpan.FromMilliseconds(300)).Take(1).ToTask(CancellationToken);
-                client.RegistrationManager.CurrentRegistrations.Should().Contain(z => z.Method == "tests/discover");
-                client.RegistrationManager.CurrentRegistrations.Should().Contain(z => z.Method == "tests/run");
+                client.RegistrationManager.CurrentRegistrations.Should().Contain(z => z.Method == "tests").And.HaveCount(1);
             }
 
             await client.RequestDiscoverUnitTests(new DiscoverUnitTestsParams(), CancellationToken);
@@ -134,13 +147,16 @@ namespace Lsp.Tests.Integration
             var onDiscoverHandler = Substitute.For<Func<DiscoverUnitTestsParams, UnitTestCapability, CancellationToken, Task<Container<UnitTest>>>>();
             var onRunUnitHandler = Substitute.For<Func<UnitTest, UnitTestCapability, CancellationToken, Task>>();
             var (_, server) = await Initialize(
-                options =>
+                options => {
+                    options.UseAssemblyAttributeScanning = false;
                     options.WithCapability(
                         new UnitTestCapability() {
                             DynamicRegistration = false,
                             Property = "Abcd"
                         }
-                    ), options => {
+                    );
+                }, options => {
+                    options.UseAssemblyAttributeScanning = false;
                     options.OnDiscoverUnitTests(onDiscoverHandler, (_, _) => new UnitTestRegistrationOptions() { SupportsDebugging = true });
                     options.OnRunUnitTest(onRunUnitHandler, (_, _) => new UnitTestRegistrationOptions() { SupportsDebugging = true });
                 }
@@ -168,6 +184,7 @@ namespace Lsp.Tests.Integration
         {
             var (client, _) = await Initialize(
                 options => {
+                    options.UseAssemblyAttributeScanning = false;
                     options.DisableDynamicRegistration();
                     options.WithCapability(
                         new CodeActionCapability() {
@@ -190,6 +207,7 @@ namespace Lsp.Tests.Integration
                     );
                 },
                 options => {
+                    options.UseAssemblyAttributeScanning = false;
                     options.OnCodeAction(
                         (@params, capability, token) => Task.FromResult(new CommandOrCodeActionContainer()),
                         (_, _) => new CodeActionRegistrationOptions() {

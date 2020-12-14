@@ -24,7 +24,7 @@ namespace Lsp.Tests.Integration
         public async Task Should_Support_Custom_Telemetry_Using_Base_Class()
         {
             var fake = Substitute.For<TelemetryEventHandlerBase<CustomTelemetryEventParams>>();
-            var (_, server) = await Initialize(options => { }, options => { options.AddHandler(fake); });
+            var (_, server) = await Initialize(options => { options.AddHandler(fake); }, options => { });
 
             var @event = new CustomTelemetryEventParams {
                 CodeFolding = true,
@@ -40,15 +40,15 @@ namespace Lsp.Tests.Integration
             var args = call.GetArguments();
 
             args[0].Should().BeOfType<CustomTelemetryEventParams>()
-                   .And
-                   .Should().BeEquivalentTo(@event);
+                   .And.Subject
+                   .Should().BeEquivalentTo(@event, z=> z.UsingStructuralRecordEquality().Excluding(x => x.ExtensionData));
         }
 
         [RetryFact]
         public async Task Should_Support_Custom_Telemetry_Receiving_Regular_Telemetry_Using_Base_Class()
         {
             var fake = Substitute.For<TelemetryEventHandlerBase>();
-            var (_, server) = await Initialize(options => { }, options => { options.AddHandler(fake); });
+            var (_, server) = await Initialize(options => { options.AddHandler(fake); }, options => { });
 
             var @event = new CustomTelemetryEventParams {
                 CodeFolding = true,
@@ -74,7 +74,7 @@ namespace Lsp.Tests.Integration
         public async Task Should_Support_Custom_Telemetry_Using_Extension_Data_Using_Base_Class()
         {
             var fake = Substitute.For<TelemetryEventHandlerBase<CustomTelemetryEventParams>>();
-            var (_, server) = await Initialize(options => { }, options => { options.AddHandler(fake); });
+            var (_, server) = await Initialize(options => { options.AddHandler(fake);}, options => {  });
 
             server.SendTelemetryEvent(
                 new TelemetryEventParams {
@@ -87,6 +87,7 @@ namespace Lsp.Tests.Integration
                     }
                 }
             );
+            await SettleNext();
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
@@ -102,7 +103,7 @@ namespace Lsp.Tests.Integration
         public async Task Should_Support_Custom_Telemetry_Using_Delegate()
         {
             var fake = Substitute.For<Func<CustomTelemetryEventParams, CancellationToken, Task>>();
-            var (_, server) = await Initialize(options => { options.OnTelemetryEvent(fake); }, options => {  });
+            var (_, server) = await Initialize(options => { options.OnTelemetryEvent(fake); }, options => { });
 
             var @event = new CustomTelemetryEventParams {
                 CodeFolding = true,
@@ -117,16 +118,16 @@ namespace Lsp.Tests.Integration
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
             args[0]
-                         .Should().BeOfType<CustomTelemetryEventParams>()
-                         .And
-                         .Should().BeEquivalentTo(@event);
+               .Should().BeOfType<CustomTelemetryEventParams>()
+               .And.Subject
+               .Should().BeEquivalentTo(@event, z=> z.UsingStructuralRecordEquality().Excluding(x => x.ExtensionData));
         }
 
         [RetryFact]
         public async Task Should_Support_Custom_Telemetry_Receiving_Regular_Telemetry_Using_Delegate()
         {
             var fake = Substitute.For<Func<TelemetryEventParams, CancellationToken, Task>>();
-            var (_, server) = await Initialize(options => { options.OnTelemetryEvent(fake); }, options => {  });
+            var (_, server) = await Initialize(options => { options.OnTelemetryEvent(fake); }, options => { });
 
             var @event = new CustomTelemetryEventParams {
                 CodeFolding = true,
@@ -152,7 +153,7 @@ namespace Lsp.Tests.Integration
         public async Task Should_Support_Custom_Telemetry_Using_Extension_Data_Using_Delegate()
         {
             var fake = Substitute.For<Func<CustomTelemetryEventParams, CancellationToken, Task>>();
-            var (_, server) = await Initialize(options => { options.OnTelemetryEvent(fake); }, options => {  });
+            var (_, server) = await Initialize(options => { options.OnTelemetryEvent(fake); }, options => { });
 
             server.SendTelemetryEvent(
                 new TelemetryEventParams {
@@ -165,6 +166,7 @@ namespace Lsp.Tests.Integration
                     }
                 }
             );
+            await SettleNext();
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();

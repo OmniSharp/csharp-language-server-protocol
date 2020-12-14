@@ -86,12 +86,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                             AttributeList(
                                 SingletonSeparatedList(
                                     Attribute(
-                                        IdentifierName("RegistrationOptionsKey"), AttributeArgumentList(
-                                            SingletonSeparatedList(
-                                                AttributeArgument(
-                                                    data.KeyExpression
-                                                )
-                                            )
+                                        IdentifierName("RegistrationOptionsKey"),
+                                        AttributeArgumentList(
+                                            SeparatedList(data.KeyExpression.Select(AttributeArgument))
                                         )
                                     )
                                 )

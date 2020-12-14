@@ -10,7 +10,7 @@ namespace TestingUtils
     /// Attribute that is applied to a method to indicate that it is a fact that should be run
     /// by the test runner up to MaxRetries times, until it succeeds.
     /// </summary>
-    [XunitTestCaseDiscoverer("xRetry.RetryFactDiscoverer", "xRetry")]
+    [XunitTestCaseDiscoverer("TestingUtils.RetryFactDiscoverer", "TestingUtils")]
     [AttributeUsage(AttributeTargets.Method)]
     public class RetryFactAttribute : FactAttribute
     {

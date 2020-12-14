@@ -135,7 +135,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                              registrations => Observable.FromAsync(ct => client.RegisterCapability(new RegistrationParams { Registrations = registrations.ToArray() }, ct)),
                              (a, _) => a
                          )
-                        .Aggregate(Array.Empty<Registration>(), (z, _) => z)
+                        .Aggregate(Array.Empty<Registration>(), (_, z) => z)
                         .Subscribe(
                              registrations => {
                                  disposable.Add(

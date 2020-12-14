@@ -301,15 +301,15 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             return descriptor;
         }
 
-        private (string key, object? registrationOptions) InferKey(ILspHandlerDescriptor typeDescriptor, IJsonRpcHandler handler)
+        private (string key, object? registrationOptions) InferKey(ILspHandlerDescriptor descriptor, IJsonRpcHandler handler)
         {
             var key = "default";
-            var registrationOptions = _supportedCapabilities.GetRegistrationOptions(typeDescriptor, handler);
+            var registrationOptions = _supportedCapabilities.GetRegistrationOptions(descriptor);
 
             if (registrationOptions is ITextDocumentRegistrationOptions textDocumentRegistrationOptions)
             {
                 // Ensure we only do this check for the specific registration type that was found
-                if (typeof(ITextDocumentRegistrationOptions).GetTypeInfo().IsAssignableFrom(typeDescriptor.RegistrationType))
+                if (typeof(ITextDocumentRegistrationOptions).GetTypeInfo().IsAssignableFrom(descriptor.RegistrationType))
                 {
                     key = textDocumentRegistrationOptions.DocumentSelector ?? key;
                 }

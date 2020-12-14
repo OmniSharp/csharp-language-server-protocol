@@ -5,7 +5,6 @@
         <PlatformTarget>AnyCPU</PlatformTarget>
     </PropertyGroup>
     <ItemGroup>
-        <ProjectReference Include="..\..\src\JsonRpc.Generators\JsonRpc.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
         <ProjectReference Include="..\..\src\JsonRpc\JsonRpc.csproj" />
         <ProjectReference Include="..\..\src\JsonRpc.Testing\JsonRpc.Testing.csproj" />
         <EmbeddedResource Include="**/*.jsrpc" />

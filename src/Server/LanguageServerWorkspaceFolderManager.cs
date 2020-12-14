@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
@@ -15,13 +16,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
     [BuiltIn]
-    internal class LanguageServerWorkspaceFolderManager : ILanguageServerWorkspaceFolderManager, IDidChangeWorkspaceFoldersHandler, IOnLanguageServerStarted, IDisposable
+    internal class LanguageServerWorkspaceFolderManager : AbstractHandlers.Base<DidChangeWorkspaceFolderRegistrationOptions>, ILanguageServerWorkspaceFolderManager, IDidChangeWorkspaceFoldersHandler, IOnLanguageServerStarted, IDisposable
     {
         private readonly IWorkspaceLanguageServer _server;
         private readonly ConcurrentDictionary<DocumentUri, WorkspaceFolder> _workspaceFolders;
         private readonly ReplaySubject<IEnumerable<WorkspaceFolder>> _workspaceFoldersSubject;
         private readonly Subject<WorkspaceFolderChange> _workspaceFoldersChangedSubject;
-        private readonly object _registrationOptions = new object();
 
         public LanguageServerWorkspaceFolderManager(IWorkspaceLanguageServer server)
         {
@@ -58,7 +58,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         Task IOnLanguageServerStarted.OnStarted(ILanguageServer server, CancellationToken cancellationToken)
         {
-            IsSupported = server.ClientSettings.Capabilities?.Workspace?.WorkspaceFolders.IsSupported == true;
             if (IsSupported)
             {
                 foreach (var folder in server.ClientSettings.WorkspaceFolders ?? Enumerable.Empty<WorkspaceFolder>())
@@ -107,14 +106,17 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public IObservable<IEnumerable<WorkspaceFolder>> WorkspaceFolders => _workspaceFoldersSubject.IsDisposed ? Observable.Empty<IEnumerable<WorkspaceFolder>>() : _workspaceFoldersSubject.AsObservable();
         public IEnumerable<WorkspaceFolder> CurrentWorkspaceFolders => _workspaceFolders.Values;
 
-        public bool IsSupported { get; private set; }
-
-        public object GetRegistrationOptions() => _registrationOptions;
+        public bool IsSupported => ClientCapabilities.Workspace?.WorkspaceFolders.IsSupported == true;
 
         public void Dispose()
         {
             if (!_workspaceFoldersSubject.IsDisposed) _workspaceFoldersSubject.Dispose();
             if (!_workspaceFoldersChangedSubject.IsDisposed) _workspaceFoldersChangedSubject.Dispose();
         }
+
+        protected override DidChangeWorkspaceFolderRegistrationOptions CreateRegistrationOptions(ClientCapabilities clientCapabilities) => new() {
+            Supported = clientCapabilities.Workspace?.WorkspaceFolders == true,
+            ChangeNotifications = clientCapabilities.Workspace?.WorkspaceFolders == true
+        };
     }
 }

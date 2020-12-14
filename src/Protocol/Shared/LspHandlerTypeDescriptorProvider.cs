@@ -24,8 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             KnownHandlers =
                 ( useAssemblyAttributeScanning
                     ? AssemblyAttributeHandlerTypeDescriptorProvider.GetDescriptors(assemblies)
-                    : AssemblyScanningHandlerTypeDescriptorProvider
-                       .GetDescriptors(assemblies)
+                    : AssemblyScanningHandlerTypeDescriptorProvider.GetDescriptors(assemblies)
                 )
                .Select(x => new LspHandlerTypeDescriptor(x.HandlerType) as ILspHandlerTypeDescriptor)
                .ToLookup(x => x.Method, x => x, StringComparer.Ordinal);
@@ -47,10 +46,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
                              .FirstOrDefault()?.Method;
         }
 
-        public Type? GetRegistrationType(string method) => KnownHandlers[method]
-                                                          .Where(z => z.HasRegistration)
-                                                          .Select(z => z.RegistrationType)
-                                                          .FirstOrDefault();
+        public Type? GetRegistrationType(string method) => KnownHandlers
+                                                          .SelectMany(z => z)
+                                                          .FirstOrDefault(z => z.HasRegistration && z.RegistrationMethod == method)?.RegistrationType;
 
         public ILspHandlerTypeDescriptor? GetHandlerTypeDescriptor<TA>() => GetHandlerTypeDescriptor(typeof(TA));
         IHandlerTypeDescriptor? IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?>.GetHandlerTypeDescriptor(Type type) => GetHandlerTypeDescriptor(type);

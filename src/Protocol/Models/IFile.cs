@@ -12,6 +12,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// @since 3.16.0 - proposed state
         /// </summary>
         [Optional]
-        ChangeAnnotation? Annotation { get; init; }
+        ChangeAnnotationIdentifier? AnnotationId { get; init; }
     }
 }
