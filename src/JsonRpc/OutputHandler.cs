@@ -64,16 +64,20 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public void Send(object? value)
         {
-            if (_queue.IsDisposed || _disposable.IsDisposed || value == null) return;
-            if (!ShouldSend(value))
+            try
             {
-                if (_delayComplete || _delayedQueue.IsDisposed || !_delayedQueue.HasObservers) return;
-                _delayedQueue.OnNext(value);
+                if (_queue.IsDisposed || _disposable.IsDisposed || value == null) return;
+                if (!ShouldSend(value))
+                {
+                    if (_delayComplete || _delayedQueue.IsDisposed || !_delayedQueue.HasObservers) return;
+                    _delayedQueue.OnNext(value);
+                }
+                else
+                {
+                    _queue.OnNext(value);
+                }
             }
-            else
-            {
-                _queue.OnNext(value);
-            }
+            catch (ObjectDisposedException) { }
         }
 
         public void Initialized()
