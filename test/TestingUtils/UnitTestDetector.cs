@@ -8,7 +8,7 @@ namespace TestingUtils
     {
         // ReSharper disable once InconsistentNaming
         public static bool IsCI() => string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("CI"))
-                                  && string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("TF_BUILD"));
+                                  || string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("TF_BUILD"));
 
         public static bool PlatformToSkipPredicate(SkipOnPlatform platform)
         {
