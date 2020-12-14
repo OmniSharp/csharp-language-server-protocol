@@ -76,7 +76,7 @@ namespace Lsp.Tests.Integration
             data.Should().ContainInOrder(new[] { "1", "3", "2", "4", "5" });
         }
 
-        [RetryFact]
+        [RetryFact(skipOn: SkipOnPlatform.Windows)]
         public async Task Should_Send_Progress_From_Client_To_Server()
         {
             var token = new ProgressToken(Guid.NewGuid().ToString());
@@ -133,7 +133,7 @@ namespace Lsp.Tests.Integration
             Client.WorkDoneManager.IsSupported.Should().BeTrue();
         }
 
-        [RetryFact]
+        [RetryFact(skipOn: SkipOnPlatform.Windows)]
         public async Task Should_Support_Creating_Work_Done_From_Sever_To_Client()
         {
             var token = new ProgressToken(Guid.NewGuid().ToString());
@@ -257,7 +257,7 @@ namespace Lsp.Tests.Integration
             results.Should().ContainInOrder("Begin", "Report 1", "Report 2", "Report 3", "Report 4", "End");
         }
 
-        [RetryFact]
+        [RetryFact(skipOn: SkipOnPlatform.Windows)]
         public async Task Should_Support_Cancelling_Work_Done_From_Client_To_Server_Request()
         {
             var token = new ProgressToken(Guid.NewGuid().ToString());

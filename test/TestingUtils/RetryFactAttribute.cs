@@ -25,7 +25,8 @@ namespace TestingUtils
         /// </summary>
         /// <param name="maxRetries">The number of times to run a test for until it succeeds</param>
         /// <param name="delayBetweenRetriesMs">The amount of time (in ms) to wait between each test run attempt</param>
-        public RetryFactAttribute(int maxRetries = 3, int delayBetweenRetriesMs = 0, params SkipOnPlatform[] platformsToSkip)
+        /// <param name="skipOn">platforms to skip testing on</param>
+        public RetryFactAttribute(int maxRetries = 5, int delayBetweenRetriesMs = 0, params SkipOnPlatform[] skipOn)
         {
             if (maxRetries < 1)
             {
@@ -36,9 +37,9 @@ namespace TestingUtils
                 throw new ArgumentOutOfRangeException(nameof(delayBetweenRetriesMs) + " must be >= 0");
             }
 
-            MaxRetries = maxRetries;
+            MaxRetries = !UnitTestDetector.IsCI() ? 1 : maxRetries;
             DelayBetweenRetriesMs = delayBetweenRetriesMs;
-            PlatformsToSkip = platformsToSkip;
+            PlatformsToSkip = skipOn;
         }
 
         public override string? Skip
