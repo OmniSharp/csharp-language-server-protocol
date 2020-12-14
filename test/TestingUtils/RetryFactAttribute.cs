@@ -1,6 +1,7 @@
 // See https://github.com/JoshKeegan/xRetry
 
 using System;
+using System.Linq;
 using Xunit;
 using Xunit.Sdk;
 
@@ -16,13 +17,15 @@ namespace TestingUtils
     {
         public readonly int MaxRetries;
         public readonly int DelayBetweenRetriesMs;
+        public readonly SkipOnPlatform[] PlatformsToSkip;
+        private string? _skip;
 
         /// <summary>
         /// Ctor
         /// </summary>
         /// <param name="maxRetries">The number of times to run a test for until it succeeds</param>
         /// <param name="delayBetweenRetriesMs">The amount of time (in ms) to wait between each test run attempt</param>
-        public RetryFactAttribute(int maxRetries = 3, int delayBetweenRetriesMs = 0)
+        public RetryFactAttribute(int maxRetries = 3, int delayBetweenRetriesMs = 0, params SkipOnPlatform[] platformsToSkip)
         {
             if (maxRetries < 1)
             {
@@ -35,6 +38,15 @@ namespace TestingUtils
 
             MaxRetries = maxRetries;
             DelayBetweenRetriesMs = delayBetweenRetriesMs;
+            PlatformsToSkip = platformsToSkip;
+        }
+
+        public override string? Skip
+        {
+            get => !UnitTestDetector.IsCI() && PlatformsToSkip.Any(UnitTestDetector.PlatformToSkipPredicate)
+                ? "Skipped on platform" + ( string.IsNullOrWhiteSpace(_skip) ? "" : " because " + _skip )
+                : null;
+            set => _skip = value;
         }
     }
 }
