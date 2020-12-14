@@ -109,6 +109,7 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             try
             {
+                _logger.LogTrace("Writing out {@Value}", value);
                 // TODO: this will be part of the serialization refactor to make streaming first class
                 var content = _serializer.SerializeObject(value);
                 var contentBytes = Encoding.UTF8.GetBytes(content).AsMemory();

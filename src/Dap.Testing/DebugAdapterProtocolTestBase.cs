@@ -43,10 +43,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Testing
             _client = DebugAdapterClient.Create(
                 options => {
                     options
-                       .WithLoggerFactory(TestOptions.ClientLoggerFactory)
                        .ConfigureLogging(
                             x => {
                                 x.SetMinimumLevel(LogLevel.Trace);
+                                x.Services.AddSingleton(TestOptions.ClientLoggerFactory);
                             }
                         )
                        .Services
@@ -60,10 +60,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Testing
             _server = DebugAdapterServer.Create(
                 options => {
                     options
-                       .WithLoggerFactory(TestOptions.ServerLoggerFactory)
                        .ConfigureLogging(
                             x => {
                                 x.SetMinimumLevel(LogLevel.Trace);
+                                x.Services.AddSingleton(TestOptions.ServerLoggerFactory);
                             }
                         )
                        .Services
