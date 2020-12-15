@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using OmniSharp.Extensions.JsonRpc.Generators.Contexts;
@@ -51,6 +52,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                          )
                         .WithExpressionBody(GetRequestHandlerExpression(request, GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration)))
                         .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+
+            if (item is RequestItem { Response: { Symbol: ITypeParameterSymbol } } ri)
+            {
+                method = method.AddTypeParameterListParameters(TypeParameter(ri.Response.Symbol.Name));
+            }
 
             var methodFactory = MakeFactory(extensionMethodContext.GetRegistryParameterList());
 

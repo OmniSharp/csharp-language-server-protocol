@@ -39,6 +39,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                   .WithModifiers(item.TypeDeclaration.Modifiers)
                                   .AddBaseListTypes(SimpleBaseType(GetBaseHandlerInterface(item)));
 
+            if (item is RequestItem { Response: { Symbol: ITypeParameterSymbol } } ri)
+            {
+                handlerInterface = handlerInterface.AddTypeParameterListParameters(TypeParameter(ri.Response.Symbol.Name));
+            }
+
             if (item.Request.Symbol.AllInterfaces.Any(z => z.Name == "IDoesNotParticipateInRegistration"))
             {
                 handlerInterface = handlerInterface.AddBaseListTypes(SimpleBaseType(IdentifierName("IDoesNotParticipateInRegistration")));
@@ -47,7 +52,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             if (!handlerInterface.Modifiers.Any(z => z.IsKind(SyntaxKind.PartialKeyword)))
             {
                 handlerInterface = handlerInterface.AddModifiers(Token(SyntaxKind.PartialKeyword));
-           }
+            }
 
             if (item.JsonRpcAttributes.AllowDerivedRequests)
             {
@@ -107,6 +112,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                 var baseClass = GetBaseHandlerClass(item);
                 var handlerClass = ClassDeclaration(Identifier($"{item.JsonRpcAttributes.HandlerName}HandlerBase"))
                                   .WithAttributeLists(classAttributes)
+                                  .WithTypeParameterList(handlerInterface.TypeParameterList)
                                   .AddModifiers(Token(SyntaxKind.AbstractKeyword))
                                   .AddModifiers(handlerInterface.Modifiers.ToArray());
                 if (item.JsonRpcAttributes.AllowDerivedRequests)
@@ -170,7 +176,15 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                 }
                 else
                 {
-                    handlerClass = handlerClass.AddBaseListTypes(SimpleBaseType(IdentifierName($"I{item.JsonRpcAttributes.HandlerName}Handler")));
+                    handlerClass = handlerClass.AddBaseListTypes(
+                        SimpleBaseType(
+                            item is RequestItem { Response: { Symbol: ITypeParameterSymbol s } }
+                                ? GenericName($"I{item.JsonRpcAttributes.HandlerName}Handler").WithTypeArgumentList(
+                                    TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName(s.Name)))
+                                )
+                                : IdentifierName($"I{item.JsonRpcAttributes.HandlerName}Handler")
+                        )
+                    );
                 }
 
                 if (resolver is { })

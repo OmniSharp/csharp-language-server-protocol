@@ -61,21 +61,21 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                         { Identifier: { Text: "IRequest" }, Arity: 1 }               => gns.TypeArgumentList.Arguments[0],
                         _                                                            => null
                     },
-                    SimpleNameSyntax and { Identifier: { Text: "IRequest" } }    => ParseName("MediatR.Unit"),
+                    SimpleNameSyntax and { Identifier: { Text: "IRequest" } }        => ParseName("MediatR.Unit"),
                     SimpleNameSyntax and { Identifier: { Text: "IJsonRpcRequest" } } => ParseName("MediatR.Unit"),
                     _                                                                => null
                 };
                 if (type != null) break;
             }
 
-            if (type == null) throw new ArgumentException($"Response Type {symbol.ToDisplayString()} is not a name symbol", nameof(symbol));
+            if (type == null) throw new ArgumentException($"Response Syntax {syntax.ToString()} is not a name syntax", nameof(syntax));
 
             var handlerInterface = symbol.AllInterfaces.FirstOrDefault(z => z.Name == "IRequestHandler" && z.TypeArguments.Length == 2);
-            if (handlerInterface?.TypeArguments[1] is INamedTypeSymbol ns)
-                return new SyntaxSymbol(type, ns);
+            if (handlerInterface?.TypeArguments[1] is INamedTypeSymbol || handlerInterface?.TypeArguments[1] is ITypeParameterSymbol)
+                return new SyntaxSymbol(type, handlerInterface.TypeArguments[1]);
             handlerInterface = symbol.AllInterfaces.FirstOrDefault(z => z.Name == "IRequest" && z.Arity == 1);
-            if (handlerInterface?.TypeArguments[0] is INamedTypeSymbol ns2)
-                return new SyntaxSymbol(type, ns2);
+            if (handlerInterface?.TypeArguments[0] is INamedTypeSymbol || handlerInterface?.TypeArguments[0] is ITypeParameterSymbol)
+                return new SyntaxSymbol(type, handlerInterface.TypeArguments[0]);
             throw new ArgumentException($"Response Type {symbol.ToDisplayString()} is not a name symbol", nameof(symbol));
         }
 
@@ -103,11 +103,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                             { Identifier: { Text: "IJsonRpcRequestHandler" } }          => gns.TypeArgumentList.Arguments[0],
                             { Identifier: { Text: "IJsonRpcNotificationHandler" } }     => gns.TypeArgumentList.Arguments[0],
                             { Identifier: { Text: "ICanBeResolvedHandler" }, Arity: 1 } => gns.TypeArgumentList.Arguments[0],
-                            { Identifier: { Text: "IRequest" } }                        => ParseTypeName(syntax.Identifier.Text),
-                            { Identifier: { Text: "IJsonRpcRequest" } }                 => ParseTypeName(syntax.Identifier.Text),
-                            { Identifier: { Text: "IPartialItemRequest" }, Arity: 2 }   => ParseTypeName(syntax.Identifier.Text),
-                            { Identifier: { Text: "IPartialItemsRequest" }, Arity: 2 }  => ParseTypeName(syntax.Identifier.Text),
-                            _                                                           => null,
+                            { Identifier: { Text: "IRequest" }, Arity: 1 } => IdentifierName(syntax.Identifier.Text),
+                            { Identifier: { Text: "IRequest" }, Arity: 0 }             => IdentifierName(syntax.Identifier.Text),
+                            { Identifier: { Text: "IJsonRpcRequest" } }                => IdentifierName(syntax.Identifier.Text),
+                            { Identifier: { Text: "IPartialItemRequest" }, Arity: 2 }  => IdentifierName(syntax.Identifier.Text),
+                            { Identifier: { Text: "IPartialItemsRequest" }, Arity: 2 } => IdentifierName(syntax.Identifier.Text),
+                            _                                                          => null,
                         },
                         _ => null,
                     };
@@ -116,6 +117,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             }
 
             if (type == null) return null;
+            if (type is IdentifierNameSyntax ins && ins.Identifier.Text == syntax.Identifier.Text && syntax.TypeParameterList is { Parameters: { Count: > 0 } })
+            {
+                type = GenericName(syntax.Identifier.Text)
+                   .WithTypeArgumentList(
+                        TypeArgumentList(SeparatedList<TypeSyntax>(syntax.TypeParameterList?.Parameters.Select(z => IdentifierName(z.Identifier.Text))))
+                    );
+            }
 
             var handlerInterface = symbol.AllInterfaces
                                          .FirstOrDefault(z => z.Name == "IRequestHandler" && z.TypeArguments.Length == 2);

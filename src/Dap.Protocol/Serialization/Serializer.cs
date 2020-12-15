@@ -16,6 +16,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Serialization
             ReplaceConverter(converters, new DapClientResponseConverter(this));
             ReplaceConverter(converters, new DapClientRequestConverter());
             ReplaceConverter(converters, new DapRpcErrorConverter(this));
+            ReplaceConverter(converters, new ProgressTokenConverter());
         }
 
         protected override JsonSerializer CreateSerializer()

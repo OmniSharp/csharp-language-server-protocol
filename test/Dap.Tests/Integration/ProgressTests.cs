@@ -71,6 +71,8 @@ namespace Dap.Tests.Integration
                 }
             );
 
+            workDoneObserver.OnCompleted();
+
             await data.DelayUntilCount(6, CancellationToken);
 
             var results = data.Select(
