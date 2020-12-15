@@ -113,13 +113,18 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             {
                 services.RemoveAll<LanguageClient>();
                 services.RemoveAll<ILanguageClient>();
+                services.RemoveAll<ILanguageClientFacade>();
                 services.AddSingleton<ILanguageClient>(
                     _ =>
-                        throw new NotSupportedException("LanguageClient has been registered multiple times, you must use LanguageClient instead")
+                        throw new NotSupportedException("LanguageClient has been registered multiple times, you must use LanguageClientResolver instead")
+                );
+                services.AddSingleton<ILanguageClientFacade>(
+                    _ =>
+                        throw new NotSupportedException("LanguageClient has been registered multiple times, you must use LanguageClientResolver instead")
                 );
                 services.AddSingleton<LanguageClient>(
                     _ =>
-                        throw new NotSupportedException("LanguageClient has been registered multiple times, you must use LanguageClient instead")
+                        throw new NotSupportedException("LanguageClient has been registered multiple times, you must use LanguageClientResolver instead")
                 );
             }
 
@@ -129,6 +134,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             services.TryAddSingleton<LanguageClientResolver>();
             services.TryAddSingleton(_ => _.GetRequiredService<LanguageClientResolver>().Get(name));
             services.TryAddSingleton<ILanguageClient>(_ => _.GetRequiredService<LanguageClientResolver>().Get(name));
+            services.TryAddSingleton<ILanguageClientFacade>(_ => _.GetRequiredService<LanguageClientResolver>().Get(name));
 
             if (configureOptions != null)
             {

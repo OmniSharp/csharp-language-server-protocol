@@ -8,10 +8,10 @@ namespace Lsp.Tests
 {
     internal static class TextDocumentSyncHandlerExtensions
     {
-        public static ITextDocumentSyncHandler With(DocumentSelector documentSelector, string language) =>
+        public static ITextDocumentSyncHandler With(DocumentSelector? documentSelector, string language) =>
             Substitute.For<ITextDocumentSyncHandler>().With(documentSelector, language);
 
-        public static ITextDocumentSyncHandler With(this ITextDocumentSyncHandler handler, DocumentSelector documentSelector, string language)
+        public static ITextDocumentSyncHandler With(this ITextDocumentSyncHandler handler, DocumentSelector? documentSelector, string language)
         {
             ( (IDidChangeTextDocumentHandler) handler ).GetRegistrationOptions(Arg.Any<SynchronizationCapability>(), Arg.Any<ClientCapabilities>()).Returns(new TextDocumentChangeRegistrationOptions() { DocumentSelector = documentSelector });
             ( (IDidOpenTextDocumentHandler) handler ).GetRegistrationOptions(Arg.Any<SynchronizationCapability>(), Arg.Any<ClientCapabilities>()).Returns(new TextDocumentOpenRegistrationOptions() { DocumentSelector = documentSelector });
