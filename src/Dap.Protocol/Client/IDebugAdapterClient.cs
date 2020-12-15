@@ -4,9 +4,8 @@ using System.Threading.Tasks;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Client
 {
-    public interface IDebugAdapterClient : IDebugAdapterClientProxy, IDisposable
+    public interface IDebugAdapterClient : IDebugAdapterClientFacade, IDisposable
     {
         Task Initialize(CancellationToken token);
-        IDebugAdapterClientProgressManager ProgressManager { get; }
     }
 }
