@@ -1,4 +1,5 @@
 using System;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
@@ -51,6 +52,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         public Supports<CodeLensWorkspaceClientCapabilities> CodeLens { get; set; }
 
         /// <summary>
+        /// Capabilities specific to the code lens requests scoped to the
+        /// workspace.
+        ///
+        /// @since 3.16.0 - proposed state.
+        /// </summary>
+        [Obsolete(Constants.Proposal)]
+        public Supports<FileOperationsWorkspaceClientCapabilities> FileOperations { get; set; }
+
+        /// <summary>
         /// The client has support for workspace folders.
         ///
         /// Since 3.6.0
@@ -64,4 +74,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// </summary>
         public Supports<bool> Configuration { get; set; }
     }
+
+
 }

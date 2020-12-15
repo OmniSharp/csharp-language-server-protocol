@@ -36,7 +36,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                    SyntaxFactory.IdentifierName("AssemblyCapabilityKey"), SyntaxFactory.AttributeArgumentList(
                                                        SyntaxFactory.SeparatedList(
                                                            new[] {
-                                                               SyntaxFactory.AttributeArgument(SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseName(typeSymbol.ToDisplayString()))),
+                                                               SyntaxFactory.AttributeArgument(
+                                                                   SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseName(typeSymbol.ToDisplayString()))
+                                                               ),
                                                            }.Concat(options.AttributeLists.GetAttribute("CapabilityKey")!.ArgumentList!.Arguments)
                                                        )
                                                    )
@@ -48,7 +50,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             {
                 var cu = SyntaxFactory.CompilationUnit()
                                       .WithUsings(SyntaxFactory.List(namespaces.OrderBy(z => z).Select(z => SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(z)))))
-                                      .AddAttributeLists(SyntaxFactory.AttributeList(target: SyntaxFactory.AttributeTargetSpecifier(SyntaxFactory.Token(SyntaxKind.AssemblyKeyword)), SyntaxFactory.SeparatedList(types)))
+                                      .AddAttributeLists(
+                                           SyntaxFactory.AttributeList(
+                                               target: SyntaxFactory.AttributeTargetSpecifier(SyntaxFactory.Token(SyntaxKind.AssemblyKeyword)), SyntaxFactory.SeparatedList(types)
+                                           )
+                                       )
                                       .WithLeadingTrivia(SyntaxFactory.Comment(Preamble.GeneratedByATool))
                                       .WithTrailingTrivia(SyntaxFactory.CarriageReturnLineFeed);
 
@@ -91,8 +97,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                  && syntaxNode.AttributeLists.ContainsAttribute("CapabilityKey")
                  && syntaxNode.BaseList is { } bl && bl.Types.Any(
                         z => z.Type switch {
-                            SimpleNameSyntax { Identifier: { Text: "ICapability" }, Arity: 0 } => true,
-                            _                                                                  => false
+                            SimpleNameSyntax { Identifier: { Text: "ICapability" or "DynamicCapability" or "IDynamicCapability" or "LinkSupportCapability" }, Arity: 0 } => true,
+                            _                                                                                                                                            => false
                         }
                     ))
                 {

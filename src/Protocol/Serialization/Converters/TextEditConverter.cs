@@ -17,8 +17,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             serializer.Serialize(writer, value.NewText);
             if (value is AnnotatedTextEdit annotatedTextEdit)
             {
-                writer.WritePropertyName("annotation");
-                serializer.Serialize(writer, annotatedTextEdit.Annotation);
+                writer.WritePropertyName("annotationId");
+                serializer.Serialize(writer, annotatedTextEdit.AnnotationId);
             }
 
             writer.WriteEndObject();
@@ -28,10 +28,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
         {
             var result = JObject.Load(reader);
             TextEdit edit;
-            if (result["annotation"] is { Type: JTokenType.Object } annotation)
+            if (result["annotationId"] is { Type: JTokenType.String } annotation)
             {
                 edit = new AnnotatedTextEdit() {
-                    Annotation = annotation.ToObject<ChangeAnnotation>()
+                    AnnotationId = annotation.ToObject<ChangeAnnotationIdentifier>()
                 };
             }
             else

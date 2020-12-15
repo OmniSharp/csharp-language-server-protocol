@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
@@ -8,11 +10,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     [AttributeUsage(AttributeTargets.Class)]
     public class RegistrationOptionsKeyAttribute : Attribute
     {
-        public RegistrationOptionsKeyAttribute(string key)
+        public RegistrationOptionsKeyAttribute(string key, params string[] keys)
         {
-            Key = key;
+            Key = new[] { key }.Concat(keys).ToArray();
         }
 
-        public string Key { get; }
+        public string[] Key { get; }
     }
 }

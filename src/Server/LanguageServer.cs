@@ -403,7 +403,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             var serverCapabilitiesObject = new JObject();
             foreach (var converter in _registrationOptionsConverters)
             {
-                var keys = converter.Key.Split('.').Select(key => char.ToLower(key[0]) + key.Substring(1)).ToArray();
+                var keys = ( converter.Key ?? Array.Empty<string>() ).Select(key => char.ToLower(key[0]) + key.Substring(1)).ToArray();
                 var value = serverCapabilitiesObject;
                 foreach (var key in keys.Take(keys.Length - 1))
                 {
@@ -423,7 +423,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                                 .Where(z => z.HasRegistration)
                                 .FirstOrDefault(z => converter.SourceType == z.RegistrationType);
 
-                if (descriptor == null || descriptor.CapabilityType == null || _supportedCapabilities.AllowsDynamicRegistration(descriptor.CapabilityType)) continue;
+                if (descriptor == null || _supportedCapabilities.AllowsDynamicRegistration(descriptor.CapabilityType)) continue;
                 var registrationOptions = descriptor.RegistrationOptions;
 
                 value[lastKey] = registrationOptions == null
@@ -437,16 +437,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             }
 
             var ccp = new ClientCapabilityProvider(_collection, windowCapabilities.WorkDoneProgress.IsSupported);
-
-            if (_collection.ContainsHandler(typeof(IDidChangeWorkspaceFoldersHandler)))
-            {
-                serverCapabilities.Workspace = new WorkspaceServerCapabilities {
-                    WorkspaceFolders = new WorkspaceFolderOptions {
-                        Supported = true,
-                        ChangeNotifications = Guid.NewGuid().ToString()
-                    }
-                };
-            }
 
             if (ccp.HasStaticHandler(textDocumentCapabilities.Synchronization))
             {

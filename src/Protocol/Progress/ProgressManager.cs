@@ -108,8 +108,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
             }
 
             observable = new PartialItemsRequestProgressObservable<TItem, IEnumerable<TItem>>(
-                _serializer, request.PartialResultToken, MakeRequest(request),
-                x => x, cancellationToken, () => _activeObservables.TryRemove(request.PartialResultToken, out _)
+                _serializer,
+                request.PartialResultToken,
+                MakeRequest(request),
+                x => x,
+                cancellationToken,
+                () => _activeObservables.TryRemove(request.PartialResultToken, out _)
             );
             _activeObservables.TryAdd(request.PartialResultToken, observable);
             return observable;
@@ -128,7 +132,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
             }
 
             observable = new PartialItemsRequestProgressObservable<TItem, TResponse>(
-                _serializer, request.PartialResultToken, MakeRequest(request), factory, cancellationToken,
+                _serializer,
+                request.PartialResultToken,
+                MakeRequest(request),
+                factory, cancellationToken,
                 () => _activeObservables.TryRemove(request.PartialResultToken, out _)
             );
             _activeObservables.TryAdd(request.PartialResultToken, observable);

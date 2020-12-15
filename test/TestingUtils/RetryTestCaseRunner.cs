@@ -34,6 +34,8 @@ namespace TestingUtils
                 diagnosticMessageSink.OnMessage(new DiagnosticMessage("Running test \"{0}\" attempt ({1}/{2})",
                                                                       testCase.DisplayName, i, testCase.MaxRetries));
 
+                blockingMessageBus.QueueMessage(new DiagnosticMessage("Running test \"{0}\" attempt ({1}/{2})",
+                                                                   testCase.DisplayName, i, testCase.MaxRetries));
                 RunSummary summary = await fnRunSingle(blockingMessageBus);
 
                 // If we succeeded, or we've reached the max retries return the result

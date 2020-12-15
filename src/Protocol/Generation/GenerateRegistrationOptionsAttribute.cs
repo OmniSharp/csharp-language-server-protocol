@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Linq;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Generation
 {
@@ -10,7 +11,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Generation
     [Conditional("CodeGeneration")]
     public class GenerateRegistrationOptionsAttribute : Attribute
     {
-        public string? ServerCapabilitiesKey { get; }
         public bool SupportsWorkDoneProgress { get; init; }
         public bool SupportsStaticRegistrationOptions { get; init; }
         public bool SupportsDocumentSelector { get; init; }
@@ -22,9 +22,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Generation
             init => SupportsDocumentSelector = value;
         }
 
-        public GenerateRegistrationOptionsAttribute(string? serverCapabilitiesKey = null)
+        public GenerateRegistrationOptionsAttribute(string? key = null, params string?[] keys)
         {
-            ServerCapabilitiesKey = serverCapabilitiesKey;
+            Keys = new [] { key} .Concat(keys).ToArray();
         }
+
+        public string?[] Keys { get; set; }
     }
 }

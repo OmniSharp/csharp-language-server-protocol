@@ -143,6 +143,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             if (registrationType == null)
             {
                 // vscode client throws if given an unknown registration type
+                _logger.LogError("Unknown Registration Type {Method} {@Registration}", registration.Method, registration);
                 throw new NotSupportedException($"Unknown Registration Type '{registration.Method}'");
             }
 
@@ -153,6 +154,11 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                     ? token.ToObject(registrationType, _serializer.JsonSerializer)
                     : registration.RegisterOptions
             };
+
+            if (_logger.IsEnabled(LogLevel.Trace))
+            {
+                _logger.LogTrace("Registered handler for {Method} {@Registration}", deserializedRegistration.Method, deserializedRegistration.RegisterOptions );
+            }
 
             return deserializedRegistration;
         }

@@ -149,6 +149,7 @@ namespace Lsp.Tests.Integration
                 }
             );
             var workspaceFolders = new LanguageServerWorkspaceFolderManager(workspaceLanguageServer);
+            ( (IRegistration<DidChangeWorkspaceFolderRegistrationOptions>) workspaceFolders ).GetRegistrationOptions(languageServer!.ClientSettings!.Capabilities!);
             var started = (IOnLanguageServerStarted) workspaceFolders;
             await started.OnStarted(languageServer, CancellationToken);
         }
@@ -170,6 +171,7 @@ namespace Lsp.Tests.Integration
             );
             languageServer.SendRequest(Arg.Any<WorkspaceFolderParams>(), Arg.Any<CancellationToken>()).Returns((Container<WorkspaceFolder>? ) null);
             var workspaceFolders = new LanguageServerWorkspaceFolderManager(workspaceLanguageServer);
+            ( (IRegistration<DidChangeWorkspaceFolderRegistrationOptions>) workspaceFolders ).GetRegistrationOptions(languageServer!.ClientSettings!.Capabilities!);
             var started = (IOnLanguageServerStarted) workspaceFolders;
             await started.OnStarted(languageServer, CancellationToken);
 

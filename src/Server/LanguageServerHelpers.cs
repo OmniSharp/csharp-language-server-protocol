@@ -112,7 +112,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                                  var registrations = new HashSet<Registration>();
                                  foreach (var descriptor in descriptors)
                                  {
-                                     if (!descriptor.HasCapability || !supportedCapabilities.AllowsDynamicRegistration(descriptor.CapabilityType!)) continue;
+                                     if (!descriptor.HasCapability || !descriptor.HasRegistration || !supportedCapabilities.AllowsDynamicRegistration(descriptor.CapabilityType!)) continue;
                                      if (descriptor.RegistrationOptions is IWorkDoneProgressOptions wdpo)
                                      {
                                          wdpo.WorkDoneProgress = serverWorkDoneManager.IsSupported;
@@ -135,7 +135,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                              registrations => Observable.FromAsync(ct => client.RegisterCapability(new RegistrationParams { Registrations = registrations.ToArray() }, ct)),
                              (a, _) => a
                          )
-                        .Aggregate(Array.Empty<Registration>(), (z, _) => z)
+                        .Aggregate(Array.Empty<Registration>(), (_, z) => z)
                         .Subscribe(
                              registrations => {
                                  disposable.Add(

@@ -36,15 +36,19 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             {
                 var cu = CompilationUnit()
                         .WithUsings(List(namespaces.OrderBy(z => z).Select(z => UsingDirective(ParseName(z)))))
-                        .AddAttributeLists(
-                             AttributeList(
-                                 target: AttributeTargetSpecifier(Token(SyntaxKind.AssemblyKeyword)),
-                                 SingletonSeparatedList(Attribute(IdentifierName("AssemblyJsonRpcHandlers"), AttributeArgumentList(SeparatedList(types))))
-                             )
-                         )
                         .WithLeadingTrivia(Comment(Preamble.GeneratedByATool))
                         .WithTrailingTrivia(CarriageReturnLineFeed);
-
+                while (types.Length > 0)
+                {
+                    var innerTypes = types.Take(10).ToArray();
+                    types = types.Skip(10).ToArray();
+                    cu = cu.AddAttributeLists(
+                        AttributeList(
+                            target: AttributeTargetSpecifier(Token(SyntaxKind.AssemblyKeyword)),
+                            SingletonSeparatedList(Attribute(IdentifierName("AssemblyJsonRpcHandlers"), AttributeArgumentList(SeparatedList(innerTypes))))
+                        )
+                    );
+                }
                 context.AddSource("AssemblyJsonRpcHandlers.cs", cu.NormalizeWhitespace().GetText(Encoding.UTF8));
             }
         }
@@ -84,6 +88,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                  && syntaxNode.BaseList is { } bl && bl.Types.Any(
                         z => z.Type switch {
                             SimpleNameSyntax { Identifier: { Text: "IJsonRpcNotificationHandler" }, Arity: 0 or 1 } => true,
+                            SimpleNameSyntax { Identifier: { Text: "ICanBeResolvedHandler" }, Arity: 1 }            => true,
                             SimpleNameSyntax { Identifier: { Text: "IJsonRpcRequestHandler" }, Arity: 1 or 2 }      => true,
                             SimpleNameSyntax { Identifier: { Text: "IJsonRpcHandler" }, Arity: 0 }                  => true,
                             _                                                                                       => false
@@ -99,6 +104,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                  && syntaxNode.BaseList is { } bl2 && bl2.Types.Any(
                         z => z.Type switch {
                             SimpleNameSyntax { Identifier: { Text: "IJsonRpcNotificationHandler" }, Arity: 0 or 1 } => true,
+                            SimpleNameSyntax { Identifier: { Text: "ICanBeResolvedHandler" }, Arity: 1 }            => true,
                             SimpleNameSyntax { Identifier: { Text: "IJsonRpcRequestHandler" }, Arity: 1 or 2 }      => true,
                             SimpleNameSyntax { Identifier: { Text: "IJsonRpcHandler" }, Arity: 0 }                  => true,
                             _                                                                                       => false

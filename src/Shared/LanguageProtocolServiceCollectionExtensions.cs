@@ -50,15 +50,28 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             container.RegisterMany<ResponseRouter>(Reuse.Singleton);
             container.RegisterMany<ProgressManager>(Reuse.Singleton);
 
-            container.RegisterMany(
-                options.Assemblies
-                       .SelectMany(z => z.GetCustomAttributes<AssemblyRegistrationOptionsAttribute>())
-                       .SelectMany(z => z.Types)
-                       .SelectMany(z => z.GetCustomAttributes<RegistrationOptionsConverterAttribute>())
-                       .Select(z => z.ConverterType)
-                       .Where(z => typeof(IRegistrationOptionsConverter).IsAssignableFrom(z)),
-                reuse: Reuse.Singleton
-            );
+            if (options.UseAssemblyAttributeScanning)
+            {
+                container.RegisterMany(
+                    options.Assemblies
+                           .SelectMany(z => z.GetCustomAttributes<AssemblyRegistrationOptionsAttribute>())
+                           .SelectMany(z => z.Types)
+                           .SelectMany(z => z.GetCustomAttributes<RegistrationOptionsConverterAttribute>())
+                           .Select(z => z.ConverterType)
+                           .Where(z => typeof(IRegistrationOptionsConverter).IsAssignableFrom(z)),
+                    reuse: Reuse.Singleton
+                );
+            }
+            else
+            {
+                container.RegisterMany(
+                    options.Assemblies
+                           .SelectMany(z => z.GetTypes())
+                           .Where(z => z.IsClass && !z.IsAbstract)
+                           .Where(z => typeof(IRegistrationOptionsConverter).IsAssignableFrom(z)),
+                    reuse: Reuse.Singleton
+                );
+            }
 
             return container;
         }

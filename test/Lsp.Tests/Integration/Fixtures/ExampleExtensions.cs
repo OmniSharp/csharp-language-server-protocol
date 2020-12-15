@@ -27,7 +27,7 @@ namespace Lsp.Tests.Integration.Fixtures
         GenerateRequestMethods(typeof(ILanguageClient))
     ]
     [RegistrationOptions(typeof(UnitTestRegistrationOptions)), Capability(typeof(UnitTestCapability))]
-    public partial class UnitTest : IJsonRpcRequest
+    public partial class UnitTest : IJsonRpcRequest, IDoesNotParticipateInRegistration
     {
         public string Name { get; set; } = null!;
     }
@@ -39,7 +39,7 @@ namespace Lsp.Tests.Integration.Fixtures
     }
 
     [GenerateRegistrationOptions("unitTestDiscovery")]
-    [RegistrationName("unitTestDiscovery")]
+    [RegistrationName("tests")]
     public partial class UnitTestRegistrationOptions : IWorkDoneProgressOptions
     {
         [Optional] public bool SupportsDebugging { get; set; }

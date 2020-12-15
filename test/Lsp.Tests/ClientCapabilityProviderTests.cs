@@ -265,7 +265,7 @@ namespace Lsp.Tests
                     textDocumentSyncHandler, willSaveTextDocumentHandler, willSaveWaitUntilTextDocumentHandler,
                     didSaveTextDocumentHandler
                 };
-            var provider = new ClientCapabilityProvider(collection, true);
+            var provider = new ClientCapabilityProvider(collection ,true);
             var capabilities = new ClientCapabilities {
                 TextDocument = new TextDocumentClientCapabilities {
                     Synchronization = new SynchronizationCapability {

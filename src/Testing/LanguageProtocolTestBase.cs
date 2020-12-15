@@ -60,7 +60,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
             _server = RealLanguageServer.PreInit(
                 options => {
                     options
-                       .WithLoggerFactory(TestOptions.ClientLoggerFactory)
+                       .WithLoggerFactory(TestOptions.ServerLoggerFactory)
                        .WithAssemblies(TestOptions.Assemblies)
                        .ConfigureLogging(x => x.SetMinimumLevel(LogLevel.Trace))
                        .WithAssemblies(typeof(LanguageProtocolTestBase).Assembly, GetType().Assembly)

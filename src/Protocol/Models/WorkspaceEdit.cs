@@ -25,5 +25,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         [Optional]
         public Container<WorkspaceEditDocumentChange>? DocumentChanges { get; init; }
+
+        /// <summary>
+        /// A map of change annotations that can be referenced in
+        /// `AnnotatedTextEdit`s or create, rename and delete file / folder
+        /// operations.
+        ///
+        /// Whether clients honor this property depends on the client capability
+        /// `workspace.changeAnnotationSupport`.
+        ///
+        /// @since 3.16.0 - proposed state
+        /// </summary>
+        [Optional]
+        public IDictionary<ChangeAnnotationIdentifier, ChangeAnnotation>? ChangeAnnotations { get; init; }
     }
 }

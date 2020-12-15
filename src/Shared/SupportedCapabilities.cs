@@ -23,7 +23,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             return default;
         }
 
-        public bool AllowsDynamicRegistration(Type capabilityType)
+        public bool AllowsDynamicRegistration(Type? capabilityType)
         {
             if (capabilityType != null && TryGetCapability(capabilityType, out var capability))
             {
@@ -72,9 +72,9 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             return GetRegistrationOptions(descriptor.RegistrationType, descriptor.CapabilityType, handler);
         }
 
-        public object? GetRegistrationOptions(ILspHandlerDescriptor descriptor, IJsonRpcHandler handler)
+        public object? GetRegistrationOptions(ILspHandlerDescriptor descriptor)
         {
-            return GetRegistrationOptions(descriptor.RegistrationType, descriptor.CapabilityType, handler);
+            return GetRegistrationOptions(descriptor.RegistrationType, descriptor.CapabilityType, descriptor.Handler);
         }
 
         public object? GetRegistrationOptions(Type? registrationType, Type? capabilityType, IJsonRpcHandler handler)
@@ -106,7 +106,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                     return result;
                 }
             }
-            else if (!typeof(IRegistration<>).MakeGenericType(registrationType).IsInstanceOfType(handler))
+            else if (typeof(IRegistration<>).MakeGenericType(registrationType).IsInstanceOfType(handler))
             {
                 var result = GetRegistrationOptionsInnerMethod
                             .MakeGenericMethod(registrationType)

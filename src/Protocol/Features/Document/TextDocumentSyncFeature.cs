@@ -377,8 +377,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public abstract Task<Unit> Handle(DidCloseTextDocumentParams request, CancellationToken cancellationToken);
 
             private TextDocumentSyncRegistrationOptions? _registrationOptions;
+            private ClientCapabilities? _clientCapabilities;
 
             protected TextDocumentSyncRegistrationOptions RegistrationOptions => _registrationOptions!;
+            protected ClientCapabilities ClientCapabilities => _clientCapabilities!;
 
             protected SynchronizationCapability Capability { get; private set; } = default!;
 
@@ -388,6 +390,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
                 Capability = capability;
                 if (_registrationOptions is { }) return _registrationOptions;
+                _clientCapabilities = clientCapabilities;
                 return _registrationOptions = CreateRegistrationOptions(capability, clientCapabilities);
             }
 

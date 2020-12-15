@@ -10,9 +10,5 @@
         }
     },
     "newText": "new text",
-    "annotation": {
-        "label": "Heck ya",
-        "needsConfirmation": true,
-        "description": "Cool story"
-    }
+    "annotationId": "Cool story"
 }
