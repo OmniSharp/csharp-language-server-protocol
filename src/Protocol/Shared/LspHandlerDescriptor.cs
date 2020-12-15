@@ -68,10 +68,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             RegistrationOptions = registrationOptions;
             CapabilityType = capabilityType;
 
-            Response = typeDescriptor?.ResponseType ??
-                       @params?.GetInterfaces()
+            Response = @params?.GetInterfaces()
                                .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IRequest<>))
-                              ?.GetGenericArguments()[0] ?? typeof(Unit);
+                              ?.GetGenericArguments()[0] ?? typeDescriptor?.ResponseType ?? typeof(Unit);
 
             // If multiple are implemented this behavior is unknown
             CanBeResolvedHandlerType = handler.GetType().GetTypeInfo()
@@ -98,7 +97,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             LspHandlerDescriptor descriptor,
             string key,
             object? registrationOptions
-        ) : this(descriptor.Index, descriptor.Method, key, descriptor.Handler, descriptor.HandlerType, descriptor.Params, descriptor.RegistrationType, descriptor.RegistrationMethod, registrationOptions, descriptor.CapabilityType, descriptor.RequestProcessType, descriptor._disposeAction, descriptor.TypeDescriptor, descriptor.Id)
+        ) : this(
+            descriptor.Index, descriptor.Method, key, descriptor.Handler, descriptor.HandlerType, descriptor.Params, descriptor.RegistrationType, descriptor.RegistrationMethod,
+            registrationOptions, descriptor.CapabilityType, descriptor.RequestProcessType, descriptor._disposeAction, descriptor.TypeDescriptor, descriptor.Id
+        )
         {
         }
 

@@ -38,7 +38,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                 }
             );
 
-            var className = item.JsonRpcAttributes.HandlerName + "Extensions";
+            var className = item.JsonRpcAttributes.HandlerName + "Extensions" + ( item.TypeDeclaration.Arity == 0 ? "" : item.TypeDeclaration.Arity.ToString() );
 
             var obsoleteAttribute = item.TypeDeclaration.AttributeLists
                                         .SelectMany(z => z.Attributes)

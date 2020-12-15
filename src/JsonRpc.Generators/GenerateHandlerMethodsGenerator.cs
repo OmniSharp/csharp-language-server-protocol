@@ -116,6 +116,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                                               .Where(z => z.Alias == null)
                                                                               .Select(z => z.Name.ToFullString())
                                                             )
+                                                           .Except(new [] { "<global namespace>" }) // I think there is a better way... but for now..
                                                            .Distinct()
                                                            .Select(z => UsingDirective(IdentifierName(z)))
                                                     )

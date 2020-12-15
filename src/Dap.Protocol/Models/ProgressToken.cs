@@ -9,6 +9,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         private long? _long;
         private string? _string;
 
+        public ProgressToken(Guid value)
+        {
+            _string = value.ToString();
+            _long = null;
+        }
+
         public ProgressToken(long value)
         {
             _long = value;
@@ -46,6 +52,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         public static implicit operator ProgressToken(long value) => new ProgressToken(value);
 
         public static implicit operator ProgressToken(string value) => new ProgressToken(value);
+        public static implicit operator ProgressToken(Guid value) => new ProgressToken(value);
 
         public bool Equals(long other) => IsLong && Long == other;
         public bool Equals(string other) => IsString && String == other;

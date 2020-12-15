@@ -23,6 +23,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Xunit;
 using Xunit.Abstractions;
@@ -671,7 +672,7 @@ namespace Lsp.Tests
                     );
                 foreach (var type in typeof(CompletionParams).Assembly.ExportedTypes.Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z))
                                                              .Where(z => !z.Name.EndsWith("Manager"))
-                                                             .Except(new[] { typeof(ITextDocumentSyncHandler) })
+                                                             .Except(new[] { typeof(ITextDocumentSyncHandler), typeof(IExecuteCommandHandler<>) })
                 )
                 {
                     if (type.IsGenericTypeDefinition && !MethodAttribute.AllFrom(type).Any()) continue;
@@ -686,7 +687,7 @@ namespace Lsp.Tests
                 typeof(ISemanticTokensFullHandler),
                 typeof(ISemanticTokensDeltaHandler),
                 typeof(ISemanticTokensRangeHandler),
-                typeof(ICodeActionHandler),
+                typeof(ICodeActionHandler)
             };
 
             public TypeHandlerExtensionData()
@@ -710,6 +711,7 @@ namespace Lsp.Tests
                 {
                     if (type.IsGenericTypeDefinition && !MethodAttribute.AllFrom(type).Any()) continue;
                     if (type.Name.EndsWith("Manager")) continue;
+                    if (type == typeof(IExecuteCommandHandler<>)) continue;
                     if (type == typeof(ICompletionResolveHandler) || type == typeof(ICodeLensResolveHandler) || type == typeof(IDocumentLinkResolveHandler)
                      || type == typeof(ICodeActionResolveHandler)) continue;
                     if (type == typeof(ISemanticTokensFullHandler) || type == typeof(ISemanticTokensDeltaHandler) || type == typeof(ISemanticTokensRangeHandler)) continue;

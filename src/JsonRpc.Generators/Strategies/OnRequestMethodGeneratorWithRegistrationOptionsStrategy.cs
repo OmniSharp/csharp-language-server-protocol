@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using OmniSharp.Extensions.JsonRpc.Generators.Contexts;
@@ -42,6 +43,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                  resolve
                              )
                          );
+
+            if (item is RequestItem { Response: { Symbol: ITypeParameterSymbol } } ri)
+            {
+                method = method.AddTypeParameterListParameters(TypeParameter(ri.Response.Symbol.Name));
+            }
+
             if (request.IsUnit)
             {
                 method = method

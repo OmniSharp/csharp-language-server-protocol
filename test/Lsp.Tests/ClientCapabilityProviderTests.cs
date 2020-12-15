@@ -13,6 +13,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Shared;
 using Xunit;
@@ -298,7 +299,7 @@ namespace Lsp.Tests
                            .SelectMany(z => z.AsEnumerable())
                            .Where(x => x.HasCapability && x.CapabilityType == type)
                            .Select(z => z.HandlerType)
-                           .Where(z => z.IsInterface) // only testing our interfaces
+                           .Where(z => z.IsInterface && !z.IsGenericType) // only testing our interfaces
                            .ToArray();
 
         private static LspHandlerTypeDescriptorProvider HandlerProvider = new LspHandlerTypeDescriptorProvider(
