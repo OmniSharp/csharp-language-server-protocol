@@ -16,6 +16,6 @@ namespace TestingUtils
     public class RetryTheoryAttribute : RetryFactAttribute
     {
         /// <inheritdoc/>
-        public RetryTheoryAttribute(int maxRetries = 3, int delayBetweenRetriesMs = 0, params SkipOnPlatform[] skipOn) : base(maxRetries, delayBetweenRetriesMs, skipOn) {  }
+        public RetryTheoryAttribute(int maxRetries = 3, int delayBetweenRetriesMs = 0) : base(maxRetries, delayBetweenRetriesMs) {  }
     }
 }
