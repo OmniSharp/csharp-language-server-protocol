@@ -10,6 +10,7 @@ namespace TestingUtils
         public static bool IsCI() => !(
             string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("CI"))
          && string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("TF_BUILD"))
+         && string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("GITHUB_WORKFLOW"))
         );
 
         public static bool PlatformToSkipPredicate(SkipOnPlatform platform)
