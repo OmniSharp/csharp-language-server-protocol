@@ -23,7 +23,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// The ID of the(frontend) client using this adapter.
             /// </summary>
 
-            [Optional]
+            [Optional, JsonProperty("clientID")]
             public string? ClientId { get; set; }
 
             /// <summary>

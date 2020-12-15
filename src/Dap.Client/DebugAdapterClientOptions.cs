@@ -7,6 +7,7 @@ using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.DebugAdapter.Shared;
 using OmniSharp.Extensions.JsonRpc;
 
@@ -22,8 +23,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
 
         public string? ClientId { get; set; }
         public string? ClientName { get; set; }
-
-        [JsonProperty("adapterID")]
         public string AdapterId { get; set; } = null!;
         public string? Locale { get; set; }
         public bool LinesStartAt1 { get; set; }
