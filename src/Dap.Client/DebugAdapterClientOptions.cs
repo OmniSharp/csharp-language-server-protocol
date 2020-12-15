@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
@@ -21,6 +22,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
 
         public string? ClientId { get; set; }
         public string? ClientName { get; set; }
+
+        [JsonProperty("adapterID")]
         public string AdapterId { get; set; } = null!;
         public string? Locale { get; set; }
         public bool LinesStartAt1 { get; set; }
