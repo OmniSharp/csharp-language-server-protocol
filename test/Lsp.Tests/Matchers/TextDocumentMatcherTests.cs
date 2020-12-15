@@ -55,6 +55,37 @@ namespace Lsp.Tests.Matchers
         }
 
         [Fact]
+        public void Should_Return_Did_Open_Text_Document_Handler_Descriptor_With_No_Registration_Options()
+        {
+            // Given
+            var textDocumentSyncHandler =
+                TextDocumentSyncHandlerExtensions.With(null, "csharp");
+            var textDocumentIdentifiers = new TextDocumentIdentifiers();
+            AutoSubstitute.Provide(textDocumentIdentifiers);
+            var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, Substitute.For<IResolverContext>(),
+                                                         new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }))
+                { textDocumentSyncHandler };
+            AutoSubstitute.Provide<IHandlerCollection>(collection);
+            AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
+            var handlerMatcher = AutoSubstitute.Resolve<TextDocumentMatcher>();
+
+            // When
+            var result = handlerMatcher.FindHandler(
+                new DidOpenTextDocumentParams {
+                    TextDocument = new TextDocumentItem {
+                        Uri = new Uri("file:///abc/123/d.cs")
+                    }
+                },
+                collection.Where(x => x.Method == TextDocumentNames.DidOpen)
+            );
+
+            // Then
+            var lspHandlerDescriptors = result as ILspHandlerDescriptor[] ?? result.ToArray();
+            lspHandlerDescriptors.Should().NotBeNullOrEmpty();
+            lspHandlerDescriptors.Should().Contain(x => x.Method == TextDocumentNames.DidOpen);
+        }
+
+        [Fact]
         public void Should_Return_Did_Open_Text_Document_Handler_Descriptor()
         {
             // Given
