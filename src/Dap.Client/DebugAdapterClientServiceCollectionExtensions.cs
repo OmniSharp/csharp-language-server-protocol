@@ -97,13 +97,18 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
             {
                 services.RemoveAll<DebugAdapterClient>();
                 services.RemoveAll<IDebugAdapterClient>();
+                services.RemoveAll<IDebugAdapterClientFacade>();
                 services.AddSingleton<IDebugAdapterClient>(
                     _ =>
-                        throw new NotSupportedException("DebugAdapterClient has been registered multiple times, you must use DebugAdapterClient instead")
+                        throw new NotSupportedException("DebugAdapterClient has been registered multiple times, you must use DebugAdapterClientResolver instead")
+                );
+                services.AddSingleton<IDebugAdapterClientFacade>(
+                    _ =>
+                        throw new NotSupportedException("DebugAdapterClient has been registered multiple times, you must use DebugAdapterClientResolver instead")
                 );
                 services.AddSingleton<DebugAdapterClient>(
                     _ =>
-                        throw new NotSupportedException("DebugAdapterClient has been registered multiple times, you must use DebugAdapterClient instead")
+                        throw new NotSupportedException("DebugAdapterClient has been registered multiple times, you must use DebugAdapterClientResolver instead")
                 );
             }
 
@@ -113,6 +118,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
             services.TryAddSingleton<DebugAdapterClientResolver>();
             services.TryAddSingleton(_ => _.GetRequiredService<DebugAdapterClientResolver>().Get(name));
             services.TryAddSingleton<IDebugAdapterClient>(_ => _.GetRequiredService<DebugAdapterClientResolver>().Get(name));
+            services.TryAddSingleton<IDebugAdapterClientFacade>(_ => _.GetRequiredService<DebugAdapterClientResolver>().Get(name));
 
             if (configureOptions != null)
             {
