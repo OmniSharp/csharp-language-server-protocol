@@ -2,6 +2,7 @@ using JetBrains.Annotations;
 using Nuke.Common;
 using Nuke.Common.Execution;
 using Nuke.Common.Git;
+using Nuke.Common.IO;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Tools.MSBuild;
@@ -64,4 +65,6 @@ public partial class Solution : NukeBuild,
                                         .Before(Clean);
 
     [Parameter("Configuration to build")] public Configuration Configuration { get; } = IsLocalBuild ? Configuration.Debug : Configuration.Release;
+
+    AbsolutePath ICanUpdateReadme.ReadmeFilePath => RootDirectory / "README.md";
 }
