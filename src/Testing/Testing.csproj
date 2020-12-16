@@ -9,9 +9,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\JsonRpc.Testing\JsonRpc.Testing.csproj" />
-        <ProjectReference Include="..\Protocol\Protocol.csproj" />
-        <ProjectReference Include="..\Client\Client.csproj" />
-        <ProjectReference Include="..\Server\Server.csproj" />
+        <ProjectReference Include="..\JsonRpc.Testing\JsonRpc.Testing.csproj"/>
+        <ProjectReference Include="..\Protocol\Protocol.csproj"/>
+        <ProjectReference Include="..\Client\Client.csproj"/>
+        <ProjectReference Include="..\Server\Server.csproj"/>
     </ItemGroup>
 </Project>
