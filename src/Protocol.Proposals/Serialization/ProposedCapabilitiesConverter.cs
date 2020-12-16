@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 {
-    public class ProposedCapabilitiesConverter<TFrom, TTo> : JsonConverter
+    internal class ProposedCapabilitiesConverter<TFrom, TTo> : JsonConverter
         where TTo : TFrom
         where TFrom : notnull
     {

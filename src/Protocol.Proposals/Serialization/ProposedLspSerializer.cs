@@ -5,7 +5,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 {
-    public class ProposedLspSerializer : LspSerializer
+    internal class ProposedLspSerializer : LspSerializer
     {
         public new static LspSerializer Instance { get; } = new ProposedLspSerializer();
 
