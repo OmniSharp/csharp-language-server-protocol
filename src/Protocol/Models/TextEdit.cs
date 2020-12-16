@@ -32,7 +32,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     /// A special text edit to provide an insert and a replace operation.
     ///
-    /// @since 3.16.0 - proposed state
+    /// @since 3.16.0
     /// </summary>
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public record InsertReplaceEdit
@@ -125,7 +125,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     /// Additional information that describes document changes.
     ///
-    /// @since 3.16.0 - proposed state
+    /// @since 3.16.0
     /// </summary>
     public record ChangeAnnotation
     {
@@ -155,7 +155,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// An optional annotation identifer describing the operation.
         ///
-        /// @since 3.16.0 - proposed state
+        /// @since 3.16.0
         /// </summary>
         public string Identifier { get; init; }
 
@@ -167,7 +167,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     /// A special text edit with an additional change annotation.
     ///
-    /// @since 3.16.0 - proposed state.
+    /// @since 3.16.0.
     /// </summary>
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     [JsonConverter(typeof(TextEditConverter))]

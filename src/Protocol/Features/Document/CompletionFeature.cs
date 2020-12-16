@@ -136,7 +136,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// How whitespace and indentation is handled during completion
             /// item insertion.
             ///
-            /// @since 3.16.0 - proposed state
+            /// @since 3.16.0
             /// </summary>
             [Optional]
             public InsertTextMode InsertTextMode { get; init; }
@@ -163,7 +163,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// must be a prefix of the edit's replace range, that means it must be
             /// contained and starting at the same position.
             ///
-            /// @since 3.16.0 additional type `InsertReplaceEdit` - proposed state
+            /// @since 3.16.0 additional type `InsertReplaceEdit`
             /// </summary>
             [Optional]
             public TextEditOrInsertReplaceEdit? TextEdit { get; init; }
@@ -499,7 +499,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// Client support insert replace edit to control different behavior if a
             /// completion item is inserted in the text or should replace text.
             ///
-            /// @since 3.16.0 - Proposed state
+            /// @since 3.16.0
             /// </summary>
             [Optional]
             public bool InsertReplaceSupport { get; set; }
@@ -508,7 +508,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// Client supports to resolve `additionalTextEdits` in the `completionItem/resolve`
             /// request. So servers can postpone computing them.
             ///
-            /// @since 3.16.0 - Proposed state
+            /// @since 3.16.0
             /// </summary>
             [Optional]
             public bool ResolveAdditionalTextEditsSupport { get; set; }
@@ -518,7 +518,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// item. Before version 3.16.0 only the predefined properties `documentation`
             /// and `details` could be resolved lazily.
             ///
-            /// @since 3.16.0 - proposed state
+            /// @since 3.16.0
             /// </summary>
             [Optional]
             public CompletionItemCapabilityResolveSupportOptions? ResolveSupport { get; set; }
@@ -528,7 +528,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// a completion item to override the whitespace handling mode
             /// as defined by the client (see `insertTextMode`).
             ///
-            /// @since 3.16.0 - proposed state
+            /// @since 3.16.0
             /// </summary>
             [Optional]
             public CompletionItemInsertTextModeSupportCapabilityOptions? InsertTextModeSupport { get; set; }
@@ -544,7 +544,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// item. Before version 3.16.0 only the predefined properties `documentation`
         /// and `details` could be resolved lazily.
         ///
-        /// @since 3.16.0 - proposed state
+        /// @since 3.16.0
         /// </summary>
         public class CompletionItemCapabilityResolveSupportOptions
         {

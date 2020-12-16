@@ -15,7 +15,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
-using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using ISerializer = OmniSharp.Extensions.JsonRpc.ISerializer;
 
 // ReSharper disable once CheckNamespace

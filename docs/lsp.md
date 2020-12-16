@@ -214,3 +214,8 @@ NOTE: Scoped configuration must be disposed otherwise it will continue to be upd
 
 ### Injecting `ILanguageServer` / `ILanguageClient`
 You cannot inject `ILanguageServer` or `ILanguageClient` in your handlers (or their services!) because handlers are resolved as part of their initialization.  However you can inject `ILanguageServerFacade` or `ILanguageClientFacade`.  The should have all the information you're looking for from the core types.
+
+## Language Proposals
+The protocol periodically goes through revisions to add new features and properties to the specification.  We publish these proposals in the Proposals nuget package.  Due to the nature of these proposals they can/will change regularly, do not expect these to be stable until the next version of the spec is released.  Our goal is for full fidelity and to ensure these proposals can be tested and vetted as thoroughly as possible.
+
+By registering a proposed feature as a handler it should enable itself with any significant changes.  However you can call the `EnableProposals()` method on the server or client options to ensure that the proposed Capabilities are serialized as the corresponding capabilities object.  This means you can cast `WorkspaceClientCapabilities` as `ProposedWorkspaceClientCapabilities` safely and see the capabilities that may be provided by the client or server.

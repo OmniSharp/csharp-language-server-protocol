@@ -9,9 +9,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\JsonRpc.Testing\JsonRpc.Testing.csproj" />
-        <ProjectReference Include="..\Dap.Protocol\Dap.Protocol.csproj" />
-        <ProjectReference Include="..\Dap.Client\Dap.Client.csproj" />
-        <ProjectReference Include="..\Dap.Server\Dap.Server.csproj" />
+        <ProjectReference Include="..\JsonRpc.Testing\JsonRpc.Testing.csproj"/>
+        <ProjectReference Include="..\Dap.Protocol\Dap.Protocol.csproj"/>
+        <ProjectReference Include="..\Dap.Client\Dap.Client.csproj"/>
+        <ProjectReference Include="..\Dap.Server\Dap.Server.csproj"/>
     </ItemGroup>
 </Project>

@@ -18,7 +18,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// The parameters sent in notifications/requests for user-initiated creation
         /// of files.
         ///
-        /// @since 3.16.0 - proposed state
+        /// @since 3.16.0
         /// </summary>
         public abstract record FileOperationParams<T>
             where T : FileOperationItem
@@ -42,7 +42,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         /// <inheritdoc cref="FileOperationParams{T}"/>
         [Parallel]
-        [Obsolete(Constants.Proposal)]
         [Method(WorkspaceNames.DidCreateFiles, Direction.ClientToServer)]
         [
             GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace"),
@@ -57,7 +56,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         /// <inheritdoc cref="FileOperationParams{T}"/>
         [Parallel]
-        [Obsolete(Constants.Proposal)]
         [Method(WorkspaceNames.WillCreateFiles, Direction.ClientToServer)]
         [
             GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace"),
@@ -76,7 +74,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
         /// <inheritdoc cref="FileOperationParams{T}"/>
         [Parallel]
-        [Obsolete(Constants.Proposal)]
         [Method(WorkspaceNames.DidRenameFiles, Direction.ClientToServer)]
         [
             GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace"),
@@ -91,7 +88,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         /// <inheritdoc cref="FileOperationParams{T}"/>
         [Parallel]
-        [Obsolete(Constants.Proposal)]
         [Method(WorkspaceNames.WillRenameFiles, Direction.ClientToServer)]
         [
             GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace"),
@@ -111,7 +107,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         /// <inheritdoc cref="FileOperationParams{T}"/>
         [Parallel]
-        [Obsolete(Constants.Proposal)]
         [Method(WorkspaceNames.DidDeleteFiles, Direction.ClientToServer)]
         [
             GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace"),
@@ -126,7 +121,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         /// <inheritdoc cref="FileOperationParams{T}"/>
         [Parallel]
-        [Obsolete(Constants.Proposal)]
         [Method(WorkspaceNames.WillDeleteFiles, Direction.ClientToServer)]
         [
             GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace"),
@@ -145,7 +139,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         /// <inheritdoc cref="FileOperationRegistrationOptions"/>
-        [Obsolete(Constants.Proposal)]
         [GenerateRegistrationOptions(
             nameof(ServerCapabilities.Workspace), nameof(WorkspaceServerCapabilities.FileOperations), nameof(FileOperationsWorkspaceServerCapabilities.WillCreate)
         )]
@@ -159,7 +152,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         /// <inheritdoc cref="FileOperationRegistrationOptions"/>
-        [Obsolete(Constants.Proposal)]
         [GenerateRegistrationOptions(
             nameof(ServerCapabilities.Workspace), nameof(WorkspaceServerCapabilities.FileOperations), nameof(FileOperationsWorkspaceServerCapabilities.DidCreate)
         )]
@@ -173,7 +165,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         /// <inheritdoc cref="FileOperationRegistrationOptions"/>
-        [Obsolete(Constants.Proposal)]
         [GenerateRegistrationOptions(
             nameof(ServerCapabilities.Workspace), nameof(WorkspaceServerCapabilities.FileOperations), nameof(FileOperationsWorkspaceServerCapabilities.WillRename)
         )]
@@ -187,7 +178,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         /// <inheritdoc cref="FileOperationRegistrationOptions"/>
-        [Obsolete(Constants.Proposal)]
         [GenerateRegistrationOptions(
             nameof(ServerCapabilities.Workspace), nameof(WorkspaceServerCapabilities.FileOperations), nameof(FileOperationsWorkspaceServerCapabilities.DidRename)
         )]
@@ -201,7 +191,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         /// <inheritdoc cref="FileOperationRegistrationOptions"/>
-        [Obsolete(Constants.Proposal)]
         [GenerateRegistrationOptions(
             nameof(ServerCapabilities.Workspace), nameof(WorkspaceServerCapabilities.FileOperations), nameof(FileOperationsWorkspaceServerCapabilities.WillDelete)
         )]
@@ -215,7 +204,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         /// <inheritdoc cref="FileOperationRegistrationOptions"/>
-        [Obsolete(Constants.Proposal)]
         [GenerateRegistrationOptions(
             nameof(ServerCapabilities.Workspace), nameof(WorkspaceServerCapabilities.FileOperations), nameof(FileOperationsWorkspaceServerCapabilities.DidDelete)
         )]
@@ -231,7 +219,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///<summary>
         /// The options to register for file operations.
         ///
-        /// @since 3.16.0 - proposed state
+        /// @since 3.16.0
         ///</summary>
         public interface IFileOperationRegistrationOptions
         {
@@ -245,7 +233,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// A pattern kind describing if a glob pattern matches a file a folder or
         /// both.
         ///
-        /// @since 3.16.0 - proposed state
+        /// @since 3.16.0
         /// </summary>
         [StringEnum]
         public readonly partial struct FileOperationPatternKind
@@ -270,7 +258,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// A pattern to describe in which file operation requests or notifications
         /// the server is interested in.
         ///
-        /// @since 3.16.0 - proposed state
+        /// @since 3.16.0
         /// </summary>
         public record FileOperationPattern
         {
@@ -328,7 +316,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
     namespace Server.Capabilities
     {
-        [Obsolete(Constants.Proposal)]
         public class FileOperationsWorkspaceServerCapabilities : DynamicCapability
         {
             /// <summary>
@@ -371,7 +358,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
     namespace Client.Capabilities
     {
-        [Obsolete(Constants.Proposal)]
         [CapabilityKey(nameof(ClientCapabilities.Workspace), nameof(WorkspaceClientCapabilities.FileOperations))]
         public class FileOperationsWorkspaceClientCapabilities : DynamicCapability
         {

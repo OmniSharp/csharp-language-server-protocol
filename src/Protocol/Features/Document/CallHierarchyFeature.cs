@@ -11,10 +11,8 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
@@ -23,18 +21,17 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 // ReSharper disable once CheckNamespace
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    namespace Models.Proposals
+    namespace Models
     {
         /// <summary>
         /// The parameter of a `textDocument/prepareCallHierarchy` request.
         ///
         /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         [Parallel]
         [Method(TextDocumentNames.PrepareCallHierarchy, Direction.ClientToServer)]
         [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals"),
+            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
             GenerateHandlerMethods,
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
@@ -50,7 +47,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
         [GenerateTypedData]
         public partial record CallHierarchyItem : ICanBeResolved
@@ -109,8 +105,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <inheritdoc />
             public override string ToString() => DebuggerDisplay;
         }
-
-        [Obsolete(Constants.Proposal)]
         public abstract record CallHierarchyBaseCallParams : ICanBeResolved
         {
             public CallHierarchyItem Item { get; init; }
@@ -121,8 +115,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 init => Item.SetRawData(value);
             }
         }
-
-        [Obsolete(Constants.Proposal)]
         public abstract record CallHierarchyBaseCallParams<T> : ICanBeResolved
             where T : class?, IHandlerIdentity?
         {
@@ -141,10 +133,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// @since 3.16.0
         /// </summary>
         [Parallel]
-        [Obsolete(Constants.Proposal)]
         [Method(TextDocumentNames.CallHierarchyIncoming, Direction.ClientToServer)]
         [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals", Name = "CallHierarchyIncoming"),
+            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document", Name = "CallHierarchyIncoming"),
             GenerateHandlerMethods,
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
@@ -159,7 +150,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         [Method(TextDocumentNames.CallHierarchyIncoming, Direction.ClientToServer)]
         public partial record  CallHierarchyIncomingCallsParams<T> : CallHierarchyBaseCallParams<T>, IWorkDoneProgressParams,
                                                                      IPartialItemsRequest<Container<CallHierarchyIncomingCall>?, CallHierarchyIncomingCall>, IDoesNotParticipateInRegistration
@@ -172,7 +162,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         public partial record  CallHierarchyIncomingCall
         {
             /// <summary>
@@ -192,11 +181,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         [Parallel]
         [Method(TextDocumentNames.CallHierarchyOutgoing, Direction.ClientToServer)]
         [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals", Name = "CallHierarchyOutgoing"),
+            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document", Name = "CallHierarchyOutgoing"),
             GenerateHandlerMethods,
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
@@ -221,7 +209,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         [Method(TextDocumentNames.CallHierarchyOutgoing, Direction.ClientToServer)]
         public partial record CallHierarchyOutgoingCallsParams<T> : CallHierarchyBaseCallParams<T>, IWorkDoneProgressParams,
                                                                    IPartialItemsRequest<Container<CallHierarchyOutgoingCall>?, CallHierarchyOutgoingCall>, IDoesNotParticipateInRegistration
@@ -245,7 +232,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         public partial record CallHierarchyOutgoingCall
         {
             /// <summary>
@@ -266,7 +252,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         [GenerateRegistrationOptions(nameof(ServerCapabilities.CallHierarchyProvider))]
         [RegistrationName(TextDocumentNames.PrepareCallHierarchy)]
         public partial class CallHierarchyRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions, IStaticRegistrationOptions
@@ -281,16 +266,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.CallHierarchy))]
         public partial class CallHierarchyCapability : DynamicCapability
         {
         }
     }
 
-    namespace Document.Proposals
+    namespace Document
     {
-        [Obsolete(Constants.Proposal)]
         public abstract class CallHierarchyHandlerBase : AbstractHandlers.Base<CallHierarchyRegistrationOptions, CallHierarchyCapability>, ICallHierarchyPrepareHandler,
                                                          ICallHierarchyIncomingHandler,
                                                          ICallHierarchyOutgoingHandler
@@ -311,8 +294,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public abstract Task<Container<CallHierarchyIncomingCall>?> Handle(CallHierarchyIncomingCallsParams request, CancellationToken cancellationToken);
             public abstract Task<Container<CallHierarchyOutgoingCall>?> Handle(CallHierarchyOutgoingCallsParams request, CancellationToken cancellationToken);
         }
-
-        [Obsolete(Constants.Proposal)]
         public abstract class PartialCallHierarchyHandlerBase : AbstractHandlers.PartialResults<CallHierarchyPrepareParams, Container<CallHierarchyItem>?, CallHierarchyItem,
                                                                     CallHierarchyRegistrationOptions, CallHierarchyCapability>,
                                                                 ICallHierarchyPrepareHandler, ICallHierarchyIncomingHandler, ICallHierarchyOutgoingHandler
@@ -400,8 +381,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     ( (IRegistration<CallHierarchyRegistrationOptions, CallHierarchyCapability>) _self ).GetRegistrationOptions(capability, clientCapabilities);
             }
         }
-
-        [Obsolete(Constants.Proposal)]
         public abstract class CallHierarchyHandlerBase<T> : CallHierarchyHandlerBase where T : class?, IHandlerIdentity?
         {
             protected CallHierarchyHandlerBase(Guid id) : base(id)
@@ -446,8 +425,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             protected abstract Task<Container<CallHierarchyIncomingCall>?> HandleIncomingCalls(CallHierarchyIncomingCallsParams<T> request, CancellationToken cancellationToken);
             protected abstract Task<Container<CallHierarchyOutgoingCall>?> HandleOutgoingCalls(CallHierarchyOutgoingCallsParams<T> request, CancellationToken cancellationToken);
         }
-
-        [Obsolete(Constants.Proposal)]
         public abstract class PartialCallHierarchyHandlerBase<T> : PartialCallHierarchyHandlerBase where T : class?, IHandlerIdentity?
         {
             protected PartialCallHierarchyHandlerBase(IProgressManager progressManager) : base(progressManager)
@@ -498,8 +475,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 CallHierarchyOutgoingCallsParams<T> request, IObserver<IEnumerable<CallHierarchyOutgoingCall>> results, CancellationToken cancellationToken
             );
         }
-
-        [Obsolete(Constants.Proposal)]
         public static partial class CallHierarchyExtensions
         {
             public static ILanguageServerRegistry OnCallHierarchy(

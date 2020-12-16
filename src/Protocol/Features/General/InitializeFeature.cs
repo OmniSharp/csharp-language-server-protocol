@@ -168,7 +168,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// Uses IETF language tags as the value's syntax
             /// (See https://en.wikipedia.org/wiki/IETF_language_tag)
             ///
-            /// @since 3.16.0 - proposed state
+            /// @since 3.16.0
             /// </summary>
             [Optional]
             public string? Locale { get; init; }

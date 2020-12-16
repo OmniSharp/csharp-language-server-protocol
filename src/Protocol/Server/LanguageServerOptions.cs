@@ -6,17 +6,12 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using OmniSharp.Extensions.LanguageServer.Shared;
 
+// ReSharper disable once CheckNamespace
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
     public class LanguageServerOptions : LanguageProtocolRpcOptionsBase<LanguageServerOptions>, ILanguageServerRegistry
     {
-        public LanguageServerOptions()
-        {
-            WithAssemblies(typeof(LanguageServerOptions).Assembly, typeof(LspRequestRouter).Assembly);
-        }
-
         public ServerInfo? ServerInfo { get; set; }
 
         ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions? options) =>

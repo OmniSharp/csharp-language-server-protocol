@@ -1,10 +1,8 @@
-using System;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
@@ -15,7 +13,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     namespace Models
     {
         [Parallel]
-        [Obsolete(Constants.Proposal)]
         [Method(TextDocumentNames.LinkedEditingRange, Direction.ClientToServer)]
         [
             GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
@@ -26,8 +23,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public partial record LinkedEditingRangeParams : TextDocumentPositionParams, IWorkDoneProgressParams, IRequest<LinkedEditingRanges>
         {
         }
-
-        [Obsolete(Constants.Proposal)]
         public partial record LinkedEditingRanges
         {
             /// <summary>
@@ -44,8 +39,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             [Optional]
             public string? WordPattern { get; init; }
         }
-
-        [Obsolete(Constants.Proposal)]
         [GenerateRegistrationOptions(nameof(ServerCapabilities.LinkedEditingRangeProvider))]
         [RegistrationName(TextDocumentNames.LinkedEditingRange)]
         public partial class LinkedEditingRangeRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions { }
@@ -54,7 +47,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
     namespace Client.Capabilities
     {
-        [Obsolete(Constants.Proposal)]
         [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.LinkedEditingRange))]
         public partial class LinkedEditingRangeClientCapabilities : DynamicCapability { }
     }

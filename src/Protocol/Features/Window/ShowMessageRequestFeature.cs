@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using MediatR;
@@ -69,9 +68,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// Capabilities specific to the showMessage request
         ///
-        /// @since 3.16.0 - proposed state
+        /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         [CapabilityKey(nameof(ClientCapabilities.Window), nameof(WindowClientCapabilities.ShowMessage))]
         public class ShowMessageRequestClientCapabilities
         {
@@ -81,8 +79,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             [Optional]
             public ShowMessageRequestMessageActionItemClientCapabilities? MessageActionItem { get; set; }
         }
-
-        [Obsolete(Constants.Proposal)]
         public class ShowMessageRequestMessageActionItemClientCapabilities
         {
             /// <summary>

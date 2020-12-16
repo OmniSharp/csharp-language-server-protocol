@@ -1,5 +1,3 @@
-using System;
-
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public static class TextDocumentNames
@@ -37,14 +35,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public const string WillSaveWaitUntil = "textDocument/willSaveWaitUntil";
         public const string PublishDiagnostics = "textDocument/publishDiagnostics";
         public const string FoldingRange = "textDocument/foldingRange";
-        [Obsolete(Constants.Proposal)] public const string PrepareCallHierarchy = "textDocument/prepareCallHierarchy";
-        [Obsolete(Constants.Proposal)] public const string CallHierarchyIncoming = "callHierarchy/incomingCalls";
-        [Obsolete(Constants.Proposal)] public const string CallHierarchyOutgoing = "callHierarchy/outgoingCalls";
-        [Obsolete(Constants.Proposal)] public const string SemanticTokensRegistration = "textDocument/semanticTokens";
-        [Obsolete(Constants.Proposal)] public const string SemanticTokensFull = "textDocument/semanticTokens/full";
-        [Obsolete(Constants.Proposal)] public const string SemanticTokensFullDelta = "textDocument/semanticTokens/full/delta";
-        [Obsolete(Constants.Proposal)] public const string SemanticTokensRange = "textDocument/semanticTokens/range";
-        [Obsolete(Constants.Proposal)] public const string Moniker = "textDocument/moniker";
-        [Obsolete(Constants.Proposal)] public const string LinkedEditingRange = "textDocument/linkedEditingRange";
+        public const string PrepareCallHierarchy = "textDocument/prepareCallHierarchy";
+        public const string CallHierarchyIncoming = "callHierarchy/incomingCalls";
+        public const string CallHierarchyOutgoing = "callHierarchy/outgoingCalls";
+        public const string SemanticTokensRegistration = "textDocument/semanticTokens";
+        public const string SemanticTokensFull = "textDocument/semanticTokens/full";
+        public const string SemanticTokensFullDelta = "textDocument/semanticTokens/full/delta";
+        public const string SemanticTokensRange = "textDocument/semanticTokens/range";
+        public const string Moniker = "textDocument/moniker";
+        public const string LinkedEditingRange = "textDocument/linkedEditingRange";
     }
 }

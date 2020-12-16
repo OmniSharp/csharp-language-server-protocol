@@ -54,6 +54,7 @@ For more information about using the `DebugAdapterClient` / `DebugAdapterServer`
 | ------- | ----- |
 | OmniSharp.Extensions.DebugAdapter | [![nuget-version-hefb6om79mfg-badge]![nuget-downloads-hefb6om79mfg-badge]][nuget-hefb6om79mfg] |
 | OmniSharp.Extensions.DebugAdapter.Client | [![nuget-version-94qjnkon/cda-badge]![nuget-downloads-94qjnkon/cda-badge]][nuget-94qjnkon/cda] |
+| OmniSharp.Extensions.DebugAdapter.Proposals | [![nuget-version-ajdnjvhbx+0w-badge]![nuget-downloads-ajdnjvhbx+0w-badge]][nuget-ajdnjvhbx+0w] |
 | OmniSharp.Extensions.DebugAdapter.Server | [![nuget-version-f/4jrt4grmdg-badge]![nuget-downloads-f/4jrt4grmdg-badge]][nuget-f/4jrt4grmdg] |
 | OmniSharp.Extensions.DebugAdapter.Shared | [![nuget-version-2fkn0yzdbhmg-badge]![nuget-downloads-2fkn0yzdbhmg-badge]][nuget-2fkn0yzdbhmg] |
 | OmniSharp.Extensions.DebugAdapter.Testing | [![nuget-version-jppuysmkpfcw-badge]![nuget-downloads-jppuysmkpfcw-badge]][nuget-jppuysmkpfcw] |
@@ -62,6 +63,7 @@ For more information about using the `DebugAdapterClient` / `DebugAdapterServer`
 | OmniSharp.Extensions.JsonRpc.Testing | [![nuget-version-punkj7/efvjq-badge]![nuget-downloads-punkj7/efvjq-badge]][nuget-punkj7/efvjq] |
 | OmniSharp.Extensions.LanguageClient | [![nuget-version-fclou9t/p2ba-badge]![nuget-downloads-fclou9t/p2ba-badge]][nuget-fclou9t/p2ba] |
 | OmniSharp.Extensions.LanguageProtocol | [![nuget-version-vddj9t6jnirq-badge]![nuget-downloads-vddj9t6jnirq-badge]][nuget-vddj9t6jnirq] |
+| OmniSharp.Extensions.LanguageProtocol.Proposals | [![nuget-version-z5fadevkwpng-badge]![nuget-downloads-z5fadevkwpng-badge]][nuget-z5fadevkwpng] |
 | OmniSharp.Extensions.LanguageProtocol.Testing | [![nuget-version-md8c3c/bo/8g-badge]![nuget-downloads-md8c3c/bo/8g-badge]][nuget-md8c3c/bo/8g] |
 | OmniSharp.Extensions.LanguageServer | [![nuget-version-fkxlzvrmzpbw-badge]![nuget-downloads-fkxlzvrmzpbw-badge]][nuget-fkxlzvrmzpbw] |
 | OmniSharp.Extensions.LanguageServer.Shared | [![nuget-version-4htmykprzq1a-badge]![nuget-downloads-4htmykprzq1a-badge]][nuget-4htmykprzq1a] |
@@ -107,6 +109,9 @@ This project is supported by the [.NET Foundation](http://www.dotnetfoundation.o
 [nuget-94qjnkon/cda]: https://www.nuget.org/packages/OmniSharp.Extensions.DebugAdapter.Client/
 [nuget-version-94qjnkon/cda-badge]: https://img.shields.io/nuget/v/OmniSharp.Extensions.DebugAdapter.Client.svg?color=004880&logo=nuget&style=flat-square "NuGet Version"
 [nuget-downloads-94qjnkon/cda-badge]: https://img.shields.io/nuget/dt/OmniSharp.Extensions.DebugAdapter.Client.svg?color=004880&logo=nuget&style=flat-square "NuGet Downloads"
+[nuget-ajdnjvhbx+0w]: https://www.nuget.org/packages/OmniSharp.Extensions.DebugAdapter.Proposals/
+[nuget-version-ajdnjvhbx+0w-badge]: https://img.shields.io/nuget/v/OmniSharp.Extensions.DebugAdapter.Proposals.svg?color=004880&logo=nuget&style=flat-square "NuGet Version"
+[nuget-downloads-ajdnjvhbx+0w-badge]: https://img.shields.io/nuget/dt/OmniSharp.Extensions.DebugAdapter.Proposals.svg?color=004880&logo=nuget&style=flat-square "NuGet Downloads"
 [nuget-f/4jrt4grmdg]: https://www.nuget.org/packages/OmniSharp.Extensions.DebugAdapter.Server/
 [nuget-version-f/4jrt4grmdg-badge]: https://img.shields.io/nuget/v/OmniSharp.Extensions.DebugAdapter.Server.svg?color=004880&logo=nuget&style=flat-square "NuGet Version"
 [nuget-downloads-f/4jrt4grmdg-badge]: https://img.shields.io/nuget/dt/OmniSharp.Extensions.DebugAdapter.Server.svg?color=004880&logo=nuget&style=flat-square "NuGet Downloads"
@@ -131,6 +136,9 @@ This project is supported by the [.NET Foundation](http://www.dotnetfoundation.o
 [nuget-vddj9t6jnirq]: https://www.nuget.org/packages/OmniSharp.Extensions.LanguageProtocol/
 [nuget-version-vddj9t6jnirq-badge]: https://img.shields.io/nuget/v/OmniSharp.Extensions.LanguageProtocol.svg?color=004880&logo=nuget&style=flat-square "NuGet Version"
 [nuget-downloads-vddj9t6jnirq-badge]: https://img.shields.io/nuget/dt/OmniSharp.Extensions.LanguageProtocol.svg?color=004880&logo=nuget&style=flat-square "NuGet Downloads"
+[nuget-z5fadevkwpng]: https://www.nuget.org/packages/OmniSharp.Extensions.LanguageProtocol.Proposals/
+[nuget-version-z5fadevkwpng-badge]: https://img.shields.io/nuget/v/OmniSharp.Extensions.LanguageProtocol.Proposals.svg?color=004880&logo=nuget&style=flat-square "NuGet Version"
+[nuget-downloads-z5fadevkwpng-badge]: https://img.shields.io/nuget/dt/OmniSharp.Extensions.LanguageProtocol.Proposals.svg?color=004880&logo=nuget&style=flat-square "NuGet Downloads"
 [nuget-md8c3c/bo/8g]: https://www.nuget.org/packages/OmniSharp.Extensions.LanguageProtocol.Testing/
 [nuget-version-md8c3c/bo/8g-badge]: https://img.shields.io/nuget/v/OmniSharp.Extensions.LanguageProtocol.Testing.svg?color=004880&logo=nuget&style=flat-square "NuGet Version"
 [nuget-downloads-md8c3c/bo/8g-badge]: https://img.shields.io/nuget/dt/OmniSharp.Extensions.LanguageProtocol.Testing.svg?color=004880&logo=nuget&style=flat-square "NuGet Downloads"

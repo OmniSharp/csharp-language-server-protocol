@@ -1,11 +1,10 @@
 ﻿using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    [Obsolete(Constants.Proposal)]
     public class SemanticTokensFullOrDeltaConverter : JsonConverter<SemanticTokensFullOrDelta>
     {
         public override void WriteJson(JsonWriter writer, SemanticTokensFullOrDelta value, JsonSerializer serializer)

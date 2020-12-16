@@ -20,6 +20,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
     {
         internal static IContainer AddLanguageClientInternals(this IContainer container, LanguageClientOptions options, IServiceProvider? outerServiceProvider)
         {
+            options.WithAssemblies(typeof(LanguageClientServiceCollectionExtensions).Assembly, typeof(LspRequestRouter).Assembly);
             container = container.AddLanguageProtocolInternals(options);
 
             container.RegisterInstance(options.ClientCapabilities);

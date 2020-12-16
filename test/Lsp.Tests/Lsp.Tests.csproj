@@ -11,6 +11,8 @@
     <ItemGroup>
         <ProjectReference Include="..\..\src\Client\Client.csproj" />
         <ProjectReference Include="..\..\src\Server\Server.csproj" />
+        <ProjectReference Include="..\..\src\Protocol\Protocol.csproj" />
+        <ProjectReference Include="..\..\src\Protocol.Proposals\Protocol.Proposals.csproj" />
         <ProjectReference Include="..\..\src\Testing\Testing.csproj" />
         <ProjectReference Include="..\TestingUtils\TestingUtils.csproj" />
 
@@ -18,13 +20,5 @@
         <PackageReference Include="Microsoft.Extensions.Options" />
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
         <ProjectReference Include="..\..\src\JsonRpc.Generators\JsonRpc.Generators.csproj" IncludeAssets="analyzers" ExcludeAssets="compile;runtime;native" PrivateAssets="contentfiles;build;buildMultitargeting;buildTransitive" OutputItemType="Analyzer" />
-    </ItemGroup>
-    <ItemGroup>
-      <Folder Include="ExampleExtensions" />
-    </ItemGroup>
-    <ItemGroup>
-      <Compile Update="Integration\DisableDefaultsTests.cs">
-        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
-      </Compile>
     </ItemGroup>
 </Project>

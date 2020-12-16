@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Immutable;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 // ReSharper disable once CheckNamespace
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 {
-    [Obsolete(Constants.Proposal)]
     public class SemanticTokensDocument
     {
         private readonly SemanticTokensLegend _legend;

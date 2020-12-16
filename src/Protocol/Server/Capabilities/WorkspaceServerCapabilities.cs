@@ -1,11 +1,9 @@
-using System;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
-    public class WorkspaceServerCapabilities : CapabilitiesBase
+    public class WorkspaceServerCapabilities : CapabilitiesBase, IWorkspaceServerCapabilities
     {
         /// <summary>
         /// The server supports workspace folder.
@@ -18,10 +16,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// <summary>
         /// The server is interested in file notifications/requests.
         ///
-        /// @since 3.16.0 - proposed state
+        /// @since 3.16.0
         /// </summary>
         [Optional]
-        [Obsolete(Constants.Proposal)]
         public FileOperationsWorkspaceServerCapabilities? FileOperations { get; set; }
     }
 }

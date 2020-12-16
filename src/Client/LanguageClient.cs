@@ -155,7 +155,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         {
             _connection = connection;
             _capabilities = capabilities;
-            _clientCapabilities = clientCapabilities;
+            _clientCapabilities = serializer.DeserializeObject<ClientCapabilities>(serializer.SerializeObject(clientCapabilities));
             _clientInfo = clientInfo;
             _receiver = lspClientReceiver;
             _textDocumentIdentifiers = textDocumentIdentifiers;
@@ -307,10 +307,11 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         private void RegisterCapabilities(ClientCapabilities capabilities)
         {
-            capabilities.Window ??= new WindowClientCapabilities();
+            capabilities.General ??= _serializer.DeserializeObject<GeneralClientCapabilities>("{}");
+            capabilities.Window ??= _serializer.DeserializeObject<WindowClientCapabilities>("{}");
             capabilities.Window.WorkDoneProgress = _collection.ContainsHandler(typeof(IProgressHandler));
 
-            capabilities.Workspace ??= new WorkspaceClientCapabilities();
+            capabilities.Workspace ??= _serializer.DeserializeObject<WorkspaceClientCapabilities>("{}");
             capabilities.Workspace.Configuration = _collection.ContainsHandler(typeof(IConfigurationHandler));
             capabilities.Workspace.Symbol = UseOrTryAndFindCapability(capabilities.Workspace.Symbol);
             capabilities.Workspace.ExecuteCommand = UseOrTryAndFindCapability(capabilities.Workspace.ExecuteCommand);
@@ -322,7 +323,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             capabilities.Workspace.DidChangeWatchedFiles =
                 UseOrTryAndFindCapability(capabilities.Workspace.DidChangeWatchedFiles);
 
-            capabilities.TextDocument ??= new TextDocumentClientCapabilities();
+            capabilities.TextDocument ??= _serializer.DeserializeObject<TextDocumentClientCapabilities>("{}");
             capabilities.TextDocument.Synchronization =
                 UseOrTryAndFindCapability(capabilities.TextDocument.Synchronization);
             capabilities.TextDocument.Completion = UseOrTryAndFindCapability(capabilities.TextDocument.Completion);

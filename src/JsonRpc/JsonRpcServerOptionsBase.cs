@@ -49,13 +49,13 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public T WithAssemblies(IEnumerable<Assembly>? assemblies)
         {
-            Assemblies = Assemblies.Concat(assemblies ?? Enumerable.Empty<Assembly>()).ToArray();
+            Assemblies = Assemblies.Union(assemblies ?? Enumerable.Empty<Assembly>()).ToArray();
             return (T) (object) this;
         }
 
         public T WithAssemblies(params Assembly[] assemblies)
         {
-            Assemblies = Assemblies.Concat(assemblies).ToArray();
+            Assemblies = Assemblies.Union(assemblies).ToArray();
             return (T) (object) this;
         }
 
