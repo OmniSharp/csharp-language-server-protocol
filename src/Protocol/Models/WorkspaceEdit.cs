@@ -34,7 +34,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// Whether clients honor this property depends on the client capability
         /// `workspace.changeAnnotationSupport`.
         ///
-        /// @since 3.16.0 - proposed state
+        /// @since 3.16.0
         /// </summary>
         [Optional]
         public IDictionary<ChangeAnnotationIdentifier, ChangeAnnotation>? ChangeAnnotations { get; init; }

@@ -109,12 +109,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
     }
 
-    namespace Models.Proposals
+    namespace Models
     {
-        [Obsolete(Constants.Proposal)]
         [Parallel]
         [Method(WorkspaceNames.CodeLensRefresh, Direction.ServerToClient)]
-        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace.Proposals"), GenerateHandlerMethods,
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace"), GenerateHandlerMethods,
          GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
         [Capability(typeof(CodeLensWorkspaceClientCapabilities))]
         public partial record CodeLensRefreshParams : IRequest
@@ -133,9 +132,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// Capabilities specific to the code lens requests scoped to the
         /// workspace.
         ///
-        /// @since 3.16.0 - proposed state.
+        /// @since 3.16.0.
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         [CapabilityKey(nameof(ClientCapabilities.Workspace), nameof(WorkspaceClientCapabilities.CodeLens))]
         public class CodeLensWorkspaceClientCapabilities : ICapability
         {

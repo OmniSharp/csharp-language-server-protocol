@@ -8,7 +8,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// Symbol tags are extra annotations that tweak the rendering of a symbol.
     /// @since 3.16
     /// </summary>
-    [Obsolete(Constants.Proposal)]
     [JsonConverter(typeof(NumberEnumConverter))]
     public enum SymbolTag
     {

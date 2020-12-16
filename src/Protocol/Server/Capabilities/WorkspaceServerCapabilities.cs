@@ -18,10 +18,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// <summary>
         /// The server is interested in file notifications/requests.
         ///
-        /// @since 3.16.0 - proposed state
+        /// @since 3.16.0
         /// </summary>
         [Optional]
-        [Obsolete(Constants.Proposal)]
         public FileOperationsWorkspaceServerCapabilities? FileOperations { get; set; }
     }
 }

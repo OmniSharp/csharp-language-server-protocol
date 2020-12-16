@@ -7,7 +7,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public const string LogMessage = "window/logMessage";
         public const string TelemetryEvent = "telemetry/event";
         public const string ShowMessage = "window/showMessage";
-        [Obsolete(Constants.Proposal)]
         public const string ShowDocument = "window/showDocument";
         public const string ShowMessageRequest = "window/showMessageRequest";
         public const string WorkDoneProgressCreate = "window/workDoneProgress/create";

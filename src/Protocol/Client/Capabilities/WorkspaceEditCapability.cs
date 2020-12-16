@@ -33,7 +33,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// in a workspace edit containg to the client specific new line
         /// character.
         ///
-        /// @since 3.16.0 - proposed state
+        /// @since 3.16.0
         /// </summary>
         [Optional]
         public bool NormalizesLineEndings { get; set; }
@@ -42,7 +42,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// Whether the client in general supports change annotations on text edits,
         /// create file, rename file and delete file changes.
         ///
-        /// @since 3.16.0 - proposed state
+        /// @since 3.16.0
         /// </summary>
         [Optional]
         public WorkspaceEditSupportCapabilitiesChangeAnnotationSupport? ChangeAnnotationSupport { get; set; }
@@ -52,7 +52,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
     /// Whether the client in general supports change annotations on text edits,
     /// create file, rename file and delete file changes.
     ///
-    /// @since 3.16.0 - proposed state
+    /// @since 3.16.0
     /// </summary>
     public class WorkspaceEditSupportCapabilitiesChangeAnnotationSupport
     {

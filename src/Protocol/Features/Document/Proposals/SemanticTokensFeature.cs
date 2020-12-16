@@ -11,30 +11,29 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Workspace.Proposals;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 // ReSharper disable once CheckNamespace
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    namespace Models.Proposals
+    namespace Models
     {
         /// <summary>
         /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         [Parallel]
         [Method(TextDocumentNames.SemanticTokensFull, Direction.ClientToServer)]
         [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals", Name = "SemanticTokensFull"),
+            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document", Name = "SemanticTokensFull"),
             GenerateHandlerMethods,
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
@@ -51,11 +50,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         [Parallel]
         [Method(TextDocumentNames.SemanticTokensFullDelta, Direction.ClientToServer)]
         [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals"),
+            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
             GenerateHandlerMethods,
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
@@ -77,11 +75,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         [Parallel]
         [Method(TextDocumentNames.SemanticTokensRange, Direction.ClientToServer)]
         [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals"),
+            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
             GenerateHandlerMethods,
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
@@ -99,18 +96,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             public Range Range { get; init; }
         }
-
-        [Obsolete(Constants.Proposal)]
         [Parallel]
         [Method(WorkspaceNames.SemanticTokensRefresh, Direction.ServerToClient)]
-        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace.Proposals"), GenerateHandlerMethods,
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace"), GenerateHandlerMethods,
          GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
         [Capability(typeof(SemanticTokensWorkspaceCapability))]
         public partial record SemanticTokensRefreshParams : IRequest
         {
         }
-
-        [Obsolete(Constants.Proposal)]
         public interface ISemanticTokenResult
         {
             /// <summary>
@@ -126,7 +119,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         public partial record SemanticTokens : ISemanticTokenResult
         {
             public SemanticTokens()
@@ -167,7 +159,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         public partial record SemanticTokensPartialResult
         {
             /// <summary>
@@ -182,7 +173,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         public record SemanticTokensDelta : ISemanticTokenResult
         {
             public SemanticTokensDelta()
@@ -213,7 +203,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         public record SemanticTokensDeltaPartialResult
         {
             /// <summary>
@@ -227,7 +216,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         public record SemanticTokensEdit
         {
             /// <summary>
@@ -257,8 +245,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             [Optional]
             public ImmutableArray<int>? Data { get; init; } = ImmutableArray<int>.Empty;
         }
-
-        [Obsolete(Constants.Proposal)]
         [JsonConverter(typeof(SemanticTokensFullOrDeltaConverter))]
         public record SemanticTokensFullOrDelta
         {
@@ -335,8 +321,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     _        => null
                 };
         }
-
-        [Obsolete(Constants.Proposal)]
         [JsonConverter(typeof(SemanticTokensFullOrDeltaPartialResultConverter))]
         public record SemanticTokensFullOrDeltaPartialResult
         {
@@ -375,7 +359,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         public record SemanticTokensLegend
         {
             private ImmutableDictionary<SemanticTokenModifier, int>? _tokenModifiersData;
@@ -491,7 +474,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         [StringEnum]
         public readonly partial struct SemanticTokenFormat
         {
@@ -505,7 +487,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         [StringEnum]
         public readonly partial struct SemanticTokenModifier
         {
@@ -529,7 +510,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         [StringEnum]
         public readonly partial struct SemanticTokenType
         {
@@ -557,8 +537,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static SemanticTokenType Event { get; } = new SemanticTokenType("event");
             public static SemanticTokenType EnumMember { get; } = new SemanticTokenType("enumMember");
         }
-
-        [Obsolete(Constants.Proposal)]
         [RegistrationName(TextDocumentNames.SemanticTokensRegistration)]
         [GenerateRegistrationOptions(nameof(ServerCapabilities.SemanticTokensProvider))]
         [RegistrationOptionsConverter(typeof(SemanticTokensRegistrationOptionsConverter))]
@@ -625,7 +603,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.SemanticTokens))]
         public partial class SemanticTokensCapability : DynamicCapability
         {
@@ -705,9 +682,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// Capabilities specific to the semantic token requests scoped to the
         /// workspace.
         ///
-        /// @since 3.16.0 - proposed state.
+        /// @since 3.16.0.
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(WorkspaceClientCapabilities.SemanticTokens))]
         public class SemanticTokensWorkspaceCapability : ICapability
         {
@@ -722,9 +698,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
     }
 
-    namespace Document.Proposals
+    namespace Document
     {
-        [Obsolete(Constants.Proposal)]
         public abstract class SemanticTokensHandlerBase :
             AbstractHandlers.Base<SemanticTokensRegistrationOptions, SemanticTokensCapability>,
             ISemanticTokensFullHandler,
@@ -758,8 +733,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             protected abstract Task Tokenize(SemanticTokensBuilder builder, ITextDocumentIdentifierParams identifier, CancellationToken cancellationToken);
             protected abstract Task<SemanticTokensDocument> GetSemanticTokensDocument(ITextDocumentIdentifierParams @params, CancellationToken cancellationToken);
         }
-
-        [Obsolete(Constants.Proposal)]
         public static partial class SemanticTokensExtensions
         {
             private static SemanticTokensRegistrationOptions RegistrationOptionsFactory(SemanticTokensCapability capability, ClientCapabilities clientCapabilities)

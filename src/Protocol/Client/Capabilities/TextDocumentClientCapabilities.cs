@@ -121,7 +121,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         ///
         /// Since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         public Supports<LinkedEditingRangeClientCapabilities?> LinkedEditingRange { get; set; }
 
         /// <summary>
@@ -134,7 +133,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         ///
         /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         public Supports<CallHierarchyCapability?> CallHierarchy { get; set; }
 
         /// <summary>
@@ -142,7 +140,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         ///
         /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         public Supports<SemanticTokensCapability?> SemanticTokens { get; set; }
 
         /// <summary>
@@ -150,7 +147,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         ///
         /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         public Supports<MonikerCapability?> Moniker { get; set; }
     }
 }

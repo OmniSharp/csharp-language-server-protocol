@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.1;netstandard2.0</TargetFrameworks>
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <AssemblyName>OmniSharp.Extensions.LanguageProtocol.Proposals</AssemblyName>
+        <RootNamespace>OmniSharp.Extensions.LanguageServer.Protocol</RootNamespace>
+        <PackageDescription>Proposed Language Server Protocol models, classes, interfaces and helper methods, that may or may not make it into the final spec</PackageDescription>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Configuration" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Protocol\Protocol.csproj" />
+    </ItemGroup>
+</Project>

@@ -10,7 +10,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 // ReSharper disable once CheckNamespace
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    namespace Models.Proposals
+    namespace Models
     {
         /// <summary>
         /// Language Server Index Format (LSIF) introduced the concept of symbol monikers to help associate symbols across different indexes.
@@ -22,11 +22,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// position. An array of Moniker types is returned as response to indicate possible monikers at the given location. If no monikers
         /// can be calculated, an empty array or `null` should be returned.
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         [Parallel]
         [Method(TextDocumentNames.Moniker, Direction.ClientToServer)]
         [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals"),
+            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
             GenerateHandlerMethods,
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
@@ -38,7 +37,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// Moniker definition to match LSIF 0.5 moniker definition.
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         public partial record Moniker
         {
             /// <summary>
@@ -119,8 +117,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             public static readonly UniquenessLevel Global = new UniquenessLevel("global");
         }
-
-        [Obsolete(Constants.Proposal)]
         [GenerateRegistrationOptions(nameof(ServerCapabilities.MonikerProvider))]
         [RegistrationName(TextDocumentNames.Moniker)]
         public partial class MonikerRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions
@@ -130,14 +126,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
     namespace Client.Capabilities
     {
-        [Obsolete(Constants.Proposal)]
         [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.Moniker))]
         public partial class MonikerCapability : DynamicCapability
         {
         }
     }
 
-    namespace Document.Proposals
+    namespace Document
     {
     }
 }

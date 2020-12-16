@@ -26,7 +26,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// An optional annotation describing the operation.
         ///
-        /// @since 3.16.0 - proposed state
+        /// @since 3.16.0
         /// </summary>
         [Optional]
         public ChangeAnnotationIdentifier? AnnotationId { get; init; }

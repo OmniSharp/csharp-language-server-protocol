@@ -44,9 +44,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// Tags for this completion item.
             ///
-            /// @since 3.16.0 - Proposed state
+            /// @since 3.16.0
             /// </summary>
-            [Obsolete(Constants.Proposal)]
             [Optional]
             public Container<SymbolTag>? Tags { get; init; }
 
@@ -95,7 +94,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             ///
             /// @since 3.16.0
             /// </summary>
-            [Obsolete(Constants.Proposal)]
             [Optional]
             public Supports<TagSupportCapabilityOptions?> TagSupport { get; set; }
         }

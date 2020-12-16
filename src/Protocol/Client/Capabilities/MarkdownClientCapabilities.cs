@@ -5,7 +5,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
     /// <summary>
     /// Client capabilities specific to the used markdown parser.
     ///
-    /// @since 3.16.0 - proposed state
+    /// @since 3.16.0
     /// </summary>
     public record MarkdownClientCapabilities
     {

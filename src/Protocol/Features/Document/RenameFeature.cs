@@ -178,7 +178,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// the workspace edit in the user interface and asking
             /// for confirmation.
             ///
-            /// @since 3.16.0 - proposed state
+            /// @since 3.16.0
             /// </summary>
             [Optional]
             public bool HonorsChangeAnnotations { get; set; }

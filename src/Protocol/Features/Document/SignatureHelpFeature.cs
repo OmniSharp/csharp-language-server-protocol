@@ -155,7 +155,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             ///
             /// If provided, this is used in place of `SignatureHelp.activeParameter`.
             ///
-            /// @since 3.16.0 - proposed state
+            /// @since 3.16.0
             /// </summary>
             [Optional]
             public int? ActiveParameter { get; init; }
@@ -276,7 +276,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// The client support the `activeParameter` property on `SignatureInformation`
             /// literal.
             ///
-            /// @since 3.16.0 - proposed state
+            /// @since 3.16.0
             /// </summary>
             [Optional]
             public bool ActiveParameterSupport { get; set; }

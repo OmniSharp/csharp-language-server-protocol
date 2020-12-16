@@ -44,7 +44,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// <summary>
         /// Client capabilities specific to regular expressions.
         ///
-        /// @since 3.16.0 - proposed state
+        /// @since 3.16.0
         /// </summary>
         [Optional]
         public RegularExpressionsClientCapabilities? RegularExpressions { get; set; }
@@ -52,7 +52,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// <summary>
         /// Client capabilities specific to the client's markdown parser.
         ///
-        /// @since 3.16.0 - proposed state
+        /// @since 3.16.0
         /// </summary>
         [Optional] public MarkdownClientCapabilities? Markdown { get; set; }
     }

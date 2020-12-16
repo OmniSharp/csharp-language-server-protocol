@@ -16,9 +16,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// Params to show a document.
         ///
-        /// @since 3.16.0 - proposed state
+        /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         [Parallel]
         [Method(WindowNames.ShowDocument, Direction.ServerToClient)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Window"), GenerateHandlerMethods, GenerateRequestMethods(typeof(IWindowLanguageServer), typeof(ILanguageServer))]
@@ -60,9 +59,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// The result of an show document request.
         ///
-        /// @since 3.16.0 - proposed state
+        /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         public record ShowDocumentResult
         {
             /// <summary>
@@ -77,9 +75,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// Capabilities specific to the showDocument request
         ///
-        /// @since 3.16.0 - proposed state
+        /// @since 3.16.0
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         [CapabilityKey(nameof(ClientCapabilities.Window), nameof(WindowClientCapabilities.ShowDocument))]
         public class ShowDocumentClientCapabilities: ICapability
         {

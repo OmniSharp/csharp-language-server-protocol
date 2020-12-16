@@ -37,27 +37,24 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// Capabilities specific to the semantic token requests scoped to the
         /// workspace.
         ///
-        /// @since 3.16.0 - proposed state.
+        /// @since 3.16.0.
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         public Supports<SemanticTokensWorkspaceCapability> SemanticTokens { get; set; }
 
         /// <summary>
         /// Capabilities specific to the code lens requests scoped to the
         /// workspace.
         ///
-        /// @since 3.16.0 - proposed state.
+        /// @since 3.16.0.
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         public Supports<CodeLensWorkspaceClientCapabilities> CodeLens { get; set; }
 
         /// <summary>
         /// Capabilities specific to the code lens requests scoped to the
         /// workspace.
         ///
-        /// @since 3.16.0 - proposed state.
+        /// @since 3.16.0.
         /// </summary>
-        [Obsolete(Constants.Proposal)]
         public Supports<FileOperationsWorkspaceClientCapabilities> FileOperations { get; set; }
 
         /// <summary>

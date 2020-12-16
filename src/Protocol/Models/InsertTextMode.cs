@@ -4,7 +4,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// How whitespace and indentation is handled during completion
     /// item insertion.
     ///
-    /// @since 3.16.0 - proposed state
+    /// @since 3.16.0
     /// </summary>
     public enum InsertTextMode
     {

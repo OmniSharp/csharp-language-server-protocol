@@ -410,7 +410,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             ///  Whether code action supports the `disabled` property.
             ///
-            /// @since 3.16.0 - proposed state
+            /// @since 3.16.0
             /// </summary>
             [Optional]
             public bool DisabledSupport { get; set; }
@@ -419,7 +419,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// Whether code action supports the `data` property which is
             /// preserved between a `textDocument/codeAction` and a `codeAction/resolve` request.
             ///
-            /// @since 3.16.0 - proposed state
+            /// @since 3.16.0
             /// </summary>
             [Optional]
             public bool DataSupport { get; set; }
@@ -428,7 +428,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// Whether the client supports resolving additional code action
             /// properties via a separate `codeAction/resolve` request.
             ///
-            /// @since 3.16.0 - proposed state
+            /// @since 3.16.0
             /// </summary>
             [Optional]
             public CodeActionCapabilityResolveSupportOptions? ResolveSupport { get; set; }
@@ -440,7 +440,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// the workspace edit in the user interface and asking
             /// for confirmation.
             ///
-            /// @since 3.16.0 - proposed state
+            /// @since 3.16.0
             /// </summary>
             [Optional]
             public bool HonorsChangeAnnotations { get; set; }
@@ -470,7 +470,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// Whether the client supports resolving additional code action
         /// properties via a separate `codeAction/resolve` request.
         ///
-        /// @since 3.16.0 - proposed state
+        /// @since 3.16.0
         /// </summary>
         public class CodeActionCapabilityResolveSupportOptions
         {
