@@ -33,7 +33,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             return (T)(object)this;
         }
 
-        public ISerializer Serializer { get; set; } = new LspSerializer(ClientVersion.Lsp3);
+        public LspSerializer Serializer { get; set; } = new LspSerializer(ClientVersion.Lsp3);
         public ConfigurationBuilder ConfigurationBuilder { get; set; } = new ConfigurationBuilder();
         internal bool AddDefaultLoggingProvider { get; set; }
         internal Action<ILoggingBuilder>? LoggingBuilderAction { get; set; } = _ => { };

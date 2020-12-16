@@ -1,6 +1,3 @@
-using System;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
-
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
     public class WorkspaceClientCapabilities : CapabilitiesBase

@@ -273,7 +273,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         {
             ConfigureServerLogging(request);
 
-            ReadClientCapabilities(request, out var clientCapabilities, out var textDocumentCapabilities, out _, out var windowCapabilities);
+            ReadClientCapabilities(request, out var clientCapabilities, out var textDocumentCapabilities, out _, out var windowCapabilities, out _);
 
             await LanguageProtocolEventingHelper.Run(
                 _initializeDelegates,
@@ -339,7 +339,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             out ClientCapabilities clientCapabilities,
             out TextDocumentClientCapabilities textDocumentCapabilities,
             out WorkspaceClientCapabilities workspaceCapabilities,
-            out WindowClientCapabilities windowCapabilities
+            out WindowClientCapabilities windowCapabilities,
+            out GeneralClientCapabilities generalCapabilities
         )
         {
             clientCapabilities = request.Capabilities.ToObject<ClientCapabilities>(_serializer.JsonSerializer);
@@ -387,9 +388,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _supportedCapabilities.Add(supportedCapabilities);
 
             ClientSettings = new InitializeParams(request, clientCapabilities) { Capabilities = clientCapabilities };
-            textDocumentCapabilities = ClientSettings.Capabilities.TextDocument ??= new TextDocumentClientCapabilities();
-            workspaceCapabilities = ClientSettings.Capabilities.Workspace ??= new WorkspaceClientCapabilities();
-            windowCapabilities = ClientSettings.Capabilities.Window ??= new WindowClientCapabilities();
+            textDocumentCapabilities = ClientSettings.Capabilities.TextDocument ??= _serializer.DeserializeObject<TextDocumentClientCapabilities>("{}");
+            workspaceCapabilities = ClientSettings.Capabilities.Workspace ??= _serializer.DeserializeObject<WorkspaceClientCapabilities>("{}");
+            windowCapabilities = ClientSettings.Capabilities.Window ??= _serializer.DeserializeObject<WindowClientCapabilities>("{}");
+            generalCapabilities = ClientSettings.Capabilities.General ??= _serializer.DeserializeObject<GeneralClientCapabilities>("{}");
             WorkDoneManager.Initialized(windowCapabilities);
             _collection.Initialize();
         }
@@ -398,7 +400,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             ClientCapabilities clientCapabilities, WindowClientCapabilities windowCapabilities, TextDocumentClientCapabilities textDocumentCapabilities
         )
         {
-            var serverCapabilities = new ServerCapabilities();
+            // little hack to ensure that we get the proposed capabilities if proposals are turned on
+            var serverCapabilities = _serializer.DeserializeObject<ServerCapabilities>("{}");
 
             var serverCapabilitiesObject = new JObject();
             foreach (var converter in _registrationOptionsConverters)

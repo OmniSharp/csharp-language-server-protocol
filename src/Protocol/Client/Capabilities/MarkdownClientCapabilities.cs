@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
     ///
     /// @since 3.16.0
     /// </summary>
-    public record MarkdownClientCapabilities
+    public class MarkdownClientCapabilities
     {
         /// <summary>
         /// The name of the parser.

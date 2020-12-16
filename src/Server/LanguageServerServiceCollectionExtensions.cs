@@ -24,6 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
     {
         internal static IContainer AddLanguageServerInternals(this IContainer container, LanguageServerOptions options, IServiceProvider? outerServiceProvider)
         {
+            options.WithAssemblies(typeof(LanguageServerServiceCollectionExtensions).Assembly, typeof(LspRequestRouter).Assembly);
             container = container.AddLanguageProtocolInternals(options);
             container.RegisterMany<LspServerReceiver>(
                 reuse: Reuse.Singleton,

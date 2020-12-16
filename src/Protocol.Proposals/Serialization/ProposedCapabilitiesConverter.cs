@@ -1,0 +1,20 @@
+﻿using System;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
+{
+    public class ProposedCapabilitiesConverter<TFrom, TTo> : JsonConverter
+        where TTo : TFrom
+        where TFrom : notnull
+    {
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            return serializer.Deserialize<TTo>(reader);
+        }
+
+        public override bool CanConvert(Type objectType) => objectType == typeof(TFrom);
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) => throw new NotImplementedException();
+        public override bool CanWrite => false;
+    }
+}

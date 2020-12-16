@@ -1,5 +1,3 @@
-using System;
-
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public static class WorkspaceNames

@@ -24,6 +24,14 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization
             return _settings = settings;
         }
 
+        protected internal static void RemoveConverter<T>(ICollection<JsonConverter> converters)
+        {
+            foreach (var item in converters.Where(z => z.CanConvert(typeof(T))).ToArray())
+            {
+                converters.Remove(item);
+            }
+        }
+
         protected internal static void ReplaceConverter<T>(ICollection<JsonConverter> converters, T item)
             where T : JsonConverter
         {

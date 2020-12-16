@@ -7,21 +7,19 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Client
 {
     public static class LanguageClientOptionsExtensions
     {
-        public static LanguageClientOptions WithSerializer(this LanguageClientOptions options, ISerializer serializer)
+        public static LanguageClientOptions WithSerializer(this LanguageClientOptions options, LspSerializer serializer)
         {
             options.Serializer = serializer;
             return options;
         }
 
-        public static LanguageClientOptions WithReceiver(
-            this LanguageClientOptions options,
-            IReceiver serverReceiver
-        )
+        public static LanguageClientOptions WithReceiver(this LanguageClientOptions options, IReceiver serverReceiver)
         {
             options.Services.AddSingleton(serverReceiver);
             return options;

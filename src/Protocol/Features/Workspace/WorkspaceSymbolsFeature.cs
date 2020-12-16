@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;

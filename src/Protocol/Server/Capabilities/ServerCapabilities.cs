@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
@@ -14,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
     /// Is not a record on purpose...
     /// get; set; for the moment, to allow for replacement of values.
     /// </remarks>
-    public class ServerCapabilities : CapabilitiesBase
+    public class ServerCapabilities : CapabilitiesBase, IServerCapabilities
     {
         /// <summary>
         /// Defines how text documents are synced. Is either a detailed structure defining each notification or

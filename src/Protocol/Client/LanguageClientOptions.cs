@@ -8,19 +8,15 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Shared;
 
+// ReSharper disable once CheckNamespace
 namespace OmniSharp.Extensions.LanguageServer.Client
 {
     public class LanguageClientOptions : LanguageProtocolRpcOptionsBase<LanguageClientOptions>, ILanguageClientRegistry
     {
-        public LanguageClientOptions()
-        {
-            WithAssemblies(typeof(LanguageClientOptions).Assembly, typeof(LspRequestRouter).Assembly);
-        }
-
         public ClientCapabilities ClientCapabilities { get; set; } = new ClientCapabilities {
             Experimental = new Dictionary<string, JToken>(),
+            General = new GeneralClientCapabilities(),
             Window = new WindowClientCapabilities(),
             Workspace = new WorkspaceClientCapabilities(),
             TextDocument = new TextDocumentClientCapabilities()

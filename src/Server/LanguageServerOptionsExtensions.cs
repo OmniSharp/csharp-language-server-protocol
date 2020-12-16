@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
@@ -16,16 +17,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return options;
         }
 
-        public static LanguageServerOptions WithSerializer(this LanguageServerOptions options, ISerializer serializer)
+        public static LanguageServerOptions WithSerializer(this LanguageServerOptions options, LspSerializer serializer)
         {
             options.Serializer = serializer;
             return options;
         }
 
-        public static LanguageServerOptions WithReceiver(
-            this LanguageServerOptions options,
-            IReceiver serverReceiver
-        )
+        public static LanguageServerOptions WithReceiver(this LanguageServerOptions options, IReceiver serverReceiver)
         {
             options.Services.AddSingleton(serverReceiver);
             return options;
