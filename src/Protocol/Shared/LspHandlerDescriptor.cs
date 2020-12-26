@@ -69,8 +69,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             CapabilityType = capabilityType;
 
             Response = @params?.GetInterfaces()
-                               .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IRequest<>))
-                              ?.GetGenericArguments()[0] ?? typeDescriptor?.ResponseType ?? typeof(Unit);
+                               .Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IRequest<>))
+                               .Select(x => x.GetGenericArguments()[0])
+                               .OrderBy(x => x == typeof(Unit))
+                               .FirstOrDefault()
+                              ?? typeDescriptor?.ResponseType ?? typeof(Unit);
 
             // If multiple are implemented this behavior is unknown
             CanBeResolvedHandlerType = handler.GetType().GetTypeInfo()
