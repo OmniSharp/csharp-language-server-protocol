@@ -135,6 +135,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
             _connection.Open();
             var serverParams = await this.RequestDebugAdapterInitialize(ClientSettings, token).ConfigureAwait(false);
 
+            _receiver.Initialized();
+
             ServerSettings = serverParams;
 
             await DebugAdapterEventingHelper.Run(
@@ -145,8 +147,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
                 _concurrency,
                 token
             ).ConfigureAwait(false);
-
-            _receiver.Initialized();
 
             await _initializedComplete.ToTask(token);
 
