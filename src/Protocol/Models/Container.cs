@@ -6,6 +6,39 @@ using System.Linq;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    public static class Container
+    {
+        [return: NotNullIfNotNull("items")]
+        public static Container<T>? From<T>(IEnumerable<T>? items) => items switch {
+            not null => new Container<T>(items),
+            _        => null
+        };
+
+        [return: NotNullIfNotNull("items")]
+        public static Container<T>? From<T>(params T[] items) => items switch {
+            not null => new Container<T>(items),
+            _        => null
+        };
+
+        [return: NotNullIfNotNull("items")]
+        public static Container<T>? From<T>(List<T>? items) => items switch {
+            not null => new Container<T>(items),
+            _        => null
+        };
+
+        [return: NotNullIfNotNull("items")]
+        public static Container<T>? From<T>(in ImmutableArray<T>? items) => items switch {
+            not null => new Container<T>(items),
+            _        => null
+        };
+
+        [return: NotNullIfNotNull("items")]
+        public static Container<T>? From<T>(ImmutableList<T>? items) => items switch {
+            not null => new Container<T>(items),
+            _        => null
+        };
+    }
+
     public class Container<T> : ContainerBase<T>
     {
         public Container() : this(Enumerable.Empty<T>())

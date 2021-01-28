@@ -21,7 +21,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
         public ResolveCommandPipeline(IRequestContext context, ILogger<ResolveCommandPipeline<TRequest, TResponse>> logger)
         {
             _logger = logger;
-            _descriptor = (context.Descriptor as ILspHandlerDescriptor)!;
+            _descriptor = ( context.Descriptor as ILspHandlerDescriptor )!;
         }
 
         public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
@@ -40,15 +40,42 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
                 );
                 foreach (var item in canBeResolvedItems)
                 {
-                    item.SetRawData(item.Data ?? new JObject());
-                    if (item.Data is JObject o)
-                    {
-                        o[Constants.PrivateHandlerId] = id;
-                    }
+                    UpdatePrivateHandlerId(item, id);
                 }
             }
 
+            // Only pin the handler type, if we know the source handler (codelens) is also the resolver.
+            if (response is ICanBeResolved canBeResolvedItem)
+            {
+                var id = _descriptor.Handler is ICanBeIdentifiedHandler resolved ? resolved.Id : Guid.Empty;
+                _logger.LogTrace(
+                    "Updating Resolve items with wrapped data for {Method}:{Handler}",
+                    _descriptor.Method,
+                    _descriptor.ImplementationType.FullName
+                );
+                UpdatePrivateHandlerId(canBeResolvedItem, id);
+            }
+
             return response;
+
+            void UpdatePrivateHandlerId(ICanBeResolved item, Guid id)
+            {
+                item.SetRawData(item.Data ?? new JObject());
+                if (item.Data is JObject o)
+                {
+                    if (id == Guid.Empty)
+                    {
+                        if (o.ContainsKey(Constants.PrivateHandlerId))
+                        {
+                            o.Remove(Constants.PrivateHandlerId);
+                        }
+
+                        return;
+                    }
+
+                    o[Constants.PrivateHandlerId] = id;
+                }
+            }
         }
     }
 }
