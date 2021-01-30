@@ -4,7 +4,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [JsonConverter(typeof(StringOrMarkupContentConverter))]
+    [JsonConverter(typeof( StringOrMarkupContentConverter))]
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public record StringOrMarkupContent
     {
@@ -17,9 +17,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public MarkupContent? MarkupContent { get; }
         public bool HasMarkupContent => String == null;
 
-        public static implicit operator StringOrMarkupContent(string value) => new StringOrMarkupContent(value);
+        public static implicit operator StringOrMarkupContent?(string? value) => value is null ? null : new StringOrMarkupContent(value);
 
-        public static implicit operator StringOrMarkupContent(MarkupContent markupContent) => new StringOrMarkupContent(markupContent);
+        public static implicit operator StringOrMarkupContent?(MarkupContent? markupContent) => markupContent is null ? null : new StringOrMarkupContent(markupContent);
 
         private string DebuggerDisplay => $"{( HasString ? String : HasMarkupContent ? MarkupContent!.ToString() : string.Empty )}";
 

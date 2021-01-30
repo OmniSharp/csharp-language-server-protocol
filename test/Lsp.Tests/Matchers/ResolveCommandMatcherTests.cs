@@ -23,7 +23,7 @@ namespace Lsp.Tests.Matchers
     public class ResolveCommandMatcherTests : AutoTestBase
     {
         private readonly Guid _trueId = Guid.NewGuid();
-        private readonly Guid _falseId = Guid.NewGuid();
+        private readonly Guid _falseId = Guid.Empty;
 
         public ResolveCommandMatcherTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
@@ -247,7 +247,7 @@ namespace Lsp.Tests.Matchers
                 0,
                 TextDocumentNames.Completion,
                 "Key",
-                (resolveHandler as IJsonRpcHandler)!,
+                ( resolveHandler as IJsonRpcHandler )!,
                 resolveHandler.GetType(),
                 typeof(CompletionParams),
                 null,
@@ -298,7 +298,7 @@ namespace Lsp.Tests.Matchers
                 0,
                 TextDocumentNames.CodeLens,
                 "Key",
-                (resolveHandler as IJsonRpcHandler)!,
+                ( resolveHandler as IJsonRpcHandler )!,
                 resolveHandler.GetType(),
                 typeof(CodeLensParams),
                 null,
@@ -344,12 +344,12 @@ namespace Lsp.Tests.Matchers
                     typeof(ICanBeIdentifiedHandler)
                 }, new object[0]
             );
-            ( resolveHandler as ICanBeIdentifiedHandler )?.Id.Returns(_trueId);
+            ( resolveHandler as ICanBeIdentifiedHandler )?.Id.Returns(_falseId);
             var descriptor = new LspHandlerDescriptor(
                 0,
                 TextDocumentNames.CodeLensResolve,
                 "Key",
-                (resolveHandler as IJsonRpcHandler)!,
+                ( resolveHandler as IJsonRpcHandler )!,
                 resolveHandler.GetType(),
                 typeof(CodeLens),
                 null,
@@ -368,15 +368,15 @@ namespace Lsp.Tests.Matchers
             var item = new CodeLens {
                 Data = JObject.FromObject(new { hello = "world" })
             };
-            item.Data[Constants.PrivateHandlerId] = Guid.Empty;
 
             // When
             var response = await handlerMatcher.Handle(item, CancellationToken.None, () => Task.FromResult(item));
 
             // Then
             response.Should().BeEquivalentTo(item, x => x.UsingStructuralRecordEquality());
-            item.Data?[Constants.PrivateHandlerId].Value<Guid>().Should().BeEmpty();
-            item.Data?["hello"].Value<string>().Should().Be("world");
+            var data = item.Data.Should().BeOfType<JObject>().Subject;
+            data.Should().NotContainKey(Constants.PrivateHandlerId);
+            data["hello"].Value<string>().Should().Be("world");
         }
     }
 }
