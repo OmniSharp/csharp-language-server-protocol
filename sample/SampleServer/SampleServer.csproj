@@ -13,7 +13,7 @@
         <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
         <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
         <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
-        <PackageReference Include="Serilog.Sinks.Debug" Version="1.0.1" />
+        <PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
         <PackageReference Include="System.IO.FileSystem.Primitives" Version="4.3.0" />
         <PackageReference Include="System.IO" Version="4.3.0" />
         <PackageReference Include="System.Runtime.Handles" Version="4.3.0" />
