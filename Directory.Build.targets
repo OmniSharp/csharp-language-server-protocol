@@ -33,7 +33,7 @@
     <PackageReference Update="Serilog.Extensions.Logging" Version="2.0.2" />
     <PackageReference Update="Serilog.Sinks.Observable" Version="2.0.2" />
     <PackageReference Update="Serilog.Sinks.XUnit" Version="2.0.4" />
-    <PackageReference Update="XunitXml.TestLogger" Version="2.1.45" />
+    <PackageReference Update="XunitXml.TestLogger" Version="3.0.62" />
     <PackageReference Update="coverlet.collector" Version="3.0.3" />
     <PackageReference Update="coverlet.msbuild" Version="3.0.3" />
     <PackageReference Update="System.Reactive" Version="4.4.1" />
