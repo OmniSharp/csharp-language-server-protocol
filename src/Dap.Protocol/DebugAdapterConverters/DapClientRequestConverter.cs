@@ -28,6 +28,16 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.DebugAdapterConverters
                 writer.WritePropertyName("arguments");
                 serializer.Serialize(writer, value.Params);
             }
+            if (value.TraceParent != null)
+            {
+                writer.WritePropertyName("traceparent");
+                writer.WriteValue(value.TraceParent);
+            }
+            if (value.TraceState != null)
+            {
+                writer.WritePropertyName("tracestate");
+                writer.WriteValue(value.TraceState);
+            }
 
             writer.WriteEndObject();
         }

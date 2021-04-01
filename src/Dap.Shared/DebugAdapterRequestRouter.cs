@@ -12,9 +12,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
         private readonly DebugAdapterHandlerCollection _collection;
 
         public DebugAdapterRequestRouter(
-            DebugAdapterHandlerCollection collection, ISerializer serializer, IServiceScopeFactory serviceScopeFactory, ILogger<DebugAdapterRequestRouter> logger
+            DebugAdapterHandlerCollection collection, ISerializer serializer, IServiceScopeFactory serviceScopeFactory, ILogger<DebugAdapterRequestRouter> logger,
+            IActivityTracingStrategy? activityTracingStrategy = null
         )
-            : base(serializer, serviceScopeFactory, logger) =>
+            : base(serializer, serviceScopeFactory, logger, activityTracingStrategy) =>
             _collection = collection;
 
         public IDisposable Add(IJsonRpcHandler handler) => _collection.Add(handler);

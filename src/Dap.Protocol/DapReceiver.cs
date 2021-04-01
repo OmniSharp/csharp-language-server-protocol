@@ -60,7 +60,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
                     yield break;
                 }
 
-                yield return new Notification(@event.Value<string>(), request.TryGetValue("body", out var body) ? body : null);
+                yield return new Notification(@event.Value<string>(), request.TryGetValue("body", out var body) ? body : null){
+                    TraceState = request.TryGetValue("tracestate", out var ts) ? ts.Value<string>() : null,
+                    TraceParent = request.TryGetValue("traceparent", out var tp) ? tp.Value<string>() : null,};
                 yield break;
             }
 
@@ -81,16 +83,29 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
                     // This makes it so that the cancel handler implementer must still return a positive response even if the request didn't make it through.
                     if (ro.TryGetValue("requestId", out var requestId))
                     {
-                        yield return new Notification(JsonRpcNames.CancelRequest, JObject.FromObject(new { id = requestId }));
+                        yield return new Notification(JsonRpcNames.CancelRequest, JObject.FromObject(new { id = requestId })){
+                            TraceState = request.TryGetValue("tracestate", out var ts) ? ts.Value<string>() : null,
+                    TraceParent = request.TryGetValue("traceparent", out var tp) ? tp.Value<string>() : null,
+                    };
                         ro.Remove("requestId");
                     }
-
-                    yield return new Request(sequence, RequestNames.Cancel, ro);
-                    yield break;
+                    else
+                    {
+                        yield return new Request(sequence, RequestNames.Cancel, ro) {
+                            TraceState = request.TryGetValue("tracestate", out var ts) ? ts.Value<string>() : null,
+                            TraceParent = request.TryGetValue("traceparent", out var tp) ? tp.Value<string>() : null,
+                        };
+                        yield break;
+                    }
                 }
 
-                yield return new Request(sequence, requestName, requestObject);
-                yield break;
+                {
+                    yield return new Request(sequence, requestName, requestObject) {
+                        TraceState = request.TryGetValue("tracestate", out var ts) ? ts.Value<string>() : null,
+                        TraceParent = request.TryGetValue("traceparent", out var tp) ? tp.Value<string>() : null,
+                    };
+                    yield break;
+                }
             }
 
             if (messageType == "response")

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,41 +23,52 @@ namespace OmniSharp.Extensions.JsonRpc
         protected readonly ISerializer _serializer;
         protected readonly IServiceScopeFactory _serviceScopeFactory;
         protected readonly ILogger _logger;
+        private readonly IActivityTracingStrategy? _activityTracingStrategy;
 
-        public RequestRouterBase(ISerializer serializer, IServiceScopeFactory serviceScopeFactory, ILogger logger)
+        public RequestRouterBase(ISerializer serializer, IServiceScopeFactory serviceScopeFactory, ILogger logger) : this(serializer, serviceScopeFactory, logger, null)
+        {
+        }
+
+        public RequestRouterBase(ISerializer serializer, IServiceScopeFactory serviceScopeFactory, ILogger logger, IActivityTracingStrategy? activityTracingStrategy)
         {
             _serializer = serializer;
             _serviceScopeFactory = serviceScopeFactory;
             _logger = logger;
+            _activityTracingStrategy = activityTracingStrategy;
         }
 
         public async Task RouteNotification(IRequestDescriptor<TDescriptor> descriptors, Notification notification, CancellationToken token)
         {
-            using var debug = _logger.TimeDebug("Routing Notification {Method}", notification.Method);
-            using var _ = _logger.BeginScope(
-                new[] {
-                    new KeyValuePair<string, string?>("Method", notification.Method),
-                    new KeyValuePair<string, string?>("Params", notification.Params?.ToString())
-                }
-            );
-
-            object? @params = null;
-            if (!( descriptors.Default?.Params is null ))
+            using (_activityTracingStrategy?.ApplyInbound(notification)?? Disposable.Empty)
             {
-                if (descriptors.Default.IsDelegatingHandler)
-                {
-                    _logger.LogTrace("Converting params for Notification {Method} to {Type}", notification.Method, descriptors.Default.Params.GetGenericArguments()[0].FullName);
-                    var o = notification.Params?.ToObject(descriptors.Default.Params.GetGenericArguments()[0], _serializer.JsonSerializer);
-                    @params = Activator.CreateInstance(descriptors.Default.Params, o);
-                }
-                else
-                {
-                    _logger.LogTrace("Converting params for Notification {Method} to {Type}", notification.Method, descriptors.Default.Params.FullName);
-                    @params = notification.Params?.ToObject(descriptors.Default.Params, _serializer.JsonSerializer);
-                }
-            }
+                using var debug = _logger.TimeDebug("Routing Notification {Method}", notification.Method);
+                using var _ = _logger.BeginScope(
+                    new[] {
+                        new KeyValuePair<string, string?>("Method", notification.Method),
+                        new KeyValuePair<string, string?>("Params", notification.Params?.ToString())
+                    }
+                );
 
-            await Task.WhenAll(descriptors.Select(descriptor => InnerRoute(_serviceScopeFactory, descriptor, @params, token))).ConfigureAwait(false);
+                object? @params = null;
+                if (!( descriptors.Default?.Params is null ))
+                {
+                    if (descriptors.Default.IsDelegatingHandler)
+                    {
+                        _logger.LogTrace(
+                            "Converting params for Notification {Method} to {Type}", notification.Method, descriptors.Default.Params.GetGenericArguments()[0].FullName
+                        );
+                        var o = notification.Params?.ToObject(descriptors.Default.Params.GetGenericArguments()[0], _serializer.JsonSerializer);
+                        @params = Activator.CreateInstance(descriptors.Default.Params, o);
+                    }
+                    else
+                    {
+                        _logger.LogTrace("Converting params for Notification {Method} to {Type}", notification.Method, descriptors.Default.Params.FullName);
+                        @params = notification.Params?.ToObject(descriptors.Default.Params, _serializer.JsonSerializer);
+                    }
+                }
+
+                await Task.WhenAll(descriptors.Select(descriptor => InnerRoute(_serviceScopeFactory, descriptor, @params, token))).ConfigureAwait(false);
+            }
 
             static async Task InnerRoute(IServiceScopeFactory serviceScopeFactory, TDescriptor descriptor, object? @params, CancellationToken token)
             {
@@ -74,59 +86,64 @@ namespace OmniSharp.Extensions.JsonRpc
             Debug.Assert(descriptors.Default != null);
             Debug.Assert(descriptors.Default!.Params != null);
             Debug.Assert(descriptors.Default!.Response != null);
-            using var debug = _logger.TimeDebug("Routing Request ({Id}) {Method}", request.Id, request.Method);
-            using var _ = _logger.BeginScope(
-                new[] {
-                    new KeyValuePair<string, string?>("Id", request.Id.ToString()),
-                    new KeyValuePair<string, string?>("Method", request.Method),
-                    new KeyValuePair<string, string?>("Params", request.Params?.ToString())
-                }
-            );
-
-            object? @params;
-            try
+            using (_activityTracingStrategy?.ApplyInbound(request) ?? Disposable.Empty)
             {
-                if (descriptors.Default!.IsDelegatingHandler)
-                {
-                    _logger.LogTrace(
-                        "Converting params for Request ({Id}) {Method} to {Type}", request.Id, request.Method,
-                        descriptors.Default!.Params!.GetGenericArguments()[0].FullName
-                    );
-                    var o = request.Params?.ToObject(descriptors.Default!.Params!.GetGenericArguments()[0], _serializer.JsonSerializer);
-                    @params = Activator.CreateInstance(descriptors.Default!.Params, o);
-                }
-                else
-                {
-                    _logger.LogTrace("Converting params for Request ({Id}) {Method} to {Type}", request.Id, request.Method, descriptors.Default!.Params!.FullName);
-                    _logger.LogTrace("Converting params for Notification {Method} to {Type}", request.Method, descriptors.Default!.Params.FullName);
-                    @params = request.Params?.ToObject(descriptors.Default!.Params, _serializer.JsonSerializer);
-                }
-            }
-            catch (Exception cannotDeserializeRequestParams)
-            {
-                _logger.LogError(new EventId(-32602), cannotDeserializeRequestParams, "Failed to deserialize request parameters.");
-                return new InvalidParams(request.Id, request.Method);
-            }
-
-            using var scope = _serviceScopeFactory.CreateScope();
-            // TODO: Do we want to support more handlers as "aggregate"?
-            if (typeof(IEnumerable).IsAssignableFrom(descriptors.Default!.Response) && typeof(string) != descriptors.Default!.Response && !typeof(JToken).IsAssignableFrom(descriptors.Default!.Response))
-            {
-                var responses = await Task.WhenAll(descriptors.Select(descriptor => InnerRoute(_serviceScopeFactory, request, descriptor, @params, token, _logger))).ConfigureAwait(false);
-                var errorResponse = responses.FirstOrDefault(x => x.IsError);
-                if (errorResponse.IsError) return errorResponse;
-                if (responses.Length == 1)
-                {
-                    return responses[0];
-                }
-
-                var response = Activator.CreateInstance(
-                    typeof(AggregateResponse<>).MakeGenericType(descriptors.Default!.Response!), responses.Select(z => z.Response!.Result)
+                using var debug = _logger.TimeDebug("Routing Request ({Id}) {Method}", request.Id, request.Method);
+                using var _ = _logger.BeginScope(
+                    new[] {
+                        new KeyValuePair<string, string?>("Id", request.Id.ToString()),
+                        new KeyValuePair<string, string?>("Method", request.Method),
+                        new KeyValuePair<string, string?>("Params", request.Params?.ToString())
+                    }
                 );
-                return new OutgoingResponse(request.Id, response, request);
-            }
 
-            return await InnerRoute(_serviceScopeFactory, request, descriptors.Default!, @params, token, _logger).ConfigureAwait(false);
+                object? @params;
+                try
+                {
+                    if (descriptors.Default!.IsDelegatingHandler)
+                    {
+                        _logger.LogTrace(
+                            "Converting params for Request ({Id}) {Method} to {Type}", request.Id, request.Method,
+                            descriptors.Default!.Params!.GetGenericArguments()[0].FullName
+                        );
+                        var o = request.Params?.ToObject(descriptors.Default!.Params!.GetGenericArguments()[0], _serializer.JsonSerializer);
+                        @params = Activator.CreateInstance(descriptors.Default!.Params, o);
+                    }
+                    else
+                    {
+                        _logger.LogTrace("Converting params for Request ({Id}) {Method} to {Type}", request.Id, request.Method, descriptors.Default!.Params!.FullName);
+                        _logger.LogTrace("Converting params for Notification {Method} to {Type}", request.Method, descriptors.Default!.Params.FullName);
+                        @params = request.Params?.ToObject(descriptors.Default!.Params, _serializer.JsonSerializer);
+                    }
+                }
+                catch (Exception cannotDeserializeRequestParams)
+                {
+                    _logger.LogError(new EventId(-32602), cannotDeserializeRequestParams, "Failed to deserialize request parameters.");
+                    return new InvalidParams(request.Id, request.Method);
+                }
+
+                using var scope = _serviceScopeFactory.CreateScope();
+                // TODO: Do we want to support more handlers as "aggregate"?
+                if (typeof(IEnumerable).IsAssignableFrom(descriptors.Default!.Response) && typeof(string) != descriptors.Default!.Response
+                                                                                        && !typeof(JToken).IsAssignableFrom(descriptors.Default!.Response))
+                {
+                    var responses = await Task.WhenAll(descriptors.Select(descriptor => InnerRoute(_serviceScopeFactory, request, descriptor, @params, token, _logger)))
+                                              .ConfigureAwait(false);
+                    var errorResponse = responses.FirstOrDefault(x => x.IsError);
+                    if (errorResponse.IsError) return errorResponse;
+                    if (responses.Length == 1)
+                    {
+                        return responses[0];
+                    }
+
+                    var response = Activator.CreateInstance(
+                        typeof(AggregateResponse<>).MakeGenericType(descriptors.Default!.Response!), responses.Select(z => z.Response!.Result)
+                    );
+                    return new OutgoingResponse(request.Id, response, request);
+                }
+
+                return await InnerRoute(_serviceScopeFactory, request, descriptors.Default!, @params, token, _logger).ConfigureAwait(false);
+            }
 
             static async Task<ErrorResponse> InnerRoute(
                 IServiceScopeFactory serviceScopeFactory, Request request, TDescriptor descriptor, object? @params, CancellationToken token,

@@ -13,9 +13,10 @@ namespace OmniSharp.Extensions.JsonRpc
             IHandlersManager collection,
             ISerializer serializer,
             IServiceScopeFactory serviceScopeFactory,
-            ILogger<RequestRouter> logger
+            ILogger<RequestRouter> logger,
+            IActivityTracingStrategy? activityTracingStrategy = null
         )
-            : base(serializer, serviceScopeFactory, logger) =>
+            : base(serializer, serviceScopeFactory, logger, activityTracingStrategy) =>
             _collection = collection;
 
         private IHandlerDescriptor FindDescriptor(IMethodWithParams instance) => _collection.Descriptors.FirstOrDefault(x => x.Method == instance.Method);

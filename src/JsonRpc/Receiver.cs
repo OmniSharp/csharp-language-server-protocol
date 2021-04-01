@@ -101,10 +101,18 @@ namespace OmniSharp.Extensions.JsonRpc
             // !id == notification
             if (!hasRequestId)
             {
-                return new Notification(method!, @params);
+                return new Notification(method!, @params) {
+                    TraceState = request.TryGetValue("tracestate", out var ts) ? ts.Value<string>() : null,
+                    TraceParent = request.TryGetValue("traceparent", out var tp) ? tp.Value<string>() : null,
+                };
             }
-
-            return new Request(requestId!, method!, @params);
+            else
+            {
+                return new Request(requestId!, method!, @params) {
+                    TraceState = request.TryGetValue("tracestate", out var ts) ? ts.Value<string>() : null,
+                    TraceParent = request.TryGetValue("traceparent", out var tp) ? tp.Value<string>() : null,
+                };
+            }
         }
 
         public bool ShouldOutput(object value) => _initialized;
