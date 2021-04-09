@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Reactive.Concurrency;
+using System.Threading;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using Serilog.Events;
 using Xunit.Abstractions;
@@ -18,6 +19,8 @@ namespace NSubstitute
             jsonRpcTestOptions
                .WithClientLoggerFactory(new TestLoggerFactory(outputHelper, "{Timestamp:yyyy-MM-dd HH:mm:ss} [Client] [{Level}] {Message}{NewLine}{Exception}", logEventLevel))
                .WithServerLoggerFactory(new TestLoggerFactory(outputHelper, "{Timestamp:yyyy-MM-dd HH:mm:ss} [Server] [{Level}] {Message}{NewLine}{Exception}", logEventLevel))
+               .WithClientScheduler(Scheduler.CurrentThread)
+               .WithServerScheduler(Scheduler.CurrentThread)
         ;
     }
 }

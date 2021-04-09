@@ -34,7 +34,8 @@ namespace Lsp.Tests.Integration
                 PromptToUpdatePackageManagement = false
             };
             server.SendTelemetryEvent(@event);
-            await SettleNext();
+            while (!fake.ReceivedCalls().Any() && !CancellationToken.IsCancellationRequested)
+                await SettleNext();
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
@@ -58,7 +59,8 @@ namespace Lsp.Tests.Integration
                 PromptToUpdatePackageManagement = false
             };
             server.SendTelemetryEvent(@event);
-            await SettleNext();
+            while (!fake.ReceivedCalls().Any() && !CancellationToken.IsCancellationRequested)
+                await SettleNext();
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
@@ -87,6 +89,7 @@ namespace Lsp.Tests.Integration
                     }
                 }
             );
+            while (!fake.ReceivedCalls().Any() && !CancellationToken.IsCancellationRequested)
             await SettleNext();
 
             var call = fake.ReceivedCalls().Single();
@@ -113,7 +116,8 @@ namespace Lsp.Tests.Integration
                 PromptToUpdatePackageManagement = false
             };
             server.SendTelemetryEvent(@event);
-            await SettleNext();
+            while (!fake.ReceivedCalls().Any() && !CancellationToken.IsCancellationRequested)
+                await SettleNext();
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
@@ -137,7 +141,8 @@ namespace Lsp.Tests.Integration
                 PromptToUpdatePackageManagement = false
             };
             server.SendTelemetryEvent(@event);
-            await SettleNext();
+            while (!fake.ReceivedCalls().Any() && !CancellationToken.IsCancellationRequested)
+                await SettleNext();
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
@@ -166,7 +171,8 @@ namespace Lsp.Tests.Integration
                     }
                 }
             );
-            await SettleNext();
+            while (!fake.ReceivedCalls().Any() && !CancellationToken.IsCancellationRequested)
+                await SettleNext();
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
