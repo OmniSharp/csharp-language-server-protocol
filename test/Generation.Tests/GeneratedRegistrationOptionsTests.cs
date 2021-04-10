@@ -1,12 +1,13 @@
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc.Generators;
 using TestingUtils;
+using Xunit;
 
 namespace Generation.Tests
 {
     public class GeneratedRegistrationOptionsTests
     {
-        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        [Fact]
         public async Task Supports_Generating_Strongly_Typed_WorkDone_Registration_Options()
         {
             var source = @"
@@ -67,7 +68,7 @@ namespace Test
 #nullable restore";
             await GenerationHelpers.AssertGeneratedAsExpected<RegistrationOptionsGenerator>(source, expected);
         }
-        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        [Fact]
         public async Task Supports_Generating_Strongly_Typed_WorkDone_Registration_Options_Interface()
         {
             var source = @"
@@ -132,7 +133,7 @@ namespace Test
             await GenerationHelpers.AssertGeneratedAsExpected<RegistrationOptionsGenerator>(source, expected);
         }
 
-        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        [Fact]
         public async Task Supports_Generating_Strongly_Typed_Registration_Options()
         {
             var source = @"
@@ -275,7 +276,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             await GenerationHelpers.AssertGeneratedAsExpected<RegistrationOptionsGenerator>(source, expected);
         }
 
-        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        [Fact]
         public async Task Supports_Generating_Strongly_Typed_Registration_Options_With_Converters()
         {
             var source = @"

@@ -35,7 +35,7 @@ namespace Lsp.Tests.Integration
                 PromptToUpdatePackageManagement = false
             };
             server.SendTelemetryEvent(@event);
-            await SettleNext();
+            await TestHelper.DelayUntil(() => fake.ReceivedCalls().Any(), CancellationToken);
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
@@ -59,7 +59,7 @@ namespace Lsp.Tests.Integration
                 PromptToUpdatePackageManagement = false
             };
             server.SendTelemetryEvent(@event);
-            await SettleNext();
+            await TestHelper.DelayUntil(() => fake.ReceivedCalls().Any(), CancellationToken);
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
@@ -88,7 +88,7 @@ namespace Lsp.Tests.Integration
                     }
                 }
             );
-            await SettleNext();
+            await TestHelper.DelayUntil(() => fake.ReceivedCalls().Any(), CancellationToken);
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
@@ -114,7 +114,7 @@ namespace Lsp.Tests.Integration
                 PromptToUpdatePackageManagement = false
             };
             server.SendTelemetryEvent(@event);
-            await SettleNext();
+            await TestHelper.DelayUntil(() => fake.ReceivedCalls().Any(), CancellationToken);
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
@@ -138,7 +138,7 @@ namespace Lsp.Tests.Integration
                 PromptToUpdatePackageManagement = false
             };
             server.SendTelemetryEvent(@event);
-            await SettleNext();
+            await TestHelper.DelayUntil(() => fake.ReceivedCalls().Any(), CancellationToken);
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
@@ -167,7 +167,7 @@ namespace Lsp.Tests.Integration
                     }
                 }
             );
-            await SettleNext();
+            await TestHelper.DelayUntil(() => fake.ReceivedCalls().Any(), CancellationToken);
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();

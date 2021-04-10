@@ -38,7 +38,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         /// <summary>
         /// Ensure that the language client can successfully request Hover information.
         /// </summary>
-        [FactWithSkipOn(SkipOnPlatform.Windows, DisplayName = "Language client can successfully request hover info")]
+        [Fact(DisplayName = "Language client can successfully request hover info")]
         public async Task Hover_Success()
         {
             const int line = 5;
@@ -111,7 +111,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         /// <summary>
         /// Ensure that the language client can successfully request Completions.
         /// </summary>
-        [FactWithSkipOn(SkipOnPlatform.Windows, DisplayName = "Language client can successfully request completions")]
+        [Fact(DisplayName = "Language client can successfully request completions")]
         public async Task Completions_Success()
         {
             const int line = 5;
@@ -215,7 +215,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         /// <summary>
         /// Ensure that the language client can successfully request SignatureHelp.
         /// </summary>
-        [FactWithSkipOn(SkipOnPlatform.Windows, DisplayName = "Language client can successfully request signature help")]
+        [Fact(DisplayName = "Language client can successfully request signature help")]
         public async Task SignatureHelp_Success()
         {
             const int line = 5;
@@ -308,7 +308,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         /// <summary>
         /// Ensure that the language client can successfully request Definition.
         /// </summary>
-        [FactWithSkipOn(SkipOnPlatform.Windows, DisplayName = "Language client can successfully request definition")]
+        [Fact(DisplayName = "Language client can successfully request definition")]
         public async Task Definition_Success()
         {
             const int line = 5;
@@ -384,7 +384,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         /// <summary>
         /// Ensure that the language client can successfully request DocumentHighlight.
         /// </summary>
-        [FactWithSkipOn(SkipOnPlatform.Windows, DisplayName = "Language client can successfully request document highlights")]
+        [Fact(DisplayName = "Language client can successfully request document highlights")]
         public async Task DocumentHighlights_Success()
         {
             const int line = 5;
@@ -449,7 +449,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         /// <summary>
         /// Ensure that the language client can successfully request DocumentHighlight.
         /// </summary>
-        [FactWithSkipOn(SkipOnPlatform.Windows, DisplayName = "Language client can successfully request document symbols")]
+        [Fact(DisplayName = "Language client can successfully request document symbols")]
         public async Task DocumentSymbols_DocumentSymbol_Success()
         {
             const int line = 5;
@@ -534,7 +534,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         /// <summary>
         /// Ensure that the language client can successfully request FoldingRanges.
         /// </summary>
-        [FactWithSkipOn(SkipOnPlatform.Windows, DisplayName = "Language client can successfully request document folding ranges")]
+        [Fact(DisplayName = "Language client can successfully request document folding ranges")]
         public async Task FoldingRanges_Success()
         {
             var expectedDocumentPath = AbsoluteDocumentPath;
@@ -594,7 +594,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         /// <summary>
         /// Ensure that the language client can successfully receive Diagnostics from the server.
         /// </summary>
-        [FactWithSkipOn(SkipOnPlatform.Windows, DisplayName = "Language client can successfully receive diagnostics")]
+        [Fact(DisplayName = "Language client can successfully receive diagnostics")]
         public async Task Diagnostics_Success()
         {
             var documentPath = AbsoluteDocumentPath;
