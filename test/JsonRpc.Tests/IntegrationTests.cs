@@ -30,7 +30,7 @@ namespace JsonRpc.Tests
             public string Value { get; set; } = null!;
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Send_and_receive_requests()
         {
             var (client, server) = await Initialize(
@@ -45,7 +45,7 @@ namespace JsonRpc.Tests
             clientResponse.Value.Should().Be("myresponse");
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_throw_when_sending_requests()
         {
             var (client, server) = await Initialize(
@@ -60,7 +60,7 @@ namespace JsonRpc.Tests
             serverRequest.Should().Throw<InvalidParametersException>();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_throw_when_receiving_requests()
         {
             var (client, server) = await Initialize(
@@ -75,7 +75,7 @@ namespace JsonRpc.Tests
             serverRequest.Should().Throw<InternalErrorException>();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Send_and_receive_notifications()
         {
             var clientNotification = new AsyncSubject<Data>();
@@ -108,7 +108,7 @@ namespace JsonRpc.Tests
             clientResponse.Value.Should().Be("esnopserym");
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Send_and_cancel_requests_immediate()
         {
             var (client, server) = await Initialize(
@@ -144,7 +144,7 @@ namespace JsonRpc.Tests
             }
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Send_and_cancel_requests_from_otherside()
         {
             var (client, server) = await Initialize(
@@ -181,7 +181,7 @@ namespace JsonRpc.Tests
             }
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Cancel_Parallel_Requests_When_Options_Are_Given()
         {
             var (client, server) = await Initialize(
@@ -232,7 +232,7 @@ namespace JsonRpc.Tests
             }
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Link_Request_A_to_Request_B()
         {
             var (client, server) = await Initialize(

@@ -10,6 +10,7 @@ using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using TestingUtils;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Lsp.Tests.Integration
@@ -20,7 +21,7 @@ namespace Lsp.Tests.Integration
         {
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Support_Custom_Telemetry_Using_Base_Class()
         {
             var fake = Substitute.For<TelemetryEventHandlerBase<CustomTelemetryEventParams>>();
@@ -44,7 +45,7 @@ namespace Lsp.Tests.Integration
                    .Should().BeEquivalentTo(@event, z => z.UsingStructuralRecordEquality().Excluding(x => x.ExtensionData));
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Support_Custom_Telemetry_Receiving_Regular_Telemetry_Using_Base_Class()
         {
             var fake = Substitute.For<TelemetryEventHandlerBase>();
@@ -70,7 +71,7 @@ namespace Lsp.Tests.Integration
             request.ExtensionData.Should().ContainKey("promptToUpdatePackageManagement").And.Subject["promptToUpdatePackageManagement"].Should().Be(false);
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Support_Custom_Telemetry_Using_Extension_Data_Using_Base_Class()
         {
             var fake = Substitute.For<TelemetryEventHandlerBase<CustomTelemetryEventParams>>();
@@ -99,7 +100,7 @@ namespace Lsp.Tests.Integration
             request.PromptToUpdatePackageManagement.Should().Be(false);
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Support_Custom_Telemetry_Using_Delegate()
         {
             var fake = Substitute.For<Func<CustomTelemetryEventParams, CancellationToken, Task>>();
@@ -123,7 +124,7 @@ namespace Lsp.Tests.Integration
                .Should().BeEquivalentTo(@event, z => z.UsingStructuralRecordEquality().Excluding(x => x.ExtensionData));
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Support_Custom_Telemetry_Receiving_Regular_Telemetry_Using_Delegate()
         {
             var fake = Substitute.For<Func<TelemetryEventParams, CancellationToken, Task>>();
@@ -149,7 +150,7 @@ namespace Lsp.Tests.Integration
             request.ExtensionData.Should().ContainKey("promptToUpdatePackageManagement").And.Subject["promptToUpdatePackageManagement"].Should().Be(false);
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Support_Custom_Telemetry_Using_Extension_Data_Using_Delegate()
         {
             var fake = Substitute.For<Func<CustomTelemetryEventParams, CancellationToken, Task>>();

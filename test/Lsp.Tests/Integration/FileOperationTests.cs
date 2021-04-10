@@ -12,6 +12,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog.Events;
 using TestingUtils;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Lsp.Tests.Integration
@@ -29,7 +30,7 @@ namespace Lsp.Tests.Integration
         {
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Handle_FileCreate()
         {
             var (client, server) = await Initialize(Configure, Configure);
@@ -75,7 +76,7 @@ namespace Lsp.Tests.Integration
             }
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Handle_FileRename()
         {
             var (client, server) = await Initialize(Configure, Configure);
@@ -121,7 +122,7 @@ namespace Lsp.Tests.Integration
             }
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Handle_FileDelete()
         {
             var (client, server) = await Initialize(Configure, Configure);

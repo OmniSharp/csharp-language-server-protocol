@@ -27,7 +27,7 @@ namespace Lsp.Tests.Integration
     {
         public class DynamicRegistrationTests : LanguageProtocolTestBase
         {
-            [RetryFact]
+            [Fact]
             public async Task Should_Register_Dynamically_After_Initialization()
             {
                 var (client, _) = await Initialize(new ConfigureClient().Configure, new ConfigureServer().Configure);
@@ -49,7 +49,7 @@ namespace Lsp.Tests.Integration
                        );
             }
 
-            [RetryFact]
+            [Fact]
             public async Task Should_Register_Dynamically_While_Server_Is_Running()
             {
                 var (client, server) = await Initialize(new ConfigureClient().Configure, new ConfigureServer().Configure);
@@ -98,7 +98,7 @@ namespace Lsp.Tests.Integration
                 client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == "@/" + TextDocumentNames.Completion);
             }
 
-            [RetryFact]
+            [Fact]
             public async Task Should_Unregister_Dynamically_While_Server_Is_Running()
             {
                 var (client, server) = await Initialize(new ConfigureClient().Configure, new ConfigureServer().Configure);
@@ -134,7 +134,7 @@ namespace Lsp.Tests.Integration
                 );
             }
 
-            [RetryFact]
+            [Fact]
             public async Task Should_Only_Register_Semantic_Tokens_Registration_Once()
             {
                 var tokens = Substitute.For<SemanticTokensHandlerBase>();
@@ -182,7 +182,7 @@ namespace Lsp.Tests.Integration
             {
             }
 
-            [RetryFact]
+            [Fact]
             public async Task Should_Gather_Static_Registrations()
             {
                 var (client, _) = await Initialize(
@@ -217,7 +217,7 @@ namespace Lsp.Tests.Integration
                 client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == TextDocumentNames.SemanticTokensRegistration);
             }
 
-            [RetryFact]
+            [Fact]
             public async Task Should_Register_Static_When_Dynamic_Is_Disabled()
             {
                 var (client, server) = await Initialize(

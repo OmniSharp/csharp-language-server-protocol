@@ -27,7 +27,7 @@ namespace Lsp.Tests.Integration
         {
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Initialize_Interface_Is_Supported()
         {
             var onLanguageClientInitialize = Substitute.For<IOnLanguageClientInitialize>();
@@ -41,7 +41,7 @@ namespace Lsp.Tests.Integration
             await onLanguageServerInitialize.Received(1).OnInitialize(server, server.ClientSettings, Arg.Any<CancellationToken>());
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Initialize_Delegate_Is_Supported()
         {
             var onLanguageClientInitialize = Substitute.For<OnLanguageClientInitializeDelegate>();
@@ -55,7 +55,7 @@ namespace Lsp.Tests.Integration
             await onLanguageServerInitialize.Received(1).Invoke(server, server.ClientSettings, Arg.Any<CancellationToken>());
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Initialize_Interface_Is_Supported_On_Handlers()
         {
             var onLanguageClientInitialize =
@@ -71,7 +71,7 @@ namespace Lsp.Tests.Integration
             await onLanguageServerInitialize.Received(1).OnInitialize(server, server.ClientSettings, Arg.Any<CancellationToken>());
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Initialize_Interface_Is_Supported_On_Handlers_After_Startup()
         {
             var onLanguageClientInitialize =
@@ -90,7 +90,7 @@ namespace Lsp.Tests.Integration
             await onLanguageServerInitialize.Received(1).OnInitialize(server, server.ClientSettings, Arg.Any<CancellationToken>());
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Initialized_Interface_Is_Supported()
         {
             var onLanguageClientInitialized = Substitute.For<IOnLanguageClientInitialized>();
@@ -104,7 +104,7 @@ namespace Lsp.Tests.Integration
             await onLanguageServerInitialized.Received(1).OnInitialized(server, server.ClientSettings, server.ServerSettings, Arg.Any<CancellationToken>());
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Initialized_Delegate_Is_Supported()
         {
             var onLanguageClientInitialized = Substitute.For<OnLanguageClientInitializedDelegate>();
@@ -118,7 +118,7 @@ namespace Lsp.Tests.Integration
             await onLanguageServerInitialized.Received(1).Invoke(server, server.ClientSettings, server.ServerSettings, Arg.Any<CancellationToken>());
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Initialized_Interface_Is_Supported_On_Handlers()
         {
             var onLanguageClientInitialized =
@@ -134,7 +134,7 @@ namespace Lsp.Tests.Integration
             await onLanguageServerInitialized.Received(1).OnInitialized(server, server.ClientSettings, server.ServerSettings, Arg.Any<CancellationToken>());
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Initialized_Interface_Is_Supported_On_Handlers_After_Startup()
         {
             var onLanguageClientInitialized =
@@ -153,7 +153,7 @@ namespace Lsp.Tests.Integration
             await onLanguageServerInitialized.Received(1).OnInitialized(server, server.ClientSettings, server.ServerSettings, Arg.Any<CancellationToken>());
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Started_Interface_Is_Supported()
         {
             var onLanguageClientStarted = Substitute.For<IOnLanguageClientStarted>();
@@ -167,7 +167,7 @@ namespace Lsp.Tests.Integration
             await onLanguageServerStarted.Received(1).OnStarted(server, Arg.Any<CancellationToken>());
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Started_Delegate_Is_Supported()
         {
             var onLanguageClientStarted = Substitute.For<OnLanguageClientStartedDelegate>();
@@ -181,7 +181,7 @@ namespace Lsp.Tests.Integration
             await onLanguageServerStarted.Received(1).Invoke(server, Arg.Any<CancellationToken>());
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Started_Interface_Is_Supported_On_Handlers()
         {
             var onLanguageClientStarted =
@@ -197,7 +197,7 @@ namespace Lsp.Tests.Integration
             await onLanguageServerStarted.Received(1).OnStarted(server, Arg.Any<CancellationToken>());
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Started_Interface_Is_Supported_On_Handlers_After_Startup()
         {
             var onLanguageClientStarted =

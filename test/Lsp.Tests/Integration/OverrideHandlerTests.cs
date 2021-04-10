@@ -24,7 +24,7 @@ namespace Lsp.Tests.Integration
         {
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Support_Custom_Execute_Command_Handlers()
         {
             var (client, _) = await Initialize(
@@ -44,7 +44,7 @@ namespace Lsp.Tests.Integration
             response.Should().BeEquivalentTo(JToken.FromObject(new { someValue = "custom" }));
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Support_Mixed_Execute_Command_Handlers()
         {
             var (client, _) = await Initialize(

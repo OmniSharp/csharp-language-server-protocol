@@ -27,7 +27,7 @@ namespace Lsp.Tests.Integration
         {
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Server_Should_Deserialize_Capabilities_As_Proposal_Types()
         {
             var (_, server) = await Initialize(
@@ -47,7 +47,7 @@ namespace Lsp.Tests.Integration
             server.ClientSettings.Capabilities!.Workspace.Should().BeOfType<ProposedWorkspaceClientCapabilities>();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Client_Should_Deserialize_Capabilities_As_Proposal_Types()
         {
             var (client, _) = await Initialize(

@@ -29,7 +29,7 @@ namespace Lsp.Tests.Integration
         {
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Disable_Registration_Manager()
         {
             var registrationAction = Substitute.For<Func<RegistrationParams, Task>>();
@@ -48,7 +48,7 @@ namespace Lsp.Tests.Integration
             clientManager.Descriptors.Should().ContainSingle(f => f.Method == ClientNames.UnregisterCapability);
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Disable_Workspace_Folder_Manager()
         {
             var clientAction = Substitute.For<Func<WorkspaceFolderParams, Task<Container<WorkspaceFolder>?>>>();
@@ -67,7 +67,7 @@ namespace Lsp.Tests.Integration
             serverManager.Descriptors.Should().ContainSingle(f => f.Method == WorkspaceNames.DidChangeWorkspaceFolders);
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Allow_Custom_Workspace_Folder_Manager_Delegate()
         {
             var action = Substitute.For<Action<DidChangeWorkspaceFoldersParams>>();
@@ -97,7 +97,7 @@ namespace Lsp.Tests.Integration
             );
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Disable_Configuration()
         {
             var action = Substitute.For<Action<DidChangeConfigurationParams>>();
@@ -111,7 +111,7 @@ namespace Lsp.Tests.Integration
             serverManager.Descriptors.Should().ContainSingle(f => f.Method == WorkspaceNames.DidChangeConfiguration);
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Allow_Custom_Configuration_Delegate()
         {
             var action = Substitute.For<Action<DidChangeConfigurationParams>>();

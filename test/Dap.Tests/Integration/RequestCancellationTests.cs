@@ -21,7 +21,7 @@ namespace Dap.Tests.Integration
         {
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Cancel_Pending_Requests()
         {
             var (client, _) = await Initialize(ConfigureClient, ConfigureServer);

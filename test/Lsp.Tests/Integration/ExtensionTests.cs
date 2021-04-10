@@ -28,7 +28,7 @@ namespace Lsp.Tests.Integration
         {
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Support_Custom_Capabilities()
         {
             var onDiscoverHandler = Substitute.For<Func<DiscoverUnitTestsParams, UnitTestCapability, CancellationToken, Task<Container<UnitTest>>>>();
@@ -96,7 +96,7 @@ namespace Lsp.Tests.Integration
             onRunUnitHandler.Received(1).Invoke(Arg.Any<UnitTest>(), Arg.Is<UnitTestCapability>(x => x.Property == "Abcd"), Arg.Any<CancellationToken>());
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Support_Custom_Capabilities_Using_Json()
         {
             var onDiscoverHandler = Substitute.For<Func<DiscoverUnitTestsParams, UnitTestCapability, CancellationToken, Task<Container<UnitTest>>>>();
@@ -141,7 +141,7 @@ namespace Lsp.Tests.Integration
             onRunUnitHandler.Received(1).Invoke(Arg.Any<UnitTest>(), Arg.Is<UnitTestCapability>(x => x.Property == "Abcd"), Arg.Any<CancellationToken>());
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Support_Custom_Static_Options()
         {
             var onDiscoverHandler = Substitute.For<Func<DiscoverUnitTestsParams, UnitTestCapability, CancellationToken, Task<Container<UnitTest>>>>();
@@ -179,7 +179,7 @@ namespace Lsp.Tests.Integration
             }
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Convert_Registration_Options_Into_Static_Options_As_Required()
         {
             var (client, _) = await Initialize(
