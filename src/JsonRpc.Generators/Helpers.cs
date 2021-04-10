@@ -802,8 +802,40 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     )
             );
 
-        public static ArrowExpressionClauseSyntax GetPartialInvokeExpression(TypeSyntax responseType) =>
-            ArrowExpressionClause(
+        public static ArrowExpressionClauseSyntax GetPartialInvokeExpression(TypeSyntax responseType, TypeSyntax? partialItemType)
+        {
+            var realResponseType = responseType is NullableTypeSyntax nts ? nts.ElementType : responseType;
+            var factoryArgument = Argument(
+                SimpleLambdaExpression(
+                    Parameter(Identifier("value")),
+                    ObjectCreationExpression(realResponseType)
+                       .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("value")))))
+                )
+            );
+            var arguments = new[] {
+                Argument(
+                    IdentifierName(@"request")
+                ),
+                factoryArgument,
+                Argument(IdentifierName("cancellationToken"))
+            };
+            if (partialItemType is {})
+            {
+                var realPartialItemType = partialItemType is NullableTypeSyntax nts2 ? nts2.ElementType : partialItemType;
+                arguments = new[] {
+                    arguments[0],
+                    arguments[1],
+                    Argument(
+                        SimpleLambdaExpression(
+                            Parameter(Identifier("value")),
+                            ObjectCreationExpression(realPartialItemType)
+                               .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("value")))))
+                        )
+                    ),
+                    arguments[2]
+                };
+            }
+            return ArrowExpressionClause(
                 InvocationExpression(
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
@@ -815,26 +847,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                             IdentifierName("MonitorUntil")
                         )
                     )
-                   .WithArgumentList(
-                        ArgumentList(
-                            SeparatedList(
-                                new[] {
-                                    Argument(
-                                        IdentifierName(@"request")
-                                    ),
-                                    Argument(
-                                        SimpleLambdaExpression(
-                                            Parameter(Identifier("value")),
-                                            ObjectCreationExpression(responseType is NullableTypeSyntax nts ? nts.ElementType : responseType)
-                                               .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("value")))))
-                                        )
-                                    ),
-                                    Argument(IdentifierName("cancellationToken"))
-                                }
-                            )
-                        )
-                    )
+                   .WithArgumentList(ArgumentList(SeparatedList(arguments)))
             );
+        }
 
         public static string GetExtensionClassName(INamedTypeSymbol symbol) => SpecialCasedHandlerFullName(symbol).Split('.').Last() + "Extensions";
 

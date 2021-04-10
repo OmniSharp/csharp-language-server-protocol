@@ -27,6 +27,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
             options.ClientLoggerFactory = options.ServerLoggerFactory = loggerFactory;
             return options;
         }
+
         public static JsonRpcTestOptions WithServerScheduler(this JsonRpcTestOptions options, IScheduler scheduler)
         {
             options.ServerScheduler = scheduler;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive.Concurrency;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -18,6 +19,54 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
         public static DebugAdapterServerOptions WithRequestProcessIdentifier(this DebugAdapterServerOptions options, IRequestProcessIdentifier requestProcessIdentifier)
         {
             options.RequestProcessIdentifier = requestProcessIdentifier;
+            return options;
+        }
+
+        /// <summary>
+        /// Sets both input and output schedulers to the same scheduler
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="inputScheduler"></param>
+        /// <returns></returns>
+        public static DebugAdapterServerOptions WithScheduler(this DebugAdapterServerOptions options, IScheduler inputScheduler)
+        {
+            options.InputScheduler = options.OutputScheduler = options.DefaultScheduler = inputScheduler;
+            return options;
+        }
+
+        /// <summary>
+        /// Sets the scheduler used during reading input
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="inputScheduler"></param>
+        /// <returns></returns>
+        public static DebugAdapterServerOptions WithInputScheduler(this DebugAdapterServerOptions options, IScheduler inputScheduler)
+        {
+            options.InputScheduler = inputScheduler;
+            return options;
+        }
+
+        /// <summary>
+        /// Sets the default scheduler to be used when scheduling other tasks
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="defaultScheduler"></param>
+        /// <returns></returns>
+        public static DebugAdapterServerOptions WithDefaultScheduler(this DebugAdapterServerOptions options, IScheduler defaultScheduler)
+        {
+            options.DefaultScheduler = defaultScheduler;
+            return options;
+        }
+
+        /// <summary>
+        /// Sets the scheduler use during writing output
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="outputScheduler"></param>
+        /// <returns></returns>
+        public static DebugAdapterServerOptions WithOutputScheduler(this DebugAdapterServerOptions options, IScheduler outputScheduler)
+        {
+            options.OutputScheduler = outputScheduler;
             return options;
         }
 

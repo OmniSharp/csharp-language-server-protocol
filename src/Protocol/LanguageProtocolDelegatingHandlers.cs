@@ -306,7 +306,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 // in the event nothing is emitted...
                 subject.OnNext(default!);
                 _handler(request, subject, Capability, cancellationToken);
-                return await subject.Select(_factory).ToTask(cancellationToken).ConfigureAwait(false);
+                return await subject.Select(_factory).ToTask(cancellationToken, _progressManager.Scheduler).ConfigureAwait(false);
             }
 
             protected internal override TRegistrationOptions CreateRegistrationOptions(TCapability capability, ClientCapabilities clientCapabilities) => _registrationOptionsFactory(capability, clientCapabilities);
@@ -361,7 +361,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 // in the event nothing is emitted...
                 subject.OnNext(default!);
                 _handler(request, subject, cancellationToken);
-                return await subject.Select(_factory).ToTask(cancellationToken).ConfigureAwait(false);
+                return await subject.Select(_factory).ToTask(cancellationToken, _progressManager.Scheduler).ConfigureAwait(false);
             }
 
             protected override TRegistrationOptions CreateRegistrationOptions(ClientCapabilities clientCapabilities) => _registrationOptionsFactory(clientCapabilities);
@@ -413,7 +413,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 // in the event nothing is emitted...
                 subject.OnNext(default!);
                 _handler(request, Capability, subject, cancellationToken);
-                return await subject.Select(_factory).ToTask(cancellationToken).ConfigureAwait(false);
+                return await subject.Select(_factory).ToTask(cancellationToken, _progressManager.Scheduler).ConfigureAwait(false);
             }
         }
 
@@ -457,7 +457,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 // in the event nothing is emitted...
                 subject.OnNext(default!);
                 _handler(request, subject, cancellationToken);
-                return await subject.Select(_factory).ToTask(cancellationToken).ConfigureAwait(false);
+                return await subject.Select(_factory).ToTask(cancellationToken, _progressManager.Scheduler).ConfigureAwait(false);
             }
         }
 
@@ -515,7 +515,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                            return acc;
                                        }
                                    )
-                                  .ToTask(cancellationToken);
+                                  .ToTask(cancellationToken, _progressManager.Scheduler);
                 _handler(request, subject, Capability, cancellationToken);
                 var result = _factory(await task.ConfigureAwait(false));
                 return result;
@@ -577,7 +577,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                            return acc;
                                        }
                                    )
-                                  .ToTask(cancellationToken);
+                                  .ToTask(cancellationToken, _progressManager.Scheduler);
                 _handler(request, subject, cancellationToken);
                 var result = _factory(await task.ConfigureAwait(false));
                 return result;
@@ -637,7 +637,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                            return acc;
                                        }
                                    )
-                                  .ToTask(cancellationToken);
+                                  .ToTask(cancellationToken, _progressManager.Scheduler);
                 _handler(request, subject, Capability, cancellationToken);
                 var result = _factory(await task.ConfigureAwait(false));
                 return result;
@@ -694,7 +694,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                            return acc;
                                        }
                                    )
-                                  .ToTask(cancellationToken);
+                                  .ToTask(cancellationToken, _progressManager.Scheduler);
                 _handler(request, subject, cancellationToken);
                 var result = _factory(await task.ConfigureAwait(false));
                 return result;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading;
@@ -16,6 +17,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
             IEnumerable<THandler> handlers,
             Func<THandler, CancellationToken, Task> executeHandler,
             int? concurrency,
+            IScheduler scheduler,
             CancellationToken cancellationToken
         )
         {
@@ -28,13 +30,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
             {
                 return events.Merge(concurrency.Value)
                              .LastOrDefaultAsync()
-                             .ToTask(cancellationToken);
+                             .ToTask(cancellationToken, scheduler);
             }
 
             return events
                   .Merge()
                   .LastOrDefaultAsync()
-                  .ToTask(cancellationToken);
+                  .ToTask(cancellationToken, scheduler);
         }
     }
 }

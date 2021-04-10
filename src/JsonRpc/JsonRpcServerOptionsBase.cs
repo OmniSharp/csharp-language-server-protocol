@@ -38,6 +38,7 @@ namespace OmniSharp.Extensions.JsonRpc
         public int? Concurrency { get; set; }
         public IScheduler InputScheduler { get; set; } = TaskPoolScheduler.Default;
         public IScheduler OutputScheduler { get; set; } = TaskPoolScheduler.Default;
+        public IScheduler DefaultScheduler { get; set; } = TaskPoolScheduler.Default;
         public CreateResponseExceptionHandler? CreateResponseException { get; set; }
         public OnUnhandledExceptionHandler? OnUnhandledException { get; set; }
         public bool SupportsContentModified { get; set; } = true;

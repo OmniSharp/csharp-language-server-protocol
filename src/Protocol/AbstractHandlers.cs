@@ -264,7 +264,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                            return acc;
                                        }
                                    )
-                                  .ToTask(cancellationToken);
+                                  .ToTask(cancellationToken, _progressManager.Scheduler);
                 Handle(request, subject, cancellationToken);
                 return _factory(await task.ConfigureAwait(false));
             }
@@ -305,7 +305,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                            return acc;
                                        }
                                    )
-                                  .ToTask(cancellationToken);
+                                  .ToTask(cancellationToken, _progressManager.Scheduler);
                 Handle(request, subject, cancellationToken);
                 return _factory(await task.ConfigureAwait(false));
             }
@@ -345,7 +345,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                            return acc;
                                        }
                                    )
-                                  .ToTask(cancellationToken);
+                                  .ToTask(cancellationToken, _progressManager.Scheduler);
                 Handle(request, subject, cancellationToken);
                 return _factory(await task.ConfigureAwait(false));
             }
