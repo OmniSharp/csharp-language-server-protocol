@@ -34,15 +34,14 @@ namespace Lsp.Tests.Integration
                 PromptToUpdatePackageManagement = false
             };
             server.SendTelemetryEvent(@event);
-            while (!fake.ReceivedCalls().Any() && !CancellationToken.IsCancellationRequested)
-                await SettleNext();
+            await SettleNext();
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
 
             args[0].Should().BeOfType<CustomTelemetryEventParams>()
                    .And.Subject
-                   .Should().BeEquivalentTo(@event, z=> z.UsingStructuralRecordEquality().Excluding(x => x.ExtensionData));
+                   .Should().BeEquivalentTo(@event, z => z.UsingStructuralRecordEquality().Excluding(x => x.ExtensionData));
         }
 
         [RetryFact]
@@ -59,8 +58,7 @@ namespace Lsp.Tests.Integration
                 PromptToUpdatePackageManagement = false
             };
             server.SendTelemetryEvent(@event);
-            while (!fake.ReceivedCalls().Any() && !CancellationToken.IsCancellationRequested)
-                await SettleNext();
+            await SettleNext();
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
@@ -76,7 +74,7 @@ namespace Lsp.Tests.Integration
         public async Task Should_Support_Custom_Telemetry_Using_Extension_Data_Using_Base_Class()
         {
             var fake = Substitute.For<TelemetryEventHandlerBase<CustomTelemetryEventParams>>();
-            var (_, server) = await Initialize(options => { options.AddHandler(fake);}, options => {  });
+            var (_, server) = await Initialize(options => { options.AddHandler(fake); }, options => { });
 
             server.SendTelemetryEvent(
                 new TelemetryEventParams {
@@ -89,7 +87,6 @@ namespace Lsp.Tests.Integration
                     }
                 }
             );
-            while (!fake.ReceivedCalls().Any() && !CancellationToken.IsCancellationRequested)
             await SettleNext();
 
             var call = fake.ReceivedCalls().Single();
@@ -116,15 +113,14 @@ namespace Lsp.Tests.Integration
                 PromptToUpdatePackageManagement = false
             };
             server.SendTelemetryEvent(@event);
-            while (!fake.ReceivedCalls().Any() && !CancellationToken.IsCancellationRequested)
-                await SettleNext();
+            await SettleNext();
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
             args[0]
                .Should().BeOfType<CustomTelemetryEventParams>()
                .And.Subject
-               .Should().BeEquivalentTo(@event, z=> z.UsingStructuralRecordEquality().Excluding(x => x.ExtensionData));
+               .Should().BeEquivalentTo(@event, z => z.UsingStructuralRecordEquality().Excluding(x => x.ExtensionData));
         }
 
         [RetryFact]
@@ -141,8 +137,7 @@ namespace Lsp.Tests.Integration
                 PromptToUpdatePackageManagement = false
             };
             server.SendTelemetryEvent(@event);
-            while (!fake.ReceivedCalls().Any() && !CancellationToken.IsCancellationRequested)
-                await SettleNext();
+            await SettleNext();
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
@@ -171,8 +166,7 @@ namespace Lsp.Tests.Integration
                     }
                 }
             );
-            while (!fake.ReceivedCalls().Any() && !CancellationToken.IsCancellationRequested)
-                await SettleNext();
+            await SettleNext();
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
