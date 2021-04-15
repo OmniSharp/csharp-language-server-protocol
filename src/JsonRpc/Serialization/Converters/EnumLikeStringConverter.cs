@@ -14,13 +14,13 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters
             JsonSerializer serializer
         ) =>
             reader.TokenType switch {
-                JsonToken.String => (IEnumLikeString?) CreateEnumLikeString(objectType, reader.Value);
+                JsonToken.String => (IEnumLikeString?) CreateEnumLikeString(objectType, (string?) reader.Value);
                 _                => (IEnumLikeString) Activator.CreateInstance(objectType, null)
             };
 
         public override bool CanRead => true;
 
-        private static object? CreateEnumLikeString(Type objectType, object? value)
+        private static object? CreateEnumLikeString(Type objectType, string? value)
         {
             if (objectType.IsGenericType
                 && objectType.GetGenericTypeDefinition() == typeof(Nullable<>))
@@ -31,10 +31,10 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters
                     return null;
                 }
 
-                return Activator.CreateInstance(objectType.GetGenericArguments()[0], (string) value);
+                return Activator.CreateInstance(objectType.GetGenericArguments()[0], value);
             }
 
-            return Activator.CreateInstance(objectType, (string?) value);
+            return Activator.CreateInstance(objectType, value);
         }
     }
 }
