@@ -8,13 +8,13 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters
     {
         public override void WriteJson(JsonWriter writer, IEnumLikeString value, JsonSerializer serializer) => new JValue(value.ToString()).WriteTo(writer);
 
-        public override IEnumLikeString ReadJson(
+        public override IEnumLikeString? ReadJson(
             JsonReader reader, Type objectType, IEnumLikeString existingValue,
             bool hasExistingValue,
             JsonSerializer serializer
         ) =>
             reader.TokenType switch {
-                JsonToken.String => (IEnumLikeString?) CreateEnumLikeString(objectType, (string?) reader.Value);
+                JsonToken.String => (IEnumLikeString?) CreateEnumLikeString(objectType, (string?) reader.Value),
                 _                => (IEnumLikeString) Activator.CreateInstance(objectType, null)
             };
 
