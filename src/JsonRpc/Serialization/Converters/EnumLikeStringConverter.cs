@@ -14,10 +14,27 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters
             JsonSerializer serializer
         ) =>
             reader.TokenType switch {
-                JsonToken.String => (IEnumLikeString) Activator.CreateInstance(objectType, (string) reader.Value),
+                JsonToken.String => (IEnumLikeString?) CreateEnumLikeString(objectType, reader.Value);
                 _                => (IEnumLikeString) Activator.CreateInstance(objectType, null)
             };
 
         public override bool CanRead => true;
+
+        private static object? CreateEnumLikeString(Type objectType, object? value)
+        {
+            if (objectType.IsGenericType
+                && objectType.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                // TODO: If the value is null, should we return null? ReadJson()'s return type isn't nullable...
+                if (value is null)
+                {
+                    return null;
+                }
+
+                return Activator.CreateInstance(objectType.GetGenericArguments()[0], (string) value);
+            }
+
+            return Activator.CreateInstance(objectType, (string?) value);
+        }
     }
 }
