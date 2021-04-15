@@ -31,6 +31,7 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters
                     return null;
                 }
 
+                // We could also create a Nullable<T>, but then will that be an IEnumLikeString?
                 return Activator.CreateInstance(objectType.GetGenericArguments()[0], value);
             }
 
