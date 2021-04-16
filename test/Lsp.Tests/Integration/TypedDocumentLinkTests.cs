@@ -27,7 +27,7 @@ namespace Lsp.Tests.Integration
         {
         }
 
-        [Fact]
+        [Fact]//[RetryFact]
         public async Task Should_Aggregate_With_All_Related_Handlers()
         {
             var (client, _) = await Initialize(
@@ -136,7 +136,7 @@ namespace Lsp.Tests.Integration
             lens.Length.Should().Be(3);
         }
 
-        [Fact]
+        [Fact]//[RetryFact]
         public async Task Should_Resolve_With_Data_Capability()
         {
             var (client, _) = await Initialize(
@@ -177,7 +177,7 @@ namespace Lsp.Tests.Integration
             item.Tooltip.Should().Be("resolved");
         }
 
-        [Fact]
+        [Fact]//[RetryFact]
         public async Task Should_Resolve_With_Partial_Data_Capability()
         {
             var (client, _) = await Initialize(
@@ -217,7 +217,7 @@ namespace Lsp.Tests.Integration
             item.Tooltip.Should().Be("resolved");
         }
 
-        [Fact]
+        [Fact]//[RetryFact]
         public async Task Should_Resolve_With_Data_CancellationToken()
         {
             var (client, _) = await Initialize(
@@ -258,7 +258,7 @@ namespace Lsp.Tests.Integration
             item.Tooltip.Should().Be("resolved");
         }
 
-        [Fact]
+        [Fact]//[RetryFact]
         public async Task Should_Resolve_With_Partial_Data_CancellationToken()
         {
             var (client, _) = await Initialize(
@@ -298,7 +298,7 @@ namespace Lsp.Tests.Integration
             item.Tooltip.Should().Be("resolved");
         }
 
-        [Fact]
+        [Fact]//[RetryFact]
         public async Task Should_Resolve_With_Data()
         {
             var (client, _) = await Initialize(
@@ -339,7 +339,7 @@ namespace Lsp.Tests.Integration
             item.Tooltip.Should().Be("resolved");
         }
 
-        [Fact]
+        [Fact]//[RetryFact]
         public async Task Should_Resolve_With_Partial_Data()
         {
             var (client, _) = await Initialize(
@@ -380,7 +380,7 @@ namespace Lsp.Tests.Integration
         }
 
 
-        [Fact]
+        [Fact]//[RetryFact]
         public async Task Should_Resolve_Capability()
         {
             var (client, _) = await Initialize(
@@ -411,7 +411,7 @@ namespace Lsp.Tests.Integration
             item.Tooltip.Should().Be("resolved");
         }
 
-        [Fact]
+        [Fact]//[RetryFact]
         public async Task Should_Resolve_Partial_Capability()
         {
             var (client, _) = await Initialize(
@@ -441,7 +441,7 @@ namespace Lsp.Tests.Integration
             item.Tooltip.Should().Be("resolved");
         }
 
-        [Fact]
+        [Fact]//[RetryFact]
         public async Task Should_Resolve_CancellationToken()
         {
             var (client, _) = await Initialize(
@@ -472,7 +472,7 @@ namespace Lsp.Tests.Integration
             item.Tooltip.Should().Be("resolved");
         }
 
-        [Fact]
+        [Fact]//[RetryFact]
         public async Task Should_Resolve_Partial_CancellationToken()
         {
             var (client, _) = await Initialize(
@@ -502,7 +502,7 @@ namespace Lsp.Tests.Integration
             item.Tooltip.Should().Be("resolved");
         }
 
-        [Fact]
+        [Fact]//[RetryFact]
         public async Task Should_Resolve()
         {
             var (client, _) = await Initialize(
@@ -533,7 +533,7 @@ namespace Lsp.Tests.Integration
             item.Tooltip.Should().Be("resolved");
         }
 
-        [Fact]
+        [Fact]//[RetryFact]
         public async Task Should_Resolve_Partial()
         {
             var (client, _) = await Initialize(

@@ -119,6 +119,8 @@ namespace Lsp.Tests.Integration
                     registrations => registrations.Any(registration => SelectorMatches(registration, x => x.HasLanguage && x.Language == "vb")),
                     CancellationToken
                 );
+
+                await Task.Delay(200);
                 disposable.Dispose();
 
 
@@ -127,6 +129,7 @@ namespace Lsp.Tests.Integration
                     registrations => !registrations.Any(registration => SelectorMatches(registration, x => x.HasLanguage && x.Language == "vb")),
                     CancellationToken
                 );
+                await Task.Delay(200);
 
                 client.RegistrationManager.CurrentRegistrations.Should().NotContain(
                     x =>

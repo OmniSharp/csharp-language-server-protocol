@@ -254,7 +254,7 @@ namespace Lsp.Tests.Integration
             // IOptionsMonitor<> is registered as a singleton, so this will update
             options.CurrentValue.Host.Should().Be("localhost");
             options.CurrentValue.Port.Should().Be(443);
-            sub.Received(1).Invoke(Arg.Any<BinderSourceUrl>());
+            sub.Received(Quantity.AtLeastOne()).Invoke(Arg.Any<BinderSourceUrl>());
 
             configuration.Update("mysection", new Dictionary<string, string> { ["host"] = "127.0.0.1", ["port"] = "80" });
             await options.WaitForChange(CancellationToken);
@@ -262,7 +262,7 @@ namespace Lsp.Tests.Integration
 
             options.CurrentValue.Host.Should().Be("127.0.0.1");
             options.CurrentValue.Port.Should().Be(80);
-            sub.Received(2).Invoke(Arg.Any<BinderSourceUrl>());
+            sub.Received(Quantity.Within(2, int.MaxValue)).Invoke(Arg.Any<BinderSourceUrl>());
         }
 
         class BinderSourceUrl

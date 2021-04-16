@@ -36,7 +36,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         )
         {
             _serializer = serializer;
-            _dataSubject = new ReplaySubject<IEnumerable<TItem>>(int.MaxValue);
+            _dataSubject = new ReplaySubject<IEnumerable<TItem>>(int.MaxValue, Scheduler.Immediate);
             _disposable = new CompositeDisposable() { _dataSubject };
 
             _task = Observable.Create<TResult>(

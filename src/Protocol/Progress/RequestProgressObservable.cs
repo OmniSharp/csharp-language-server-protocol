@@ -41,12 +41,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
                                    observer => new CompositeDisposable() {
                                        _dataSubject
                                           .ForkJoin(
-                                               requestResult.Do(
-                                                   _ => {
-                                                       if (_receivedPartialData) return;
-                                                       _dataSubject.OnNext(reverseFactory(_));
-                                                   }, OnError, OnCompleted
-                                               ), factory
+                                               requestResult
+                                                  .Do(
+                                                       _ => _dataSubject.OnNext(reverseFactory(_)),
+                                                       _dataSubject.OnError,
+                                                       _dataSubject.OnCompleted
+                                                   ),
+                                               factory
                                            )
                                           .Subscribe(observer),
                                        Disposable.Create(onCompleteAction)
