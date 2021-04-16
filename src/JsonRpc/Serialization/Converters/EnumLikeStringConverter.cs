@@ -16,7 +16,8 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters
             ( reader.TokenType, Nullable.GetUnderlyingType(objectType) ) switch {
                 (JsonToken.String, null)         => (IEnumLikeString) Activator.CreateInstance(objectType, (string) reader.Value),
                 (JsonToken.String, { } realType) => (IEnumLikeString) Activator.CreateInstance(realType, (string) reader.Value),
-                _                                => (IEnumLikeString) Activator.CreateInstance(objectType, null)
+                (_, { })                         => (IEnumLikeString) Activator.CreateInstance(objectType, null),
+                _                                => null
             };
 
         public override bool CanRead => true;

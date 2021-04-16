@@ -23,8 +23,14 @@ namespace Dap.Tests
         [Fact]
         public void PathFormat_Should_Be_Deserializable()
         {
-            Action a = () => new DapSerializer().DeserializeObject<InitializeRequestArguments>("{\"pathformat\": \"Uri\"}");
-            a.Should().NotThrow();
+            Func<InitializeRequestArguments> a = () => new DapSerializer().DeserializeObject<InitializeRequestArguments>("{\"pathformat\": \"Uri\"}");
+            a.Should().NotThrow().Subject.PathFormat.Should().NotBeNull();
+        }
+        [Fact]
+        public void PathFormat_Should_Be_Deserializable_When_Null()
+        {
+            var a = new DapSerializer().DeserializeObject<InitializeRequestArguments>("{\"pathformat\":null}");
+            a.PathFormat.Should().BeNull();
         }
     }
 }
