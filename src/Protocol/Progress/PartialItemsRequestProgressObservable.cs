@@ -49,7 +49,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
                                                    return acc;
                                                }
                                            )
-                                          .DefaultIfEmpty(new List<TItem>())
                                           .Select(factory)
                                           .ForkJoin(
                                                requestResult
