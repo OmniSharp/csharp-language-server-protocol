@@ -64,7 +64,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public void Send(object? value)
         {
-            _logger.LogTrace("Writing out value {@Value} ({Type})", value, value?.GetType().FullName);
+//            _logger.LogTrace("Writing out value {@Value} ({Type})", value, value?.GetType().FullName);
             
             try
             {
