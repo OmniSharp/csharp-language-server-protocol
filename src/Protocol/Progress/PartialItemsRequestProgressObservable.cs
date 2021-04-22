@@ -42,7 +42,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
             _task = Observable.Create<TResult>(
                                    observer => new CompositeDisposable() {
                                        _dataSubject
-                                          .Scan(
+                                          .Aggregate(
                                                new List<TItem>(),
                                                (acc, data) => {
                                                    acc.AddRange(data);
@@ -53,10 +53,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
                                           .ForkJoin(
                                                requestResult
                                                   .Do(
-                                                       result => {
-                                                           if (_receivedPartialData) return;
-                                                           _dataSubject.OnNext(result ?? Enumerable.Empty<TItem>());
-                                                       },
+                                                       result => _dataSubject.OnNext(result ?? Enumerable.Empty<TItem>()),
                                                        _dataSubject.OnError,
                                                        _dataSubject.OnCompleted
                                                    ),
