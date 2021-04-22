@@ -28,6 +28,7 @@ nuget.exe
 debugSettings.json
 buildlog
 /.vs
+osharp_pack/
 
 # NuGet
 *.nuget.targets
