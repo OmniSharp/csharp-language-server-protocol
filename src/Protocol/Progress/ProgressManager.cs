@@ -284,6 +284,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
                     try
                     {
                         observer.OnNext(await _router.SendRequest(request, ct).ConfigureAwait(false));
+                        await Task.Yield();
                         observer.OnCompleted();
                     }
                     catch (OperationCanceledException e)
