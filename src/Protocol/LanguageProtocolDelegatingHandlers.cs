@@ -29,14 +29,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             private readonly Guid _id;
             Guid ICanBeIdentifiedHandler.Id => _id;
 
-            public Request(Guid id, Func<TParams, TCapability, CancellationToken, Task<TResult>> handler, RegistrationOptionsDelegate<TRegistrationOptions, TCapability> registrationOptionsFactory)
+            public Request(
+                Guid id, Func<TParams, TCapability, CancellationToken, Task<TResult>> handler,
+                RegistrationOptionsDelegate<TRegistrationOptions, TCapability> registrationOptionsFactory
+            )
             {
                 _id = id;
                 _handler = handler;
                 _registrationOptionsFactory = registrationOptionsFactory;
             }
 
-            public Request(Func<TParams, TCapability, CancellationToken, Task<TResult>> handler, RegistrationOptionsDelegate<TRegistrationOptions, TCapability> registrationOptionsFactory) :
+            public Request(
+                Func<TParams, TCapability, CancellationToken, Task<TResult>> handler, RegistrationOptionsDelegate<TRegistrationOptions, TCapability> registrationOptionsFactory
+            ) :
                 this(Guid.Empty, handler, registrationOptionsFactory)
             {
             }
@@ -44,7 +49,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             Task<TResult> IRequestHandler<TParams, TResult>.Handle(TParams request, CancellationToken cancellationToken) =>
                 _handler(request, Capability, cancellationToken);
 
-            protected internal override TRegistrationOptions CreateRegistrationOptions(TCapability capability, ClientCapabilities clientCapabilities) => _registrationOptionsFactory(capability, clientCapabilities);
+            protected internal override TRegistrationOptions CreateRegistrationOptions(TCapability capability, ClientCapabilities clientCapabilities) =>
+                _registrationOptionsFactory(capability, clientCapabilities);
         }
 
         public sealed class CanBeResolved<TItem, TRegistrationOptions, TCapability> :
@@ -56,11 +62,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             where TCapability : ICapability
         {
             private readonly Func<TItem, TCapability, CancellationToken, Task<TItem>> _resolveHandler;
-                        private readonly RegistrationOptionsDelegate<TRegistrationOptions, TCapability> _registrationOptionsFactory;
+            private readonly RegistrationOptionsDelegate<TRegistrationOptions, TCapability> _registrationOptionsFactory;
             private readonly Guid _id;
             Guid ICanBeIdentifiedHandler.Id => _id;
 
-            public CanBeResolved(Guid id, Func<TItem, TCapability, CancellationToken, Task<TItem>> resolveHandler, RegistrationOptionsDelegate<TRegistrationOptions, TCapability> registrationOptionsFactory)
+            public CanBeResolved(
+                Guid id, Func<TItem, TCapability, CancellationToken, Task<TItem>> resolveHandler,
+                RegistrationOptionsDelegate<TRegistrationOptions, TCapability> registrationOptionsFactory
+            )
             {
                 _resolveHandler = resolveHandler;
                 _registrationOptionsFactory = registrationOptionsFactory;
@@ -69,7 +78,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             Task<TItem> IRequestHandler<TItem, TItem>.Handle(TItem request, CancellationToken cancellationToken) => _resolveHandler(request, Capability, cancellationToken);
 
-            protected internal override TRegistrationOptions CreateRegistrationOptions(TCapability capability, ClientCapabilities clientCapabilities) => _registrationOptionsFactory(capability, clientCapabilities);
+            protected internal override TRegistrationOptions CreateRegistrationOptions(TCapability capability, ClientCapabilities clientCapabilities) =>
+                _registrationOptionsFactory(capability, clientCapabilities);
         }
 
         public sealed class CanBeResolved<TItem, TRegistrationOptions> :
@@ -109,15 +119,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             private readonly Guid _id;
             Guid ICanBeIdentifiedHandler.Id => _id;
 
-            public Request(Guid id, Func<TParams, TCapability, CancellationToken, Task> handler, RegistrationOptionsDelegate<TRegistrationOptions, TCapability> registrationOptionsFactory)
+            public Request(
+                Guid id, Func<TParams, TCapability, CancellationToken, Task> handler, RegistrationOptionsDelegate<TRegistrationOptions, TCapability> registrationOptionsFactory
+            )
             {
                 _id = id;
                 _handler = handler;
                 _registrationOptionsFactory = registrationOptionsFactory;
             }
 
-            public Request(Func<TParams, TCapability, CancellationToken, Task> handler, RegistrationOptionsDelegate<TRegistrationOptions, TCapability> registrationOptionsFactory):
-                 this(Guid.Empty, handler, registrationOptionsFactory)
+            public Request(Func<TParams, TCapability, CancellationToken, Task> handler, RegistrationOptionsDelegate<TRegistrationOptions, TCapability> registrationOptionsFactory) :
+                this(Guid.Empty, handler, registrationOptionsFactory)
             {
             }
 
@@ -128,7 +140,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 return Unit.Value;
             }
 
-            protected internal override TRegistrationOptions CreateRegistrationOptions(TCapability capability, ClientCapabilities clientCapabilities) => _registrationOptionsFactory(capability, clientCapabilities);
+            protected internal override TRegistrationOptions CreateRegistrationOptions(TCapability capability, ClientCapabilities clientCapabilities) =>
+                _registrationOptionsFactory(capability, clientCapabilities);
         }
 
         public sealed class RequestRegistration<TParams, TResult, TRegistrationOptions> :
@@ -148,7 +161,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
             }
 
-            public RequestRegistration(Guid id, Func<TParams, CancellationToken, Task<TResult>> handler, RegistrationOptionsDelegate<TRegistrationOptions> registrationOptionsFactory)
+            public RequestRegistration(
+                Guid id, Func<TParams, CancellationToken, Task<TResult>> handler, RegistrationOptionsDelegate<TRegistrationOptions> registrationOptionsFactory
+            )
             {
                 _id = id;
                 _handler = handler;
@@ -180,7 +195,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 _registrationOptionsFactory = registrationOptionsFactory;
             }
 
-            public RequestRegistration(Func<TParams, CancellationToken, Task> handler, RegistrationOptionsDelegate<TRegistrationOptions> registrationOptionsFactory):
+            public RequestRegistration(Func<TParams, CancellationToken, Task> handler, RegistrationOptionsDelegate<TRegistrationOptions> registrationOptionsFactory) :
                 this(Guid.Empty, handler, registrationOptionsFactory)
             {
             }
@@ -270,7 +285,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             Guid ICanBeIdentifiedHandler.Id => _id;
 
             public PartialResult(
-                Guid id, Action<TParams, IObserver<TItem>, TCapability, CancellationToken> handler, RegistrationOptionsDelegate<TRegistrationOptions, TCapability> registrationOptionsFactory, IProgressManager progressManager,
+                Guid id, Action<TParams, IObserver<TItem>, TCapability, CancellationToken> handler,
+                RegistrationOptionsDelegate<TRegistrationOptions, TCapability> registrationOptionsFactory, IProgressManager progressManager,
                 Func<TItem?, TResponse?> factory
             )
             {
@@ -282,9 +298,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }
 
             public PartialResult(
-                Action<TParams, IObserver<TItem>, TCapability, CancellationToken> handler, RegistrationOptionsDelegate<TRegistrationOptions, TCapability> registrationOptionsFactory, IProgressManager progressManager,
+                Action<TParams, IObserver<TItem>, TCapability, CancellationToken> handler,
+                RegistrationOptionsDelegate<TRegistrationOptions, TCapability> registrationOptionsFactory, IProgressManager progressManager,
                 Func<TItem?, TResponse?> factory
-            ):
+            ) :
                 this(Guid.Empty, handler, registrationOptionsFactory, progressManager, factory)
             {
             }
@@ -303,13 +320,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 }
 
                 var subject = new AsyncSubject<TItem?>();
+                var task = subject
+                          .Select(_factory)
+                          .ToTask(cancellationToken, _progressManager.Scheduler)
+                          .ConfigureAwait(false);
                 // in the event nothing is emitted...
                 subject.OnNext(default!);
                 _handler(request, subject, Capability, cancellationToken);
-                return await subject.Select(_factory).ToTask(cancellationToken, _progressManager.Scheduler).ConfigureAwait(false);
+                return await task;
             }
 
-            protected internal override TRegistrationOptions CreateRegistrationOptions(TCapability capability, ClientCapabilities clientCapabilities) => _registrationOptionsFactory(capability, clientCapabilities);
+            protected internal override TRegistrationOptions CreateRegistrationOptions(TCapability capability, ClientCapabilities clientCapabilities) =>
+                _registrationOptionsFactory(capability, clientCapabilities);
         }
 
         public sealed class PartialResult<TParams, TResponse, TItem, TRegistrationOptions> :
@@ -329,14 +351,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             Guid ICanBeIdentifiedHandler.Id => _id;
 
             public PartialResult(
-                Action<TParams, IObserver<TItem>, CancellationToken> handler, RegistrationOptionsDelegate<TRegistrationOptions> registrationOptionsFactory, IProgressManager progressManager,
+                Action<TParams, IObserver<TItem>, CancellationToken> handler, RegistrationOptionsDelegate<TRegistrationOptions> registrationOptionsFactory,
+                IProgressManager progressManager,
                 Func<TItem?, TResponse?> factory
             ) :
                 this(Guid.Empty, handler, registrationOptionsFactory, progressManager, factory)
             {
             }
+
             public PartialResult(
-                Guid id, Action<TParams, IObserver<TItem>, CancellationToken> handler, RegistrationOptionsDelegate<TRegistrationOptions> registrationOptionsFactory, IProgressManager progressManager,
+                Guid id, Action<TParams, IObserver<TItem>, CancellationToken> handler, RegistrationOptionsDelegate<TRegistrationOptions> registrationOptionsFactory,
+                IProgressManager progressManager,
                 Func<TItem?, TResponse?> factory
             )
             {
@@ -358,10 +383,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 }
 
                 var subject = new AsyncSubject<TItem?>();
+                var task = subject
+                          .Select(_factory)
+                          .ToTask(cancellationToken, _progressManager.Scheduler)
+                          .ConfigureAwait(false);
                 // in the event nothing is emitted...
                 subject.OnNext(default!);
                 _handler(request, subject, cancellationToken);
-                return await subject.Select(_factory).ToTask(cancellationToken, _progressManager.Scheduler).ConfigureAwait(false);
+                return await task;
             }
 
             protected override TRegistrationOptions CreateRegistrationOptions(ClientCapabilities clientCapabilities) => _registrationOptionsFactory(clientCapabilities);
@@ -410,10 +439,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 }
 
                 var subject = new AsyncSubject<TItem?>();
+                var task = subject
+                          .Select(_factory)
+                          .ToTask(cancellationToken, _progressManager.Scheduler)
+                          .ConfigureAwait(false);
                 // in the event nothing is emitted...
                 subject.OnNext(default!);
                 _handler(request, Capability, subject, cancellationToken);
-                return await subject.Select(_factory).ToTask(cancellationToken, _progressManager.Scheduler).ConfigureAwait(false);
+                return await task;
             }
         }
 
@@ -454,10 +487,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 }
 
                 var subject = new AsyncSubject<TItem?>();
+                var task = subject
+                          .Select(_factory)
+                          .ToTask(cancellationToken, _progressManager.Scheduler)
+                          .ConfigureAwait(false);
                 // in the event nothing is emitted...
                 subject.OnNext(default!);
                 _handler(request, subject, cancellationToken);
-                return await subject.Select(_factory).ToTask(cancellationToken, _progressManager.Scheduler).ConfigureAwait(false);
+                return await task;
             }
         }
 
@@ -479,7 +516,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             Guid ICanBeIdentifiedHandler.Id => _id;
 
             public PartialResults(
-                Action<TParams, IObserver<IEnumerable<TItem>>, TCapability, CancellationToken> handler, RegistrationOptionsDelegate<TRegistrationOptions, TCapability> registrationOptionsFactory, IProgressManager progressManager,
+                Action<TParams, IObserver<IEnumerable<TItem>>, TCapability, CancellationToken> handler,
+                RegistrationOptionsDelegate<TRegistrationOptions, TCapability> registrationOptionsFactory, IProgressManager progressManager,
                 Func<IEnumerable<TItem>, TResponse?> factory
             ) :
                 this(Guid.Empty, handler, registrationOptionsFactory, progressManager, factory)
@@ -487,7 +525,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }
 
             public PartialResults(
-                Guid id, Action<TParams, IObserver<IEnumerable<TItem>>, TCapability, CancellationToken> handler, RegistrationOptionsDelegate<TRegistrationOptions, TCapability> registrationOptionsFactory,
+                Guid id, Action<TParams, IObserver<IEnumerable<TItem>>, TCapability, CancellationToken> handler,
+                RegistrationOptionsDelegate<TRegistrationOptions, TCapability> registrationOptionsFactory,
                 IProgressManager progressManager, Func<IEnumerable<TItem>, TResponse?> factory
             )
             {
@@ -509,19 +548,22 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 }
 
                 var subject = new Subject<IEnumerable<TItem>>();
-                var task = subject.Aggregate(
-                                       new List<TItem>(), (acc, items) => {
-                                           acc.AddRange(items);
-                                           return acc;
-                                       }
-                                   )
-                                  .ToTask(cancellationToken, _progressManager.Scheduler);
+                var task = subject
+                          .Aggregate(
+                               new List<TItem>(), (acc, items) => {
+                                   acc.AddRange(items);
+                                   return acc;
+                               }
+                           )
+                          .Select(_factory)
+                          .ToTask(cancellationToken, _progressManager.Scheduler)
+                          .ConfigureAwait(false);
                 _handler(request, subject, Capability, cancellationToken);
-                var result = _factory(await task.ConfigureAwait(false));
-                return result;
+                return await task;
             }
 
-            protected internal override TRegistrationOptions CreateRegistrationOptions(TCapability capability, ClientCapabilities clientCapabilities) => _registrationOptionsFactory(capability, clientCapabilities);
+            protected internal override TRegistrationOptions CreateRegistrationOptions(TCapability capability, ClientCapabilities clientCapabilities) =>
+                _registrationOptionsFactory(capability, clientCapabilities);
         }
 
         public sealed class PartialResults<TParams, TResponse, TItem, TRegistrationOptions> :
@@ -541,7 +583,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             Guid ICanBeIdentifiedHandler.Id => _id;
 
             public PartialResults(
-                Action<TParams, IObserver<IEnumerable<TItem>>, CancellationToken> handler, RegistrationOptionsDelegate<TRegistrationOptions> registrationOptionsFactory, IProgressManager progressManager,
+                Action<TParams, IObserver<IEnumerable<TItem>>, CancellationToken> handler, RegistrationOptionsDelegate<TRegistrationOptions> registrationOptionsFactory,
+                IProgressManager progressManager,
                 Func<IEnumerable<TItem>, TResponse?> factory
             ) :
                 this(Guid.Empty, handler, registrationOptionsFactory, progressManager, factory)
@@ -549,7 +592,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }
 
             public PartialResults(
-                Guid id, Action<TParams, IObserver<IEnumerable<TItem>>, CancellationToken> handler, RegistrationOptionsDelegate<TRegistrationOptions> registrationOptionsFactory, IProgressManager progressManager,
+                Guid id, Action<TParams, IObserver<IEnumerable<TItem>>, CancellationToken> handler, RegistrationOptionsDelegate<TRegistrationOptions> registrationOptionsFactory,
+                IProgressManager progressManager,
                 Func<IEnumerable<TItem>, TResponse?> factory
             )
             {
@@ -571,16 +615,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 }
 
                 var subject = new Subject<IEnumerable<TItem>>();
-                var task = subject.Aggregate(
-                                       new List<TItem>(), (acc, items) => {
-                                           acc.AddRange(items);
-                                           return acc;
-                                       }
-                                   )
-                                  .ToTask(cancellationToken, _progressManager.Scheduler);
+                var task = subject
+                          .Aggregate(
+                               new List<TItem>(), (acc, items) => {
+                                   acc.AddRange(items);
+                                   return acc;
+                               }
+                           )
+                          .Select(_factory)
+                          .ToTask(cancellationToken, _progressManager.Scheduler)
+                          .ConfigureAwait(false);
                 _handler(request, subject, cancellationToken);
-                var result = _factory(await task.ConfigureAwait(false));
-                return result;
+                return await task;
             }
 
             protected override TRegistrationOptions CreateRegistrationOptions(ClientCapabilities clientCapabilities) => _registrationOptionsFactory(clientCapabilities);
@@ -631,16 +677,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 }
 
                 var subject = new Subject<IEnumerable<TItem>>();
-                var task = subject.Aggregate(
-                                       new List<TItem>(), (acc, items) => {
-                                           acc.AddRange(items);
-                                           return acc;
-                                       }
-                                   )
-                                  .ToTask(cancellationToken, _progressManager.Scheduler);
+                var task = subject
+                          .Aggregate(
+                               new List<TItem>(), (acc, items) => {
+                                   acc.AddRange(items);
+                                   return acc;
+                               }
+                           )
+                          .Select(_factory)
+                          .ToTask(cancellationToken, _progressManager.Scheduler)
+                          .ConfigureAwait(false);
                 _handler(request, subject, Capability, cancellationToken);
-                var result = _factory(await task.ConfigureAwait(false));
-                return result;
+                return await task;
             }
         }
 
@@ -688,16 +736,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 }
 
                 var subject = new Subject<IEnumerable<TItem>>();
-                var task = subject.Aggregate(
-                                       new List<TItem>(), (acc, items) => {
-                                           acc.AddRange(items);
-                                           return acc;
-                                       }
-                                   )
-                                  .ToTask(cancellationToken, _progressManager.Scheduler);
+                var task = subject
+                          .Aggregate(
+                               new List<TItem>(), (acc, items) => {
+                                   acc.AddRange(items);
+                                   return acc;
+                               }
+                           )
+                          .Select(_factory)
+                          .ToTask(cancellationToken, _progressManager.Scheduler)
+                          .ConfigureAwait(false);
                 _handler(request, subject, cancellationToken);
-                var result = _factory(await task.ConfigureAwait(false));
-                return result;
+                return await task;
             }
         }
 
@@ -714,14 +764,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             private readonly Guid _id;
             Guid ICanBeIdentifiedHandler.Id => _id;
 
-            public Notification(Guid id, Func<TParams, TCapability, CancellationToken, Task> handler, RegistrationOptionsDelegate<TRegistrationOptions, TCapability> registrationOptionsFactory)
+            public Notification(
+                Guid id, Func<TParams, TCapability, CancellationToken, Task> handler, RegistrationOptionsDelegate<TRegistrationOptions, TCapability> registrationOptionsFactory
+            )
             {
                 _id = id;
                 _handler = handler;
                 _registrationOptionsFactory = registrationOptionsFactory;
             }
 
-            public Notification(Func<TParams, TCapability, CancellationToken, Task> handler, RegistrationOptionsDelegate<TRegistrationOptions, TCapability> registrationOptionsFactory) :
+            public Notification(
+                Func<TParams, TCapability, CancellationToken, Task> handler, RegistrationOptionsDelegate<TRegistrationOptions, TCapability> registrationOptionsFactory
+            ) :
                 this(Guid.Empty, handler, registrationOptionsFactory)
             {
             }
@@ -732,7 +786,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 return Unit.Value;
             }
 
-            protected internal override TRegistrationOptions CreateRegistrationOptions(TCapability capability, ClientCapabilities clientCapabilities) => _registrationOptionsFactory(capability, clientCapabilities);
+            protected internal override TRegistrationOptions CreateRegistrationOptions(TCapability capability, ClientCapabilities clientCapabilities) =>
+                _registrationOptionsFactory(capability, clientCapabilities);
         }
 
         public sealed class Notification<TParams, TRegistrationOptions> :
@@ -807,6 +862,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 _results = results;
                 _factory = factory;
             }
+
             public void OnCompleted() => _results.OnCompleted();
 
             public void OnError(Exception error) => _results.OnError(error);

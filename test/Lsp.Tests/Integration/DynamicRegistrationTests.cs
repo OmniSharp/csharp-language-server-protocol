@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -114,15 +115,17 @@ namespace Lsp.Tests.Integration
                         }
                     )
                 );
+
+                // Sometimes we come through and this fails
+                disposable.Should().BeOfType<CompositeDisposable>().Subject.Count.Should().Be(2);
+
                 await TestHelper.DelayUntil(
                     () => client.RegistrationManager.CurrentRegistrations,
                     registrations => registrations.Any(registration => SelectorMatches(registration, x => x.HasLanguage && x.Language == "vb")),
                     CancellationToken
                 );
 
-                await Task.Delay(200);
                 disposable.Dispose();
-
 
                 await TestHelper.DelayUntil(
                     () => client.RegistrationManager.CurrentRegistrations,

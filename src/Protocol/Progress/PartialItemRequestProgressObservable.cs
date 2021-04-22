@@ -15,7 +15,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 {
-    internal class RequestProgressObservable<TItem, TResult> : IRequestProgressObservable<TItem, TResult>, IObserver<JToken>
+    internal class PartialItemRequestProgressObservable<TItem, TResult> : IRequestProgressObservable<TItem, TResult>, IObserver<JToken>
     {
         private readonly ISerializer _serializer;
         private readonly ReplaySubject<TItem> _dataSubject;
@@ -23,7 +23,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         private readonly Task<TResult> _task;
         private bool _receivedPartialData;
 
-        public RequestProgressObservable(
+        public PartialItemRequestProgressObservable(
             ISerializer serializer,
             ProgressToken token,
             IObservable<TResult> requestResult,
@@ -43,7 +43,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
                                           .ForkJoin(
                                                requestResult
                                                   .Do(
-                                                       _ => _dataSubject.OnNext(reverseFactory(_)),
+                                                       _ => {
+                                                           if (_receivedPartialData) return;
+                                                           _dataSubject.OnNext(reverseFactory(_));
+                                                       },
                                                        _dataSubject.OnError,
                                                        _dataSubject.OnCompleted
                                                    ),

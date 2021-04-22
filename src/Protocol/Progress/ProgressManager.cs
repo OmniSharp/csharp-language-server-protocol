@@ -75,7 +75,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
                 return observable;
             }
 
-            observable = new RequestProgressObservable<TItem, TResult>(
+            observable = new PartialItemRequestProgressObservable<TItem, TResult>(
                 _serializer,
                 request.PartialResultToken!,
                 MakeRequest(request),
@@ -100,7 +100,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
                 return observable;
             }
 
-            observable = new RequestProgressObservable<TItem, TResult>(
+            observable = new PartialItemRequestProgressObservable<TItem, TResult>(
                 _serializer,
                 request.PartialResultToken,
                 MakeRequest(request),
@@ -127,7 +127,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
                 return observable;
             }
 
-            observable = new RequestProgressObservable<TItem, TResult>(
+            observable = new PartialItemRequestProgressObservable<TItem, TResult>(
                 _serializer,
                 request.PartialResultToken!,
                 MakeRequest(request),
@@ -153,7 +153,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
                 return observable;
             }
 
-            observable = new RequestProgressObservable<TItem, TResult>(
+            observable = new PartialItemRequestProgressObservable<TItem, TResult>(
                 _serializer,
                 request.PartialResultToken,
                 MakeRequest(request),
