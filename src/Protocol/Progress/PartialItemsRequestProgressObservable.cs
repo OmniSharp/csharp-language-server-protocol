@@ -52,10 +52,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
                                           .DefaultIfEmpty(new List<TItem>())
                                           .Select(factory)
                                           .ForkJoin(
-                                               requestResult.Do(result => {
-                                                   if (_receivedPartialData) return;
-                                                   _dataSubject.OnNext(result ?? Enumerable.Empty<TItem>());
-                                               }, OnError, OnCompleted),
+                                               requestResult
+                                                  .Do(
+                                                       result => {
+                                                           if (_receivedPartialData) return;
+                                                           _dataSubject.OnNext(result ?? Enumerable.Empty<TItem>());
+                                                       },
+                                                       _dataSubject.OnError,
+                                                       _dataSubject.OnCompleted
+                                                   ),
                                                (items, result) => items?.Count() > result?.Count() ? items : result
                                            )
                                           .Subscribe(observer),
