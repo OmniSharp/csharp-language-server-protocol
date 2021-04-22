@@ -46,7 +46,7 @@ namespace Lsp.Tests.Integration
                 }
             );
 
-            await SettleNext();
+            await TestHelper.DelayUntil(() => _didCreateFileHandler.ReceivedCalls().Any(), CancellationToken);
 
             _didCreateFileHandler.ReceivedCalls().Should().HaveCount(1);
             _willCreateFileHandler.ReceivedCalls().Should().HaveCount(1);
@@ -92,7 +92,7 @@ namespace Lsp.Tests.Integration
                 }
             );
 
-            await SettleNext();
+            await TestHelper.DelayUntil(() => _didRenameFileHandler.ReceivedCalls().Any(), CancellationToken);
 
             _didRenameFileHandler.ReceivedCalls().Should().HaveCount(1);
             _willRenameFileHandler.ReceivedCalls().Should().HaveCount(1);
@@ -138,7 +138,7 @@ namespace Lsp.Tests.Integration
                 }
             );
 
-            await SettleNext();
+            await TestHelper.DelayUntil(() => _didDeleteFileHandler.ReceivedCalls().Any(), CancellationToken);
 
             _didDeleteFileHandler.ReceivedCalls().Should().HaveCount(1);
             _willDeleteFileHandler.ReceivedCalls().Should().HaveCount(1);

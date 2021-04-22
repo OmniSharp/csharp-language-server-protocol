@@ -64,6 +64,8 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public void Send(object? value)
         {
+            _logger.LogTrace("Writing out value {@Value} ({Type})", value, value?.GetType().FullName);
+            
             try
             {
                 if (_queue.IsDisposed || _disposable.IsDisposed || value == null) return;
