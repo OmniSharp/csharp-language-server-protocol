@@ -32,7 +32,7 @@ namespace Lsp.Tests.Integration
         {
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Not_Support_Configuration_It_Not_Configured()
         {
             var (_, server, configuration) = await InitializeWithConfiguration(ConfigureClient, o => { });
@@ -46,7 +46,7 @@ namespace Lsp.Tests.Integration
             server.Configuration.AsEnumerable().Should().BeEmpty();
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Allow_Null_Response()
         {
             var (client, server) = await Initialize(
@@ -60,7 +60,7 @@ namespace Lsp.Tests.Integration
             a.Should().NotThrow();
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Update_Configuration_On_Server()
         {
             var (_, server, configuration) = await InitializeWithConfiguration(ConfigureClient, ConfigureServer);
@@ -75,7 +75,7 @@ namespace Lsp.Tests.Integration
             server.Configuration["othersection:value"].Should().Be("key");
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Update_Configuration_On_Server_After_Starting()
         {
             var (_, server, configuration) = await InitializeWithConfiguration(ConfigureClient, options => {});
@@ -91,7 +91,7 @@ namespace Lsp.Tests.Integration
             server.Configuration["othersection:value"].Should().Be("key");
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Update_Configuration_Should_Stop_Watching_Sections()
         {
             var (_, server, configuration) = await InitializeWithConfiguration(ConfigureClient, ConfigureServer);
@@ -113,7 +113,7 @@ namespace Lsp.Tests.Integration
             server.Configuration["othersection:value"].Should().BeNull();
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Update_Scoped_Configuration()
         {
             var (_, server, configuration) = await InitializeWithConfiguration(ConfigureClient, ConfigureServer);
@@ -135,7 +135,7 @@ namespace Lsp.Tests.Integration
             scopedConfiguration["othersection:value"].Should().Be("scopedkey");
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Fallback_To_Original_Configuration()
         {
             var (_, server, configuration) = await InitializeWithConfiguration(ConfigureClient, ConfigureServer);
@@ -167,7 +167,7 @@ namespace Lsp.Tests.Integration
             scopedConfiguration["othersection:value"].Should().Be("key");
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Only_Update_Configuration_Items_That_Are_Defined()
         {
             var (_, server, configuration) = await InitializeWithConfiguration(ConfigureClient, ConfigureServer);
@@ -185,7 +185,7 @@ namespace Lsp.Tests.Integration
             server.Configuration["notmysection:key"].Should().BeNull();
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Support_Configuration_Binding()
         {
             var (_, server, configuration) = await InitializeWithConfiguration(ConfigureClient, ConfigureServer);
@@ -209,7 +209,7 @@ namespace Lsp.Tests.Integration
             data.Port.Should().Be(80);
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Support_Options()
         {
             var (_, server, configuration) = await InitializeWithConfiguration(ConfigureClient, options => {
@@ -234,7 +234,7 @@ namespace Lsp.Tests.Integration
             options.Value.Port.Should().Be(443);
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Support_Options_Monitor()
         {
             var (_, server, configuration) = await InitializeWithConfiguration(ConfigureClient, options => {
