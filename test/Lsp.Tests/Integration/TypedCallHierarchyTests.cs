@@ -30,7 +30,7 @@ namespace Lsp.Tests.Integration
         {
         }
 
-        [Fact]//[RetryFact]
+        [RetryFact]
         public async Task Should_Aggregate_With_All_Related_Handlers()
         {
             var incomingHandlerA = Substitute.For<Func<CallHierarchyIncomingCallsParams<Data>, Task<Container<CallHierarchyIncomingCall>?>>>();
@@ -106,7 +106,7 @@ namespace Lsp.Tests.Integration
             outgoingHandlerB.Received(1).Invoke(Arg.Any<CallHierarchyOutgoingCallsParams<Nested>>());
         }
 
-        [Fact]//[RetryFact]
+        [RetryFact]
         public async Task Should_Resolve_With_Data_Capability()
         {
             var incomingHandler = Substitute.For<Func<CallHierarchyIncomingCallsParams<Data>, Task<Container<CallHierarchyIncomingCall>?>>>();
@@ -152,7 +152,7 @@ namespace Lsp.Tests.Integration
             outgoingHandler.Received(1).Invoke(Arg.Any<CallHierarchyOutgoingCallsParams<Data>>());
         }
 
-        [Fact]//[RetryFact]
+        [RetryFact]
         public async Task Should_Resolve_With_Partial_Data_Capability()
         {
             var incomingHandler = Substitute.For<Action<CallHierarchyIncomingCallsParams<Data>, IObserver<IEnumerable<CallHierarchyIncomingCall>>>>();
