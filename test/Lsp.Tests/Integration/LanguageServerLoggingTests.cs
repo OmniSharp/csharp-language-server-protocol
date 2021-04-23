@@ -25,7 +25,7 @@ namespace Lsp.Tests.Integration
         {
         }
 
-        [Fact]//[RetryFact]
+        [Fact]
         public async Task Logs_Are_Sent_To_Client_From_Server()
         {
             var logs = new ConcurrentBag<LogMessageParams>();
@@ -63,7 +63,7 @@ namespace Lsp.Tests.Integration
             items.Where(z => z.Type == MessageType.Log).Should().HaveCount(2);
         }
 
-        [Fact]//[RetryFact]
+        [Fact]
         public async Task Logs_Are_Sent_To_Client_From_Server_Respecting_SetMinimumLevel()
         {
             var logs = new ConcurrentBag<LogMessageParams>();
@@ -101,7 +101,7 @@ namespace Lsp.Tests.Integration
             items.Where(z => z.Type == MessageType.Log).Should().HaveCount(0);
         }
 
-        [Fact]//[RetryFact]
+        [Fact]
         public async Task Logs_Are_Sent_To_Client_From_Server_Respecting_TraceLevel()
         {
             var logs = new ConcurrentBag<LogMessageParams>();
@@ -139,7 +139,7 @@ namespace Lsp.Tests.Integration
             items.Where(z => z.Type == MessageType.Log).Should().HaveCount(0);
         }
 
-        [Fact]//[RetryFact]
+        [Fact]
         public async Task Client_Can_Dynamically_Change_Server_Trace_Level_Off_To_Verbose()
         {
             var logs = new ConcurrentBag<LogMessageParams>();
@@ -204,7 +204,7 @@ namespace Lsp.Tests.Integration
             }
         }
 
-        [Fact]//[RetryFact]
+        [Fact]
         public async Task Client_Can_Dynamically_Change_Server_Trace_Level_Verbose_To_Off()
         {
             var logs = new ConcurrentBag<LogMessageParams>();
