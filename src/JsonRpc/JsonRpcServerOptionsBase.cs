@@ -36,7 +36,7 @@ namespace OmniSharp.Extensions.JsonRpc
         public bool UseAssemblyAttributeScanning { get; set; } = false;
         public IRequestProcessIdentifier? RequestProcessIdentifier { get; set; }
         public int? Concurrency { get; set; }
-        public IScheduler InputScheduler { get; set; } = Scheduler.Immediate;
+        public IScheduler InputScheduler { get; set; } = TaskPoolScheduler.Default;
         public IScheduler OutputScheduler { get; set; } = Scheduler.Immediate;
         public IScheduler DefaultScheduler { get; set; } = TaskPoolScheduler.Default;
         public CreateResponseExceptionHandler? CreateResponseException { get; set; }
