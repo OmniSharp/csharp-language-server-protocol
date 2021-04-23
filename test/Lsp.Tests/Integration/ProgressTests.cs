@@ -116,7 +116,10 @@ namespace Lsp.Tests.Integration
 
             await Observable.Create<Unit>(
                 innerObserver => new CompositeDisposable() {
-                    observable.Take(5).Select(z => z.Value).Subscribe(v => innerObserver.OnNext(Unit.Default), innerObserver.OnCompleted),
+                    observable
+                       .Take(5)
+                       .Select(z => z.Value)
+                       .Subscribe(v => innerObserver.OnNext(Unit.Default), innerObserver.OnCompleted),
                     workDoneObservable
                 }
             ).ToTask(CancellationToken);
