@@ -131,7 +131,7 @@ namespace Lsp.Tests.Integration
             }
 
             {
-                await client.RegistrationManager.Registrations.Throttle(TimeSpan.FromMilliseconds(300)).Take(1).ToTask(CancellationToken);
+                await TestHelper.DelayUntil(() => client.RegistrationManager.CurrentRegistrations.Any(z => z.Method == "tests"), CancellationToken);
                 client.RegistrationManager.CurrentRegistrations.Should().Contain(z => z.Method == "tests").And.HaveCount(1);
             }
 
