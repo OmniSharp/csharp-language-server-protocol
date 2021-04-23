@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -266,8 +268,8 @@ namespace Lsp.Tests.Integration
             var token = new ProgressToken(Guid.NewGuid().ToString());
 
             var workDoneObservable = Client.WorkDoneManager.Monitor(token);
-            var observable = workDoneObservable.Replay();
-            using var _ = observable.Connect();
+            var data = new List<WorkDoneProgress>();
+            using var _ = workDoneObservable.Subscribe(x => data.Add(x));
 
             using var workDoneObserver = await Server.WorkDoneManager.Create(
                 token, new WorkDoneProgressBegin {
@@ -294,7 +296,7 @@ namespace Lsp.Tests.Integration
                 }
             );
 
-            await observable.Take(3).ToTask(CancellationToken);
+            await TestHelper.DelayUntil(() => data.Count >= 3, CancellationToken);
 
             workDoneObservable.Dispose();
 
@@ -314,14 +316,16 @@ namespace Lsp.Tests.Integration
 
             workDoneObserver.OnCompleted();
 
-            var results = await observable.Select(
-                z => z switch {
-                    WorkDoneProgressBegin begin  => begin.Message,
-                    WorkDoneProgressReport begin => begin.Message,
-                    WorkDoneProgressEnd begin    => begin.Message,
-                    _                            => throw new NotSupportedException()
-                }
-            ).ToArray().ToTask(CancellationToken);
+            var results = data
+                         .Select(
+                              z => z switch {
+                                  WorkDoneProgressBegin begin  => begin.Message,
+                                  WorkDoneProgressReport begin => begin.Message,
+                                  WorkDoneProgressEnd begin    => begin.Message,
+                                  _                            => throw new NotSupportedException()
+                              }
+                          )
+                         .ToArray();
 
             results.Should().ContainInOrder("Begin", "Report 1", "Report 2");
         }
