@@ -19,7 +19,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     namespace Models
     {
-        [Parallel]
+        [Serial]
         [Method(GeneralNames.Progress, Direction.Bidirectional)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol"), GenerateHandlerMethods,
          GenerateRequestMethods(typeof(IGeneralLanguageClient), typeof(ILanguageClient), typeof(IGeneralLanguageServer), typeof(ILanguageServer))]
