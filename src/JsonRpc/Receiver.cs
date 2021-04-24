@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
@@ -97,20 +98,22 @@ namespace OmniSharp.Extensions.JsonRpc
                 @params = new JObject();
             }
 
+            var properties = request.Properties().ToLookup(z => z.Name, StringComparer.OrdinalIgnoreCase);
+
             // id == request
             // !id == notification
             if (!hasRequestId)
             {
                 return new Notification(method!, @params) {
-                    TraceState = request.TryGetValue("tracestate", out var ts) ? ts.Value<string>() : null,
-                    TraceParent = request.TryGetValue("traceparent", out var tp) ? tp.Value<string>() : null,
+                    TraceState = properties["tracestate"].FirstOrDefault()?.Value<string>(),
+                    TraceParent = properties["traceparent"].FirstOrDefault()?.Value<string>()
                 };
             }
             else
             {
                 return new Request(requestId!, method!, @params) {
-                    TraceState = request.TryGetValue("tracestate", out var ts) ? ts.Value<string>() : null,
-                    TraceParent = request.TryGetValue("traceparent", out var tp) ? tp.Value<string>() : null,
+                    TraceState = properties["tracestate"].FirstOrDefault()?.Value<string>(),
+                    TraceParent = properties["traceparent"].FirstOrDefault()?.Value<string>()
                 };
             }
         }

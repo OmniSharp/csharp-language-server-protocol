@@ -32,11 +32,11 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters
             {
                 writer.WritePropertyName("traceparent");
                 writer.WriteValue(value.TraceParent);
-            }
-            if (value.TraceState != null)
-            {
-                writer.WritePropertyName("tracestate");
-                writer.WriteValue(value.TraceState);
+                if (!string.IsNullOrWhiteSpace(value.TraceState))
+                {
+                    writer.WritePropertyName("tracestate");
+                    writer.WriteValue(value.TraceState);
+                }
             }
 
             writer.WriteEndObject();
