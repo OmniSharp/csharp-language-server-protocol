@@ -12,7 +12,7 @@ namespace Generation.Tests
 {
     public class JsonRpcGenerationTests
     {
-        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        [Fact]
         public async Task Supports_Generating_Notifications_And_Infers_Direction_ExitHandler()
         {
             var source = @"
@@ -74,7 +74,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
-        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        [Fact]
         public async Task Supports_Generating_Generic_Response_Types()
         {
             var source = @"
@@ -182,7 +182,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
             await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
-        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        [Fact]
         public async Task Should_Report_Diagnostic_If_Missing_Information()
         {
             var source = @"
@@ -212,7 +212,7 @@ namespace Test
             a.Should().Throw<EmptyException>("cache").WithMessage("*Could not infer the request router(s)*");
         }
 
-        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        [Fact]
         public async Task Supports_Generating_Notifications_And_Infers_Direction_CapabilitiesHandler()
         {
             var source = @"
@@ -266,7 +266,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events.Test
         }
 
 
-        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        [Fact]
         public async Task Supports_Generating_Notifications_ExitHandler()
         {
             var source = @"
@@ -327,7 +327,7 @@ namespace Test
             await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
-        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        [Fact]
         public async Task Supports_Generating_Notifications_And_Infers_Direction_DidChangeTextHandler()
         {
             var source = @"
@@ -417,7 +417,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
-        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        [Fact]
         public async Task Supports_Generating_Notifications_And_Infers_Direction_FoldingRangeHandler()
         {
             var source = @"
@@ -511,7 +511,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
-        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        [Fact]
         public async Task Supports_Generating_Requests_And_Infers_Direction()
         {
             var source = @"
@@ -600,7 +600,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         }
 
 
-        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        [Fact]
         public async Task Supports_Generating_Requests()
         {
             var source = @"
@@ -688,7 +688,7 @@ namespace Test
             await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
-        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        [Fact]
         public async Task Supports_Custom_Method_Names()
         {
             var source = @"
@@ -751,7 +751,7 @@ namespace Test
             await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
-        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        [Fact]
         public async Task Supports_Allow_Derived_Requests()
         {
             var source = @"
@@ -833,7 +833,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
             await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
-        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        [Fact]
         public async Task Supports_Allow_Derived_Requests_Nullable()
         {
             var source = @"
@@ -997,7 +997,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
             await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
-        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        [Fact]
         public async Task Supports_Allow_Generic_Types()
         {
             var source = @"
@@ -1079,7 +1079,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
             await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
-        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        [Fact]
         public async Task Supports_Params_Type_As_Source()
         {
             var source = @"

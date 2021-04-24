@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive.Concurrency;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -84,6 +85,54 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         public static LanguageClientOptions WithClientCapabilities(this LanguageClientOptions options, ClientCapabilities clientCapabilities)
         {
             options.ClientCapabilities = clientCapabilities;
+            return options;
+        }
+
+        /// <summary>
+        /// Sets both input and output schedulers to the same scheduler
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="inputScheduler"></param>
+        /// <returns></returns>
+        public static LanguageClientOptions WithScheduler(this LanguageClientOptions options, IScheduler inputScheduler)
+        {
+            options.InputScheduler = options.OutputScheduler = options.DefaultScheduler = inputScheduler;
+            return options;
+        }
+
+        /// <summary>
+        /// Sets the scheduler used during reading input
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="inputScheduler"></param>
+        /// <returns></returns>
+        public static LanguageClientOptions WithInputScheduler(this LanguageClientOptions options, IScheduler inputScheduler)
+        {
+            options.InputScheduler = inputScheduler;
+            return options;
+        }
+
+        /// <summary>
+        /// Sets the default scheduler to be used when scheduling other tasks
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="defaultScheduler"></param>
+        /// <returns></returns>
+        public static LanguageClientOptions WithDefaultScheduler(this LanguageClientOptions options, IScheduler defaultScheduler)
+        {
+            options.DefaultScheduler = defaultScheduler;
+            return options;
+        }
+
+        /// <summary>
+        /// Sets the scheduler use during writing output
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="outputScheduler"></param>
+        /// <returns></returns>
+        public static LanguageClientOptions WithOutputScheduler(this LanguageClientOptions options, IScheduler outputScheduler)
+        {
+            options.OutputScheduler = outputScheduler;
             return options;
         }
 

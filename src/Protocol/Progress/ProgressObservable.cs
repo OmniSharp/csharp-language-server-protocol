@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -16,7 +17,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         public ProgressObservable(ProgressToken token, Func<JToken, T> factory, Action disposal)
         {
             _factory = factory;
-            _dataSubject = new ReplaySubject<JToken>(1);
+            _dataSubject = new ReplaySubject<JToken>(1, Scheduler.Immediate);
             _disposable = new CompositeDisposable { Disposable.Create(_dataSubject.OnCompleted), Disposable.Create(disposal) };
 
             ProgressToken = token;

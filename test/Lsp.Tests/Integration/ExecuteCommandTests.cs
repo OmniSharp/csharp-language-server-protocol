@@ -28,7 +28,7 @@ namespace Lsp.Tests.Integration
         {
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Execute_A_Command()
         {
             var command = Substitute.For<Func<ExecuteCommandParams, Task>>();
@@ -65,7 +65,7 @@ namespace Lsp.Tests.Integration
             await command.Received(1).Invoke(Arg.Any<ExecuteCommandParams>());
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Execute_The_Correct_Command()
         {
             var commanda = Substitute.For<Func<ExecuteCommandParams, Task>>();
@@ -118,7 +118,7 @@ namespace Lsp.Tests.Integration
             arg.Should().BeOfType<ExecuteCommandCapability>();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Fail_To_Execute_A_Command_When_No_Command_Is_Defined()
         {
             var (client, _) = await Initialize(
@@ -147,7 +147,7 @@ namespace Lsp.Tests.Integration
             await action.Should().ThrowAsync<MethodNotSupportedException>();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Fail_To_Execute_A_Command_When_No_Command_Name_Is_Given()
         {
             var command = Substitute.For<Func<ExecuteCommandParams, Task>>();
@@ -187,7 +187,7 @@ namespace Lsp.Tests.Integration
             await command.Received(0).Invoke(Arg.Any<ExecuteCommandParams>());
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Fail_To_Execute_A_Command()
         {
             var commandc = Substitute.For<Func<ExecuteCommandParams, Task>>();
@@ -233,7 +233,7 @@ namespace Lsp.Tests.Integration
             await commandb.Received(0).Invoke(Arg.Any<ExecuteCommandParams>());
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Execute_1_Args()
         {
             var (client, _) = await Initialize(
@@ -270,7 +270,7 @@ namespace Lsp.Tests.Integration
             await action.Should().NotThrowAsync();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Execute_2_Args()
         {
             var (client, _) = await Initialize(
@@ -308,7 +308,7 @@ namespace Lsp.Tests.Integration
             await action.Should().NotThrowAsync();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Execute_3_Args()
         {
             var (client, _) = await Initialize(
@@ -347,7 +347,7 @@ namespace Lsp.Tests.Integration
             await action.Should().NotThrowAsync();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Execute_4_Args()
         {
             var (client, _) = await Initialize(
@@ -387,7 +387,7 @@ namespace Lsp.Tests.Integration
             await action.Should().NotThrowAsync();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Execute_5_Args()
         {
             var (client, _) = await Initialize(
@@ -430,7 +430,7 @@ namespace Lsp.Tests.Integration
             await action.Should().NotThrowAsync();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Execute_6_Args()
         {
             var (client, _) = await Initialize(
@@ -475,7 +475,7 @@ namespace Lsp.Tests.Integration
             await action.Should().NotThrowAsync();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Execute_1_With_Missing_Args()
         {
             var (client, _) = await Initialize(
@@ -512,7 +512,7 @@ namespace Lsp.Tests.Integration
             await action.Should().NotThrowAsync();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Execute_2_With_Missing_Args()
         {
             var (client, _) = await Initialize(
@@ -550,7 +550,7 @@ namespace Lsp.Tests.Integration
             await action.Should().NotThrowAsync();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Execute_3_With_Missing_Args()
         {
             var (client, _) = await Initialize(
@@ -589,7 +589,7 @@ namespace Lsp.Tests.Integration
             await action.Should().NotThrowAsync();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Execute_4_With_Missing_Args()
         {
             var (client, _) = await Initialize(
@@ -629,7 +629,7 @@ namespace Lsp.Tests.Integration
             await action.Should().NotThrowAsync();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Execute_5_With_Missing_Args()
         {
             var (client, _) = await Initialize(
@@ -670,7 +670,7 @@ namespace Lsp.Tests.Integration
             await action.Should().NotThrowAsync();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Execute_6_With_Missing_Args()
         {
             var (client, _) = await Initialize(
@@ -712,7 +712,7 @@ namespace Lsp.Tests.Integration
             await action.Should().NotThrowAsync();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Execute_1_Null_Args()
         {
             var (client, _) = await Initialize(
@@ -749,7 +749,7 @@ namespace Lsp.Tests.Integration
             await action.Should().NotThrowAsync();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Execute_2_Null_Args()
         {
             var (client, _) = await Initialize(
@@ -787,7 +787,7 @@ namespace Lsp.Tests.Integration
             await action.Should().NotThrowAsync();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Execute_3_Null_Args()
         {
             var (client, _) = await Initialize(
@@ -826,7 +826,7 @@ namespace Lsp.Tests.Integration
             await action.Should().NotThrowAsync();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Execute_4_Null_Args()
         {
             var (client, _) = await Initialize(
@@ -866,7 +866,7 @@ namespace Lsp.Tests.Integration
             await action.Should().NotThrowAsync();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Execute_5_Null_Args()
         {
             var (client, _) = await Initialize(
@@ -907,7 +907,7 @@ namespace Lsp.Tests.Integration
             await action.Should().NotThrowAsync();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Execute_6_Null_Args()
         {
             var (client, _) = await Initialize(

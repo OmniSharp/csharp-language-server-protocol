@@ -24,7 +24,7 @@ namespace Dap.Tests.Integration
         {
         }
 
-        [FactWithSkipOn(SkipOnPlatform.All)]
+        [Fact]
         public async Task Should_Support_Progress_From_Sever_To_Client()
         {
             var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
@@ -87,7 +87,7 @@ namespace Dap.Tests.Integration
             results.Should().ContainInOrder("Begin", "Report 1", "Report 2", "Report 3", "Report 4", "End");
         }
 
-        [FactWithSkipOn(SkipOnPlatform.All)]
+        [Fact]
         public async Task Should_Support_Cancelling_Progress_From_Server_To_Client_Request()
         {
             var (client, server) = await Initialize(ConfigureClient, ConfigureServer);

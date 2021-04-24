@@ -18,8 +18,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public IObservable<bool> Shutdown => _shutdownSubject.AsObservable();
         public IObservable<int> Exit => _exitSubject.AsObservable();
-        public Task WasShutDown => _shutdownSubject.ToTask();
-        public Task WaitForExit => _exitSubject.ToTask();
+        public Task WasShutDown => _shutdownSubject.ToTask(_scheduler);
+        public Task WaitForExit => _exitSubject.ToTask(_scheduler);
 
         #pragma warning disable VSTHRD100
         public async void ForcefulShutdown()

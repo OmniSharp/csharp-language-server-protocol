@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -28,6 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
         private readonly ILogger<DidChangeConfigurationProvider> _logger;
         private readonly IWorkspaceLanguageServer _workspaceLanguageServer;
         private readonly ConfigurationConverter _configurationConverter;
+        private readonly IScheduler _scheduler;
         private DidChangeConfigurationCapability? _capability;
         private readonly ConfigurationRoot _configuration;
         private readonly CompositeDisposable _compositeDisposable = new CompositeDisposable();
@@ -40,12 +42,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             Action<IConfigurationBuilder> configurationBuilderAction,
             ILogger<DidChangeConfigurationProvider> logger,
             IWorkspaceLanguageServer workspaceLanguageServer,
-            ConfigurationConverter configurationConverter
+            ConfigurationConverter configurationConverter,
+            IScheduler scheduler
         )
         {
             _logger = logger;
             _workspaceLanguageServer = workspaceLanguageServer;
             _configurationConverter = configurationConverter;
+            _scheduler = scheduler;
             var builder = new ConfigurationBuilder()
                .Add(new DidChangeConfigurationSource(this));
             configurationBuilderAction(builder);
@@ -81,7 +85,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 
         Task IOnLanguageServerStarted.OnStarted(ILanguageServer server, CancellationToken cancellationToken) => GetWorkspaceConfigurationAsync(cancellationToken);
 
-        private Task GetWorkspaceConfigurationAsync(CancellationToken cancellationToken) => GetWorkspaceConfiguration().LastOrDefaultAsync().ToTask(cancellationToken);
+        private Task GetWorkspaceConfigurationAsync(CancellationToken cancellationToken) => GetWorkspaceConfiguration().LastOrDefaultAsync().ToTask(cancellationToken, _scheduler);
 
         private IObservable<System.Reactive.Unit> GetWorkspaceConfiguration()
         {
@@ -225,7 +229,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             var data = await GetConfigurationFromClient(scopes.Select(z => new ConfigurationItem { Section = z.Section, ScopeUri = scopeUri }))
                             .Select(z => ( z.scope.Section ?? string.Empty, z.settings ))
                             .ToArray()
-                            .ToTask(cancellationToken)
+                            .ToTask(cancellationToken, _scheduler)
                             .ConfigureAwait(false);
 
             var config = new ScopedConfiguration(

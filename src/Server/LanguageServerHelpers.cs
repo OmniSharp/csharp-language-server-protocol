@@ -127,7 +127,19 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                                      );
                                  }
 
-                                 return registrations.Distinct(new Registration.TextDocumentComparer()).ToArray();
+                                 var distinctRegistrations = registrations.Distinct(new Registration.TextDocumentComparer()).ToArray();
+                                 disposable.Add(
+                                     Disposable.Create(
+                                         () => {
+                                             client.UnregisterCapability(
+                                                 new UnregistrationParams {
+                                                     Unregisterations = distinctRegistrations
+                                                 }
+                                             ).ToObservable().Subscribe();
+                                         }
+                                     )
+                                 );
+                                 return distinctRegistrations;
                              }
                          )
                         .Where(z => z.Any())
@@ -135,22 +147,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                              registrations => Observable.FromAsync(ct => client.RegisterCapability(new RegistrationParams { Registrations = registrations.ToArray() }, ct)),
                              (a, _) => a
                          )
-                        .Aggregate(Array.Empty<Registration>(), (_, z) => z)
-                        .Subscribe(
-                             registrations => {
-                                 disposable.Add(
-                                     Disposable.Create(
-                                         () => {
-                                             client.UnregisterCapability(
-                                                 new UnregistrationParams {
-                                                     Unregisterations = registrations.ToArray()
-                                                 }
-                                             ).ToObservable().Subscribe();
-                                         }
-                                     )
-                                 );
-                             }
-                         );
+                        .Subscribe();
             disposable.Add(result);
             return disposable;
         }

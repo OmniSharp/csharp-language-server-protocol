@@ -19,7 +19,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     namespace Models
     {
-        [Parallel]
+        [Serial]
         [Method(GeneralNames.Progress, Direction.Bidirectional)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol"), GenerateHandlerMethods,
          GenerateRequestMethods(typeof(IGeneralLanguageClient), typeof(ILanguageClient), typeof(IGeneralLanguageServer), typeof(ILanguageServer))]
@@ -103,7 +103,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     public static partial class ProgressExtensions
     {
         public static IRequestProgressObservable<TItem, TResponse> RequestProgress<TResponse, TItem>(
-            this ILanguageProtocolProxy requestRouter, IPartialItemRequest<TResponse, TItem> @params, Func<TItem, TResponse> factory, CancellationToken cancellationToken = default
+            this ILanguageProtocolProxy requestRouter,
+            IPartialItemRequest<TResponse, TItem> @params,
+            Func<TItem, TResponse> factory,
+            CancellationToken cancellationToken = default
         )
         {
             @params.SetPartialResultToken(new ProgressToken(Guid.NewGuid().ToString()));

@@ -37,6 +37,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Testing
                                 x.SetMinimumLevel(LogLevel.Trace);
                             }
                         )
+                       .WithInputScheduler(options.InputScheduler)
+                       .WithOutputScheduler(options.OutputScheduler)
+                       .WithDefaultScheduler(options.DefaultScheduler)
                        .Services
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
                        .AddSingleton(Events as IRequestSettler);

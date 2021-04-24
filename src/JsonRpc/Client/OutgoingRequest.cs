@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace OmniSharp.Extensions.JsonRpc.Client
 {
-    public class OutgoingRequest : ITraceData
+    public record OutgoingRequest : ITraceData
     {
         public object? Id { get; set; }
 

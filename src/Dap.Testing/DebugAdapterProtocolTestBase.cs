@@ -45,10 +45,11 @@ namespace OmniSharp.Extensions.DebugAdapter.Testing
                     options
                        .WithLoggerFactory(TestOptions.ClientLoggerFactory)
                        .ConfigureLogging(
-                            x => {
-                                x.SetMinimumLevel(LogLevel.Trace);
-                            }
+                            x => { x.SetMinimumLevel(LogLevel.Trace); }
                         )
+                       .WithInputScheduler(options.InputScheduler)
+                       .WithOutputScheduler(options.OutputScheduler)
+                       .WithDefaultScheduler(options.DefaultScheduler)
                        .Services
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
                        .AddSingleton(ClientEvents as IRequestSettler);
@@ -61,11 +62,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Testing
                 options => {
                     options
                        .WithLoggerFactory(TestOptions.ServerLoggerFactory)
-                       .ConfigureLogging(
-                            x => {
-                                x.SetMinimumLevel(LogLevel.Trace);
-                            }
-                        )
+                       .ConfigureLogging(x => { x.SetMinimumLevel(LogLevel.Trace); })
+                       .WithInputScheduler(options.InputScheduler)
+                       .WithOutputScheduler(options.OutputScheduler)
+                       .WithDefaultScheduler(options.DefaultScheduler)
                        .Services
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
                        .AddSingleton(ServerEvents as IRequestSettler);
@@ -77,10 +77,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Testing
             Disposable.Add(_client);
             Disposable.Add(_server);
 
-            return await Observable.FromAsync(_client.Initialize).ForkJoin(
-                Observable.FromAsync(_server.Initialize),
-                (_, _) => ( _client, _server )
-            ).ToTask(CancellationToken).ConfigureAwait(false);
+            return await Observable.FromAsync(_client.Initialize)
+                                   .ForkJoin(Observable.FromAsync(_server.Initialize), (_, _) => ( _client, _server ))
+                                   .ToTask(CancellationToken);
         }
     }
 }

@@ -60,7 +60,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
             _requester = subject.AsObserver();
         }
 
-        public Task SettleNext() => SettleNextInternal().ToTask(_cancellationToken);
+        public Task SettleNext() => SettleNextInternal().ToTask(_cancellationToken, _scheduler);
 
         public IObservable<Unit> SettleNextInternal() => _settle
                                                         .Catch<Unit, Exception>(_ => _timeoutValue)

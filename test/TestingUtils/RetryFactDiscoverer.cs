@@ -23,13 +23,13 @@ namespace TestingUtils
             {
                 testCase = new ExecutionErrorTestCase(_messageSink, discoveryOptions.MethodDisplayOrDefault(),
                     discoveryOptions.MethodDisplayOptionsOrDefault(), testMethod,
-                    "[RetryFact] methods are not allowed to have parameters. Did you mean to use [RetryTheory]?");
+                    "[Fact]//[RetryFact] methods are not allowed to have parameters. Did you mean to use [RetryTheory]?");
             }
             else if (testMethod.Method.IsGenericMethodDefinition)
             {
                 testCase = new ExecutionErrorTestCase(_messageSink, discoveryOptions.MethodDisplayOrDefault(),
                     discoveryOptions.MethodDisplayOptionsOrDefault(), testMethod,
-                    "[RetryFact] methods are not allowed to be generic.");
+                    "[Fact]//[RetryFact] methods are not allowed to be generic.");
             }
             else
             {

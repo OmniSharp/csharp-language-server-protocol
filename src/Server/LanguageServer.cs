@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -50,6 +51,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly IEnumerable<IRegistrationOptionsConverter> _registrationOptionsConverters;
         private readonly InstanceHasStarted _instanceHasStarted;
         private readonly LanguageServerLoggingManager _languageServerLoggingManager;
+        private readonly IScheduler _scheduler;
         private readonly IEnumerable<OnLanguageServerStartedDelegate> _startedDelegates;
         private readonly IEnumerable<IOnLanguageServerStarted> _startedHandlers;
         private readonly ISubject<InitializeResult> _initializeComplete = new AsyncSubject<InitializeResult>();
@@ -149,7 +151,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             IEnumerable<IOnLanguageServerInitialized> initializedHandlers,
             IEnumerable<IRegistrationOptionsConverter> registrationOptionsConverters,
             InstanceHasStarted instanceHasStarted,
-            LanguageServerLoggingManager languageServerLoggingManager
+            LanguageServerLoggingManager languageServerLoggingManager,
+            IScheduler scheduler
         ) : base(handlerCollection, responseRouter)
         {
             Configuration = configuration;
@@ -182,6 +185,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _registrationOptionsConverters = registrationOptionsConverters;
             _instanceHasStarted = instanceHasStarted;
             _languageServerLoggingManager = languageServerLoggingManager;
+            _scheduler = scheduler;
             _concurrency = options.Value.Concurrency;
 
             _capabilityTypes = options.Value.UseAssemblyAttributeScanning
@@ -242,7 +246,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _connection.Open();
             try
             {
-                _initializingTask = _initializeComplete.ToTask(token);
+                _initializingTask = _initializeComplete.ToTask(token, _scheduler);
                 await _initializingTask.ConfigureAwait(false);
                 await LanguageProtocolEventingHelper.Run(
                     _startedDelegates,
@@ -250,6 +254,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     _startedHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnLanguageServerStarted>()),
                     (handler, ct) => handler.OnStarted(this, ct),
                     _concurrency,
+                    _scheduler,
                     token
                 ).ConfigureAwait(false);
 
@@ -281,6 +286,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 _initializeHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnLanguageServerInitialize>()),
                 (handler, ct) => handler.OnInitialize(this, ClientSettings, ct),
                 _concurrency,
+                _scheduler,
                 token
             ).ConfigureAwait(false);
 
@@ -302,6 +308,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 _initializedHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnLanguageServerInitialized>()),
                 (handler, ct) => handler.OnInitialized(this, ClientSettings, result, ct),
                 _concurrency,
+                _scheduler,
                 token
             ).ConfigureAwait(false);
 
@@ -493,7 +500,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public IObservable<InitializeResult> Start => _initializeComplete.AsObservable();
 
-        public Task<InitializeResult> WasStarted => _initializeComplete.ToTask();
+        public Task<InitializeResult> WasStarted => _initializeComplete.ToTask(_scheduler);
 
         public void Dispose()
         {
