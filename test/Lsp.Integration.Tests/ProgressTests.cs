@@ -78,7 +78,7 @@ namespace Lsp.Tests.Integration
             data.Should().ContainInOrder(new[] { "1", "3", "2", "4", "5" });
         }
 
-        [RetryFact(Skip = "Fails periodically on ci")]
+        [RetryFact]
         public async Task Should_Send_Progress_From_Client_To_Server()
         {
             var token = new ProgressToken(Guid.NewGuid().ToString());

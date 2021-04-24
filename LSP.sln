@@ -77,6 +77,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dap.Protocol.Proposals", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Protocol.Proposals", "src\Protocol.Proposals\Protocol.Proposals.csproj", "{201B1CA7-AB12-41AD-9246-BC30F2EBE2DF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lsp.Integration.Tests", "test\Lsp.Integration.Tests\Lsp.Integration.Tests.csproj", "{72A74595-A278-46F0-9C8B-3151C9681B91}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -357,6 +359,18 @@ Global
 		{201B1CA7-AB12-41AD-9246-BC30F2EBE2DF}.Release|x64.Build.0 = Release|Any CPU
 		{201B1CA7-AB12-41AD-9246-BC30F2EBE2DF}.Release|x86.ActiveCfg = Release|Any CPU
 		{201B1CA7-AB12-41AD-9246-BC30F2EBE2DF}.Release|x86.Build.0 = Release|Any CPU
+		{72A74595-A278-46F0-9C8B-3151C9681B91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72A74595-A278-46F0-9C8B-3151C9681B91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72A74595-A278-46F0-9C8B-3151C9681B91}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{72A74595-A278-46F0-9C8B-3151C9681B91}.Debug|x64.Build.0 = Debug|Any CPU
+		{72A74595-A278-46F0-9C8B-3151C9681B91}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{72A74595-A278-46F0-9C8B-3151C9681B91}.Debug|x86.Build.0 = Debug|Any CPU
+		{72A74595-A278-46F0-9C8B-3151C9681B91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72A74595-A278-46F0-9C8B-3151C9681B91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72A74595-A278-46F0-9C8B-3151C9681B91}.Release|x64.ActiveCfg = Release|Any CPU
+		{72A74595-A278-46F0-9C8B-3151C9681B91}.Release|x64.Build.0 = Release|Any CPU
+		{72A74595-A278-46F0-9C8B-3151C9681B91}.Release|x86.ActiveCfg = Release|Any CPU
+		{72A74595-A278-46F0-9C8B-3151C9681B91}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -385,6 +399,7 @@ Global
 		{58E83291-1ED9-4921-A12F-F2450AB17F47} = {2F323ED5-EBF8-45E1-B9D3-C014561B3DDA}
 		{D43637CC-94E6-4ED4-BAA3-E5D1AD3285F5} = {D764E024-3D3F-4112-B932-2DB722A1BACC}
 		{201B1CA7-AB12-41AD-9246-BC30F2EBE2DF} = {D764E024-3D3F-4112-B932-2DB722A1BACC}
+		{72A74595-A278-46F0-9C8B-3151C9681B91} = {2F323ED5-EBF8-45E1-B9D3-C014561B3DDA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D38DD0EC-D095-4BCD-B8AF-2D788AF3B9AE}
