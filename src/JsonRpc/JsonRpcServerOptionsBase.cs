@@ -144,5 +144,12 @@ namespace OmniSharp.Extensions.JsonRpc
             Handlers.Add(JsonRpcHandlerDescription.Link(fromMethod, toMethod));
             return (T) (object) this;
         }
+
+        public T WithActivityTracingStrategy(IActivityTracingStrategy activityTracingStrategy)
+        {
+            Services.RemoveAll(typeof(IActivityTracingStrategy));
+            Services.AddSingleton(activityTracingStrategy);
+            return (T) (object) this;
+        }
     }
 }

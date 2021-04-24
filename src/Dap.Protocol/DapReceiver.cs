@@ -52,6 +52,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             var sequence = id.Value<long>();
             var messageType = type.Value<string>();
 
+            var properties = request.Properties().ToLookup(z => z.Name, StringComparer.OrdinalIgnoreCase);
+
             if (messageType == "event")
             {
                 if (!request.TryGetValue("event", out var @event))
@@ -60,7 +62,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
                     yield break;
                 }
 
-                yield return new Notification(@event.Value<string>(), request.TryGetValue("body", out var body) ? body : null);
+                yield return new Notification(@event.Value<string>(), request.TryGetValue("body", out var body) ? body : null) {
+                    TraceState = properties["tracestate"].FirstOrDefault()?.Value<string>(),
+                    TraceParent = properties["traceparent"].FirstOrDefault()?.Value<string>()
+                };
                 yield break;
             }
 
@@ -81,16 +86,29 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
                     // This makes it so that the cancel handler implementer must still return a positive response even if the request didn't make it through.
                     if (ro.TryGetValue("requestId", out var requestId))
                     {
-                        yield return new Notification(JsonRpcNames.CancelRequest, JObject.FromObject(new { id = requestId }));
+                        yield return new Notification(JsonRpcNames.CancelRequest, JObject.FromObject(new { id = requestId })) {
+                            TraceState = properties["tracestate"].FirstOrDefault()?.Value<string>(),
+                            TraceParent = properties["traceparent"].FirstOrDefault()?.Value<string>()
+                        };
                         ro.Remove("requestId");
                     }
-
-                    yield return new Request(sequence, RequestNames.Cancel, ro);
-                    yield break;
+                    else
+                    {
+                        yield return new Request(sequence, RequestNames.Cancel, ro) {
+                            TraceState = properties["tracestate"].FirstOrDefault()?.Value<string>(),
+                            TraceParent = properties["traceparent"].FirstOrDefault()?.Value<string>()
+                        };
+                        yield break;
+                    }
                 }
 
-                yield return new Request(sequence, requestName, requestObject);
-                yield break;
+                {
+                    yield return new Request(sequence, requestName, requestObject) {
+                        TraceState = properties["tracestate"].FirstOrDefault()?.Value<string>(),
+                        TraceParent = properties["traceparent"].FirstOrDefault()?.Value<string>()
+                    };
+                    yield break;
+                }
             }
 
             if (messageType == "response")

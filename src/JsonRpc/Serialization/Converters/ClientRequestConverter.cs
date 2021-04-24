@@ -28,6 +28,16 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters
                 writer.WritePropertyName("params");
                 serializer.Serialize(writer, value.Params);
             }
+            if (value.TraceParent != null)
+            {
+                writer.WritePropertyName("traceparent");
+                writer.WriteValue(value.TraceParent);
+                if (!string.IsNullOrWhiteSpace(value.TraceState))
+                {
+                    writer.WritePropertyName("tracestate");
+                    writer.WriteValue(value.TraceState);
+                }
+            }
 
             writer.WriteEndObject();
         }

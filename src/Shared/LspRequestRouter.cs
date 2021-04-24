@@ -23,9 +23,10 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             ILogger<LspRequestRouter> logger,
             IEnumerable<IHandlerMatcher> handlerMatchers,
             ISerializer serializer,
-            IServiceScopeFactory serviceScopeFactory
+            IServiceScopeFactory serviceScopeFactory,
+            IActivityTracingStrategy? activityTracingStrategy = null
         ) :
-            base(serializer, serviceScopeFactory, logger)
+            base(serializer, serviceScopeFactory, logger, activityTracingStrategy)
         {
             _collection = collection;
             _handlerMatchers = new HashSet<IHandlerMatcher>(handlerMatchers);

@@ -22,6 +22,7 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly ISerializer _serializer;
         private readonly IEnumerable<IOutputFilter> _outputFilters;
         private readonly ILogger<OutputHandler> _logger;
+        private readonly IActivityTracingStrategy? _activityTracingStrategy;
 
 
         private readonly ChannelReader<object> _queue;
@@ -38,13 +39,15 @@ namespace OmniSharp.Extensions.JsonRpc
             ISerializer serializer,
             IEnumerable<IOutputFilter> outputFilters,
             IScheduler scheduler,
-            ILogger<OutputHandler> logger
+            ILogger<OutputHandler> logger,
+            IActivityTracingStrategy? activityTracingStrategy = null
         )
         {
             _pipeWriter = pipeWriter;
             _serializer = serializer;
             _outputFilters = outputFilters.ToArray();
             _logger = logger;
+            _activityTracingStrategy = activityTracingStrategy;
             _delayedQueue = new Queue<object>();
             _outputIsFinished = new TaskCompletionSource<object?>();
 
@@ -130,7 +133,11 @@ namespace OmniSharp.Extensions.JsonRpc
                 do
                 {
                     var value = await _queue.ReadAsync(cancellationToken);
-//                _logger.LogTrace("Writing out {@Value}", value);
+                    if (value is ITraceData traceData)
+                    {
+                        _activityTracingStrategy?.ApplyOutgoing(traceData);
+                    }
+
                     // TODO: this will be part of the serialization refactor to make streaming first class
                     var content = _serializer.SerializeObject(value);
                     var contentBytes = Encoding.UTF8.GetBytes(content).AsMemory();
@@ -144,6 +151,11 @@ namespace OmniSharp.Extensions.JsonRpc
                 _logger.LogTrace(ex, "Cancellation happened");
                 Error(ex);
             }
+            catch (OperationCanceledException ex) when (ex.CancellationToken == cancellationToken)
+            {
+                _logger.LogTrace(ex, "Cancellation happened");
+                Cancel();
+            }
             catch (Exception e)
             {
                 _logger.LogTrace(e, "Could not write to output handler, perhaps serialization failed?");
@@ -156,6 +168,13 @@ namespace OmniSharp.Extensions.JsonRpc
         private void Error(Exception ex)
         {
             _outputIsFinished.TrySetResult(ex);
+            _writer.TryComplete();
+            _disposable.Dispose();
+        }
+
+        private void Cancel()
+        {
+            _outputIsFinished.TrySetCanceled();
             _writer.TryComplete();
             _disposable.Dispose();
         }

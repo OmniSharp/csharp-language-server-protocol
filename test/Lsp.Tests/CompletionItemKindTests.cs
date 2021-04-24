@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Lsp.Tests.Integration.Fixtures;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
