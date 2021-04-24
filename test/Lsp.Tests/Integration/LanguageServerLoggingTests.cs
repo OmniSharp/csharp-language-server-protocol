@@ -54,6 +54,7 @@ namespace Lsp.Tests.Integration
             logger.LogDebug("Just gotta let you debug!");
 
             await logs.DelayUntilCount(6, CancellationToken);
+            await SettleNext();
             var items = logs.Take(6).ToList();
 
             items.Should().HaveCount(6);
@@ -92,6 +93,7 @@ namespace Lsp.Tests.Integration
             logger.LogDebug("Just gotta let you debug!");
 
             await logs.DelayUntilCount(3, CancellationToken);
+            await SettleNext();
             var items = logs.Take(3).ToList();
 
             items.Should().HaveCount(3);
@@ -130,6 +132,7 @@ namespace Lsp.Tests.Integration
             logger.LogDebug("Just gotta let you debug!");
 
             await logs.DelayUntilCount(4, CancellationToken);
+            await SettleNext();
             var items = logs.Take(4).ToList();
 
             items.Should().HaveCount(4);
@@ -170,6 +173,7 @@ namespace Lsp.Tests.Integration
             await logs.DelayUntilCount(3, CancellationToken);
             {
                 var items = logs.Take(3).ToList();
+                await SettleNext();
                 ;
 
                 items.Should().HaveCount(3);
@@ -193,6 +197,7 @@ namespace Lsp.Tests.Integration
 
             await logs.DelayUntilCount(6, CancellationToken);
             {
+                await SettleNext();
                 var items = logs.Take(6).ToList();
                 ;
 
@@ -236,6 +241,7 @@ namespace Lsp.Tests.Integration
 
             await logs.DelayUntilCount(6, CancellationToken);
             {
+                await SettleNext();
                 var items = logs.Take(6).ToList();
 
                 items.Should().HaveCount(6);
@@ -259,6 +265,7 @@ namespace Lsp.Tests.Integration
 
             await logs.DelayUntilCount(3, CancellationToken);
             {
+                await SettleNext();
                 var items = logs.Take(3).ToList();
 
                 items.Should().HaveCount(3);
