@@ -58,6 +58,8 @@ namespace OmniSharp.Extensions.JsonRpc
                 reuse: Reuse.Singleton
             );
 
+            container.RegisterInstance(options.DefaultScheduler);
+
             container.RegisterMany<ResponseRouter>(
                 serviceTypeCondition: type => type.IsInterface,
                 reuse: Reuse.Singleton

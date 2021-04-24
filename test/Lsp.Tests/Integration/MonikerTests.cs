@@ -26,7 +26,7 @@ namespace Lsp.Tests.Integration
             _request = Substitute.For<Func<MonikerParams, CancellationToken, Task<Container<Moniker>?>>>();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Get_Monikers()
         {
             _request.Invoke(Arg.Any<MonikerParams>(), Arg.Any<CancellationToken>())

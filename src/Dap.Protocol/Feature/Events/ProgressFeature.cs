@@ -23,7 +23,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public string? Message { get; init; }
         }
 
-        [Parallel]
+        [Serial]
         [Method(EventNames.ProgressStart, Direction.ServerToClient)]
         [
             GenerateHandler,
@@ -60,7 +60,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public int? Percentage { get; init; }
         }
 
-        [Parallel]
+        [Serial]
         [Method(EventNames.ProgressUpdate, Direction.ServerToClient)]
         [
             GenerateHandler,
@@ -76,7 +76,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public double? Percentage { get; init; }
         }
 
-        [Parallel]
+        [Serial]
         [Method(EventNames.ProgressEnd, Direction.ServerToClient)]
         [
             GenerateHandler,

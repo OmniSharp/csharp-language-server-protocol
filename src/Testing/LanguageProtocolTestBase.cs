@@ -49,6 +49,9 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
                        .WithAssemblies(TestOptions.Assemblies)
                        .ConfigureLogging(x => x.SetMinimumLevel(LogLevel.Trace))
                        .WithAssemblies(typeof(LanguageProtocolTestBase).Assembly, GetType().Assembly)
+                       .WithInputScheduler(options.InputScheduler)
+                       .WithOutputScheduler(options.OutputScheduler)
+                       .WithDefaultScheduler(options.DefaultScheduler)
                        .Services
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
                        .AddSingleton(ClientEvents as IRequestSettler);
@@ -64,6 +67,9 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
                        .WithAssemblies(TestOptions.Assemblies)
                        .ConfigureLogging(x => x.SetMinimumLevel(LogLevel.Trace))
                        .WithAssemblies(typeof(LanguageProtocolTestBase).Assembly, GetType().Assembly)
+                       .WithInputScheduler(options.InputScheduler)
+                       .WithOutputScheduler(options.OutputScheduler)
+                       .WithDefaultScheduler(options.DefaultScheduler)
                        .Services
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
                        .AddSingleton(ServerEvents as IRequestSettler);

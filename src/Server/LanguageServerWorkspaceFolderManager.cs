@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
@@ -27,7 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         {
             _server = server;
             _workspaceFolders = new ConcurrentDictionary<DocumentUri, WorkspaceFolder>(DocumentUri.Comparer);
-            _workspaceFoldersSubject = new ReplaySubject<IEnumerable<WorkspaceFolder>>(1);
+            _workspaceFoldersSubject = new ReplaySubject<IEnumerable<WorkspaceFolder>>(1, Scheduler.Immediate);
             _workspaceFoldersChangedSubject = new Subject<WorkspaceFolderChange>();
         }
 

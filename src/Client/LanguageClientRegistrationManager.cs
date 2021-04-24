@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
@@ -26,7 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         private readonly ILspHandlerTypeDescriptorProvider _handlerTypeDescriptorProvider;
         private readonly ILogger<LanguageClientRegistrationManager> _logger;
         private readonly ConcurrentDictionary<string, Registration> _registrations;
-        private readonly ReplaySubject<IEnumerable<Registration>> _registrationSubject = new ReplaySubject<IEnumerable<Registration>>(1);
+        private readonly ReplaySubject<IEnumerable<Registration>> _registrationSubject = new ReplaySubject<IEnumerable<Registration>>(1, Scheduler.Immediate);
 
         public LanguageClientRegistrationManager(
             ISerializer serializer,

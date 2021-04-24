@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Subjects;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
@@ -14,7 +15,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
 
         public ProgressObservable(ProgressToken token)
         {
-            _dataSubject = new ReplaySubject<ProgressEvent>(1);
+            _dataSubject = new ReplaySubject<ProgressEvent>(1, Scheduler.Immediate);
             _disposable = new CompositeDisposable { Disposable.Create(_dataSubject.OnCompleted) };
 
             ProgressToken = token;

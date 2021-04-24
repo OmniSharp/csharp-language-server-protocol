@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -48,6 +49,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         private readonly IEnumerable<IOnLanguageClientInitialized> _initializedHandlers;
         private readonly LspSerializer _serializer;
         private readonly InstanceHasStarted _instanceHasStarted;
+        private readonly IScheduler _scheduler;
         private readonly IResponseRouter _responseRouter;
         private readonly ISubject<InitializeResult> _initializeComplete = new AsyncSubject<InitializeResult>();
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
@@ -150,7 +152,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             IEnumerable<OnLanguageClientInitializedDelegate> initializedDelegates,
             IEnumerable<IOnLanguageClientInitialized> initializedHandlers,
             LspSerializer serializer,
-            InstanceHasStarted instanceHasStarted
+            InstanceHasStarted instanceHasStarted,
+            IScheduler scheduler
         ) : base(handlerCollection, responseRouter)
         {
             _connection = connection;
@@ -179,6 +182,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             _initializedHandlers = initializedHandlers;
             _serializer = serializer;
             _instanceHasStarted = instanceHasStarted;
+            _scheduler = scheduler;
             _concurrency = options.Value.Concurrency;
 
             // We need to at least create Window here in case any handler does loggin in their constructor
@@ -262,6 +266,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 _initializeHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnLanguageClientInitialize>()),
                 (handler, ct) => handler.OnInitialize(this, @params, ct),
                 _concurrency,
+                _scheduler,
                 token
             ).ConfigureAwait(false);
 
@@ -281,6 +286,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 _initializedHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnLanguageClientInitialized>()),
                 (handler, ct) => handler.OnInitialized(this, @params, serverParams, ct),
                 _concurrency,
+                _scheduler,
                 token
             ).ConfigureAwait(false);
 
@@ -299,6 +305,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 _startedHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnLanguageClientStarted>()),
                 (handler, ct) => handler.OnStarted(this, ct),
                 _concurrency,
+                _scheduler,
                 token
             ).ConfigureAwait(false);
 
@@ -395,7 +402,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         bool IResponseRouter.TryGetRequest(long id, [NotNullWhen(true)] out string method, [NotNullWhen(true)] out TaskCompletionSource<JToken> pendingTask) =>
             _responseRouter.TryGetRequest(id, out method, out pendingTask);
 
-        public Task<InitializeResult> WasStarted => _initializeComplete.ToTask();
+        public Task<InitializeResult> WasStarted => _initializeComplete.ToTask(_scheduler);
 
         public void Dispose()
         {

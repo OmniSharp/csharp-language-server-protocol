@@ -23,7 +23,7 @@ namespace Lsp.Tests.Integration
         {
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Handle_Malformed_Request()
         {
             var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
@@ -46,7 +46,7 @@ namespace Lsp.Tests.Integration
             a.Should().Throw<ParseErrorException>();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Handle_Malformed_Notification()
         {
             var (client, server) = await Initialize(ConfigureClient, ConfigureServer);

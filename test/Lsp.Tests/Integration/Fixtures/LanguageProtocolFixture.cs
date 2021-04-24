@@ -14,20 +14,30 @@ namespace Lsp.Tests.Integration.Fixtures
         where TConfigureClient : IConfigureLanguageClientOptions, new()
         where TConfigureServer : IConfigureLanguageServerOptions, new()
     {
-        private readonly TestLoggerFactory _loggerFactory;
+        private readonly TestLoggerFactory _loggerServerFactory;
+        private readonly TestLoggerFactory _loggerClientFactory;
 
         public LanguageProtocolFixture() :
-            base(new TConfigureFixture().Configure(new JsonRpcTestOptions(new TestLoggerFactory(null))))
+            base(
+                new TConfigureFixture().Configure(
+                    new JsonRpcTestOptions(
+                        new TestLoggerFactory(null, "{Timestamp:yyyy-MM-dd HH:mm:ss} [Server] [{Level}] {Message}{NewLine}{Exception}"),
+                        new TestLoggerFactory(null, "{Timestamp:yyyy-MM-dd HH:mm:ss} [Client] [{Level}] {Message}{NewLine}{Exception}")
+                    )
+                )
+            )
         {
-            _loggerFactory = (TestOptions.ServerLoggerFactory as TestLoggerFactory)!;
+            _loggerServerFactory = ( TestOptions.ServerLoggerFactory as TestLoggerFactory )!;
+            _loggerClientFactory = ( TestOptions.ClientLoggerFactory as TestLoggerFactory )!;
         }
 
         public void Swap(ITestOutputHelper testOutputHelper)
         {
-            _loggerFactory.Swap(testOutputHelper);
+            _loggerServerFactory.Swap(testOutputHelper);
+            _loggerClientFactory.Swap(testOutputHelper);
         }
 
-        public ILanguageClient Client { get; private set; }= null!;
+        public ILanguageClient Client { get; private set; } = null!;
         public ILanguageServer Server { get; private set; } = null!;
 
         public async Task InitializeAsync()

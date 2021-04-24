@@ -2,7 +2,7 @@ using ServerRequest = OmniSharp.Extensions.JsonRpc.Server.Request;
 
 namespace OmniSharp.Extensions.JsonRpc.Client
 {
-    public class OutgoingResponse
+    public record OutgoingResponse
     {
         public OutgoingResponse(object id, ServerRequest request)
         {

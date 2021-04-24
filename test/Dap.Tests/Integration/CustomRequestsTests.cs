@@ -20,7 +20,7 @@ namespace Dap.Tests.Integration
         {
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Support_Custom_Attach_Request_Using_Base_Class()
         {
             var fake = Substitute.For<AttachHandlerBase<CustomAttachRequestArguments>>();
@@ -42,7 +42,7 @@ namespace Dap.Tests.Integration
             request.ProcessId.Should().Be("4321");
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Support_Custom_Attach_Request_Receiving_Regular_Request_Using_Base_Class()
         {
             var fake = Substitute.For<AttachHandlerBase>();
@@ -64,7 +64,7 @@ namespace Dap.Tests.Integration
             request.ExtensionData.Should().ContainKey("processId").And.Subject["processId"].Should().Be("4321");
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Support_Custom_Attach_Request_Using_Extension_Data_Using_Base_Class()
         {
             var fake = Substitute.For<AttachHandlerBase<CustomAttachRequestArguments>>();
@@ -88,7 +88,7 @@ namespace Dap.Tests.Integration
             request.ProcessId.Should().Be("4321");
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Support_Custom_Launch_Request_Using_Base_Class()
         {
             var fake = Substitute.For<LaunchHandlerBase<CustomLaunchRequestArguments>>();
@@ -106,7 +106,7 @@ namespace Dap.Tests.Integration
             request.Script.Should().Be("build.ps1");
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Support_Custom_Launch_Request_Receiving_Regular_Request_Using_Base_Class()
         {
             var fake = Substitute.For<LaunchHandlerBase>();
@@ -124,7 +124,7 @@ namespace Dap.Tests.Integration
             request.ExtensionData.Should().ContainKey("script").And.Subject["script"].Should().Be("build.ps1");
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Support_Custom_Launch_Request_Using_Extension_Data_Base_Class()
         {
             var fake = Substitute.For<LaunchHandlerBase<CustomLaunchRequestArguments>>();
@@ -144,7 +144,7 @@ namespace Dap.Tests.Integration
             request.Script.Should().Be("build.ps1");
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Support_Custom_Attach_Request_Using_Delegate()
         {
             var fake = Substitute.For<Func<CustomAttachRequestArguments, CancellationToken, Task<AttachResponse>>>();
@@ -166,7 +166,7 @@ namespace Dap.Tests.Integration
             request.ProcessId.Should().Be("4321");
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Support_Custom_Attach_Request_Receiving_Regular_Request_Using_Delegate()
         {
             var fake = Substitute.For<Func<AttachRequestArguments, CancellationToken, Task<AttachResponse>>>();
@@ -188,7 +188,7 @@ namespace Dap.Tests.Integration
             request.ExtensionData.Should().ContainKey("processId").And.Subject["processId"].Should().Be("4321");
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Support_Custom_Attach_Request_Using_Extension_Data_Using_Delegate()
         {
             var fake = Substitute.For<Func<CustomAttachRequestArguments, CancellationToken, Task<AttachResponse>>>();
@@ -212,7 +212,7 @@ namespace Dap.Tests.Integration
             request.ProcessId.Should().Be("4321");
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Support_Custom_Launch_Request_Using_Delegate()
         {
             var fake = Substitute.For<Func<CustomLaunchRequestArguments, CancellationToken, Task<LaunchResponse>>>();
@@ -230,7 +230,7 @@ namespace Dap.Tests.Integration
             request.Script.Should().Be("build.ps1");
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Support_Custom_Launch_Request_Receiving_Regular_Request_Using_Delegate()
         {
             var fake = Substitute.For<Func<LaunchRequestArguments, CancellationToken, Task<LaunchResponse>>>();
@@ -248,7 +248,7 @@ namespace Dap.Tests.Integration
             request.ExtensionData.Should().ContainKey("script").And.Subject["script"].Should().Be("build.ps1");
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Support_Custom_Launch_Request_Using_Extension_Data_Using_Delegate()
         {
             var fake = Substitute.For<Func<CustomLaunchRequestArguments, CancellationToken, Task<LaunchResponse>>>();

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -8,6 +10,7 @@ using System.Reactive.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -21,6 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         private readonly ReplaySubject<IEnumerable<TItem>> _dataSubject;
         private readonly CompositeDisposable _disposable;
         private readonly Task<TResult> _task;
+        private bool _receivedPartialData;
 
         public PartialItemsRequestProgressObservable(
             ISerializer serializer,
@@ -28,48 +32,39 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
             IObservable<TResult> requestResult,
             Func<IEnumerable<TItem>, TResult> factory,
             CancellationToken cancellationToken,
-            Action disposal
+            Action onCompleteAction
         )
         {
             _serializer = serializer;
-            _dataSubject = new ReplaySubject<IEnumerable<TItem>>(int.MaxValue);
-            var request = requestResult
-                         .Do(
-                              // this should be fine as long as the other side is spec compliant (requests cannot return new results) so this should be null or empty
-                              result => _dataSubject.OnNext(result ?? Enumerable.Empty<TItem>()),
-                              OnError,
-                              OnCompleted
-                          )
-                         .Replay(1);
-            _disposable = new CompositeDisposable {
-                request.Connect(),
-                Disposable.Create(disposal)
-            };
-
-            _task = _dataSubject
-                   .Scan(
-                        new List<TItem>(),
-                        (acc, data) => {
-                            acc.AddRange(data);
-                            return acc;
-                        }
-                    )
-                   .StartWith(new List<TItem>())
-                   .Select(factory)
-                   .ForkJoin(request, (items, result) => items?.Count() > result?.Count() ? items : result)
-                   .ToTask(cancellationToken);
-
-#pragma warning disable VSTHRD105
-#pragma warning disable VSTHRD110
-            _task.ContinueWith(_ => Dispose());
-#pragma warning restore VSTHRD110
-#pragma warning restore VSTHRD105
+            _dataSubject = new ReplaySubject<IEnumerable<TItem>>(int.MaxValue, Scheduler.Immediate);
+            _disposable = new CompositeDisposable() { _dataSubject };
+            _task = Observable.Create<TResult>(
+                                   observer => new CompositeDisposable() {
+                                       _dataSubject
+                                          .Aggregate(
+                                               new List<TItem>(),
+                                               (acc, data) => {
+                                                   acc.AddRange(data);
+                                                   return acc;
+                                               }
+                                           )
+                                          .Select(factory)
+                                          .ForkJoin(
+                                               requestResult
+                                                  .Do(
+                                                       result => _dataSubject.OnNext(result ?? Enumerable.Empty<TItem>()),
+                                                       _dataSubject.OnError,
+                                                       _dataSubject.OnCompleted
+                                                   ),
+                                               (items, result) => items?.Count() > result?.Count() ? items : result
+                                           )
+                                          .Subscribe(observer),
+                                       Disposable.Create(onCompleteAction)
+                                   }
+                               )
+                              .ToTask(cancellationToken);
 
             ProgressToken = token;
-            if (_dataSubject is IDisposable disposable)
-            {
-                _disposable.Add(disposable);
-            }
         }
 
         public ProgressToken ProgressToken { get; }
@@ -93,6 +88,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         public void OnNext(JToken value)
         {
             if (_dataSubject.IsDisposed) return;
+            _receivedPartialData = true;
             _dataSubject.OnNext(value.ToObject<TItem[]>(_serializer.JsonSerializer));
         }
 
@@ -102,7 +98,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
             _disposable.Dispose();
         }
 
-        public IDisposable Subscribe(IObserver<IEnumerable<TItem>> observer) => _disposable.IsDisposed ? Disposable.Empty : _dataSubject.Subscribe(observer);
+//        public IDisposable Subscribe(IObserver<IEnumerable<TItem>> observer) => _disposable.IsDisposed ? Disposable.Empty : _dataSubject.Subscribe(observer);
+        public IDisposable Subscribe(IObserver<IEnumerable<TItem>> observer) => _dataSubject.Subscribe(observer);
 
 #pragma warning disable VSTHRD003
         public Task<TResult> AsTask() => _task;
@@ -118,14 +115,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
             IObservable<Container<TItem>?> requestResult,
             Func<IEnumerable<TItem>, Container<TItem>?> factory,
             CancellationToken cancellationToken,
-            Action disposal
+            Action onCompleteAction,
+            ILogger logger
         ) : base(
             serializer,
             token,
             requestResult,
             factory,
             cancellationToken,
-            disposal
+            onCompleteAction
         )
         {
         }

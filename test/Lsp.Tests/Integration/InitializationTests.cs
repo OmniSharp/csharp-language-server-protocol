@@ -33,7 +33,7 @@ namespace Lsp.Tests.Integration
         {
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Logs_should_be_allowed_during_startup()
         {
             await Initialize(ConfigureClient, ConfigureServer);
@@ -42,7 +42,7 @@ namespace Lsp.Tests.Integration
             _logs.Should().ContainInOrder("OnInitialize", "OnInitialized");
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Facades_should_be_resolvable()
         {
             var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
@@ -54,7 +54,7 @@ namespace Lsp.Tests.Integration
             response.Should().NotBeNull();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Not_Be_Able_To_Send_Messages_Unit_Initialization()
         {
             if (!(TestOptions.ClientLoggerFactory is TestLoggerFactory loggerFactory)) throw new Exception("wtf");
@@ -99,7 +99,7 @@ namespace Lsp.Tests.Integration
             onInitializedNotify.Received(1).Invoke();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Be_Able_To_Register_Before_Initialize()
         {
             var (client, server) = Create(options => options.EnableDynamicRegistration().EnableAllCapabilities(), options => { });

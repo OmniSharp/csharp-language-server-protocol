@@ -2,12 +2,13 @@ using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc.Generators;
 using OmniSharp.Extensions.JsonRpc.Generators.Cache;
 using TestingUtils;
+using Xunit;
 
 namespace Generation.Tests
 {
     public class EnumLikeStringGeneratorTests
     {
-        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        [Fact]
         public async Task Auto_Magically_Implements_IEnumLikeString()
         {
             var source = @"

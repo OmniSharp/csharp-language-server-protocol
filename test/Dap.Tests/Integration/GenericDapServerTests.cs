@@ -17,7 +17,7 @@ namespace Dap.Tests.Integration
         {
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Supports_Multiple_Handlers_On_A_Single_Class()
         {
             var handler = new Handler();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
@@ -30,6 +31,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
         private readonly IEnumerable<OnDebugAdapterServerStartedDelegate> _startedDelegates;
         private readonly IEnumerable<IOnDebugAdapterServerStarted> _startedHandlers;
         private readonly InstanceHasStarted _instanceHasStarted;
+        private readonly IScheduler _scheduler;
         private readonly IServiceProvider _serviceProvider;
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
         private readonly Connection _connection;
@@ -100,7 +102,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             IEnumerable<IOnDebugAdapterServerInitialize> initializeHandlers,
             IEnumerable<IOnDebugAdapterServerInitialized> initializedHandlers,
             IEnumerable<IOnDebugAdapterServerStarted> startedHandlers,
-            InstanceHasStarted instanceHasStarted
+            InstanceHasStarted instanceHasStarted,
+            IScheduler scheduler
         ) : base(collection, responseRouter)
         {
             _capabilities = capabilities;
@@ -117,6 +120,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             _initializedHandlers = initializedHandlers;
             _startedHandlers = startedHandlers;
             _instanceHasStarted = instanceHasStarted;
+            _scheduler = scheduler;
             _concurrency = options.Value.Concurrency;
 
             _disposable.Add(collection.Add(this));
@@ -142,7 +146,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             _connection.Open();
             try
             {
-                _initializingTask = _initializeComplete.ToTask(token);
+                _initializingTask = _initializeComplete.ToTask(token, _scheduler);
                 await _initializingTask.ConfigureAwait(false);
                 await DebugAdapterEventingHelper.Run(
                     _startedDelegates,
@@ -150,6 +154,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
                     _startedHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnDebugAdapterServerStarted>()),
                     (handler, ct) => handler.OnStarted(this, ct),
                     _concurrency,
+                    _scheduler,
                     token
                 ).ConfigureAwait(false);
                 _instanceHasStarted.Started = true;
@@ -181,6 +186,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
                 _initializeHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnDebugAdapterServerInitialize>()),
                 (handler, ct) => handler.OnInitialize(this, request, ct),
                 _concurrency,
+                _scheduler,
                 cancellationToken
             ).ConfigureAwait(false);
 
@@ -231,6 +237,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
                 _initializedHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnDebugAdapterServerInitialized>()),
                 (handler, ct) => handler.OnInitialized(this, request, response, ct),
                 _concurrency,
+                _scheduler,
                 cancellationToken
             ).ConfigureAwait(false);
 

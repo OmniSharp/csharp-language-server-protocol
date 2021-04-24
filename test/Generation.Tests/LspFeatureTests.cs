@@ -7,7 +7,7 @@ namespace Generation.Tests
 {
     public class LspFeatureTests
     {
-//        [FactWithSkipOn(SkipOnPlatform.Windows, Skip = "for testing")]
+//        [Fact(Skip = "for testing"]
         [Fact]
         public async Task Supports_Params_Type_As_Source()
         {
@@ -105,7 +105,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
             await GenerationHelpers.AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
-        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        [Fact]
         public async Task Supports_Generating_Custom_Language_Extensions()
         {
             var source = @"
@@ -373,7 +373,7 @@ namespace Lsp.Tests.Integration.Fixtures
             await GenerationHelpers.AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expectedHandlers);
         }
 
-        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        [Fact]
         public async Task Supports_Generating_Void_Task_Return()
         {
             var source = @"

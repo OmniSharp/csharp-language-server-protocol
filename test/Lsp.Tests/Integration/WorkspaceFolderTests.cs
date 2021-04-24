@@ -33,7 +33,7 @@ namespace Lsp.Tests.Integration
         {
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Disable_If_Not_Supported()
         {
             var (_, server) = await Initialize(
@@ -47,14 +47,14 @@ namespace Lsp.Tests.Integration
             folders.Should().BeEmpty();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Enable_If_Supported()
         {
             var (_, server) = await Initialize(ConfigureClient, ConfigureServer);
             server.WorkspaceFolderManager.IsSupported.Should().Be(true);
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Add_A_Workspace_Folder()
         {
             var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
@@ -71,7 +71,7 @@ namespace Lsp.Tests.Integration
             folders[0].Folder.Name.Should().Be(nameof(Should_Add_A_Workspace_Folder));
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Allow_Null_Response()
         {
             var (client, server) = await Initialize(
@@ -84,7 +84,7 @@ namespace Lsp.Tests.Integration
             a.Should().NotThrow();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Have_Workspace_Folder_At_Startup()
         {
             var (_, server) = await Initialize(options => { options.WithWorkspaceFolder("/abcd/", nameof(Should_Have_Workspace_Folder_At_Startup)); }, ConfigureServer);
@@ -93,7 +93,7 @@ namespace Lsp.Tests.Integration
             folder.Name.Should().Be(nameof(Should_Have_Workspace_Folder_At_Startup));
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Remove_Workspace_Folder_by_name()
         {
             var (client, server) = await Initialize(options => { options.WithWorkspaceFolder("/abcd/", nameof(Should_Remove_Workspace_Folder_by_name)); }, ConfigureServer);
@@ -113,7 +113,7 @@ namespace Lsp.Tests.Integration
             folders[0].Folder.Name.Should().Be(nameof(Should_Remove_Workspace_Folder_by_name));
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Remove_Workspace_Folder_by_uri()
         {
             var (client, server) = await Initialize(options => { options.WithWorkspaceFolder("/abcd/", nameof(Should_Remove_Workspace_Folder_by_uri)); }, ConfigureServer);
@@ -133,7 +133,7 @@ namespace Lsp.Tests.Integration
             folders[0].Folder.Name.Should().Be(nameof(Should_Remove_Workspace_Folder_by_uri));
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Handle_Null_Workspace_Folders()
         {
             var workspaceLanguageServer = Substitute.For<IWorkspaceLanguageServer>();
@@ -154,7 +154,7 @@ namespace Lsp.Tests.Integration
             await started.OnStarted(languageServer, CancellationToken);
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Handle_Null_Workspace_Folders_On_Refresh()
         {
             var workspaceLanguageServer = Substitute.For<IWorkspaceLanguageServer>();

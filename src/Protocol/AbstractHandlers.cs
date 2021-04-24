@@ -141,10 +141,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 }
 
                 var subject = new AsyncSubject<TItem?>();
+                var task = subject
+                          .Select(_factory)
+                          .ToTask(cancellationToken, _progressManager.Scheduler)
+                          .ConfigureAwait(false);
                 // in the event nothing is emitted...
                 subject.OnNext(default!);
                 Handle(request, subject, cancellationToken);
-                return _factory(await subject);
+                return await task;
             }
 
             protected abstract void Handle(TParams request, IObserver<TItem> results, CancellationToken cancellationToken);
@@ -181,10 +185,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 }
 
                 var subject = new AsyncSubject<TItem?>();
+                var task = subject
+                          .Select(_factory)
+                          .ToTask(cancellationToken, _progressManager.Scheduler)
+                          .ConfigureAwait(false);
                 // in the event nothing is emitted...
                 subject.OnNext(default!);
                 Handle(request, subject, cancellationToken);
-                return _factory(await subject);
+                return await task;
             }
 
             protected abstract void Handle(TParams request, IObserver<TItem> results, CancellationToken cancellationToken);
@@ -221,10 +229,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 }
 
                 var subject = new AsyncSubject<TItem>();
+                var task = subject
+                          .Select(_factory)
+                          .ToTask(cancellationToken, _progressManager.Scheduler)
+                          .ConfigureAwait(false);
                 // in the event nothing is emitted...
                 subject.OnNext(default!);
                 Handle(request, subject, cancellationToken);
-                return _factory(await subject);
+                return await task;
             }
 
             protected abstract void Handle(TParams request, IObserver<TItem> results, CancellationToken cancellationToken);
@@ -258,15 +270,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 }
 
                 var subject = new Subject<IEnumerable<TItem>>();
-                var task = subject.Aggregate(
-                                       new List<TItem>(), (acc, items) => {
-                                           acc.AddRange(items);
-                                           return acc;
-                                       }
-                                   )
-                                  .ToTask(cancellationToken);
+                var task = subject
+                          .Aggregate(
+                               new List<TItem>(), (acc, items) => {
+                                   acc.AddRange(items);
+                                   return acc;
+                               }
+                           )
+                          .Select(_factory)
+                          .ToTask(cancellationToken, _progressManager.Scheduler)
+                          .ConfigureAwait(false);
                 Handle(request, subject, cancellationToken);
-                return _factory(await task.ConfigureAwait(false));
+                return await task;
             }
 
             protected abstract void Handle(TParams request, IObserver<IEnumerable<TItem>> results, CancellationToken cancellationToken);
@@ -299,19 +314,23 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 }
 
                 var subject = new Subject<IEnumerable<TItem>>();
-                var task = subject.Aggregate(
-                                       new List<TItem>(), (acc, items) => {
-                                           acc.AddRange(items);
-                                           return acc;
-                                       }
-                                   )
-                                  .ToTask(cancellationToken);
+                var task = subject
+                          .Aggregate(
+                               new List<TItem>(), (acc, items) => {
+                                   acc.AddRange(items);
+                                   return acc;
+                               }
+                           )
+                          .Select(_factory)
+                          .ToTask(cancellationToken, _progressManager.Scheduler)
+                          .ConfigureAwait(false);
                 Handle(request, subject, cancellationToken);
-                return _factory(await task.ConfigureAwait(false));
+                return await task;
             }
 
             protected abstract void Handle(TParams request, IObserver<IEnumerable<TItem>> results, CancellationToken cancellationToken);
         }
+
         public abstract class PartialResultsCapability<TParams, TResponse, TItem, TCapability> :
             BaseCapability<TCapability>,
             IJsonRpcRequestHandler<TParams, TResponse?>
@@ -339,15 +358,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 }
 
                 var subject = new Subject<IEnumerable<TItem>>();
-                var task = subject.Aggregate(
-                                       new List<TItem>(), (acc, items) => {
-                                           acc.AddRange(items);
-                                           return acc;
-                                       }
-                                   )
-                                  .ToTask(cancellationToken);
+                var task = subject
+                          .Aggregate(
+                               new List<TItem>(), (acc, items) => {
+                                   acc.AddRange(items);
+                                   return acc;
+                               }
+                           )
+                          .Select(_factory)
+                          .ToTask(cancellationToken, _progressManager.Scheduler)
+                          .ConfigureAwait(false);
                 Handle(request, subject, cancellationToken);
-                return _factory(await task.ConfigureAwait(false));
+                return await task;
             }
 
             protected abstract void Handle(TParams request, IObserver<IEnumerable<TItem>> results, CancellationToken cancellationToken);

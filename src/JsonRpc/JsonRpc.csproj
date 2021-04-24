@@ -7,16 +7,17 @@
         <PackageDescription>Primitives for working with JsonRpc. This library is used as the base for communication with language servers</PackageDescription>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="System.Collections.Immutable"/>
-        <PackageReference Include="System.Reactive"/>
-        <PackageReference Include="Microsoft.Extensions.Logging"/>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection"/>
-        <PackageReference Include="Newtonsoft.Json"/>
-        <PackageReference Include="MediatR"/>
-        <PackageReference Include="System.IO.Pipelines"/>
-        <PackageReference Include="Nerdbank.Streams"/>
-        <PackageReference Include="DryIoc.Internal" PrivateAssets="All"/>
-        <ProjectReference Include="..\JsonRpc.Generators\JsonRpc.Generators.csproj" IncludeAssets="analyzers" ExcludeAssets="compile;runtime;native" PrivateAssets="contentfiles;build;buildMultitargeting;buildTransitive" OutputItemType="Analyzer"/>
+        <PackageReference Include="System.Collections.Immutable" />
+        <PackageReference Include="System.Reactive" />
+        <PackageReference Include="Microsoft.Extensions.Logging" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+        <PackageReference Include="Newtonsoft.Json" />
+        <PackageReference Include="MediatR" />
+        <PackageReference Include="System.IO.Pipelines" />
+        <PackageReference Include="Nerdbank.Streams" />
+        <PackageReference Include="System.Threading.Channels" />
+        <PackageReference Include="DryIoc.Internal" PrivateAssets="All" />
+        <ProjectReference Include="..\JsonRpc.Generators\JsonRpc.Generators.csproj" IncludeAssets="analyzers" ExcludeAssets="compile;runtime;native" PrivateAssets="contentfiles;build;buildMultitargeting;buildTransitive" OutputItemType="Analyzer" />
     </ItemGroup>
 
     <ItemGroup>

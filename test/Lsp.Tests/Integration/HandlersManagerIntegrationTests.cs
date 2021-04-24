@@ -20,7 +20,7 @@ namespace Lsp.Tests.Integration
         {
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Return_Default_Handlers()
         {
             var (_, server) = await Initialize(options => {}, options => {});
@@ -30,7 +30,7 @@ namespace Lsp.Tests.Integration
             handlersManager.GetHandlers().Should().HaveCount(6);
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Return_Additional_Handlers()
         {
             var (_, server) = await Initialize(options => {}, options => {});
@@ -41,7 +41,7 @@ namespace Lsp.Tests.Integration
             handlersManager.GetHandlers().Should().HaveCount(7);
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Link_Should_Fail_If_No_Handler_Is_Defined()
         {
             var (_, server) = await Initialize(options => {}, options => {});
@@ -52,7 +52,7 @@ namespace Lsp.Tests.Integration
             a.Should().Throw<ArgumentException>().Which.Message.Should().Contain("Descriptors must be registered before links can be created");
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Link_Should_Fail_If_Link_Is_On_The_Wrong_Side()
         {
             var (_, server) = await Initialize(options => {}, options => {});

@@ -12,6 +12,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog.Events;
 using TestingUtils;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Lsp.Tests.Integration
@@ -29,7 +30,7 @@ namespace Lsp.Tests.Integration
         {
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Handle_FileCreate()
         {
             var (client, server) = await Initialize(Configure, Configure);
@@ -45,7 +46,7 @@ namespace Lsp.Tests.Integration
                 }
             );
 
-            await SettleNext();
+            await TestHelper.DelayUntil(() => _didCreateFileHandler.ReceivedCalls().Any(), CancellationToken);
 
             _didCreateFileHandler.ReceivedCalls().Should().HaveCount(1);
             _willCreateFileHandler.ReceivedCalls().Should().HaveCount(1);
@@ -75,7 +76,7 @@ namespace Lsp.Tests.Integration
             }
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Handle_FileRename()
         {
             var (client, server) = await Initialize(Configure, Configure);
@@ -91,7 +92,7 @@ namespace Lsp.Tests.Integration
                 }
             );
 
-            await SettleNext();
+            await TestHelper.DelayUntil(() => _didRenameFileHandler.ReceivedCalls().Any(), CancellationToken);
 
             _didRenameFileHandler.ReceivedCalls().Should().HaveCount(1);
             _willRenameFileHandler.ReceivedCalls().Should().HaveCount(1);
@@ -121,7 +122,7 @@ namespace Lsp.Tests.Integration
             }
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Should_Handle_FileDelete()
         {
             var (client, server) = await Initialize(Configure, Configure);
@@ -137,7 +138,7 @@ namespace Lsp.Tests.Integration
                 }
             );
 
-            await SettleNext();
+            await TestHelper.DelayUntil(() => _didDeleteFileHandler.ReceivedCalls().Any(), CancellationToken);
 
             _didDeleteFileHandler.ReceivedCalls().Should().HaveCount(1);
             _willDeleteFileHandler.ReceivedCalls().Should().HaveCount(1);

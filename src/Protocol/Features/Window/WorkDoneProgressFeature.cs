@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     namespace Models
     {
-        [Parallel]
+        [Serial]
         [Method(WindowNames.WorkDoneProgressCreate, Direction.ServerToClient)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Window"), GenerateHandlerMethods,
          GenerateRequestMethods(typeof(IWindowLanguageServer), typeof(ILanguageServer))]
@@ -23,7 +23,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public ProgressToken? Token { get; init; }
         }
 
-        [Parallel]
+        [Serial]
         [Method(WindowNames.WorkDoneProgressCancel, Direction.ClientToServer)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Window"), GenerateHandlerMethods,
          GenerateRequestMethods(typeof(IWindowLanguageClient), typeof(ILanguageClient))]

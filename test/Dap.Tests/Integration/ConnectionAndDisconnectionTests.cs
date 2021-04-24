@@ -22,7 +22,7 @@ namespace Dap.Tests.Integration
         {
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Server_Should_Stay_Alive_When_Requests_Throw_An_Exception()
         {
             var (client, _) = await Initialize(ConfigureClient, ConfigureServer);
@@ -37,7 +37,7 @@ namespace Dap.Tests.Integration
             result.Should().BeTrue();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Client_Should_Stay_Alive_When_Requests_Throw_An_Exception()
         {
             var (_, server) = await Initialize(ConfigureClient, ConfigureServer);
@@ -52,7 +52,7 @@ namespace Dap.Tests.Integration
             result.Should().BeTrue();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Server_Should_Support_Links()
         {
             var (client, _) = await Initialize(ConfigureClient, ConfigureServer);
@@ -67,7 +67,7 @@ namespace Dap.Tests.Integration
             result.Should().BeTrue();
         }
 
-        [RetryFact]
+        [Fact]
         public async Task Client_Should_Support_Links()
         {
             var (_, server) = await Initialize(ConfigureClient, ConfigureServer);
