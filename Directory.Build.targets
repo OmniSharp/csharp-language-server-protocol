@@ -11,9 +11,9 @@
         <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" PrivateAssets="All"/>
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Update="GitVersion.Tool" Version="5.6.6"/>
-        <PackageReference Update="JetBrains.ReSharper.CommandLineTools" Version="2020.3.3"/>
-        <PackageReference Update="ReportGenerator" Version="4.8.6"/>
+        <PackageReference Update="GitVersion.Tool" Version="5.6.8"/>
+        <PackageReference Update="JetBrains.ReSharper.CommandLineTools" Version="2021.1.2"/>
+        <PackageReference Update="ReportGenerator" Version="4.8.7"/>
         <PackageReference Update="Rocket.Surgery.Nuke" Version="0.14.3"/>
     </ItemGroup>
     <ItemGroup>
@@ -25,7 +25,7 @@
         <PackageReference Update="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.0.0"/>
         <PackageReference Update="Microsoft.Extensions.DependencyInjection" Version="2.0.0"/>
         <PackageReference Update="Newtonsoft.Json" Version="11.0.2"/>
-        <PackageReference Update="Microsoft.NET.Test.Sdk" Version="16.9.1"/>
+        <PackageReference Update="Microsoft.NET.Test.Sdk" Version="16.9.4"/>
         <PackageReference Update="xunit.runner.visualstudio" Version="2.4.3"/>
         <PackageReference Update="xunit" Version="2.4.1"/>
         <PackageReference Update="FluentAssertions" Version="5.10.3"/>
@@ -33,7 +33,7 @@
         <PackageReference Update="Serilog.Extensions.Logging" Version="2.0.2"/>
         <PackageReference Update="Serilog.Sinks.Observable" Version="2.0.2"/>
         <PackageReference Update="Serilog.Sinks.XUnit" Version="2.0.4"/>
-        <PackageReference Update="XunitXml.TestLogger" Version="3.0.62"/>
+        <PackageReference Update="XunitXml.TestLogger" Version="3.0.66"/>
         <PackageReference Update="coverlet.collector" Version="3.0.3"/>
         <PackageReference Update="coverlet.msbuild" Version="3.0.3"/>
         <PackageReference Update="System.Reactive" Version="4.4.1"/>
@@ -48,6 +48,6 @@
         <PackageReference Update="Nerdbank.Streams" Version="2.6.81"/>
         <PackageReference Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.8.0"/>
         <PackageReference Update="Microsoft.CodeAnalysis.Analyzers" Version="3.3.2"/>
-        <PackageReference Update="DryIoc.Internal" Version="4.7.3"/>
+        <PackageReference Update="DryIoc.Internal" Version="4.7.6"/>
     </ItemGroup>
 </Project>
