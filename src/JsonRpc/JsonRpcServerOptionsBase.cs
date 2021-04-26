@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Nerdbank.Streams;
+using Newtonsoft.Json;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -30,14 +31,14 @@ namespace OmniSharp.Extensions.JsonRpc
         }
 
         public IEnumerable<Assembly> Assemblies { get; set; } = Enumerable.Empty<Assembly>();
+        public IEnumerable<JsonConverter> JsonConverters { get; set; }= Enumerable.Empty<JsonConverter>();
+        public IEnumerable<Action<StreamJsonRpc.JsonRpc>> JsonRpcConfiguration { get; set; }= Enumerable.Empty<Action<StreamJsonRpc.JsonRpc>>();
         /// <summary>
         /// Experimental support for using assembly attributes
         /// </summary>
         public bool UseAssemblyAttributeScanning { get; set; } = false;
         public IRequestProcessIdentifier? RequestProcessIdentifier { get; set; }
         public int? Concurrency { get; set; }
-        public IScheduler InputScheduler { get; set; } = TaskPoolScheduler.Default;
-        public IScheduler OutputScheduler { get; set; } = Scheduler.Immediate;
         public IScheduler DefaultScheduler { get; set; } = TaskPoolScheduler.Default;
         public CreateResponseExceptionHandler? CreateResponseException { get; set; }
         public OnUnhandledExceptionHandler? OnUnhandledException { get; set; }
@@ -57,6 +58,24 @@ namespace OmniSharp.Extensions.JsonRpc
         public T WithAssemblies(params Assembly[] assemblies)
         {
             Assemblies = Assemblies.Union(assemblies).ToArray();
+            return (T) (object) this;
+        }
+
+        public T WithJsonConverter(IEnumerable<JsonConverter>? jsonConverters)
+        {
+            JsonConverters = JsonConverters.Union(jsonConverters ?? Enumerable.Empty<JsonConverter>()).ToArray();
+            return (T) (object) this;
+        }
+
+        public T WithJsonConverter(params JsonConverter[] jsonConverters)
+        {
+            JsonConverters = JsonConverters.Union(jsonConverters).ToArray();
+            return (T) (object) this;
+        }
+
+        public T WithJsonRpc(Action<StreamJsonRpc.JsonRpc> action)
+        {
+            JsonRpcConfiguration = JsonRpcConfiguration.Append(action).ToArray();
             return (T) (object) this;
         }
 

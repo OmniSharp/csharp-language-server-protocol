@@ -20,19 +20,17 @@ namespace OmniSharp.Extensions.JsonRpc
             _handlersManager = handlersManager;
         }
 
-        public void SendNotification(string method) => _responseRouter.SendNotification(method);
+        public Task SendNotification(string method) => _responseRouter.SendNotification(method);
 
-        public void SendNotification<T>(string method, T @params) => _responseRouter.SendNotification(method, @params);
+        public Task SendNotification<T>(string method, T @params) => _responseRouter.SendNotification(method, @params);
 
-        public void SendNotification(IRequest request) => _responseRouter.SendNotification(request);
+        public Task SendNotification(IRequest request) => _responseRouter.SendNotification(request);
 
         public IResponseRouterReturns SendRequest<T>(string method, T @params) => _responseRouter.SendRequest(method, @params);
 
         public IResponseRouterReturns SendRequest(string method) => _responseRouter.SendRequest(method);
 
         public Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken) => _responseRouter.SendRequest(request, cancellationToken);
-
-        bool IResponseRouter.TryGetRequest(long id, [NotNullWhen(true)] out string method, [NotNullWhen(true)] out TaskCompletionSource<JToken> pendingTask) => _responseRouter.TryGetRequest(id, out method, out pendingTask);
         object IServiceProvider.GetService(Type serviceType) => _serviceProvider.GetService(serviceType);
 
         public IDisposable Register(Action<IJsonRpcServerRegistry> registryAction)

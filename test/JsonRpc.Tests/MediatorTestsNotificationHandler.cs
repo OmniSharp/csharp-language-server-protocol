@@ -5,6 +5,7 @@ using MediatR;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
+using StreamJsonRpc;
 using Xunit;
 using Xunit.Abstractions;
 using Arg = NSubstitute.Arg;
@@ -30,7 +31,7 @@ namespace JsonRpc.Tests
         {
             var exitHandler = Substitute.For<IExitHandler>();
 
-            var collection = new HandlerCollection(Substitute.For<IResolverContext>(), new AssemblyScanningHandlerTypeDescriptorProvider(new [] { typeof(AssemblyScanningHandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly })) { exitHandler };
+            var collection = new HandlerCollection(new StreamJsonRpc.JsonRpc(Substitute.For<IJsonRpcMessageHandler>()),Substitute.For<IResolverContext>(), new AssemblyScanningHandlerTypeDescriptorProvider(new [] { typeof(AssemblyScanningHandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly })) { exitHandler };
             AutoSubstitute.Provide<IHandlersManager>(collection);
             var router = AutoSubstitute.Resolve<RequestRouter>();
 

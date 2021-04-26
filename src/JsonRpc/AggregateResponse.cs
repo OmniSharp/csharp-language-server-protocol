@@ -8,6 +8,8 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         public IEnumerable<T> Items { get; }
 
+        public AggregateResponse(IEnumerable items) => Items = items.OfType<T>().ToArray();
+
         public AggregateResponse(IEnumerable<T> items) => Items = items.ToArray();
 
         public AggregateResponse(IEnumerable<object> items) => Items = items.OfType<T>().ToArray();

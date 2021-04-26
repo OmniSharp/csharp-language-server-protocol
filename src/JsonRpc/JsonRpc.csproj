@@ -17,6 +17,7 @@
         <PackageReference Include="System.IO.Pipelines" />
         <PackageReference Include="Nerdbank.Streams" />
         <PackageReference Include="System.Threading.Channels" />
+        <PackageReference Include="StreamJsonRpc" />
         <PackageReference Include="DryIoc.Internal" PrivateAssets="All" />
         <ProjectReference Include="..\JsonRpc.Generators\JsonRpc.Generators.csproj" IncludeAssets="analyzers" ExcludeAssets="compile;runtime;native" PrivateAssets="contentfiles;build;buildMultitargeting;buildTransitive" OutputItemType="Analyzer" />
     </ItemGroup>

@@ -122,7 +122,6 @@ namespace OmniSharp.Extensions.JsonRpc
                     return new InvalidParams(request.Id, request.Method);
                 }
 
-                using var scope = _serviceScopeFactory.CreateScope();
                 // TODO: Do we want to support more handlers as "aggregate"?
                 if (typeof(IEnumerable).IsAssignableFrom(descriptors.Default!.Response) && typeof(string) != descriptors.Default!.Response
                                                                                         && !typeof(JToken).IsAssignableFrom(descriptors.Default!.Response))

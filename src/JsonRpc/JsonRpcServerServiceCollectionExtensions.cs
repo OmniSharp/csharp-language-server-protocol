@@ -9,6 +9,9 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using Nerdbank.Streams;
+using Newtonsoft.Json;
+using StreamJsonRpc;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -33,32 +36,38 @@ namespace OmniSharp.Extensions.JsonRpc
             container.RegisterInstance(options.MaximumRequestTimeout, serviceKey: nameof(options.MaximumRequestTimeout));
             container.RegisterInstance(options.SupportsContentModified, serviceKey: nameof(options.SupportsContentModified));
             container.RegisterInstance(options.Concurrency ?? -1, serviceKey: nameof(options.Concurrency));
-            container.RegisterInstance(options.InputScheduler, serviceKey: nameof(options.InputScheduler));
-            container.RegisterInstance(options.OutputScheduler, serviceKey: nameof(options.OutputScheduler));
             if (options.CreateResponseException != null)
             {
                 container.RegisterInstance(options.CreateResponseException);
             }
 
-            container.RegisterMany<OutputHandler>(
-                nonPublicServiceTypes: true,
-                made: Parameters.Of
-                                .Type<PipeWriter>(serviceKey: nameof(options.Output))
-                                .Type<IScheduler>(serviceKey: nameof(options.OutputScheduler)),
+            container.RegisterInstance(options.DefaultScheduler);
+
+            container.Register<StreamJsonRpc.JsonRpc>(
+                made: Made.Of(() => new StreamJsonRpc.JsonRpc(Arg.Of<IJsonRpcMessageHandler>())),
                 reuse: Reuse.Singleton
             );
-            container.Register<Connection>(
-                made: new Made.TypedMade<Connection>().Parameters
-                                                      .Type<PipeReader>(serviceKey: nameof(options.Input))
-                                                      .Type<TimeSpan>(serviceKey: nameof(options.MaximumRequestTimeout))
-                                                      .Type<bool>(serviceKey: nameof(options.SupportsContentModified))
-                                                      .Name("concurrency", serviceKey: nameof(options.Concurrency))
-                                                      .Type<IScheduler>(serviceKey: nameof(options.InputScheduler))
-               ,
+            container.RegisterInitializer<StreamJsonRpc.JsonRpc>(
+                (rpc, context) => {
+                    rpc.AllowModificationWhileListening = true;
+                    rpc.CancelLocallyInvokedMethodsWhenConnectionIsClosed = true;
+                }
+            );
+
+            container.RegisterMany<HeaderDelimitedMessageHandler>(
+                made: Parameters.Of
+                                .Type<PipeReader>(serviceKey: nameof(options.Input))
+                                .Type<PipeWriter>(serviceKey: nameof(options.Output)),
                 reuse: Reuse.Singleton
             );
 
-            container.RegisterInstance(options.DefaultScheduler);
+            container.RegisterMany<JsonMessageFormatter>(reuse: Reuse.Singleton);
+            container.RegisterInitializer<JsonMessageFormatter>(
+                (formatter, context) => {
+                    foreach (var converter in context.ResolveMany<JsonConverter>().Union(options.JsonConverters))
+                        formatter.JsonSerializer.Converters.Add(converter);
+                }
+            );
 
             container.RegisterMany<ResponseRouter>(
                 serviceTypeCondition: type => type.IsInterface,
@@ -103,9 +112,10 @@ namespace OmniSharp.Extensions.JsonRpc
             {
                 _requestContext = requestContext;
             }
+
             public Task<TR> Handle(T request, CancellationToken cancellationToken)
             {
-                return ((IRequestHandler<T, TR>) _requestContext.Descriptor.Handler).Handle(request, cancellationToken);
+                return ( (IRequestHandler<T, TR>) _requestContext.Descriptor.Handler ).Handle(request, cancellationToken);
             }
         }
 
@@ -119,6 +129,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 _handler = handler;
                 _requestContext = requestContext;
             }
+
             public Task<TR> Handle(T request, CancellationToken cancellationToken)
             {
                 if (_requestContext == null)
@@ -126,13 +137,12 @@ namespace OmniSharp.Extensions.JsonRpc
                     if (_handler == null)
                     {
                         throw new NotImplementedException($"No request handler was registered for type {typeof(IRequestHandler<T, TR>).FullName}");
-
                     }
 
                     return _handler.Handle(request, cancellationToken);
                 }
 
-                return ((IRequestHandler<T, TR>) _requestContext.Descriptor.Handler).Handle(request, cancellationToken);
+                return ( (IRequestHandler<T, TR>) _requestContext.Descriptor.Handler ).Handle(request, cancellationToken);
             }
         }
 
@@ -169,6 +179,7 @@ namespace OmniSharp.Extensions.JsonRpc
             {
                 container.RegisterInstance(options.Receiver);
             }
+
             container.RegisterMany<AlwaysOutputFilter>(Reuse.Singleton, nonPublicServiceTypes: true);
 
             container.RegisterInstance(options.RequestProcessIdentifier);

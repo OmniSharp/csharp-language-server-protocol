@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
+using StreamJsonRpc;
 using Xunit;
 using Xunit.Abstractions;
 using Arg = NSubstitute.Arg;
@@ -43,7 +44,7 @@ namespace JsonRpc.Tests
         {
             var codeActionHandler = Substitute.For<ICodeActionHandler>();
 
-            var collection = new HandlerCollection(Substitute.For<IResolverContext>(), new AssemblyScanningHandlerTypeDescriptorProvider(new [] { typeof(AssemblyScanningHandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly })) { codeActionHandler };
+            var collection = new HandlerCollection(new StreamJsonRpc.JsonRpc(Substitute.For<IJsonRpcMessageHandler>()),Substitute.For<IResolverContext>(), new AssemblyScanningHandlerTypeDescriptorProvider(new [] { typeof(AssemblyScanningHandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly })) { codeActionHandler };
             AutoSubstitute.Provide<IHandlersManager>(collection);
             var router = AutoSubstitute.Resolve<RequestRouter>();
 

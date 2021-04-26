@@ -377,31 +377,55 @@ namespace OmniSharp.Extensions.JsonRpc
                         continue;
                     }
 
-                    if (!_responseRouter.TryGetRequest(id, out var method, out var tcs))
-                    {
-                        // _logger.LogDebug("Request {ResponseId} was not found in the response router, unable to complete", response.Id);
-                        continue;
-                    }
-
-                    _inputQueue.OnNext(
-                        Observable.Create<Unit>(
-                            observer => {
-                                if (response is ServerResponse serverResponse)
-                                {
-                                    // _logger.LogDebug("Setting successful Response for {ResponseId}", response.Id);
-                                    tcs.TrySetResult(serverResponse.Result);
-                                }
-                                else if (response is ServerError serverError)
-                                {
-                                    // _logger.LogDebug("Setting error for {ResponseId}", response.Id);
-                                    tcs.TrySetException(DefaultErrorParser(method, serverError, _getException));
-                                }
-
-                                observer.OnCompleted();
-                                return Disposable.Empty;
-                            }
-                        )
-                    );
+//                    if (!_responseRouter.TryGetRequest(id, out var method, out var tcs))
+//                    {
+//                        // _logger.LogDebug("Request {ResponseId} was not found in the response router, unable to complete", response.Id);
+//                        continue;
+//                    }
+//
+//                    _inputQueue.OnNext(
+//                        Observable.Create<Unit>(
+//                            observer => {
+//                                if (response is ServerResponse serverResponse)
+//                                {
+//                                    // _logger.LogDebug("Setting suRouter.TryGetRequest(id, out var method, out var tcs))
+                                                                     //                    {
+                                                                     //                        // _logger.LogDebug("Request {ResponseId} was not found in the response router, unable to complete", response.Id);
+                                                                     //                        continue;
+                                                                     //                    }
+                                                                     //
+                                                                     //                    _inputQueue.OnNext(
+                                                                     //                        Observable.Create<Unit>(
+                                                                     //                            observer => {
+                                                                     //                                if (response is ServerResponse serverResponse)
+                                                                     //                                {
+                                                                     //                                    // _logger.LogDebug("Setting successful Response for {ResponseId}", response.Id);
+                                                                     //                                    tcs.TrySetResult(serverResponse.Result);
+                                                                     //                                }
+                                                                     //                                else if (response is ServerError serverError)
+                                                                     //                                {
+                                                                     //                                    // _logger.LogDebug("Setting error for {ResponseId}", response.Id);
+                                                                     //                                    tcs.TrySetException(DefaultErrorParser(method, serverError, _getException));
+                                                                     //                                }
+                                                                     //
+                                                                     //                                observer.OnCompleted();
+                                                                     //                                return Disposable.Empty;
+                                                                     //                            }
+                                                                     //                        )
+                                                                     //                    );ccessful Response for {ResponseId}", response.Id);
+//                                    tcs.TrySetResult(serverResponse.Result);
+//                                }
+//                                else if (response is ServerError serverError)
+//                                {
+//                                    // _logger.LogDebug("Setting error for {ResponseId}", response.Id);
+//                                    tcs.TrySetException(DefaultErrorParser(method, serverError, _getException));
+//                                }
+//
+//                                observer.OnCompleted();
+//                                return Disposable.Empty;
+//                            }
+//                        )
+//                    );
                 }
 
                 return;

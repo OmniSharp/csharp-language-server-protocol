@@ -24,7 +24,7 @@
         <PackageReference Update="Microsoft.Extensions.Options" Version="2.0.0"/>
         <PackageReference Update="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.0.0"/>
         <PackageReference Update="Microsoft.Extensions.DependencyInjection" Version="2.0.0"/>
-        <PackageReference Update="Newtonsoft.Json" Version="11.0.2"/>
+        <PackageReference Update="Newtonsoft.Json" Version="12.0.2"/>
         <PackageReference Update="Microsoft.NET.Test.Sdk" Version="16.9.4"/>
         <PackageReference Update="xunit.runner.visualstudio" Version="2.4.3"/>
         <PackageReference Update="xunit" Version="2.4.1"/>
@@ -37,14 +37,15 @@
         <PackageReference Update="coverlet.collector" Version="3.0.3"/>
         <PackageReference Update="coverlet.msbuild" Version="3.0.3"/>
         <PackageReference Update="System.Reactive" Version="4.4.1"/>
-        <PackageReference Update="System.Collections.Immutable" Version="1.7.1"/>
+        <PackageReference Update="System.Collections.Immutable" Version="5.0.0"/>
         <PackageReference Update="System.Threading.Channels" Version="4.7.1"/>
         <PackageReference Update="Microsoft.Reactive.Testing" Version="4.4.1"/>
+        <PackageReference Update="StreamJsonRpc" Version="2.7.76" />
         <PackageReference Update="MediatR" Version="8.1.0"/>
         <PackageReference Update="Bogus" Version="33.0.2"/>
         <PackageReference Update="Snapper" Version="2.3.0"/>
         <PackageReference Update="Xunit.SkippableFact" Version="1.4.13"/>
-        <PackageReference Update="System.IO.Pipelines" Version="4.7.3"/>
+        <PackageReference Update="System.IO.Pipelines" Version="5.0.1"/>
         <PackageReference Update="Nerdbank.Streams" Version="2.6.81"/>
         <PackageReference Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.8.0"/>
         <PackageReference Update="Microsoft.CodeAnalysis.Analyzers" Version="3.3.2"/>

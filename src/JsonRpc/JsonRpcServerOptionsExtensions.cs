@@ -24,43 +24,7 @@ namespace OmniSharp.Extensions.JsonRpc
         /// <returns></returns>
         public static JsonRpcServerOptions WithScheduler(this JsonRpcServerOptions options, IScheduler inputScheduler)
         {
-            options.InputScheduler = options.OutputScheduler = options.DefaultScheduler = inputScheduler;
-            return options;
-        }
-
-        /// <summary>
-        /// Sets the scheduler used during reading input
-        /// </summary>
-        /// <param name="options"></param>
-        /// <param name="inputScheduler"></param>
-        /// <returns></returns>
-        public static JsonRpcServerOptions WithInputScheduler(this JsonRpcServerOptions options, IScheduler inputScheduler)
-        {
-            options.InputScheduler = inputScheduler;
-            return options;
-        }
-
-        /// <summary>
-        /// Sets the default scheduler to be used when scheduling other tasks
-        /// </summary>
-        /// <param name="options"></param>
-        /// <param name="defaultScheduler"></param>
-        /// <returns></returns>
-        public static JsonRpcServerOptions WithDefaultScheduler(this JsonRpcServerOptions options, IScheduler defaultScheduler)
-        {
-            options.DefaultScheduler = defaultScheduler;
-            return options;
-        }
-
-        /// <summary>
-        /// Sets the scheduler use during writing output
-        /// </summary>
-        /// <param name="options"></param>
-        /// <param name="outputScheduler"></param>
-        /// <returns></returns>
-        public static JsonRpcServerOptions WithOutputScheduler(this JsonRpcServerOptions options, IScheduler outputScheduler)
-        {
-            options.OutputScheduler = outputScheduler;
+            options.DefaultScheduler = inputScheduler;
             return options;
         }
     }

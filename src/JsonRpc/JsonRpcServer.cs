@@ -9,7 +9,7 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     public class JsonRpcServer : JsonRpcServerBase, IJsonRpcServer
     {
-        private readonly Connection _connection;
+        private readonly StreamJsonRpc.JsonRpc _rpc;
         private readonly IServiceProvider _serviceProvider;
         private readonly InstanceHasStarted _instanceHasStarted;
         private readonly CompositeDisposable _disposable;
@@ -56,18 +56,17 @@ namespace OmniSharp.Extensions.JsonRpc
 
         internal JsonRpcServer(
             IOptions<JsonRpcServerOptions> options,
-            Connection connection,
+            StreamJsonRpc.JsonRpc rpc,
             IHandlersManager handlerCollection,
             IResponseRouter responseRouter,
             IServiceProvider serviceProvider,
             InstanceHasStarted instanceHasStarted
         ) : base(handlerCollection, responseRouter)
         {
-            _connection = connection;
+            _rpc = rpc;
             _serviceProvider = serviceProvider;
             _instanceHasStarted = instanceHasStarted;
             _disposable = options.Value.CompositeDisposable;
-            _disposable.Add(_connection);
             if (serviceProvider is IDisposable disposable)
             {
                 _disposable.Add(disposable);
@@ -77,7 +76,7 @@ namespace OmniSharp.Extensions.JsonRpc
         public virtual async Task Initialize(CancellationToken cancellationToken)
         {
             await Task.Yield();
-            _connection.Open();
+            _rpc.StartListening();
             _instanceHasStarted.Started = true;
         }
 
