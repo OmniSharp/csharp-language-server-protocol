@@ -1,3 +1,7 @@
+Title: JSON RPC
+ShowInSidebar: true
+---
+
 # Using Json Rpc Standalone
 One of the benefits of the [JSON-RPC protocol](https://www.jsonrpc.org/specification) is that communication can be fully bi-directional.  Through some sort of interface agreement, like LSP / DAP, both sides can act as both client (sender) and server (reciever).
 

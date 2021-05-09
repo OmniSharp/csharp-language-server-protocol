@@ -1,0 +1,18 @@
+@{
+    // Get the root
+    IDocumentPathTree<IDocument> tree = Outputs.AsSourceTree();
+    IDocument root = Document;
+    IDocument parent = tree.GetParentOf(root);
+    while(parent != null)
+    {
+        root = parent;
+        parent = tree.GetParentOf(root);
+    }
+
+    // Display the menu
+    IReadOnlyList<IDocument> children = root.GetDocumentList(Keys.Children);
+    if(children != null && children.Count > 0)
+    {
+		@Html.Partial("Sidebar/_ChildPagesMenu", children)
+	}
+}
