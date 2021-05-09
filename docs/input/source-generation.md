@@ -1,5 +1,6 @@
 Title: Source Generators
 ShowInSidebar: true
+Order: 4
 ---
 
 # Source Generators

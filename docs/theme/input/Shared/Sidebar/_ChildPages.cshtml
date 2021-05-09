@@ -1,16 +1,11 @@
 @{
-    // Get the root
-    IDocumentPathTree<IDocument> tree = Outputs.AsSourceTree();
-    IDocument root = Document;
-    IDocument parent = tree.GetParentOf(root);
-    while(parent != null)
-    {
-        root = parent;
-        parent = tree.GetParentOf(root);
-    }
+    IDocument root = OutputPages[Document.Destination.ChangeFileName("index.html").FullPath].First();
 
     // Display the menu
-    IReadOnlyList<IDocument> children = root.GetDocumentList(Keys.Children);
+    DocumentList<IDocument> children = OutputPages.GetChildrenOf(root)
+        .Where(x => x.GetBool(SamsonKeys.ShowInSidebar))
+        .ToDocumentList();
+
     if(children != null && children.Count > 0)
     {
 		@Html.Partial("Sidebar/_ChildPagesMenu", children)

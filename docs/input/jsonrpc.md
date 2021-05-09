@@ -1,5 +1,6 @@
 Title: JSON RPC
 ShowInSidebar: true
+Order: 2
 ---
 
 # Using Json Rpc Standalone

@@ -2,8 +2,6 @@ Title: C# Language Server Protocol
 NoSidebar: false
 ShowInSidebar: false
 NoTitle: true
-ArchiveSources: '*.md'
-ArchiveOrderDescending: true
 ---
 
 # Welcome!

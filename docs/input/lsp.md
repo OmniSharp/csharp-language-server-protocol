@@ -1,5 +1,6 @@
 Title: Language Server Protocol
 ShowInSidebar: true
+Order: 1
 ---
 
 # Implementing the Language Server Protocol

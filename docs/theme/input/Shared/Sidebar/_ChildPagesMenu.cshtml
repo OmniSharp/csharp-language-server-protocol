@@ -1,4 +1,4 @@
-@inherits Statiq.Razor.StatiqRazorPage<IReadOnlyList<IDocument>>
+@inherits Statiq.Razor.StatiqRazorPage<DocumentList<IDocument>>
 
 @{
     // Group by category
@@ -19,13 +19,9 @@
             .OrderBy(x => x.Get<int>(SamsonKeys.Order, 1000))
             .ThenBy(x => x.WithoutSettings().GetString(Keys.Title)))
         {
-            //object[] currentTreePath = /Document.Get<object[]>(Keys.TreePath);
-            //object[] childTreePath = child.Get<object[]>(Keys.TreePath);
-            //string childTitle = child.WithoutSettings().GetString(Keys.Title, childTreePath.Last().ToString());
-            //string parentActive = currentTreePath.Take(childTreePath.Length).SequenceEqual(childTreePath) ? "active" : null;
-            //string childSelected = parentActive != null && currentTreePath.Length == childTreePath.Length ? "selected" : null;
-            string parentActive = "active";
-            string childSelected = "selected";
+            // TODO: this doesn't take into account if a child is active.
+            string? parentActive = Document.IdEquals(child) ? "active" : null;
+            string? childSelected = Document.IdEquals(child) ? "selected" : null;
             string childTitle = child.GetTitle();
             IReadOnlyList<IDocument> children = child.GetDocumentList(Keys.Children);
             if (children != null && children.Count > 0)
