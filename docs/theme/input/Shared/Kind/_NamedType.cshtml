@@ -4,8 +4,8 @@
 	IDocument containingNamespace = Model.Get<IDocument>(CodeAnalysisKeys.ContainingNamespace);
 	IReadOnlyList<IDocument> allInterfaces = Model.GetList<IDocument>(CodeAnalysisKeys.AllInterfaces);
 	IReadOnlyList<IDocument> baseTypes = Model.GetList<IDocument>(CodeAnalysisKeys.BaseTypes);
-	IReadOnlyList<IDocument> derivedTypes = Model.GetList<IDocument>(CodeAnalysisKeys.DerivedTypes);
-	IReadOnlyList<IDocument> implementingTypes = Model.GetList<IDocument>(CodeAnalysisKeys.ImplementingTypes);
+	IReadOnlyList<IDocument> derivedTypes = Model.GetList<IDocument>(CodeAnalysisKeys.DerivedTypes).OrderBy(x => x["DisplayName"]).ThenBy(x => x["FullName"]).ToList();
+	IReadOnlyList<IDocument> implementingTypes = Model.GetList<IDocument>(CodeAnalysisKeys.ImplementingTypes).OrderBy(x => x["DisplayName"]).ThenBy(x => x["FullName"]).ToList();
 	if(containingAssembly != null
 		|| containingNamespace != null
 		|| (allInterfaces != null && allInterfaces.Count > 0)
@@ -17,19 +17,19 @@
   			<div class="panel-body">
 				<div class="row">
 					<div class="col-md-6">
-						<dl class="dl-horizontal">		
+						<dl class="dl-horizontal">
 							@if(containingAssembly != null)
-							{	
+							{
 								<dt>Assembly</dt>
 								<dd>@Context.GetTypeLink(containingAssembly)</dd>
 							}
 
 							@if(containingNamespace != null)
-							{	
+							{
 								<dt>Namespace</dt>
 								<dd>@Context.GetTypeLink(containingNamespace)</dd>
 							}
-											
+
 							@if(allInterfaces != null && allInterfaces.Count > 0)
 							{
 								<dt>Interfaces</dt>
@@ -37,25 +37,25 @@
 									<ul class="list-unstyled">
 										@foreach(IDocument interfaceDocument in allInterfaces)
 										{
-											<li>@Context.GetTypeLink(interfaceDocument)</li>								
+											<li>@Context.GetTypeLink(interfaceDocument)</li>
 										}
 									</ul>
 								</dd>
 							}
-							
+
 							@if(baseTypes != null && baseTypes.Count > 0)
 							{
 								<dt>Base Types</dt>
 								<dd>
-									<ul class="list-unstyled">										
+									<ul class="list-unstyled">
 										@foreach(IDocument baseType in baseTypes.Reverse())
 										{
-											<li>@Context.GetTypeLink(baseType)</li>								
+											<li>@Context.GetTypeLink(baseType)</li>
 										}
 									</ul>
-								</dd>				
+								</dd>
 							}
-							
+
 							@if(derivedTypes != null && derivedTypes.Count > 0)
 							{
 								<dt>Derived Types</dt>
@@ -63,12 +63,12 @@
 									<ul class="list-unstyled">
 										@foreach(IDocument derivedType in derivedTypes)
 										{
-											<li>@Context.GetTypeLink(derivedType)</li>								
+											<li>@Context.GetTypeLink(derivedType)</li>
 										}
 									</ul>
-								</dd>			
+								</dd>
 							}
-							
+
 							@if(implementingTypes != null && implementingTypes.Count > 0)
 							{
 								<dt>Implementing Types</dt>
@@ -76,13 +76,13 @@
 									<ul class="list-unstyled">
 										@foreach(IDocument implementingType in implementingTypes)
 										{
-											<li>@Context.GetTypeLink(implementingType)</li>								
+											<li>@Context.GetTypeLink(implementingType)</li>
 										}
 									</ul>
-								</dd>				
+								</dd>
 							}
 						</dl>
-					</div>		
+					</div>
 					<div class="col-md-6">
 						@{
 							System.Text.StringBuilder hierarchy = new System.Text.StringBuilder();
@@ -102,35 +102,35 @@
 							{
 								for(int c = 0 ; c < allInterfaces.Count ; c++)
 								{
-									hierarchy.AppendLine($"\tType-.->Interface{c}[\"{System.Net.WebUtility.HtmlEncode(allInterfaces[c].GetString(CodeAnalysisKeys.DisplayName))}\"]");			
+									hierarchy.AppendLine($"\tType-.->Interface{c}[\"{System.Net.WebUtility.HtmlEncode(allInterfaces[c].GetString(CodeAnalysisKeys.DisplayName))}\"]");
 									if(!allInterfaces[c].Destination.IsNull)
 									{
 										hierarchy.AppendLine($"\tclick Interface{c} \"{(Context.GetLink(allInterfaces[c].Destination))}\"");
-									}				
+									}
 								}
 							}
-							hierarchy.AppendLine($"\tType[\"{System.Net.WebUtility.HtmlEncode(Model.GetString(CodeAnalysisKeys.DisplayName))}\"]");		
-							hierarchy.AppendLine("class Type type-node");				
+							hierarchy.AppendLine($"\tType[\"{System.Net.WebUtility.HtmlEncode(Model.GetString(CodeAnalysisKeys.DisplayName))}\"]");
+							hierarchy.AppendLine("class Type type-node");
 							if(derivedTypes != null && derivedTypes.Count > 0)
 							{
 								for(int c = 0 ; c < derivedTypes.Count ; c++)
 								{
-									hierarchy.AppendLine($"\tDerived{c}[\"{System.Net.WebUtility.HtmlEncode(derivedTypes[c].GetString(CodeAnalysisKeys.DisplayName))}\"]-->Type");							
+									hierarchy.AppendLine($"\tDerived{c}[\"{System.Net.WebUtility.HtmlEncode(derivedTypes[c].GetString(CodeAnalysisKeys.DisplayName))}\"]-->Type");
 									if(!derivedTypes[c].Destination.IsNull)
 									{
 										hierarchy.AppendLine($"\tclick Derived{c} \"{(Context.GetLink(derivedTypes[c].Destination))}\"");
-									}			
-								}		
-							}						
+									}
+								}
+							}
 							if(implementingTypes != null && implementingTypes.Count > 0)
 							{
 								for(int c = 0 ; c < implementingTypes.Count ; c++)
 								{
-									hierarchy.AppendLine($"\tImplementing{c}[\"{System.Net.WebUtility.HtmlEncode(implementingTypes[c].GetString(CodeAnalysisKeys.DisplayName))}\"]-.->Type");			
+									hierarchy.AppendLine($"\tImplementing{c}[\"{System.Net.WebUtility.HtmlEncode(implementingTypes[c].GetString(CodeAnalysisKeys.DisplayName))}\"]-.->Type");
 									if(!implementingTypes[c].Destination.IsNull)
 									{
 										hierarchy.AppendLine($"\tclick Implementing{c} \"{(Context.GetLink(implementingTypes[c].Destination))}\"");
-									}							
+									}
 								}
 							}
 						}

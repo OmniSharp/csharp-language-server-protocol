@@ -1,9 +1,10 @@
 @Html.Partial("Section\\_Summary")
-@{				
-	foreach(IGrouping<string, IDocument> typeGroup 
+@{
+	foreach(IGrouping<string, IDocument> typeGroup
 		in Model.GetList<IDocument>("MemberTypes")
 			.Where(x => x.GetBool("IsResult") && x["Kind"].Equals("NamedType"))
-			.GroupBy(x => x.GetString("SpecificKind")))
+			.GroupBy(x => x.GetString("SpecificKind"))
+            .OrderBy(x => x.Key))
 	{
 		@Html.Partial("Section\\_DocsTable", new DocsTable
 		{
@@ -11,9 +12,9 @@
 			Title = typeGroup.Key + " Types",
 			Header = typeGroup.Key,
 			HasSummary = true
-		});		
+		});
 	}
-	
+
 	@Html.Partial("Section\\_DocsTable", new DocsTable
 	{
 		Docs = Model.GetList<IDocument>("MemberNamespaces")

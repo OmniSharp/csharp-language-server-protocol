@@ -12,15 +12,15 @@
 		<li class="header">Namespace</li>
 		<li>@Context.GetTypeLink(containingNamespace, false)</li>
 	}
-	
+
 	IDocument containingType = Model.Get<IDocument>("ContainingType");
 	if(containingType != null)
 	{
 		<li class="header">Type</li>
 		<li>@Context.GetTypeLink(containingType, false)</li>
-		
+
 		<li role="separator" class="divider"></li>
-		
+
 		IReadOnlyList<IDocument> constructors = containingType
 			.GetList<IDocument>("Constructors")
 			.Where(x => x.GetBool("IsResult"))
@@ -33,12 +33,13 @@
 				string selectedClass = constructor.GetString("SymbolId") == Model.GetString("SymbolId") ? "selected" : null;
 				<li class="@selectedClass">@Context.GetTypeLink(constructor, false)</li>
 			}
-		}			
-	
-		foreach(IGrouping<string, IDocument> memberGroup 
+		}
+
+		foreach(IGrouping<string, IDocument> memberGroup
 			in containingType.GetList<IDocument>("Members")
 				.Where(x => x.GetBool("IsResult"))
-				.GroupBy(x => x.GetString("Kind")))
+				.GroupBy(x => x.GetString("Kind"))
+                .OrderBy(x => x.Key))
 		{
 			<li class="header">@memberGroup.Key Members</li>
 			foreach(IDocument member in memberGroup
@@ -46,7 +47,7 @@
 			{
 				string selectedClass = member.GetString("SymbolId") == Model.GetString("SymbolId") ? "selected" : null;
 				<li class="@selectedClass">@Context.GetTypeLink(member, false)</li>
-			}	
+			}
 		}
 	}
 }

@@ -1,4 +1,4 @@
-@{	
+@{
 	IDocument containingAssembly = Model.Get<IDocument>("ContainingAssembly");
 	if(containingAssembly != null)
 	{
@@ -11,13 +11,14 @@
 	{
 		<li class="header">Namespace</li>
 		<li>@Context.GetTypeLink(containingNamespace, false)</li>
-		
+
 		<li role="separator" class="divider"></li>
-		
-		foreach(IGrouping<string, IDocument> typeGroup 
+
+		foreach(IGrouping<string, IDocument> typeGroup
 			in containingNamespace.GetList<IDocument>("MemberTypes")
 				.Where(x => x.GetBool("IsResult") && x["Kind"].Equals("NamedType"))
-				.GroupBy(x => x.GetString("SpecificKind")))
+				.GroupBy(x => x.GetString("SpecificKind"))
+                .OrderBy(x => x.Key))
 		{
 			<li class="header">@typeGroup.Key Types</li>
 			foreach(IDocument type in typeGroup
@@ -25,7 +26,7 @@
 			{
 				string selectedClass = type.GetString("SymbolId") == Model.GetString("SymbolId") ? "selected" : null;
 				<li class="@selectedClass">@Context.GetTypeLink(type, false)</li>
-			}	
+			}
 		}
 	}
 }
