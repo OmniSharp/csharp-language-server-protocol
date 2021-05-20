@@ -313,10 +313,15 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             ).ConfigureAwait(false);
 
 
+            // Allow the server receiver to start processing incoming notifications and requests. It
+            // is necessary to do this now, and not in the Initialized handler, because otherwise
+            // clients can enter a race with the receiver and have their notifications and requests
+            // erroneously dropped.
+            _serverReceiver.Initialized();
+
             // TODO:
             if (_clientVersion == ClientVersion.Lsp2)
             {
-                _serverReceiver.Initialized();
                 _initializeComplete.OnNext(result);
                 _initializeComplete.OnCompleted();
             }
@@ -328,7 +333,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         {
             if (_clientVersion == ClientVersion.Lsp3)
             {
-                _serverReceiver.Initialized();
                 _initializeComplete.OnNext(ServerSettings);
                 _initializeComplete.OnCompleted();
             }
