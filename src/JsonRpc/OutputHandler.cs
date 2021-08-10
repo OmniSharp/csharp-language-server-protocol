@@ -132,7 +132,7 @@ namespace OmniSharp.Extensions.JsonRpc
             {
                 do
                 {
-                    var value = await _queue.ReadAsync(cancellationToken);
+                    var value = await _queue.ReadAsync(cancellationToken).ConfigureAwait(false);
                     if (value is ITraceData traceData)
                     {
                         _activityTracingStrategy?.ApplyOutgoing(traceData);

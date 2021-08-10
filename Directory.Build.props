@@ -13,6 +13,8 @@
         <PackageProjectUrl>https://github.com/OmniSharp/csharp-language-server-protocol</PackageProjectUrl>
         <PackageTags>lsp;language server;language server protocol;language client;language server client</PackageTags>
         <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\lsp.snk</AssemblyOriginatorKeyFile>
+        <!-- See: https://docs.microsoft.com/en-us/dotnet/fundamentals/code-analysis/overview -->
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
     </PropertyGroup>
     <PropertyGroup>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>

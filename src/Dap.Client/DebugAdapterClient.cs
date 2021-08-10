@@ -154,7 +154,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
                 token
             ).ConfigureAwait(false);
 
-            await _initializedComplete.ToTask(token, _scheduler);
+            await _initializedComplete.ToTask(token, _scheduler).ConfigureAwait(false);
 
             await DebugAdapterEventingHelper.Run(
                 _startedDelegates,

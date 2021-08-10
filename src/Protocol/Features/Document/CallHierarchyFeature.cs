@@ -393,7 +393,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public sealed override async Task<Container<CallHierarchyItem>?> Handle(CallHierarchyPrepareParams request, CancellationToken cancellationToken)
             {
-                var response = await HandlePrepare(request, cancellationToken);
+                var response = await HandlePrepare(request, cancellationToken).ConfigureAwait(false);
                 return Container<CallHierarchyItem>.From(response?.Select(CallHierarchyItem.From)!);
             }
 

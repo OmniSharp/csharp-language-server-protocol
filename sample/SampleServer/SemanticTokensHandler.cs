@@ -25,7 +25,7 @@ namespace SampleServer
             SemanticTokensParams request, CancellationToken cancellationToken
         )
         {
-            var result = await base.Handle(request, cancellationToken);
+            var result = await base.Handle(request, cancellationToken).ConfigureAwait(false);
             return result;
         }
 
@@ -33,7 +33,7 @@ namespace SampleServer
             SemanticTokensRangeParams request, CancellationToken cancellationToken
         )
         {
-            var result = await base.Handle(request, cancellationToken);
+            var result = await base.Handle(request, cancellationToken).ConfigureAwait(false);
             return result;
         }
 
@@ -42,7 +42,7 @@ namespace SampleServer
             CancellationToken cancellationToken
         )
         {
-            var result = await base.Handle(request, cancellationToken);
+            var result = await base.Handle(request, cancellationToken).ConfigureAwait(false);
             return result;
         }
 
@@ -54,7 +54,7 @@ namespace SampleServer
             using var typesEnumerator = RotateEnum(SemanticTokenType.Defaults).GetEnumerator();
             using var modifiersEnumerator = RotateEnum(SemanticTokenModifier.Defaults).GetEnumerator();
             // you would normally get this from a common source that is managed by current open editor, current active editor, etc.
-            var content = await File.ReadAllTextAsync(DocumentUri.GetFileSystemPath(identifier), cancellationToken);
+            var content = await File.ReadAllTextAsync(DocumentUri.GetFileSystemPath(identifier), cancellationToken).ConfigureAwait(false);
             await Task.Yield();
 
             foreach (var (line, text) in content.Split('\n').Select((text, line) => (line, text)))

@@ -51,7 +51,7 @@ namespace SampleServer
         {
             await Task.Yield();
             _logger.LogInformation("Hello world!");
-            await _configuration.GetScopedConfiguration(notification.TextDocument.Uri, token);
+            await _configuration.GetScopedConfiguration(notification.TextDocument.Uri, token).ConfigureAwait(false);
             return Unit.Value;
         }
 
@@ -84,7 +84,7 @@ namespace SampleServer
         )
         {
             // you would normally get this from a common source that is managed by current open editor, current active editor, etc.
-            var content = await File.ReadAllTextAsync(DocumentUri.GetFileSystemPath(request), cancellationToken);
+            var content = await File.ReadAllTextAsync(DocumentUri.GetFileSystemPath(request), cancellationToken).ConfigureAwait(false);
             var lines = content.Split('\n');
             var symbols = new List<SymbolInformationOrDocumentSymbol>();
             for (var lineIndex = 0; lineIndex < lines.Length; lineIndex++)
@@ -160,7 +160,7 @@ namespace SampleServer
             using var partialResults = _progressManager.For(request, cancellationToken);
             if (partialResults != null)
             {
-                await Task.Delay(2000, cancellationToken);
+                await Task.Delay(2000, cancellationToken).ConfigureAwait(false);
 
                 reporter.OnNext(
                     new WorkDoneProgressReport {
@@ -168,7 +168,7 @@ namespace SampleServer
                         Percentage = 20
                     }
                 );
-                await Task.Delay(500, cancellationToken);
+                await Task.Delay(500, cancellationToken).ConfigureAwait(false);
 
                 reporter.OnNext(
                     new WorkDoneProgressReport {
@@ -176,7 +176,7 @@ namespace SampleServer
                         Percentage = 40
                     }
                 );
-                await Task.Delay(500, cancellationToken);
+                await Task.Delay(500, cancellationToken).ConfigureAwait(false);
 
                 reporter.OnNext(
                     new WorkDoneProgressReport {
@@ -184,7 +184,7 @@ namespace SampleServer
                         Percentage = 50
                     }
                 );
-                await Task.Delay(500, cancellationToken);
+                await Task.Delay(500, cancellationToken).ConfigureAwait(false);
 
                 partialResults.OnNext(
                     new[] {
@@ -209,7 +209,7 @@ namespace SampleServer
                         Percentage = 70
                     }
                 );
-                await Task.Delay(500, cancellationToken);
+                await Task.Delay(500, cancellationToken).ConfigureAwait(false);
 
                 reporter.OnNext(
                     new WorkDoneProgressReport {
