@@ -24,8 +24,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         #pragma warning disable VSTHRD100
         public async void ForcefulShutdown()
         {
-            await ( (IShutdownHandler) this ).Handle(ShutdownParams.Instance, CancellationToken.None);
-            await ( (IExitHandler) this ).Handle(ExitParams.Instance, CancellationToken.None);
+            await ( (IShutdownHandler) this ).Handle(ShutdownParams.Instance, CancellationToken.None).ConfigureAwait(false);
+            await ( (IExitHandler) this ).Handle(ExitParams.Instance, CancellationToken.None).ConfigureAwait(false);
         }
 
         async Task<Unit> IRequestHandler<ExitParams, Unit>.Handle(ExitParams request, CancellationToken token)

@@ -83,7 +83,7 @@ namespace SampleServer
                                 );
                                 workDone = manager;
 
-                                await Task.Delay(2000);
+                                await Task.Delay(2000).ConfigureAwait(false);
 
                                 manager.OnNext(
                                     new WorkDoneProgressReport {
@@ -102,7 +102,7 @@ namespace SampleServer
                                     }
                                 );
 
-                                await Task.Delay(2000);
+                                await Task.Delay(2000).ConfigureAwait(false);
 
                                 workDone.OnNext(
                                     new WorkDoneProgressReport {
@@ -115,12 +115,12 @@ namespace SampleServer
                         )
                        .OnStarted(
                             async (languageServer, token) => {
-                                using var manager = await languageServer.WorkDoneManager.Create(new WorkDoneProgressBegin { Title = "Doing some work..." });
+                                using var manager = await languageServer.WorkDoneManager.Create(new WorkDoneProgressBegin { Title = "Doing some work..." }).ConfigureAwait(false);
 
                                 manager.OnNext(new WorkDoneProgressReport { Message = "doing things..." });
-                                await Task.Delay(10000);
+                                await Task.Delay(10000).ConfigureAwait(false);
                                 manager.OnNext(new WorkDoneProgressReport { Message = "doing things... 1234" });
-                                await Task.Delay(10000);
+                                await Task.Delay(10000).ConfigureAwait(false);
                                 manager.OnNext(new WorkDoneProgressReport { Message = "doing things... 56789" });
 
                                 var logger = languageServer.Services.GetService<ILogger<Foo>>();
@@ -130,7 +130,7 @@ namespace SampleServer
                                     }, new ConfigurationItem {
                                         Section = "terminal",
                                     }
-                                );
+                                ).ConfigureAwait(false);
 
                                 var baseConfig = new JObject();
                                 foreach (var config in languageServer.Configuration.AsEnumerable())
@@ -149,9 +149,9 @@ namespace SampleServer
                                 logger.LogInformation("Scoped Config: {Config}", scopedConfig);
                             }
                         )
-            );
+            ).ConfigureAwait(false);
 
-            await server.WaitForExit;
+            await server.WaitForExit.ConfigureAwait(false);
         }
     }
 

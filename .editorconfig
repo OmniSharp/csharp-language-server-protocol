@@ -128,7 +128,11 @@ resharper_web_config_module_not_resolved_highlighting=warning
 resharper_web_config_type_not_resolved_highlighting=warning
 resharper_web_config_wrong_module_highlighting=warning
 
+# .NET Analzyer settings
+# VSTHRD200: Use "Async" suffix for awaitable methods
 dotnet_diagnostic.VSTHRD200.severity = none
+# CA2007: Do not directly await a Task
+dotnet_diagnostic.CA2007.severity = error
 
 [*.{cs,cshtml}]
 charset=utf-8
