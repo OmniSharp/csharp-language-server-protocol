@@ -110,9 +110,16 @@ namespace OmniSharp.Extensions.JsonRpc
         public void Start()
         {
             _disposable.Add(
-                Observable.FromAsync(() => ProcessInputStream(_stopProcessing.Token))
-                          .Do(_ => { }, e => _logger.LogCritical(e, "unhandled exception"))
-                          .Subscribe(_inputActive)
+                Observable.FromAsync(async () => {
+                    try
+                    {
+                        await ProcessInputStream(_stopProcessing.Token).ConfigureAwait(false);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogCritical(e, "unhandled exception");
+                    }
+                }).Subscribe(_inputActive)
             );
             _disposable.Add(
                 _inputQueue
