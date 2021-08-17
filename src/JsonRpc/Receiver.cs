@@ -100,20 +100,25 @@ namespace OmniSharp.Extensions.JsonRpc
 
             var properties = request.Properties().ToLookup(z => z.Name, StringComparer.OrdinalIgnoreCase);
 
+            var traceStateProperty = properties["tracestate"].FirstOrDefault();
+            var traceState = traceStateProperty?.Value.ToString();
+            var traceParentProperty = properties["traceparent"].FirstOrDefault();
+            var traceParent = traceParentProperty?.Value.ToString();
+
             // id == request
             // !id == notification
             if (!hasRequestId)
             {
                 return new Notification(method!, @params) {
-                    TraceState = properties["tracestate"].FirstOrDefault()?.Value<string>(),
-                    TraceParent = properties["traceparent"].FirstOrDefault()?.Value<string>()
+                    TraceState = traceState,
+                    TraceParent = traceParent,
                 };
             }
             else
             {
                 return new Request(requestId!, method!, @params) {
-                    TraceState = properties["tracestate"].FirstOrDefault()?.Value<string>(),
-                    TraceParent = properties["traceparent"].FirstOrDefault()?.Value<string>()
+                    TraceState = traceState,
+                    TraceParent = traceParent,
                 };
             }
         }
