@@ -33,26 +33,21 @@ namespace JsonRpc.Tests
             PipeReader inputStream,
             IOutputHandler outputHandler,
             IReceiver receiver,
-            IRequestProcessIdentifier requestProcessIdentifier,
             IRequestRouter<IHandlerDescriptor?> requestRouter,
             ILoggerFactory loggerFactory,
             IResponseRouter responseRouter,
-            IScheduler? scheduler = null
+            RequestInvoker requestInvoker
         ) =>
             new InputHandler(
                 inputStream,
                 outputHandler,
                 receiver,
-                requestProcessIdentifier,
                 requestRouter,
                 responseRouter,
+                requestInvoker,
                 loggerFactory,
                 _unhandledException,
-                null,
-                TimeSpan.FromSeconds(30),
-                true,
-                null,
-                scheduler ?? TaskPoolScheduler.Default
+                null
             );
 
         [Fact]
@@ -65,9 +60,9 @@ namespace JsonRpc.Tests
 
             using var handler = NewHandler(
                 pipe.Reader, outputHandler, receiver,
-                Substitute.For<IRequestProcessIdentifier>(),
                 Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
-                _loggerFactory, Substitute.For<IResponseRouter>()
+                _loggerFactory, Substitute.For<IResponseRouter>(),
+                Substitute.For<RequestInvoker>()
             );
             await pipe.Writer.WriteAsync(Encoding.UTF8.GetBytes("Content-Length: 2\r\n\r\n{}"));
 
@@ -91,9 +86,9 @@ namespace JsonRpc.Tests
 
             using var handler = NewHandler(
                 pipe.Reader, outputHandler, receiver,
-                Substitute.For<IRequestProcessIdentifier>(),
                 Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
-                _loggerFactory, Substitute.For<IResponseRouter>()
+                _loggerFactory, Substitute.For<IResponseRouter>(),
+                Substitute.For<RequestInvoker>()
             );
             await pipe.Writer.WriteAsync(
                 Encoding.UTF8.GetBytes("Content-Length: 2\r\n\r\n{}")
@@ -133,9 +128,9 @@ namespace JsonRpc.Tests
 
             using var handler = NewHandler(
                 pipe.Reader, outputHandler, receiver,
-                Substitute.For<IRequestProcessIdentifier>(),
                 Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
-                _loggerFactory, Substitute.For<IResponseRouter>()
+                _loggerFactory, Substitute.For<IResponseRouter>(),
+                Substitute.For<RequestInvoker>()
             );
             await pipe.Writer.WriteAsync(Encoding.UTF8.GetBytes(data));
 
@@ -161,9 +156,9 @@ namespace JsonRpc.Tests
 
             using var handler = NewHandler(
                 pipe.Reader, outputHandler, receiver,
-                Substitute.For<IRequestProcessIdentifier>(),
                 Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
-                _loggerFactory, Substitute.For<IResponseRouter>()
+                _loggerFactory, Substitute.For<IResponseRouter>(),
+                Substitute.For<RequestInvoker>()
             );
 
             var cts = new CancellationTokenSource();
@@ -194,9 +189,9 @@ namespace JsonRpc.Tests
 
             using var handler = NewHandler(
                 pipe.Reader, outputHandler, receiver,
-                Substitute.For<IRequestProcessIdentifier>(),
                 Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
-                _loggerFactory, Substitute.For<IResponseRouter>()
+                _loggerFactory, Substitute.For<IResponseRouter>(),
+                Substitute.For<RequestInvoker>()
             );
 
             var cts = new CancellationTokenSource();
@@ -237,9 +232,9 @@ namespace JsonRpc.Tests
 
             using var handler = NewHandler(
                 pipe.Reader, outputHandler, receiver,
-                Substitute.For<IRequestProcessIdentifier>(),
                 Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
-                _loggerFactory, Substitute.For<IResponseRouter>()
+                _loggerFactory, Substitute.For<IResponseRouter>(),
+                Substitute.For<RequestInvoker>()
             );
 
             var cts = new CancellationTokenSource();
@@ -270,9 +265,9 @@ namespace JsonRpc.Tests
 
             using var handler = NewHandler(
                 pipe.Reader, outputHandler, receiver,
-                Substitute.For<IRequestProcessIdentifier>(),
                 Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
-                _loggerFactory, Substitute.For<IResponseRouter>()
+                _loggerFactory, Substitute.For<IResponseRouter>(),
+                Substitute.For<RequestInvoker>()
             );
 
             var cts = new CancellationTokenSource();
@@ -323,9 +318,9 @@ namespace JsonRpc.Tests
 
             using var handler = NewHandler(
                 pipe.Reader, outputHandler, receiver,
-                Substitute.For<IRequestProcessIdentifier>(),
                 Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
-                _loggerFactory, Substitute.For<IResponseRouter>()
+                _loggerFactory, Substitute.For<IResponseRouter>(),
+                Substitute.For<RequestInvoker>()
             );
 
             var cts = new CancellationTokenSource();
@@ -363,13 +358,14 @@ namespace JsonRpc.Tests
             var incomingRequestRouter = Substitute.For<IRequestRouter<IHandlerDescriptor?>>();
             var outputHandler = Substitute.For<IOutputHandler>();
             var responseRouter = Substitute.For<IResponseRouter>();
+            var requestInvoker = Substitute.For<RequestInvoker>();
 
             using var handler = NewHandler(
                 reader, outputHandler, receiver,
-                new ParallelRequestProcessIdentifier(),
                 incomingRequestRouter,
                 _loggerFactory,
-                responseRouter
+                responseRouter,
+                requestInvoker
             );
 
             var cts = new CancellationTokenSource();
@@ -382,20 +378,17 @@ namespace JsonRpc.Tests
             {
                 {
                     var count = group.Count(x => x == "request");
-                    await incomingRequestRouter.Received(count).RouteRequest(
+                    requestInvoker.Received(count).InvokeRequest(
                         Arg.Any<IRequestDescriptor<IHandlerDescriptor>>(),
-                        Arg.Is<Request>(n => group.Key == n.Method),
-                        Arg.Any<CancellationToken>()
+                        Arg.Is<Request>(n => group.Key == n.Method)
                     );
                 }
 
-
                 {
                     var count = group.Count(x => x == "notification");
-                    await incomingRequestRouter.Received(count).RouteNotification(
+                    requestInvoker.Received(count).InvokeNotification(
                         Arg.Any<IRequestDescriptor<IHandlerDescriptor>>(),
-                        Arg.Is<Notification>(n => group.Key == n.Method),
-                        Arg.Any<CancellationToken>()
+                        Arg.Is<Notification>(n => group.Key == n.Method)
                     );
                 }
             }
