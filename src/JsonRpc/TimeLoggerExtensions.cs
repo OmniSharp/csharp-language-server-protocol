@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    internal static class TimeLoggerExtensions
+    public static class TimeLoggerExtensions
     {
         private class Disposable : IDisposable
         {

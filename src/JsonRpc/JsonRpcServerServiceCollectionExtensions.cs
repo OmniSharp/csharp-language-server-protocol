@@ -47,13 +47,25 @@ namespace OmniSharp.Extensions.JsonRpc
                                 .Type<IScheduler>(serviceKey: nameof(options.OutputScheduler)),
                 reuse: Reuse.Singleton
             );
+
+            container.Register<RequestInvokerOptions>(
+                made: new Made.TypedMade<RequestInvokerOptions>().Parameters
+                                                                 .Type<TimeSpan>(serviceKey: nameof(options.MaximumRequestTimeout))
+                                                                 .Type<bool>(serviceKey: nameof(options.SupportsContentModified))
+                                                                 .Name("concurrency", serviceKey: nameof(options.Concurrency)),
+                reuse: Reuse.Singleton);
+
+            if (!container.IsRegistered<RequestInvoker>())
+            {
+                container.Register<RequestInvoker, DefaultRequestInvoker>(
+                    made: new Made.TypedMade<DefaultRequestInvoker>().Parameters
+                                                                     .Type<IScheduler>(serviceKey: nameof(options.InputScheduler)),
+                    reuse: Reuse.Singleton);
+            }
+
             container.Register<Connection>(
                 made: new Made.TypedMade<Connection>().Parameters
                                                       .Type<PipeReader>(serviceKey: nameof(options.Input))
-                                                      .Type<TimeSpan>(serviceKey: nameof(options.MaximumRequestTimeout))
-                                                      .Type<bool>(serviceKey: nameof(options.SupportsContentModified))
-                                                      .Name("concurrency", serviceKey: nameof(options.Concurrency))
-                                                      .Type<IScheduler>(serviceKey: nameof(options.InputScheduler))
                ,
                 reuse: Reuse.Singleton
             );

@@ -11,6 +11,7 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly InputHandler _inputHandler;
         public bool IsOpen { get; private set; }
 
+        [Obsolete("Use the other constructor that takes a request invoker")]
         public Connection(
             PipeReader input,
             IOutputHandler outputHandler,
@@ -25,21 +26,49 @@ namespace OmniSharp.Extensions.JsonRpc
             int concurrency,
             IScheduler scheduler,
             CreateResponseExceptionHandler? getException = null
+        ) : this(
+            input,
+            outputHandler,
+            receiver,
+            requestRouter,
+            responseRouter,
+            new DefaultRequestInvoker(
+                requestRouter,
+                outputHandler,
+                requestProcessIdentifier,
+                new RequestInvokerOptions(
+                    requestTimeout,
+                    supportContentModified,
+                    concurrency),
+                loggerFactory,
+                scheduler),
+            loggerFactory,
+            onUnhandledException,
+            getException)
+        {
+        }
+
+        public Connection(
+            PipeReader input,
+            IOutputHandler outputHandler,
+            IReceiver receiver,
+            IRequestRouter<IHandlerDescriptor?> requestRouter,
+            IResponseRouter responseRouter,
+            RequestInvoker requestInvoker,
+            ILoggerFactory loggerFactory,
+            OnUnhandledExceptionHandler onUnhandledException,
+            CreateResponseExceptionHandler? getException = null
         ) =>
             _inputHandler = new InputHandler(
                 input,
                 outputHandler,
                 receiver,
-                requestProcessIdentifier,
                 requestRouter,
                 responseRouter,
+                requestInvoker,
                 loggerFactory,
                 onUnhandledException,
-                getException,
-                requestTimeout,
-                supportContentModified,
-                concurrency > 1 ? (int?) concurrency : null,
-                scheduler
+                getException
             );
 
         public void Open()

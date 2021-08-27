@@ -228,7 +228,8 @@ namespace Lsp.Tests.Integration
                 }
             );
 
-            var item = await client.RequestCompletion(new CompletionParams()).SelectMany(z => z).Take(1).ToTask(CancellationToken);
+            var completionList = await client.RequestCompletion(new CompletionParams());
+            var item = completionList.First();
 
             item = await client.ResolveCompletion(item);
             item.Detail.Should().Be("resolved");
