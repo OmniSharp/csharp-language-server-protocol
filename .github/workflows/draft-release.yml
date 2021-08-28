@@ -25,7 +25,7 @@ jobs:
       - name: Install GitReleaseManager
         uses: gittools/actions/gitreleasemanager/setup@v0.9.10
         with:
-          versionSpec: '0.11.x'
+          versionSpec: '0.12.x'
 
       - name: Use GitVersion
         id: gitversion
