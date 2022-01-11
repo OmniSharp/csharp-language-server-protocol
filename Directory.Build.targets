@@ -32,7 +32,7 @@
         <PackageReference Update="NSubstitute" Version="4.2.2"/>
         <PackageReference Update="Serilog.Extensions.Logging" Version="2.0.2"/>
         <PackageReference Update="Serilog.Sinks.Observable" Version="2.0.2"/>
-        <PackageReference Update="Serilog.Sinks.XUnit" Version="2.0.4"/>
+        <PackageReference Update="Serilog.Sinks.XUnit" Version="3.0.3"/>
         <PackageReference Update="XunitXml.TestLogger" Version="3.0.66"/>
         <PackageReference Update="coverlet.collector" Version="3.1.0"/>
         <PackageReference Update="coverlet.msbuild" Version="3.0.3"/>
