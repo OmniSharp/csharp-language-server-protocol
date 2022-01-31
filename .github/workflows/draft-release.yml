@@ -48,7 +48,7 @@ jobs:
           echo "::set-output name=repository::$($parts[1])"
 
       - name: sync milestones
-        uses: RocketSurgeonsGuild/actions/sync-milestone@v0.2.4
+        uses: RocketSurgeonsGuild/actions/sync-milestone@v0.2.8
         with:
           default-label: 'mysterious'
           github-token: ${{ secrets.GITHUB_TOKEN }}
