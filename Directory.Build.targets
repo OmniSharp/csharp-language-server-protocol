@@ -43,7 +43,7 @@
     <PackageReference Update="Bogus" Version="34.0.1" />
     <PackageReference Update="Snapper" Version="2.3.1" />
     <PackageReference Update="Xunit.SkippableFact" Version="1.4.13" />
-    <PackageReference Update="System.IO.Pipelines" Version="4.7.3" />
+    <PackageReference Update="System.IO.Pipelines" Version="6.0.2" />
     <PackageReference Update="Nerdbank.Streams" Version="2.6.81" />
     <PackageReference Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.0.1" />
     <PackageReference Update="Microsoft.CodeAnalysis.Analyzers" Version="3.3.3" />
