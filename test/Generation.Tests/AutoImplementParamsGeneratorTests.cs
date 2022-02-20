@@ -1,7 +1,5 @@
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc.Generators;
-using OmniSharp.Extensions.JsonRpc.Generators.Cache;
-using TestingUtils;
 using Xunit;
 
 namespace Generation.Tests
@@ -39,22 +37,13 @@ namespace Test
     public partial class DeclarationParams
     {
         [Optional]
-        public ProgressToken? WorkDoneToken
-        {
-            get;
-            init;
-        }
+        public ProgressToken? WorkDoneToken { get; init; }
 
         [Optional]
-        public ProgressToken? PartialResultToken
-        {
-            get;
-            init;
-        }
+        public ProgressToken? PartialResultToken { get; init; }
     }
 }
 #nullable restore";
-            CacheKeyHasher.Cache = true;
             await GenerationHelpers.AssertGeneratedAsExpected<AutoImplementParamsGenerator>(source, expected);
             await GenerationHelpers.AssertGeneratedAsExpected<AutoImplementParamsGenerator>(source, expected);
         }

@@ -16,10 +16,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
         HashSet<string> AdditionalUsings,
         List<AttributeArgumentSyntax> AssemblyJsonRpcHandlersAttributeArguments,
         SemanticModel Model,
-        GeneratorExecutionContext Context
+        Compilation Compilation
     ) : GeneratorData(
         TypeDeclaration, TypeSymbol, JsonRpcAttributes, LspAttributes,
         DapAttributes, Request, Capability, RegistrationOptions,
-        AdditionalUsings, AssemblyJsonRpcHandlersAttributeArguments, Model, Context
+        AdditionalUsings, AssemblyJsonRpcHandlersAttributeArguments, Model, Compilation
     );
 }

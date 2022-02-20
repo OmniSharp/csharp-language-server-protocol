@@ -20,18 +20,18 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
         bool ImplementsStaticRegistrationOptions
     )
     {
-        public static RegistrationOptionAttributes? Parse(GeneratorExecutionContext context, TypeDeclarationSyntax syntax, INamedTypeSymbol symbol)
+        public static RegistrationOptionAttributes? Parse(Compilation compilation, TypeDeclarationSyntax syntax, INamedTypeSymbol symbol)
         {
             var registrationOptionsAttributeSymbol =
-                context.Compilation.GetTypeByMetadataName($"OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateRegistrationOptionsAttribute");
+                compilation.GetTypeByMetadataName($"OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateRegistrationOptionsAttribute");
             var registrationOptionsConverterAttributeSymbol =
-                context.Compilation.GetTypeByMetadataName($"OmniSharp.Extensions.LanguageServer.Protocol.RegistrationOptionsConverterAttribute");
-//            var registrationOptionsInterfaceSymbol = context.Compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions");
+                compilation.GetTypeByMetadataName($"OmniSharp.Extensions.LanguageServer.Protocol.RegistrationOptionsConverterAttribute");
+//            var registrationOptionsInterfaceSymbol = compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions");
             var textDocumentRegistrationOptionsInterfaceSymbol =
-                context.Compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Models.ITextDocumentRegistrationOptions");
-            var workDoneProgressOptionsInterfaceSymbol = context.Compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions");
+                compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Models.ITextDocumentRegistrationOptions");
+            var workDoneProgressOptionsInterfaceSymbol = compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions");
             var staticRegistrationOptionsInterfaceSymbol =
-                context.Compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Models.IStaticRegistrationOptions");
+                compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Models.IStaticRegistrationOptions");
 
             if (!( symbol.GetAttribute(registrationOptionsAttributeSymbol) is { } data )) return null;
             if (!( data.ApplicationSyntaxReference?.GetSyntax() is AttributeSyntax attributeSyntax )) return null;

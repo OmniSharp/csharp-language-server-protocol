@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -8,7 +9,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 {
     internal class TypedDelegatingHandlerStrategy : IExtensionMethodGeneratorStrategy
     {
-        public IEnumerable<MemberDeclarationSyntax> Apply(GeneratorData item)
+        public IEnumerable<MemberDeclarationSyntax> Apply(SourceProductionContext context, GeneratorData item)
         {
             if (item is not RequestItem requestItem) yield break;
             if (requestItem is not { LspAttributes: { Resolver: { } } }) yield break;

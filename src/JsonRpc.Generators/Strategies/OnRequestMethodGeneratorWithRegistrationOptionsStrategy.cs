@@ -21,7 +21,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             _doResolve = doResolve;
         }
 
-        public IEnumerable<MemberDeclarationSyntax> Apply(ExtensionMethodContext extensionMethodContext, GeneratorData item)
+        public IEnumerable<MemberDeclarationSyntax> Apply(SourceProductionContext context, ExtensionMethodContext extensionMethodContext, GeneratorData item)
         {
             if (item is not { RegistrationOptions: { } registrationOptions }) yield break;
             if (item is not RequestItem request) yield break;

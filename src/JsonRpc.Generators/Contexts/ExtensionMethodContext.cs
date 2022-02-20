@@ -9,8 +9,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
         TypeDeclarationSyntax TypeDeclaration,
         INamedTypeSymbol TypeSymbol,
         TypeSyntax Item,
-        ImmutableArray<TypeSyntax> RelatedItems,
-        GeneratorExecutionContext Context
+        ImmutableArray<TypeSyntax> RelatedItems
     )
     {
         public bool IsProxy { get; init; }

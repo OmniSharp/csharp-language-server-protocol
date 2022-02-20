@@ -35,11 +35,7 @@ namespace Test
     public partial class WorkspaceSymbolRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions, OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions
     {
         [Optional]
-        public bool WorkDoneProgress
-        {
-            get;
-            set;
-        }
+        public bool WorkDoneProgress { get; set; }
 
         class WorkspaceSymbolRegistrationOptionsConverter : RegistrationOptionsConverterBase<WorkspaceSymbolRegistrationOptions, StaticOptions>
         {
@@ -57,11 +53,7 @@ namespace Test
         public partial class StaticOptions : OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions
         {
             [Optional]
-            public bool WorkDoneProgress
-            {
-                get;
-                set;
-            }
+            public bool WorkDoneProgress { get; set; }
         }
     }
 }
@@ -99,11 +91,7 @@ namespace Test
     public partial class WorkspaceSymbolRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions
     {
         [Optional]
-        public bool WorkDoneProgress
-        {
-            get;
-            set;
-        }
+        public bool WorkDoneProgress { get; set; }
 
         class WorkspaceSymbolRegistrationOptionsConverter : RegistrationOptionsConverterBase<WorkspaceSymbolRegistrationOptions, StaticOptions>
         {
@@ -121,11 +109,7 @@ namespace Test
         public partial class StaticOptions : IWorkDoneProgressOptions
         {
             [Optional]
-            public bool WorkDoneProgress
-            {
-                get;
-                set;
-            }
+            public bool WorkDoneProgress { get; set; }
         }
     }
 }
@@ -208,18 +192,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
     [RegistrationOptionsConverterAttribute(typeof(CodeActionRegistrationOptionsConverter))]
     public partial class CodeActionRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions, OmniSharp.Extensions.LanguageServer.Protocol.Models.ITextDocumentRegistrationOptions, OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions
     {
-        public DocumentSelector? DocumentSelector
-        {
-            get;
-            set;
-        }
+        public DocumentSelector? DocumentSelector { get; set; }
 
         [Optional]
-        public bool WorkDoneProgress
-        {
-            get;
-            set;
-        }
+        public bool WorkDoneProgress { get; set; }
 
         class CodeActionRegistrationOptionsConverter : RegistrationOptionsConverterBase<CodeActionRegistrationOptions, StaticOptions>
         {
@@ -243,13 +219,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             /// may list out every specific kind they provide.
             /// </summary>
             [Optional]
-            public Container<CodeActionKind>? CodeActionKinds
-            {
-                get;
-                set;
-            }
-
-            = new Container<CodeActionKind>();
+            public Container<CodeActionKind>? CodeActionKinds { get; set; } = new Container<CodeActionKind>();
             /// <summary>
             /// The server provides support to resolve additional
             /// information for a code action.
@@ -257,18 +227,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             /// @since 3.16.0
             /// </summary>
             [Optional]
-            public bool ResolveProvider
-            {
-                get;
-                set;
-            }
+            public bool ResolveProvider { get; set; }
 
             [Optional]
-            public bool WorkDoneProgress
-            {
-                get;
-                set;
-            }
+            public bool WorkDoneProgress { get; set; }
         }
     }
 }
@@ -369,18 +331,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
     [RegistrationOptionsKey(nameof(ServerCapabilities.CodeActionProvider))]
     public partial class CodeActionRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions
     {
-        public DocumentSelector? DocumentSelector
-        {
-            get;
-            set;
-        }
+        public DocumentSelector? DocumentSelector { get; set; }
 
         [Optional]
-        public bool WorkDoneProgress
-        {
-            get;
-            set;
-        }
+        public bool WorkDoneProgress { get; set; }
 
         [RegistrationOptionsKey(nameof(ServerCapabilities.CodeActionProvider))]
         public partial class StaticOptions : IWorkDoneProgressOptions
@@ -392,13 +346,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             /// may list out every specific kind they provide.
             /// </summary>
             [Optional]
-            public Container<CodeActionKind>? CodeActionKinds
-            {
-                get;
-                set;
-            }
-
-            = new Container<CodeActionKind>();
+            public Container<CodeActionKind>? CodeActionKinds { get; set; } = new Container<CodeActionKind>();
             /// <summary>
             /// The server provides support to resolve additional
             /// information for a code action.
@@ -406,18 +354,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             /// @since 3.16.0
             /// </summary>
             [Optional]
-            public bool ResolveProvider
-            {
-                get;
-                set;
-            }
+            public bool ResolveProvider { get; set; }
 
             [Optional]
-            public bool WorkDoneProgress
-            {
-                get;
-                set;
-            }
+            public bool WorkDoneProgress { get; set; }
         }
     }
 }

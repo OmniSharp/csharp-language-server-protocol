@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 {
     internal class HandlerGeneratorStrategy : ICompilationUnitGeneratorStrategy
     {
-        public IEnumerable<MemberDeclarationSyntax> Apply(GeneratorData item)
+        public IEnumerable<MemberDeclarationSyntax> Apply(SourceProductionContext context, GeneratorData item)
         {
             if (item.JsonRpcAttributes.GenerateHandler is not { }) yield break;
             var members = new List<MemberDeclarationSyntax>();

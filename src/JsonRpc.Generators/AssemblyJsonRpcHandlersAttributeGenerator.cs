@@ -1,122 +1,89 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using OmniSharp.Extensions.JsonRpc.Generators.Cache;
-using OmniSharp.Extensions.JsonRpc.Generators.Contexts;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators
 {
     [Generator]
-    public class AssemblyJsonRpcHandlersAttributeGenerator : CachedSourceGenerator<AssemblyJsonRpcHandlersAttributeGenerator.SyntaxReceiver, TypeDeclarationSyntax>
+    public class AssemblyJsonRpcHandlersAttributeGenerator : IIncrementalGenerator
     {
-        protected override void Execute(
-            GeneratorExecutionContext context, SyntaxReceiver syntaxReceiver, AddCacheSource<TypeDeclarationSyntax> addCacheSource,
-            ReportCacheDiagnostic<TypeDeclarationSyntax> cacheDiagnostic
-        )
+        public void Initialize(IncrementalGeneratorInitializationContext context)
+        {
+            var syntaxProvider = context
+                                .SyntaxProvider
+                                .CreateSyntaxProvider(
+                                     predicate: (syntaxNode, token) =>
+                                     {
+                                         if (syntaxNode.Parent is TypeDeclarationSyntax) return false;
+                                         if (syntaxNode is TypeDeclarationSyntax { Arity: 0, BaseList: { } bl } typeDeclarationSyntax
+                                                 and (ClassDeclarationSyntax or RecordDeclarationSyntax)
+                                          && !typeDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword)
+                                          && typeDeclarationSyntax.AttributeLists.ContainsAttribute("Method")
+                                          && bl.Types.Any(
+                                                 z => z.Type switch
+                                                 {
+                                                     SimpleNameSyntax { Identifier: { Text: "IJsonRpcNotificationHandler" }, Arity: 0 or 1 } => true,
+                                                     SimpleNameSyntax { Identifier: { Text: "ICanBeResolvedHandler" }, Arity: 1 }            => true,
+                                                     SimpleNameSyntax { Identifier: { Text: "IJsonRpcRequestHandler" }, Arity: 1 or 2 }      => true,
+                                                     SimpleNameSyntax { Identifier: { Text: "IJsonRpcHandler" }, Arity: 0 }                  => true,
+                                                     _                                                                                       => false
+                                                 }
+                                             ))
+                                         {
+                                             return true;
+                                         }
+
+                                         if (syntaxNode is InterfaceDeclarationSyntax { Arity: 0, BaseList: { } bl2 } interfaceDeclarationSyntax
+                                          && interfaceDeclarationSyntax.AttributeLists.ContainsAttribute("Method")
+                                          && bl2.Types.Any(
+                                                 z => z.Type switch
+                                                 {
+                                                     SimpleNameSyntax { Identifier: { Text: "IJsonRpcNotificationHandler" }, Arity: 0 or 1 } => true,
+                                                     SimpleNameSyntax { Identifier: { Text: "ICanBeResolvedHandler" }, Arity: 1 }            => true,
+                                                     SimpleNameSyntax { Identifier: { Text: "IJsonRpcRequestHandler" }, Arity: 1 or 2 }      => true,
+                                                     SimpleNameSyntax { Identifier: { Text: "IJsonRpcHandler" }, Arity: 0 }                  => true,
+                                                     _                                                                                       => false
+                                                 }
+                                             ))
+                                         {
+                                             return true;
+                                         }
+
+                                         return false;
+                                     },
+                                     transform: (syntaxContext, token) => AttributeArgument(
+                                         TypeOfExpression(
+                                             ParseName(syntaxContext.SemanticModel.GetDeclaredSymbol(syntaxContext.Node)!.ToDisplayString())
+                                         )
+                                     )
+                                 )
+                                .Collect();
+
+            context.RegisterSourceOutput(syntaxProvider, GenerateAssemblyJsonRpcHandlers);
+        }
+
+        private void GenerateAssemblyJsonRpcHandlers(SourceProductionContext context, ImmutableArray<AttributeArgumentSyntax> types)
         {
             var namespaces = new HashSet<string>() { "OmniSharp.Extensions.JsonRpc" };
-            var types = syntaxReceiver.FoundNodes
-                                      .Concat(syntaxReceiver.Handlers)
-                                      .Select(
-                                           options => {
-                                               var semanticModel = context.Compilation.GetSemanticModel(options.SyntaxTree);
-                                               var typeSymbol = semanticModel.GetDeclaredSymbol(options)!;
-
-                                               return AttributeArgument(TypeOfExpression(ParseName(typeSymbol.ToDisplayString())));
-                                           }
-                                       )
-                                      .ToArray();
             if (types.Any())
             {
                 var cu = CompilationUnit()
-                        .WithUsings(List(namespaces.OrderBy(z => z).Select(z => UsingDirective(ParseName(z)))))
-                        .WithLeadingTrivia(Comment(Preamble.GeneratedByATool))
-                        .WithTrailingTrivia(CarriageReturnLineFeed);
+                        .WithUsings(List(namespaces.OrderBy(z => z).Select(z => UsingDirective(ParseName(z)))));
                 while (types.Length > 0)
                 {
                     var innerTypes = types.Take(10).ToArray();
-                    types = types.Skip(10).ToArray();
-                    cu = cu.AddAttributeLists(
-                        AttributeList(
-                            target: AttributeTargetSpecifier(Token(SyntaxKind.AssemblyKeyword)),
-                            SingletonSeparatedList(Attribute(IdentifierName("AssemblyJsonRpcHandlers"), AttributeArgumentList(SeparatedList(innerTypes))))
-                        )
-                    );
+                    types = types.Skip(10).ToImmutableArray();
+                    cu = cu.AddAttributeLists(AttributeList(target: AttributeTargetSpecifier(Token(SyntaxKind.AssemblyKeyword)), SingletonSeparatedList(Attribute(IdentifierName("AssemblyJsonRpcHandlers"), AttributeArgumentList(SeparatedList(innerTypes))))));
                 }
+
                 context.AddSource("AssemblyJsonRpcHandlers.cs", cu.NormalizeWhitespace().GetText(Encoding.UTF8));
-            }
-        }
-
-        public AssemblyJsonRpcHandlersAttributeGenerator() : base(() => new SyntaxReceiver(Cache))
-        {
-        }
-
-        public static CacheContainer<TypeDeclarationSyntax> Cache = new();
-
-        public class SyntaxReceiver : SyntaxReceiverCache<TypeDeclarationSyntax>
-        {
-            public List<TypeDeclarationSyntax> Handlers { get; } = new();
-
-            public override string? GetKey(TypeDeclarationSyntax syntax)
-            {
-                var hasher = new CacheKeyHasher();
-                hasher.Append(syntax.SyntaxTree.FilePath);
-                hasher.Append(syntax.Keyword.Text);
-                hasher.Append(syntax.Identifier.Text);
-                hasher.Append(syntax.TypeParameterList);
-                hasher.Append(syntax.AttributeLists);
-                hasher.Append(syntax.BaseList);
-                return hasher;
-            }
-
-            /// <summary>
-            /// Called for every syntax node in the compilation, we can inspect the nodes and save any information useful for generation
-            /// </summary>
-            public override void OnVisitNode(TypeDeclarationSyntax syntaxNode)
-            {
-                if (syntaxNode.Parent is TypeDeclarationSyntax) return;
-                if (syntaxNode is ClassDeclarationSyntax or RecordDeclarationSyntax
-                 && syntaxNode.Arity == 0
-                 && !syntaxNode.Modifiers.Any(SyntaxKind.AbstractKeyword)
-                 && syntaxNode.AttributeLists.ContainsAttribute("Method")
-                 && syntaxNode.BaseList is { } bl && bl.Types.Any(
-                        z => z.Type switch {
-                            SimpleNameSyntax { Identifier: { Text: "IJsonRpcNotificationHandler" }, Arity: 0 or 1 } => true,
-                            SimpleNameSyntax { Identifier: { Text: "ICanBeResolvedHandler" }, Arity: 1 }            => true,
-                            SimpleNameSyntax { Identifier: { Text: "IJsonRpcRequestHandler" }, Arity: 1 or 2 }      => true,
-                            SimpleNameSyntax { Identifier: { Text: "IJsonRpcHandler" }, Arity: 0 }                  => true,
-                            _                                                                                       => false
-                        }
-                    ))
-                {
-                    Handlers.Add(syntaxNode);
-                }
-
-                if (syntaxNode is InterfaceDeclarationSyntax
-                 && syntaxNode.Arity == 0
-                 && syntaxNode.AttributeLists.ContainsAttribute("Method")
-                 && syntaxNode.BaseList is { } bl2 && bl2.Types.Any(
-                        z => z.Type switch {
-                            SimpleNameSyntax { Identifier: { Text: "IJsonRpcNotificationHandler" }, Arity: 0 or 1 } => true,
-                            SimpleNameSyntax { Identifier: { Text: "ICanBeResolvedHandler" }, Arity: 1 }            => true,
-                            SimpleNameSyntax { Identifier: { Text: "IJsonRpcRequestHandler" }, Arity: 1 or 2 }      => true,
-                            SimpleNameSyntax { Identifier: { Text: "IJsonRpcHandler" }, Arity: 0 }                  => true,
-                            _                                                                                       => false
-                        }
-                    ))
-                {
-                    Handlers.Add(syntaxNode);
-                }
-            }
-
-            public SyntaxReceiver(CacheContainer<TypeDeclarationSyntax> cache) : base(cache)
-            {
             }
         }
     }

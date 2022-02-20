@@ -9,7 +9,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 {
     internal class SendMethodRequestStrategy : IExtensionMethodContextGeneratorStrategy
     {
-        public IEnumerable<MemberDeclarationSyntax> Apply(ExtensionMethodContext extensionMethodContext, GeneratorData item)
+        public IEnumerable<MemberDeclarationSyntax> Apply(SourceProductionContext context, ExtensionMethodContext extensionMethodContext, GeneratorData item)
         {
             if (item is not RequestItem request) yield break;
             if (extensionMethodContext is not { IsProxy: true }) yield break;

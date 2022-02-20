@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>netcoreapp3.1;net5.0;netcoreapp2.1</TargetFrameworks>
+        <TargetFrameworks>netcoreapp3.1;net6.0</TargetFrameworks>
         <WarningsAsErrors>true</WarningsAsErrors>
         <PlatformTarget>AnyCPU</PlatformTarget>
     </PropertyGroup>
@@ -12,6 +12,5 @@
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
         <ProjectReference Include="..\TestingUtils\TestingUtils.csproj" />
         <EmbeddedResource Include="..\..\src\Protocol\**\*Feature.cs" Visible="false" />
-<!--        <ProjectReference Include="..\TestingUtils\TestingUtils.csproj" />-->
     </ItemGroup>
 </Project>

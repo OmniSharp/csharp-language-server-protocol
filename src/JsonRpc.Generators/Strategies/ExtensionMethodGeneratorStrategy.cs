@@ -19,13 +19,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
         {
             _extensionMethodGeneratorStrategies = extensionMethodGeneratorStrategies;
         }
-        public IEnumerable<MemberDeclarationSyntax> Apply(GeneratorData item)
+        public IEnumerable<MemberDeclarationSyntax> Apply(SourceProductionContext context, GeneratorData item)
         {
             var methods = _extensionMethodGeneratorStrategies.Aggregate(
                 new List<MemberDeclarationSyntax>(), (m, strategy) => {
                     try
                     {
-                        m.AddRange(strategy.Apply(item));
+                        m.AddRange(strategy.Apply(context, item));
                     }
                     catch (Exception e)
                     {

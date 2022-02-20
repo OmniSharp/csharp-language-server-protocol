@@ -5,67 +5,55 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using OmniSharp.Extensions.JsonRpc.Generators.Cache;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators
 {
     [Generator]
-    public class EnumLikeStringGenerator : CachedSourceGenerator<EnumLikeStringGenerator.SyntaxReceiver, StructDeclarationSyntax>
+    public class EnumLikeStringGenerator : IIncrementalGenerator
     {
-        protected override void Execute(
-            GeneratorExecutionContext context, SyntaxReceiver syntaxReceiver, AddCacheSource<StructDeclarationSyntax> addCacheSource,
-            ReportCacheDiagnostic<StructDeclarationSyntax> cacheDiagnostic
-        )
+        public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            foreach (var candidate in syntaxReceiver.Candidates)
+            var syntaxProvider = context.SyntaxProvider.CreateSyntaxProvider(
+                predicate: (node, token) => node is StructDeclarationSyntax tds && tds.AttributeLists.ContainsAttribute("StringEnum"),
+                transform: (syntaxContext, token) => syntaxContext
+            );
+            
+            context.RegisterSourceOutput(syntaxProvider, GenerateEnum);
+        }
+
+        private void GenerateEnum(SourceProductionContext context, GeneratorSyntaxContext syntaxContext)
+        {
+            var candidate = (StructDeclarationSyntax)syntaxContext.Node;
+            var model = syntaxContext.SemanticModel;
+            var symbol = model.GetDeclaredSymbol(syntaxContext.Node);
+            if (symbol is null) return;
+
+            if (!candidate.Modifiers.Any(z => z.IsKind(SyntaxKind.PartialKeyword)))
             {
-                var model = context.Compilation.GetSemanticModel(candidate.SyntaxTree);
-                var symbol = model.GetDeclaredSymbol(candidate);
-                if (symbol is null) continue;
-
-                if (!candidate.Modifiers.Any(z => z.IsKind(SyntaxKind.PartialKeyword)))
-                {
-                    cacheDiagnostic(candidate, static c => Diagnostic.Create(GeneratorDiagnostics.MustBePartial, c.Identifier.GetLocation(), c.Identifier.Text));
-                    continue;
-                }
-
-                if (!candidate.Modifiers.Any(z => z.IsKind(SyntaxKind.ReadOnlyKeyword)))
-                {
-                    cacheDiagnostic(candidate, static c => Diagnostic.Create(GeneratorDiagnostics.MustBeReadOnly, c.Identifier.GetLocation(), c.Identifier.Text));
-                    continue;
-                }
-
-                var cu = CompilationUnit(
-                             List<ExternAliasDirectiveSyntax>(),
-                             List<UsingDirectiveSyntax>(),
-                             List<AttributeListSyntax>(),
-                             SingletonList<MemberDeclarationSyntax>(
-                                 NamespaceDeclaration(ParseName(symbol.ContainingNamespace.ToDisplayString()))
-                                    .WithMembers(SingletonList<MemberDeclarationSyntax>(GetImplementation(candidate)))
-                             )
-                         )
-                        .AddUsings(
-                             UsingDirective(ParseName("System")),
-                             UsingDirective(ParseName("System.Collections.Generic")),
-                             UsingDirective(ParseName("System.Diagnostics")),
-                             UsingDirective(ParseName("System.Linq")),
-                             UsingDirective(ParseName("System.Reflection")),
-                             UsingDirective(ParseName("Newtonsoft.Json")),
-                             UsingDirective(ParseName("OmniSharp.Extensions.JsonRpc")),
-                             UsingDirective(ParseName("OmniSharp.Extensions.JsonRpc.Serialization.Converters"))
-                         )
-                        .WithLeadingTrivia()
-                        .WithTrailingTrivia()
-                        .WithLeadingTrivia(Comment(Preamble.GeneratedByATool), Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true)))
-                        .WithTrailingTrivia(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true)), CarriageReturnLineFeed);
-
-                addCacheSource(
-                    $"{Path.GetFileNameWithoutExtension(candidate.SyntaxTree.FilePath)}_{candidate.Identifier.Text}{( candidate.Arity > 0 ? candidate.Arity.ToString() : "" )}.cs",
-                    candidate,
-                    cu.NormalizeWhitespace().GetText(Encoding.UTF8)
-                );
+                context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.MustBePartial, candidate.Identifier.GetLocation(), candidate.Identifier.Text));
+                return;
             }
+
+            if (!candidate.Modifiers.Any(z => z.IsKind(SyntaxKind.ReadOnlyKeyword)))
+            {
+                context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.MustBeReadOnly, candidate.Identifier.GetLocation(), candidate.Identifier.Text));
+                return;
+            }
+
+            var cu = CompilationUnit(
+                         List<ExternAliasDirectiveSyntax>(), List<UsingDirectiveSyntax>(), List<AttributeListSyntax>(), SingletonList<MemberDeclarationSyntax>(
+                             NamespaceDeclaration(ParseName(symbol.ContainingNamespace.ToDisplayString()))
+                                .WithMembers(SingletonList<MemberDeclarationSyntax>(GetImplementation(candidate)))
+                         )
+                     )
+                    .AddUsings(UsingDirective(ParseName("System")), UsingDirective(ParseName("System.Collections.Generic")), UsingDirective(ParseName("System.Diagnostics")), UsingDirective(ParseName("System.Linq")), UsingDirective(ParseName("System.Reflection")), UsingDirective(ParseName("Newtonsoft.Json")), UsingDirective(ParseName("OmniSharp.Extensions.JsonRpc")), UsingDirective(ParseName("OmniSharp.Extensions.JsonRpc.Serialization.Converters")))
+                    .WithLeadingTrivia()
+                    .WithTrailingTrivia()
+                    .WithLeadingTrivia(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true)))
+                    .WithTrailingTrivia(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true)));
+
+            context.AddSource($"{Path.GetFileNameWithoutExtension(candidate.SyntaxTree.FilePath)}_{candidate.Identifier.Text}{( candidate.Arity > 0 ? candidate.Arity.ToString() : "" )}.cs", cu.NormalizeWhitespace().GetText(Encoding.UTF8));
         }
 
         private static StructDeclarationSyntax GetImplementation(StructDeclarationSyntax syntax)
@@ -861,46 +849,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                        )
                    )
                 ;
-        }
-
-        public EnumLikeStringGenerator() : base(() => new SyntaxReceiver(Cache))
-        {
-        }
-
-        public static CacheContainer<StructDeclarationSyntax> Cache = new();
-
-        public class SyntaxReceiver : SyntaxReceiverCache<StructDeclarationSyntax>
-        {
-            public List<StructDeclarationSyntax> Candidates { get; } = new();
-
-            public SyntaxReceiver(CacheContainer<StructDeclarationSyntax> cacheContainer) : base(cacheContainer)
-            {
-            }
-
-            public override string? GetKey(StructDeclarationSyntax syntax)
-            {
-                var hasher = new CacheKeyHasher();
-                hasher.Append(syntax.SyntaxTree.FilePath);
-                hasher.Append(syntax.Keyword.Text);
-                hasher.Append(syntax.Identifier.Text);
-                hasher.Append(syntax.TypeParameterList);
-                hasher.Append(syntax.AttributeLists);
-                hasher.Append(syntax.BaseList);
-
-                return hasher;
-            }
-
-            /// <summary>
-            /// Called for every syntax node in the compilation, we can inspect the nodes and save any information useful for generation
-            /// </summary>
-            public override void OnVisitNode(StructDeclarationSyntax syntaxNode)
-            {
-                // any field with at least one attribute is a candidate for property generation
-                if (syntaxNode.AttributeLists.ContainsAttribute("StringEnum"))
-                {
-                    Candidates.Add(syntaxNode);
-                }
-            }
         }
     }
 }

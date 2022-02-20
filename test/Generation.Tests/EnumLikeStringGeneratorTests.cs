@@ -1,7 +1,5 @@
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc.Generators;
-using OmniSharp.Extensions.JsonRpc.Generators.Cache;
-using TestingUtils;
 using Xunit;
 
 namespace Generation.Tests
@@ -58,7 +56,6 @@ namespace Test
     }
 }
 #nullable restore";
-            CacheKeyHasher.Cache = true;
             await GenerationHelpers.AssertGeneratedAsExpected<EnumLikeStringGenerator>(source, expected);
         }
     }
