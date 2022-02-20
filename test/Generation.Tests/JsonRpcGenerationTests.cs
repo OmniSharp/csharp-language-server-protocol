@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using FluentAssertions;
 using OmniSharp.Extensions.JsonRpc.Generators;
-using OmniSharp.Extensions.JsonRpc.Generators.Cache;
 using TestingUtils;
 using Xunit;
 using Xunit.Sdk;
@@ -206,7 +205,6 @@ namespace Test
     }
 }";
 
-            CacheKeyHasher.Cache = true;
             Func<Task> a = () => AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, "");
             a.Should().Throw<EmptyException>().WithMessage("*Could not infer the request router(s)*");
             a.Should().Throw<EmptyException>("cache").WithMessage("*Could not infer the request router(s)*");

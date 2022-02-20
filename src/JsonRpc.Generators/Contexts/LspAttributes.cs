@@ -1,7 +1,6 @@
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using OmniSharp.Extensions.JsonRpc.Generators.Cache;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
 {
@@ -23,10 +22,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
     )
     {
         public static LspAttributes? Parse(
-            GeneratorExecutionContext context,
-            AddCacheSource<TypeDeclarationSyntax> addCacheSource,
-            ReportCacheDiagnostic<TypeDeclarationSyntax> cacheDiagnostic,
+            Compilation compilation,
             TypeDeclarationSyntax syntax,
+            SemanticModel model,
             INamedTypeSymbol symbol)
         {
             var prefix = "OmniSharp.Extensions.LanguageServer.Protocol.Generation";
@@ -40,7 +38,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                 };
 
             {
-                var attributeSymbol = context.Compilation.GetTypeByMetadataName($"{prefix}.GenerateTypedDataAttribute");
+                var attributeSymbol = compilation.GetTypeByMetadataName($"{prefix}.GenerateTypedDataAttribute");
                 if (symbol.GetAttribute(attributeSymbol) is { } data && data.ApplicationSyntaxReference?.GetSyntax() is AttributeSyntax attributeSyntax)
                 {
                     attributes = attributes with {
@@ -50,7 +48,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                 }
             }
             {
-                var attributeSymbol = context.Compilation.GetTypeByMetadataName($"{prefix}.GenerateContainerAttribute");
+                var attributeSymbol = compilation.GetTypeByMetadataName($"{prefix}.GenerateContainerAttribute");
                 if (symbol.GetAttribute(attributeSymbol) is { } data && data.ApplicationSyntaxReference?.GetSyntax() is AttributeSyntax attributeSyntax)
                 {
                     attributes = attributes with {
@@ -60,7 +58,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                 }
             }
             {
-                var attributeSymbol = context.Compilation.GetTypeByMetadataName($"{prefix}.RegistrationOptionsKeyAttribute");
+                var attributeSymbol = compilation.GetTypeByMetadataName($"{prefix}.RegistrationOptionsKeyAttribute");
                 if (symbol.GetAttribute(attributeSymbol) is { ConstructorArguments: { Length: >=1 } arguments } data
                     && arguments[0].Kind is TypedConstantKind.Primitive && arguments[0].Value is string value
                  && data.ApplicationSyntaxReference?.GetSyntax() is AttributeSyntax attributeSyntax)
@@ -72,21 +70,21 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                 }
             }
             {
-                var (syntaxAttributeData, syntaxSymbol) = ExtractAttributeTypeData(symbol, context.Compilation.GetTypeByMetadataName($"{prefix}.CapabilityAttribute"));
+                var (syntaxAttributeData, syntaxSymbol) = ExtractAttributeTypeData(symbol, compilation.GetTypeByMetadataName($"{prefix}.CapabilityAttribute"));
                     attributes = attributes with {
                         CapabilityAttribute = syntaxAttributeData,
                         Capability = syntaxSymbol
                     };
             }
             {
-                var (syntaxAttributeData, syntaxSymbol) = ExtractAttributeTypeData(symbol, context.Compilation.GetTypeByMetadataName($"{prefix}.ResolverAttribute"));
+                var (syntaxAttributeData, syntaxSymbol) = ExtractAttributeTypeData(symbol, compilation.GetTypeByMetadataName($"{prefix}.ResolverAttribute"));
                 attributes = attributes with {
                     ResolverAttribute = syntaxAttributeData,
                     Resolver = syntaxSymbol
                     };
             }
             {
-                var (syntaxAttributeData, syntaxSymbol) = ExtractAttributeTypeData(symbol, context.Compilation.GetTypeByMetadataName($"{prefix}.RegistrationOptionsAttribute"));
+                var (syntaxAttributeData, syntaxSymbol) = ExtractAttributeTypeData(symbol, compilation.GetTypeByMetadataName($"{prefix}.RegistrationOptionsAttribute"));
                 attributes = attributes with {
                     RegistrationOptionsAttribute = syntaxAttributeData,
                     RegistrationOptions = syntaxSymbol

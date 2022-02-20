@@ -1,113 +1,84 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using OmniSharp.Extensions.JsonRpc.Generators.Cache;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators
 {
     [Generator]
-    public class AssemblyCapabilityKeyAttributeGenerator : CachedSourceGenerator<AssemblyCapabilityKeyAttributeGenerator.SyntaxReceiver, TypeDeclarationSyntax>
+    public class AssemblyCapabilityKeyAttributeGenerator : IIncrementalGenerator
     {
-        protected override void Execute(
-            GeneratorExecutionContext context, SyntaxReceiver syntaxReceiver, AddCacheSource<TypeDeclarationSyntax> addCacheSource,
-            ReportCacheDiagnostic<TypeDeclarationSyntax> cacheDiagnostic
-        )
+        public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            var namespaces = new HashSet<string>() { "OmniSharp.Extensions.LanguageServer.Protocol" };
-            var types = syntaxReceiver.FoundNodes
-                                      .Concat(syntaxReceiver.Handlers)
-                                      .Select(
-                                           options => {
-                                               var semanticModel = context.Compilation.GetSemanticModel(options.SyntaxTree);
-                                               foreach (var item in options.SyntaxTree.GetCompilationUnitRoot()
-                                                                           .Usings
-                                                                           .Where(z => z.Alias == null)
-                                                                           .Select(z => z.Name.ToFullString()))
-                                               {
-                                                   namespaces.Add(item);
-                                               }
+            var syntaxProvider = context.SyntaxProvider.CreateSyntaxProvider(
+                predicate: (syntaxNode, token) =>
+                {
+                    if (syntaxNode.Parent is TypeDeclarationSyntax) return false;
+                    if (syntaxNode is TypeDeclarationSyntax { Arity: 0, BaseList: { } bl } typeDeclarationSyntax
+                            and (ClassDeclarationSyntax or RecordDeclarationSyntax)
+                     && !typeDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword)
+                     && typeDeclarationSyntax.AttributeLists.ContainsAttribute("CapabilityKey")
+                     && bl.Types.Any(
+                            z => z.Type switch
+                            {
+                                SimpleNameSyntax
+                                {
+                                    Identifier: { Text: "ICapability" or "DynamicCapability" or "IDynamicCapability" or "LinkSupportCapability" }, Arity: 0
+                                } => true,
+                                _ => false
+                            }
+                        ))
+                    {
+                        return true;
+                    }
 
-                                               var typeSymbol = semanticModel.GetDeclaredSymbol(options)!;
+                    return false;
+                },
+                transform: (syntaxContext, token) =>
+                {
+                    var namespaces = new HashSet<string>() { "OmniSharp.Extensions.LanguageServer.Protocol" };
+                    var tds = (TypeDeclarationSyntax)syntaxContext.Node;
+                    
+                    foreach (var item in syntaxContext.Node.SyntaxTree.GetCompilationUnitRoot()
+                                                      .Usings.Where(z => z.Alias == null)
+                                                      .Select(z => z.Name.ToFullString()))
+                    {
+                        namespaces.Add(item);
+                    }
 
-                                               return SyntaxFactory.Attribute(
-                                                   SyntaxFactory.IdentifierName("AssemblyCapabilityKey"), SyntaxFactory.AttributeArgumentList(
-                                                       SyntaxFactory.SeparatedList(
-                                                           new[] {
-                                                               SyntaxFactory.AttributeArgument(
-                                                                   SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseName(typeSymbol.ToDisplayString()))
-                                                               ),
-                                                           }.Concat(options.AttributeLists.GetAttribute("CapabilityKey")!.ArgumentList!.Arguments)
-                                                       )
-                                                   )
-                                               );
-                                           }
-                                       )
-                                      .ToArray();
+                    var typeSymbol = syntaxContext.SemanticModel.GetDeclaredSymbol(syntaxContext.Node)!;
+
+                    return (namespaces, Attribute(IdentifierName("AssemblyCapabilityKey"), AttributeArgumentList(SeparatedList(new[] { AttributeArgument(TypeOfExpression(ParseName(typeSymbol.ToDisplayString()))), }.Concat(tds.AttributeLists.GetAttribute("CapabilityKey")!.ArgumentList!.Arguments)))));
+                }
+            ).Collect();
+            
+            context.RegisterSourceOutput(syntaxProvider, GenerateAssemblyCapabilityKeys);
+        }
+
+        private void GenerateAssemblyCapabilityKeys(SourceProductionContext context, ImmutableArray<(HashSet<string> namespaces, AttributeSyntax attribute)> types)
+        {
+            var namespaces = types.Aggregate(
+                new HashSet<string>(), (set, tuple) =>
+                {
+                    foreach (var name in tuple.namespaces)
+                    {
+                        set.Add(name);
+                    }
+
+                    return set;
+                }
+            );
             if (types.Any())
             {
-                var cu = SyntaxFactory.CompilationUnit()
-                                      .WithUsings(SyntaxFactory.List(namespaces.OrderBy(z => z).Select(z => SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(z)))))
-                                      .AddAttributeLists(
-                                           SyntaxFactory.AttributeList(
-                                               target: SyntaxFactory.AttributeTargetSpecifier(SyntaxFactory.Token(SyntaxKind.AssemblyKeyword)), SyntaxFactory.SeparatedList(types)
-                                           )
-                                       )
-                                      .WithLeadingTrivia(SyntaxFactory.Comment(Preamble.GeneratedByATool))
-                                      .WithTrailingTrivia(SyntaxFactory.CarriageReturnLineFeed);
+                var cu = CompilationUnit()
+                                      .WithUsings(List(namespaces.OrderBy(z => z).Select(z => UsingDirective(ParseName(z)))))
+                                      .AddAttributeLists(AttributeList(target: AttributeTargetSpecifier(Token(SyntaxKind.AssemblyKeyword)), SeparatedList(types.Select(z => z.attribute))));
 
                 context.AddSource("AssemblyCapabilityKeys.cs", cu.NormalizeWhitespace().GetText(Encoding.UTF8));
-            }
-        }
-
-        public AssemblyCapabilityKeyAttributeGenerator() : base(() => new SyntaxReceiver(Cache))
-        {
-        }
-
-        public static CacheContainer<TypeDeclarationSyntax> Cache = new();
-
-        public class SyntaxReceiver : SyntaxReceiverCache<TypeDeclarationSyntax>
-        {
-            public List<TypeDeclarationSyntax> Handlers { get; } = new();
-
-            public override string? GetKey(TypeDeclarationSyntax syntax)
-            {
-                var hasher = new CacheKeyHasher();
-                hasher.Append(syntax.SyntaxTree.FilePath);
-                hasher.Append(syntax.Keyword.Text);
-                hasher.Append(syntax.Identifier.Text);
-                hasher.Append(syntax.TypeParameterList);
-                hasher.Append(syntax.AttributeLists);
-                hasher.Append(syntax.BaseList);
-
-                return hasher;
-            }
-
-            /// <summary>
-            /// Called for every syntax node in the compilation, we can inspect the nodes and save any information useful for generation
-            /// </summary>
-            public override void OnVisitNode(TypeDeclarationSyntax syntaxNode)
-            {
-                if (syntaxNode.Parent is TypeDeclarationSyntax) return;
-                if (syntaxNode is ClassDeclarationSyntax or RecordDeclarationSyntax
-                 && syntaxNode.Arity == 0
-                 && !syntaxNode.Modifiers.Any(SyntaxKind.AbstractKeyword)
-                 && syntaxNode.AttributeLists.ContainsAttribute("CapabilityKey")
-                 && syntaxNode.BaseList is { } bl && bl.Types.Any(
-                        z => z.Type switch {
-                            SimpleNameSyntax { Identifier: { Text: "ICapability" or "DynamicCapability" or "IDynamicCapability" or "LinkSupportCapability" }, Arity: 0 } => true,
-                            _                                                                                                                                            => false
-                        }
-                    ))
-                {
-                    Handlers.Add(syntaxNode);
-                }
-            }
-
-            public SyntaxReceiver(CacheContainer<TypeDeclarationSyntax> cache) : base(cache)
-            {
             }
         }
     }

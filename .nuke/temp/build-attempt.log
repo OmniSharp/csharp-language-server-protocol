@@ -2,3 +2,10 @@ f616dd427f6d04e544c56c7cd9ecd956
 Clean
 DotnetToolRestore
 Restore
+Build
+Test
+GenerateCodeCoverageReportCobertura
+GenerateCodeCoverageBadges
+GenerateCodeCoverageSummary
+GenerateCodeCoverageReport
+Pack

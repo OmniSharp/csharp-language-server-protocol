@@ -5,252 +5,298 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using OmniSharp.Extensions.JsonRpc.Generators.Cache;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static OmniSharp.Extensions.JsonRpc.Generators.Helpers;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators
 {
     [Generator]
-    public class StronglyTypedGenerator : CachedSourceGenerator<StronglyTypedGenerator.SyntaxReceiver, TypeDeclarationSyntax>
+    public class StronglyTypedGenerator : IIncrementalGenerator
     {
-        private static string[] RequiredUsings = new[] {
+        private static string[] RequiredUsings = new[]
+        {
             "System.Collections.Generic",
             "System.Collections.ObjectModel",
             "System.Collections.Immutable",
             "System.Linq",
         };
 
-        protected override void Execute(
-            GeneratorExecutionContext context, SyntaxReceiver syntaxReceiver, AddCacheSource<TypeDeclarationSyntax> addCacheSource,
-            ReportCacheDiagnostic<TypeDeclarationSyntax> cacheDiagnostic
+        private record AttributeData(INamedTypeSymbol GenerateTypedDataAttributeSymbol, INamedTypeSymbol GenerateContainerAttributeSymbol);
+
+        public void Initialize(IncrementalGeneratorInitializationContext context)
+        {
+            var attributes = context.CompilationProvider
+                                    .Select(
+                                         (compilation, token) => new AttributeData(
+                                             compilation.GetTypeByMetadataName(
+                                                 "OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateTypedDataAttribute"
+                                             )!,
+                                             compilation.GetTypeByMetadataName(
+                                                 "OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateContainerAttribute"
+                                             )!
+                                         )
+                                     );
+
+            var createContainersSyntaxProvider = context.SyntaxProvider.CreateSyntaxProvider(
+                predicate: (syntaxNode, token) => syntaxNode switch
+                {
+                    StructDeclarationSyntax structDeclarationSyntax when structDeclarationSyntax.AttributeLists.ContainsAttribute("GenerateContainer") => true,
+                    TypeDeclarationSyntax typeDeclarationSyntax and (ClassDeclarationSyntax or RecordDeclarationSyntax) when typeDeclarationSyntax
+                       .AttributeLists.ContainsAttribute("GenerateContainer") => true,
+                    _ => false
+                }, transform: (syntaxContext, token) => syntaxContext
+            );
+
+            var canBeResolvedSyntaxProvider = context.SyntaxProvider.CreateSyntaxProvider(
+                predicate: (syntaxNode, token) =>
+                    syntaxNode is TypeDeclarationSyntax { BaseList: { } } typeDeclarationSyntax and (ClassDeclarationSyntax or RecordDeclarationSyntax)
+                 && syntaxNode.SyntaxTree.HasCompilationUnitRoot
+                 && typeDeclarationSyntax.Members.OfType<PropertyDeclarationSyntax>().Any(z => z.Identifier.Text == "Data")
+                 && typeDeclarationSyntax.BaseList.Types.Any(z => z.Type.GetSyntaxName() == "ICanBeResolved"),
+                transform: (syntaxContext, token) => syntaxContext
+            );
+
+            var canHaveDataSyntaxProvider = context.SyntaxProvider.CreateSyntaxProvider(
+                predicate: (syntaxNode, token) =>
+                    syntaxNode is TypeDeclarationSyntax { BaseList: { } } typeDeclarationSyntax and (ClassDeclarationSyntax or RecordDeclarationSyntax)
+                 && syntaxNode.SyntaxTree.HasCompilationUnitRoot
+                 && typeDeclarationSyntax.Members.OfType<PropertyDeclarationSyntax>().Any(z => z.Identifier.Text == "Data")
+                 && typeDeclarationSyntax.BaseList.Types.Any(z => z.Type.GetSyntaxName() == "ICanHaveData"), transform: (syntaxContext, token) => syntaxContext
+            );
+
+            context.RegisterSourceOutput(createContainersSyntaxProvider.Combine(attributes), GenerateContainerClass);
+            context.RegisterSourceOutput(canBeResolvedSyntaxProvider.Combine(attributes), GenerateCanBeResolvedClass);
+            context.RegisterSourceOutput(canHaveDataSyntaxProvider.Combine(attributes), GenerateCanHaveDataClass);
+        }
+
+        private void GenerateContainerClass(SourceProductionContext context, (GeneratorSyntaxContext syntaxContext, AttributeData attributeData) valueTuple)
+        {
+            var (syntaxContext, attributeData) = valueTuple;
+            var classToContain = (TypeDeclarationSyntax)syntaxContext.Node;
+            var typeSymbol = syntaxContext.SemanticModel.GetDeclaredSymbol(classToContain);
+            var attribute = typeSymbol?.GetAttributes()
+                                       .FirstOrDefault(
+                                            z => SymbolEqualityComparer.Default.Equals(z.AttributeClass, attributeData.GenerateContainerAttributeSymbol)
+                                        );
+            if (typeSymbol == null || attribute is null) return;
+
+            var containerName = attribute is { ConstructorArguments: { Length: > 0 } arguments } ? arguments[0].Value as string : null;
+
+            var container = CreateContainerClass(classToContain, containerName)
+               .AddAttributeLists(
+                    AttributeList(
+                        SeparatedList(
+                            new[]
+                            {
+                                Attribute(ParseName("System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute")),
+                                Attribute(ParseName("System.Runtime.CompilerServices.CompilerGeneratedAttribute"))
+                            }
+                        )
+                    )
+                );
+
+            var cu = CompilationUnit()
+                    .WithUsings(classToContain.SyntaxTree.GetCompilationUnitRoot().Usings)
+                    .AddMembers(
+                         NamespaceDeclaration(ParseName(typeSymbol.ContainingNamespace.ToDisplayString()))
+                            .AddMembers(container)
+                            .WithLeadingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true))))
+                            .WithTrailingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true))))
+                     );
+
+            foreach (var ns in RequiredUsings)
+            {
+                if (cu.Usings.All(z => z.Name.ToFullString() != ns))
+                {
+                    cu = cu.AddUsings(UsingDirective(ParseName(ns)));
+                }
+            }
+
+            context.AddSource(
+                $"{containerName ?? classToContain.Identifier.Text + "Container"}.cs",
+                cu.NormalizeWhitespace().GetText(Encoding.UTF8)
+            );
+        }
+
+        private void GenerateCanBeResolvedClass(SourceProductionContext context, (GeneratorSyntaxContext syntaxContext, AttributeData attributeData) valueTuple)
+        {
+            var (syntaxContext, attributeData) = valueTuple;
+            var canBeResolved = (TypeDeclarationSyntax)syntaxContext.Node;
+            var typeSymbol = syntaxContext.SemanticModel.GetDeclaredSymbol(canBeResolved)!;
+            
+            var dataInterfaceName = IdentifierName("ICanBeResolved");
+            CreateTypedClass(
+                context, canBeResolved, typeSymbol, dataInterfaceName, attributeData.GenerateTypedDataAttributeSymbol, attributeData.GenerateContainerAttributeSymbol, true
+            );
+        }
+
+        private void GenerateCanHaveDataClass(SourceProductionContext context, (GeneratorSyntaxContext syntaxContext, AttributeData attributeData) valueTuple)
+        {
+            var (syntaxContext, attributeData) = valueTuple;
+            var canBeResolved = (TypeDeclarationSyntax)syntaxContext.Node;
+            var typeSymbol = syntaxContext.SemanticModel.GetDeclaredSymbol(canBeResolved)!;
+            
+            var dataInterfaceName = IdentifierName("ICanHaveData");
+            CreateTypedClass(
+                context, canBeResolved, typeSymbol, dataInterfaceName, attributeData.GenerateTypedDataAttributeSymbol, attributeData.GenerateContainerAttributeSymbol, true
+            );
+        }
+
+        private static void CreateTypedClass(
+            SourceProductionContext context,
+            TypeDeclarationSyntax candidate,
+            INamedTypeSymbol typeSymbol,
+            IdentifierNameSyntax dataInterfaceName,
+            INamedTypeSymbol? generateTypedDataAttributeSymbol,
+            INamedTypeSymbol? generateContainerAttributeSymbol,
+            bool includeHandlerIdentity
         )
         {
-            var generateTypedDataAttributeSymbol = context.Compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateTypedDataAttribute");
-            var generateContainerAttributeSymbol = context.Compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateContainerAttribute");
+            var attribute = typeSymbol?.GetAttributes()
+                                       .FirstOrDefault(z => SymbolEqualityComparer.Default.Equals(z.AttributeClass, generateTypedDataAttributeSymbol));
+            if (typeSymbol == null || attribute is null) return;
+            var container = typeSymbol.GetAttributes()
+                                      .FirstOrDefault(z => SymbolEqualityComparer.Default.Equals(z.AttributeClass, generateContainerAttributeSymbol));
 
-            foreach (var classToContain in syntaxReceiver.CreateContainers)
+            if (!candidate.Modifiers.Any(SyntaxKind.PartialKeyword))
             {
-                var semanticModel = context.Compilation.GetSemanticModel(classToContain.SyntaxTree);
-                var typeSymbol = semanticModel.GetDeclaredSymbol(classToContain);
-                var attribute = typeSymbol?.GetAttributes().FirstOrDefault(z => SymbolEqualityComparer.Default.Equals(z.AttributeClass, generateContainerAttributeSymbol));
-                if (typeSymbol == null || attribute is null) continue;
-
-                var containerName = attribute is { ConstructorArguments: { Length: > 0 } arguments } ? arguments[0].Value as string : null;
-
-                var container = CreateContainerClass(classToContain, containerName)
-                   .AddAttributeLists(
-                        AttributeList(
-                            SeparatedList(
-                                new[] {
-                                    Attribute(ParseName("System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute")),
-                                    Attribute(ParseName("System.Runtime.CompilerServices.CompilerGeneratedAttribute"))
-                                }
-                            )
-                        )
-                    );
-
-                var cu = CompilationUnit()
-                        .WithUsings(classToContain.SyntaxTree.GetCompilationUnitRoot().Usings)
-                        .AddMembers(
-                             NamespaceDeclaration(ParseName(typeSymbol.ContainingNamespace.ToDisplayString()))
-                                .AddMembers(container)
-                                .WithLeadingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true))))
-                                .WithTrailingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true))))
-                         )
-                        .WithLeadingTrivia(Comment(Preamble.GeneratedByATool))
-                        .WithTrailingTrivia(CarriageReturnLineFeed);
-
-                foreach (var ns in RequiredUsings)
-                {
-                    if (cu.Usings.All(z => z.Name.ToFullString() != ns))
-                    {
-                        cu = cu.AddUsings(UsingDirective(ParseName(ns)));
-                    }
-                }
-
-                addCacheSource(
-                    $"{containerName ?? classToContain.Identifier.Text + "Container"}.cs",
-                    classToContain,
-                    cu.NormalizeWhitespace().GetText(Encoding.UTF8)
-                );
+                context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.MustBePartial, candidate.Identifier.GetLocation(), candidate.Identifier.Text));
+                return;
             }
 
-            foreach (var canBeResolved in syntaxReceiver.CanBeResolved)
-            {
-                var dataInterfaceName = IdentifierName("ICanBeResolved");
-                CreateTypedClass(
-                    context, canBeResolved, dataInterfaceName, generateTypedDataAttributeSymbol, generateContainerAttributeSymbol, true, addCacheSource, cacheDiagnostic
-                );
-            }
+            var property = candidate.Members.OfType<PropertyDeclarationSyntax>().Single(z => z.Identifier.Text == "Data");
+            var partialClass = candidate
+                              .WithAttributeLists(List<AttributeListSyntax>())
+                              .WithBaseList(null)
+                              .WithMembers(List<MemberDeclarationSyntax>())
+                              .AddMembers(
+                                   GetWithDataMethod(candidate, HandlerIdentityConstraintClause(includeHandlerIdentity, IdentifierName("TData"))),
+                                   GetFromMethod(candidate, includeHandlerIdentity)
+                               );
 
-            foreach (var canBeResolved in syntaxReceiver.CanHaveData)
-            {
-                var dataInterfaceName = IdentifierName("ICanHaveData");
-                CreateTypedClass(
-                    context, canBeResolved, dataInterfaceName, generateTypedDataAttributeSymbol, generateContainerAttributeSymbol, false, addCacheSource, cacheDiagnostic
-                );
-            }
-
-            static void CreateTypedClass(
-                GeneratorExecutionContext context,
-                TypeDeclarationSyntax candidate,
-                IdentifierNameSyntax dataInterfaceName,
-                INamedTypeSymbol? generateTypedDataAttributeSymbol,
-                INamedTypeSymbol? generateContainerAttributeSymbol,
-                bool includeHandlerIdentity,
-                AddCacheSource<TypeDeclarationSyntax> cacheItem,
-                ReportCacheDiagnostic<TypeDeclarationSyntax> cacheDiagnostic
-            )
-            {
-                var semanticModel = context.Compilation.GetSemanticModel(candidate.SyntaxTree);
-                var typeSymbol = semanticModel.GetDeclaredSymbol(candidate);
-                var attribute = typeSymbol?.GetAttributes().FirstOrDefault(z => SymbolEqualityComparer.Default.Equals(z.AttributeClass, generateTypedDataAttributeSymbol));
-                if (typeSymbol == null || attribute is null) return;
-                var container = typeSymbol.GetAttributes().FirstOrDefault(z => SymbolEqualityComparer.Default.Equals(z.AttributeClass, generateContainerAttributeSymbol));
-
-                if (!candidate.Modifiers.Any(SyntaxKind.PartialKeyword))
-                {
-                    cacheDiagnostic(candidate, static c => Diagnostic.Create(GeneratorDiagnostics.MustBePartial, c.Identifier.GetLocation(), c.Identifier.Text));
-                    return;
-                }
-
-                var property = candidate.Members.OfType<PropertyDeclarationSyntax>().Single(z => z.Identifier.Text == "Data");
-                var partialClass = candidate
-                                  .WithAttributeLists(List<AttributeListSyntax>())
-                                  .WithBaseList(null)
-                                  .WithMembers(List<MemberDeclarationSyntax>())
-                                  .AddMembers(
-                                       GetWithDataMethod(candidate, HandlerIdentityConstraintClause(includeHandlerIdentity, IdentifierName("TData"))),
-                                       GetFromMethod(candidate, includeHandlerIdentity)
-                                   );
-
-                var compilationMembers = new List<MemberDeclarationSyntax>();
+            var compilationMembers = new List<MemberDeclarationSyntax>();
 
 
-                var convertFromOperator = GetConvertFromOperator(candidate);
-                var convertToOperator = GetConvertToOperator(candidate);
-                // remove the data property
-                var typedClass = candidate
-                                .WithHandlerIdentityConstraint(includeHandlerIdentity)
-                                .WithMembers(candidate.Members.Replace(property, GetPropertyImpl(property).WithType(IdentifierName("T"))))
-                                .AddMembers(
-                                     GetWithDataMethod(candidate, HandlerIdentityConstraintClause(includeHandlerIdentity, IdentifierName("TData"))),
-                                     GetExplicitProperty(property, dataInterfaceName),
-                                     GetJDataProperty(),
-                                     convertFromOperator,
-                                     convertToOperator,
-                                     GetGenericFromMethod(candidate)
+            var convertFromOperator = GetConvertFromOperator(candidate);
+            var convertToOperator = GetConvertToOperator(candidate);
+            // remove the data property
+            var typedClass = candidate
+                            .WithHandlerIdentityConstraint(includeHandlerIdentity)
+                            .WithMembers(candidate.Members.Replace(property, GetPropertyImpl(property).WithType(IdentifierName("T"))))
+                            .AddMembers(
+                                 GetWithDataMethod(candidate, HandlerIdentityConstraintClause(includeHandlerIdentity, IdentifierName("TData"))),
+                                 GetExplicitProperty(property, dataInterfaceName),
+                                 GetJDataProperty(),
+                                 convertFromOperator,
+                                 convertToOperator,
+                                 GetGenericFromMethod(candidate)
+                             )
+                            .WithAttributeLists(
+                                 List(
+                                     candidate.AttributeLists
+                                              .Where(z => !z.ContainsAttribute("Method") && !z.ContainsAttribute("GenerateTypedData"))
                                  )
-                                .WithAttributeLists(
-                                     List(
-                                         candidate.AttributeLists
-                                                  .Where(z => !z.ContainsAttribute("Method") && !z.ContainsAttribute("GenerateTypedData"))
+                             )
+                            .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(SimpleBaseType(dataInterfaceName))))
+                            .AddAttributeLists(
+                                 AttributeList(
+                                     SeparatedList(
+                                         new[]
+                                         {
+                                             Attribute(ParseName("System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute")),
+                                             Attribute(ParseName("System.Runtime.CompilerServices.CompilerGeneratedAttribute"))
+                                         }
                                      )
                                  )
-                                .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(SimpleBaseType(dataInterfaceName))))
-                                .AddAttributeLists(
-                                     AttributeList(
-                                         SeparatedList(
-                                             new[] {
-                                                 Attribute(ParseName("System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute")),
-                                                 Attribute(ParseName("System.Runtime.CompilerServices.CompilerGeneratedAttribute"))
-                                             }
-                                         )
-                                     )
-                                 )
+                             )
 //                                .WithLeadingTrivia(candidate.GetLeadingTrivia().Where(z => !z.ToString().Contains("#nullable")))
 //                                .WithTrailingTrivia(candidate.GetTrailingTrivia().Where(z => !z.ToString().Contains("#nullable")))
-                    ;
+                ;
 
-                if (container is { })
-                {
-                    var containerName = container is { ConstructorArguments: { Length: > 0 } arguments } ? arguments[0].Value as string : null;
-                    var typedContainer = CreateContainerClass(typedClass, containerName)
-                       .WithHandlerIdentityConstraint(includeHandlerIdentity);
+            if (container is { })
+            {
+                var containerName = container is { ConstructorArguments: { Length: > 0 } arguments } ? arguments[0].Value as string : null;
+                var typedContainer = CreateContainerClass(typedClass, containerName)
+                   .WithHandlerIdentityConstraint(includeHandlerIdentity);
 
-                    var typedArgumentList = TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("T")));
-                    typedContainer = typedContainer
-                       .AddMembers(
-                            ConversionOperatorDeclaration(Token(SyntaxKind.ImplicitKeyword), IdentifierName(typedContainer.Identifier))
-                               .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword)))
-                               .WithParameterList(
-                                    ParameterList(
-                                        SingletonSeparatedList(
-                                            Parameter(Identifier("container"))
-                                               .WithType(GenericName(typedContainer.Identifier).WithTypeArgumentList(typedArgumentList))
-                                        )
+                var typedArgumentList = TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("T")));
+                typedContainer = typedContainer
+                   .AddMembers(
+                        ConversionOperatorDeclaration(Token(SyntaxKind.ImplicitKeyword), IdentifierName(typedContainer.Identifier))
+                           .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword)))
+                           .WithParameterList(
+                                ParameterList(
+                                    SingletonSeparatedList(
+                                        Parameter(Identifier("container"))
+                                           .WithType(GenericName(typedContainer.Identifier).WithTypeArgumentList(typedArgumentList))
                                     )
                                 )
-                               .WithExpressionBody(
-                                    ArrowExpressionClause(
-                                        ObjectCreationExpression(IdentifierName(typedContainer.Identifier))
-                                           .WithArgumentList(
-                                                ArgumentList(
-                                                    SingletonSeparatedList(
-                                                        Argument(
-                                                            InvocationExpression(
-                                                                    MemberAccessExpression(
-                                                                        SyntaxKind.SimpleMemberAccessExpression,
-                                                                        IdentifierName("container"),
-                                                                        IdentifierName("Select")
-                                                                    )
+                            )
+                           .WithExpressionBody(
+                                ArrowExpressionClause(
+                                    ObjectCreationExpression(IdentifierName(typedContainer.Identifier))
+                                       .WithArgumentList(
+                                            ArgumentList(
+                                                SingletonSeparatedList(
+                                                    Argument(
+                                                        InvocationExpression(
+                                                                MemberAccessExpression(
+                                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                                    IdentifierName("container"),
+                                                                    IdentifierName("Select")
                                                                 )
-                                                               .WithArgumentList(
-                                                                    ArgumentList(
-                                                                        SingletonSeparatedList(
-                                                                            Argument(
-                                                                                SimpleLambdaExpression(Parameter(Identifier("value")))
-                                                                                   .WithExpressionBody(
-                                                                                        CastExpression(
-                                                                                            IdentifierName(candidate.Identifier),
-                                                                                            IdentifierName("value")
-                                                                                        )
+                                                            )
+                                                           .WithArgumentList(
+                                                                ArgumentList(
+                                                                    SingletonSeparatedList(
+                                                                        Argument(
+                                                                            SimpleLambdaExpression(Parameter(Identifier("value")))
+                                                                               .WithExpressionBody(
+                                                                                    CastExpression(
+                                                                                        IdentifierName(candidate.Identifier),
+                                                                                        IdentifierName("value")
                                                                                     )
-                                                                            )
+                                                                                )
                                                                         )
                                                                     )
                                                                 )
-                                                        )
+                                                            )
                                                     )
                                                 )
                                             )
-                                    )
+                                        )
                                 )
-                               .MakeMethodNullable(IdentifierName("container"))
-                               .WithSemicolonToken(
-                                    Token(SyntaxKind.SemicolonToken)
-                                )
-                        );
+                            )
+                           .MakeMethodNullable(IdentifierName("container"))
+                           .WithSemicolonToken(
+                                Token(SyntaxKind.SemicolonToken)
+                            )
+                    );
 
-                    compilationMembers.Add(typedContainer);
-                }
-
-                var cu = CompilationUnit()
-                        .WithUsings(candidate.SyntaxTree.GetCompilationUnitRoot().Usings)
-                        .AddMembers(
-                             NamespaceDeclaration(ParseName(typeSymbol.ContainingNamespace.ToDisplayString()))
-                                .AddMembers(partialClass, typedClass)
-                                .AddMembers(compilationMembers.ToArray())
-                                .WithLeadingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true))))
-                                .WithTrailingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true))))
-                         )
-                        .WithLeadingTrivia(Comment(Preamble.GeneratedByATool))
-                        .WithTrailingTrivia(CarriageReturnLineFeed);
-                foreach (var ns in RequiredUsings)
-                {
-                    if (cu.Usings.All(z => z.Name.ToFullString() != ns))
-                    {
-                        cu = cu.AddUsings(UsingDirective(ParseName(ns)));
-                    }
-                }
-
-                cacheItem(
-                    $"{Path.GetFileNameWithoutExtension(candidate.SyntaxTree.FilePath)}_{candidate.Identifier.Text}Typed.cs",
-                    candidate,
-                    cu.NormalizeWhitespace().GetText(Encoding.UTF8)
-                );
+                compilationMembers.Add(typedContainer);
             }
+
+            var cu = CompilationUnit()
+                    .WithUsings(candidate.SyntaxTree.GetCompilationUnitRoot().Usings)
+                    .AddMembers(
+                         NamespaceDeclaration(ParseName(typeSymbol.ContainingNamespace.ToDisplayString()))
+                            .AddMembers(partialClass, typedClass)
+                            .AddMembers(compilationMembers.ToArray())
+                            .WithLeadingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true))))
+                            .WithTrailingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true))))
+                     );
+            foreach (var ns in RequiredUsings)
+            {
+                if (cu.Usings.All(z => z.Name.ToFullString() != ns))
+                {
+                    cu = cu.AddUsings(UsingDirective(ParseName(ns)));
+                }
+            }
+
+            context.AddSource(
+                $"{Path.GetFileNameWithoutExtension(candidate.SyntaxTree.FilePath)}_{candidate.Identifier.Text}Typed.cs",
+                cu.NormalizeWhitespace().GetText(Encoding.UTF8)
+            );
         }
 
         private static MethodDeclarationSyntax GetWithDataMethod(TypeDeclarationSyntax syntax, SyntaxList<TypeParameterConstraintClauseSyntax> constraintSyntax)
@@ -277,7 +323,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                SyntaxKind.ObjectInitializerExpression,
                                                SeparatedList(
                                                    GetMapping(syntax, null).Concat(
-                                                       new ExpressionSyntax[] {
+                                                       new ExpressionSyntax[]
+                                                       {
                                                            AssignmentExpression(
                                                                SyntaxKind.SimpleAssignmentExpression,
                                                                IdentifierName("Data"),
@@ -337,7 +384,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         private static IEnumerable<ExpressionSyntax> GetMapping(TypeDeclarationSyntax syntax, IdentifierNameSyntax? paramName)
         {
             return syntax.Members.OfType<PropertyDeclarationSyntax>()
-                         .Where(z => z.AccessorList?.Accessors.Any(a => a.Keyword.Kind() == SyntaxKind.SetKeyword || a.Keyword.Kind() == SyntaxKind.InitKeyword) == true)
+                         .Where(
+                              z => z.AccessorList?.Accessors.Any(a => a.Keyword.Kind() == SyntaxKind.SetKeyword || a.Keyword.Kind() == SyntaxKind.InitKeyword)
+                                == true
+                          )
                          .Where(z => z.Identifier.Text != "Data")
                          .Select(
                               property => AssignmentExpression(
@@ -383,7 +433,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                        SeparatedList(
                                            GetMapping(syntax, paramName)
                                               .Concat(
-                                                   new[] {
+                                                   new[]
+                                                   {
                                                        AssignmentExpression(
                                                            SyntaxKind.SimpleAssignmentExpression,
                                                            IdentifierName("Data"),
@@ -438,7 +489,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                        SeparatedList(
                                            GetMapping(syntax, paramName)
                                               .Concat(
-                                                   new[] {
+                                                   new[]
+                                                   {
                                                        AssignmentExpression(
                                                            SyntaxKind.SimpleAssignmentExpression,
                                                            IdentifierName("JData"),
@@ -474,18 +526,27 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                   .WithAccessorList(
                        AccessorList(
                            List(
-                               new[] {
+                               new[]
+                               {
                                    AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
                                       .WithExpressionBody(
                                            ArrowExpressionClause(
-                                               InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, ThisExpression(), IdentifierName("GetRawData")))
+                                               InvocationExpression(
+                                                   MemberAccessExpression(
+                                                       SyntaxKind.SimpleMemberAccessExpression, ThisExpression(), IdentifierName("GetRawData")
+                                                   )
+                                               )
                                            )
                                        )
                                       .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
                                    AccessorDeclaration(SyntaxKind.InitAccessorDeclaration)
                                       .WithExpressionBody(
                                            ArrowExpressionClause(
-                                               InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, ThisExpression(), IdentifierName("SetRawData")))
+                                               InvocationExpression(
+                                                       MemberAccessExpression(
+                                                           SyntaxKind.SimpleMemberAccessExpression, ThisExpression(), IdentifierName("SetRawData")
+                                                       )
+                                                   )
                                                   .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("value")))))
                                            )
                                        )
@@ -501,7 +562,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             return syntax.WithAccessorList(
                 AccessorList(
                     List(
-                        new[] {
+                        new[]
+                        {
                             AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
                                .WithExpressionBody(
                                     ArrowExpressionClause(
@@ -573,7 +635,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                    )
                   .WithMembers(
                        List(
-                           new MemberDeclarationSyntax[] {
+                           new MemberDeclarationSyntax[]
+                           {
                                ConstructorDeclaration(classIdentifier)
                                   .WithModifiers(
                                        TokenList(
@@ -611,19 +674,27 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                   .WithParameterList(
                                        ParameterList(
                                            SingletonSeparatedList(
-                                               Parameter(Identifier("items")).WithType(GenericName(Identifier("IEnumerable")).WithTypeArgumentList(typeArgumentList))
+                                               Parameter(Identifier("items")).WithType(
+                                                   GenericName(Identifier("IEnumerable")).WithTypeArgumentList(typeArgumentList)
+                                               )
                                            )
                                        )
                                    )
                                   .WithInitializer(
-                                       ConstructorInitializer(SyntaxKind.BaseConstructorInitializer, ArgumentList(SingletonSeparatedList(Argument(IdentifierName("items")))))
+                                       ConstructorInitializer(
+                                           SyntaxKind.BaseConstructorInitializer, ArgumentList(SingletonSeparatedList(Argument(IdentifierName("items"))))
+                                       )
                                    )
                                   .WithBody(Block()),
                                ConstructorDeclaration(classIdentifier)
                                   .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
-                                  .WithParameterList(ParameterList(SingletonSeparatedList(ArrayParameter(typeName).WithModifiers(TokenList(Token(SyntaxKind.ParamsKeyword))))))
+                                  .WithParameterList(
+                                       ParameterList(SingletonSeparatedList(ArrayParameter(typeName).WithModifiers(TokenList(Token(SyntaxKind.ParamsKeyword)))))
+                                   )
                                   .WithInitializer(
-                                       ConstructorInitializer(SyntaxKind.BaseConstructorInitializer, ArgumentList(SingletonSeparatedList(Argument(IdentifierName("items")))))
+                                       ConstructorInitializer(
+                                           SyntaxKind.BaseConstructorInitializer, ArgumentList(SingletonSeparatedList(Argument(IdentifierName("items"))))
+                                       )
                                    )
                                   .WithBody(Block()),
                                AddConversionBody(
@@ -649,7 +720,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                        Identifier("List"),
                                        MethodDeclaration(className, Identifier("From"))
                                    )
-                                  .WithParameterList(ParameterList(SingletonSeparatedList(ArrayParameter(typeName).WithModifiers(TokenList(Token(SyntaxKind.ParamsKeyword)))))),
+                                  .WithParameterList(
+                                       ParameterList(SingletonSeparatedList(ArrayParameter(typeName).WithModifiers(TokenList(Token(SyntaxKind.ParamsKeyword)))))
+                                   ),
                                AddConversionBody(
                                    typeName,
                                    Identifier("Collection"),
@@ -815,75 +888,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                       .WithSemicolonToken(
                            Token(SyntaxKind.SemicolonToken)
                        );
-            }
-        }
-
-        public StronglyTypedGenerator() : base(() => new SyntaxReceiver(Cache))
-        {
-        }
-
-        public static CacheContainer<TypeDeclarationSyntax> Cache = new();
-
-        public class SyntaxReceiver : SyntaxReceiverCache<TypeDeclarationSyntax>
-        {
-            public List<TypeDeclarationSyntax> CanBeResolved { get; } = new();
-            public List<TypeDeclarationSyntax> CanHaveData { get; } = new();
-            public List<TypeDeclarationSyntax> CreateContainers { get; } = new();
-
-            public override string? GetKey(TypeDeclarationSyntax syntax)
-            {
-                var hasher = new CacheKeyHasher();
-                hasher.Append(syntax.SyntaxTree.FilePath);
-                hasher.Append(syntax.Keyword.Text);
-                hasher.Append(syntax.Identifier.Text);
-                hasher.Append(syntax.TypeParameterList);
-                hasher.Append(syntax.AttributeLists);
-                hasher.Append(syntax.BaseList);
-                return hasher;
-            }
-
-            /// <summary>
-            /// Called for every syntax node in the compilation, we can inspect the nodes and save any information useful for generation
-            /// </summary>
-            public override void OnVisitNode(TypeDeclarationSyntax syntaxNode)
-            {
-                // any field with at least one attribute is a candidate for property generation
-
-                if (syntaxNode is StructDeclarationSyntax structDeclarationSyntax)
-                {
-                    if (structDeclarationSyntax.AttributeLists.ContainsAttribute("GenerateContainer"))
-                    {
-                        CreateContainers.Add(structDeclarationSyntax);
-                    }
-                }
-
-                if (syntaxNode is ClassDeclarationSyntax or RecordDeclarationSyntax)
-                {
-                    if (syntaxNode.AttributeLists.ContainsAttribute("GenerateContainer"))
-                    {
-                        CreateContainers.Add(syntaxNode);
-                    }
-
-                    if (
-                        syntaxNode.BaseList != null &&
-                        syntaxNode.SyntaxTree.HasCompilationUnitRoot &&
-                        syntaxNode.Members.OfType<PropertyDeclarationSyntax>().Any(z => z.Identifier.Text == "Data")
-                    )
-                    {
-                        if (syntaxNode.BaseList.Types.Any(z => z.Type.GetSyntaxName() == "ICanBeResolved"))
-                        {
-                            CanBeResolved.Add(syntaxNode);
-                        }
-                        else if (syntaxNode.BaseList.Types.Any(z => z.Type.GetSyntaxName() == "ICanHaveData"))
-                        {
-                            CanHaveData.Add(syntaxNode);
-                        }
-                    }
-                }
-            }
-
-            public SyntaxReceiver(CacheContainer<TypeDeclarationSyntax> cache) : base(cache)
-            {
             }
         }
     }

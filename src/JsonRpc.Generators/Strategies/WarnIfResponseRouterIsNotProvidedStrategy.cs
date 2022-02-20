@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 {
     internal class WarnIfResponseRouterIsNotProvidedStrategy : IExtensionMethodContextGeneratorStrategy
     {
-        public IEnumerable<MemberDeclarationSyntax> Apply(ExtensionMethodContext extensionMethodContext, GeneratorData item)
+        public IEnumerable<MemberDeclarationSyntax> Apply(SourceProductionContext context, ExtensionMethodContext extensionMethodContext, GeneratorData item)
         {
             if (extensionMethodContext is not { IsProxy: true }) yield break;
 
@@ -20,7 +20,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                                    && generateRequestMethods.Data.ConstructorArguments[0].Values.Length == 0 )
                                                && !extensionMethodContext.TypeSymbol.ContainingNamespace.ToDisplayString().StartsWith("OmniSharp.Extensions.DebugAdapter.Protocol"))
             {
-                item.ReportDiagnostic(static type => Diagnostic.Create(GeneratorDiagnostics.NoResponseRouterProvided, type.Identifier.GetLocation(), type.Identifier.Text));
+                context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.NoResponseRouterProvided, item.TypeDeclaration.Identifier.GetLocation(), item.TypeDeclaration.Identifier.Text));
             }
         }
     }

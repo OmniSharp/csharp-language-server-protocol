@@ -1,10 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
-using OmniSharp.Extensions.JsonRpc.Generators.Cache;
 using static OmniSharp.Extensions.JsonRpc.Generators.Helpers;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
@@ -21,38 +20,23 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
         HashSet<string> AdditionalUsings,
         List<AttributeArgumentSyntax> AssemblyJsonRpcHandlersAttributeArguments,
         SemanticModel Model,
-        GeneratorExecutionContext Context
+        Compilation Compilation
     )
     {
-        private AddCacheSource<TypeDeclarationSyntax> AddCacheSourceDelegate { get; init; }
-        private ReportCacheDiagnostic<TypeDeclarationSyntax> CacheDiagnosticDelegate { get; init; }
-
-        public void AddSource(string hintName, SourceText sourceText)
-        {
-            AddCacheSourceDelegate(hintName, TypeDeclaration, sourceText);
-        }
-
-        public void ReportDiagnostic(CacheDiagnosticFactory<TypeDeclarationSyntax> diagnostic)
-        {
-            CacheDiagnosticDelegate(TypeDeclaration, diagnostic);
-        }
-
         public static GeneratorData? Create(
-            GeneratorExecutionContext context,
+            Compilation compilation,
             TypeDeclarationSyntax candidateClass,
-            AddCacheSource<TypeDeclarationSyntax> addCacheSource,
-            ReportCacheDiagnostic<TypeDeclarationSyntax> cacheDiagnostic,
+            SemanticModel model,
             HashSet<string> additionalUsings
         )
         {
-            var model = context.Compilation.GetSemanticModel(candidateClass.SyntaxTree);
-            var symbol = model.GetDeclaredSymbol(candidateClass);
+            var symbol = model.GetDeclaredSymbol(candidateClass) is { } nts ? nts : null;
             if (symbol == null) return null;
             var requestType = GetRequestType(candidateClass, symbol);
             if (requestType == null) return null;
-            var jsonRpcAttributes = JsonRpcAttributes.Parse(context, addCacheSource, cacheDiagnostic, candidateClass, symbol, additionalUsings);
-            var lspAttributes = LspAttributes.Parse(context, addCacheSource, cacheDiagnostic, candidateClass, symbol);
-            var dapAttributes = DapAttributes.Parse(context, addCacheSource, cacheDiagnostic, candidateClass, symbol);
+            var jsonRpcAttributes = JsonRpcAttributes.Parse(compilation, candidateClass, model, symbol, additionalUsings);
+            var lspAttributes = LspAttributes.Parse(compilation, candidateClass, model, symbol);
+            var dapAttributes = DapAttributes.Parse(compilation, candidateClass, model, symbol);
 
             additionalUsings.Add(jsonRpcAttributes.HandlerNamespace);
             additionalUsings.Add(jsonRpcAttributes.ModelNamespace);
@@ -75,9 +59,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                     GetPartialItems(candidateClass, symbol, requestType),
                     additionalUsings,
                     new List<AttributeArgumentSyntax>(),
-                    model,
-                    context
-                ) { CacheDiagnosticDelegate = cacheDiagnostic, AddCacheSourceDelegate = addCacheSource };
+                    model, compilation
+                );
             }
 
             if (IsNotification(candidateClass))
@@ -93,9 +76,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                     GetRegistrationOptions(candidateClass, symbol, lspAttributes),
                     additionalUsings,
                     new List<AttributeArgumentSyntax>(),
-                    model,
-                    context
-                ) { CacheDiagnosticDelegate = cacheDiagnostic, AddCacheSourceDelegate = addCacheSource };
+                    model, compilation
+                );
             }
 
             return null;
@@ -109,8 +91,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                              && tds.AttributeLists.ContainsAttribute("GenerateHandler")
                        )?.GetSyntax() is TypeDeclarationSyntax declarationSyntax)
             {
-                return Create(parent.Context, declarationSyntax, parent.AddCacheSourceDelegate, parent.CacheDiagnosticDelegate, parent.AdditionalUsings) as RequestItem;
-            }
+                return Create(parent.Compilation, declarationSyntax, parent.Compilation.GetSemanticModel(declarationSyntax.SyntaxTree), parent.AdditionalUsings) as RequestItem; }
 
             return null;
         }
