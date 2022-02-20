@@ -31,11 +31,11 @@ namespace Dap.Tests.Integration
                 CancellationToken.Register(cts.Cancel);
                 return client.RequestCompletions(new CompletionsArguments(), cts.Token);
             };
-            action.Should().Throw<OperationCanceledException>();
+            await action.Should().ThrowAsync<OperationCanceledException>();
         }
 
         [Fact(Skip = "Needs Work")]
-        public void Should_Cancel_Requests_After_Timeout()
+        public async Task Should_Cancel_Requests_After_Timeout()
         {
             Func<Task<CompletionsResponse>> action = async () => {
                 var (client, _) = await Initialize(
@@ -47,7 +47,7 @@ namespace Dap.Tests.Integration
 
                 return await client.RequestCompletions(new CompletionsArguments());
             };
-            action.Should().Throw<RequestCancelledException>();
+            await action.Should().ThrowAsync<RequestCancelledException>();
         }
 
         private void ConfigureClient(DebugAdapterClientOptions options)

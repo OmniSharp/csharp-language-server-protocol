@@ -19,7 +19,7 @@ namespace Lsp.Tests.Models
             result.Should().Be(expected);
 
             var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<MessageType>(expected);
-            deresult.Should().BeEquivalentTo(model, x => x.UsingStructuralRecordEquality());
+            deresult.Should().Be(model);
         }
     }
 }

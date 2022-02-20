@@ -81,7 +81,7 @@ namespace Lsp.Tests.Integration
                 }, ConfigureServer);
 
             Func<Task> a = () => server.WorkspaceFolderManager.Refresh().LastOrDefaultAsync().ToTask();
-            a.Should().NotThrow();
+            await a.Should().NotThrowAsync();
         }
 
         [Fact]

@@ -1,11 +1,10 @@
 using System;
-using FluentAssertions.Equivalency;
 using Microsoft.Extensions.Logging;
 
 // ReSharper disable once CheckNamespace
 namespace NSubstitute
 {
-    public class TraceWriter : ITraceWriter
+    public class TraceWriter : FluentAssertions.Equivalency.Tracing.ITraceWriter
     {
         private readonly ILogger _logger;
 

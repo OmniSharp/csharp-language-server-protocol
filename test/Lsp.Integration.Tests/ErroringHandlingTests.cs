@@ -43,7 +43,7 @@ namespace Lsp.Tests.Integration
 
             var req = client.SendRequest(TextDocumentNames.CodeAction, codeActionParams);
             Func<Task> a = () => req.Returning<object>(CancellationToken);
-            a.Should().Throw<ParseErrorException>();
+            await a.Should().ThrowAsync<ParseErrorException>();
         }
 
         [Fact]

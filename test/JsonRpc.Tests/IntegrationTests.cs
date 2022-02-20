@@ -54,10 +54,10 @@ namespace JsonRpc.Tests
             );
 
             Func<Task> clientRequest = () => client.SendRequest("myrequest", (Request) null!).Returning<Data>(CancellationToken);
-            clientRequest.Should().Throw<InvalidParametersException>();
+            await clientRequest.Should().ThrowAsync<InvalidParametersException>();
 
             Func<Task> serverRequest = () => server.SendRequest("myrequest", (Request) null!).Returning<Data>(CancellationToken);
-            serverRequest.Should().Throw<InvalidParametersException>();
+            await serverRequest.Should().ThrowAsync<InvalidParametersException>();
         }
 
         [Fact]
@@ -69,10 +69,10 @@ namespace JsonRpc.Tests
             );
 
             Func<Task> clientRequest = () => client.SendRequest("myrequest", new Request()).Returning<Data>(CancellationToken);
-            clientRequest.Should().Throw<InternalErrorException>();
+            await clientRequest.Should().ThrowAsync<InternalErrorException>();
 
             Func<Task> serverRequest = () => server.SendRequest("myrequest", new Request()).Returning<Data>(CancellationToken);
-            serverRequest.Should().Throw<InternalErrorException>();
+            await serverRequest.Should().ThrowAsync<InternalErrorException>();
         }
 
         [Fact]

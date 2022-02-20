@@ -1,30 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Nuke.Common.CI.GitHubActions;
-using Rocket.Surgery.Nuke;
 using Rocket.Surgery.Nuke.ContinuousIntegration;
 using Rocket.Surgery.Nuke.DotNetCore;
 using Rocket.Surgery.Nuke.GithubActions;
 
-[AzurePipelinesSteps(
-    AutoGenerate = false,
-    InvokeTargets = new[] { nameof(Default) },
-    NonEntryTargets = new[] {
-        nameof(ICIEnvironment.CIEnvironment),
-        nameof(ITriggerCodeCoverageReports.TriggerCodeCoverageReports),
-        nameof(ITriggerCodeCoverageReports.GenerateCodeCoverageReportCobertura),
-        nameof(IGenerateCodeCoverageBadges.GenerateCodeCoverageBadges),
-        nameof(IGenerateCodeCoverageReport.GenerateCodeCoverageReport),
-        nameof(IGenerateCodeCoverageSummary.GenerateCodeCoverageSummary),
-        nameof(Default)
-    },
-    ExcludedTargets = new[]
-        { nameof(ICanClean.Clean), nameof(ICanRestoreWithDotNetCore.Restore), nameof(ICanRestoreWithDotNetCore.DotnetToolRestore) },
-    Parameters = new[] {
-        nameof(IHaveCodeCoverage.CoverageDirectory), nameof(IHaveOutputArtifacts.ArtifactsDirectory), nameof(Verbosity),
-        nameof(IHaveConfiguration.Configuration)
-    }
-)]
 [GitHubActionsSteps(
     "ci",
     GitHubActionsImage.MacOsLatest,
@@ -64,8 +44,10 @@ public partial class Solution
         checkoutStep.FetchDepth = 0;
         buildJob.Environment["NUGET_PACKAGES"] = "${{ github.workspace }}/.nuget/packages";
         buildJob.Steps.InsertRange(
-            buildJob.Steps.IndexOf(checkoutStep) + 1, new BaseGitHubActionsStep[] {
-                new RunStep("Fetch all history for all tags and branches") {
+            buildJob.Steps.IndexOf(checkoutStep) + 1, new BaseGitHubActionsStep[]
+            {
+                new RunStep("Fetch all history for all tags and branches")
+                {
                     Run = "git fetch --prune"
                 },
                 new UsingStep("NuGet Cache")
@@ -81,19 +63,23 @@ public partial class Solution
               ${{ runner.os }}-nuget-"
                     }
                 },
-                new SetupDotNetStep("Use .NET Core 3.1 SDK") {
+                new SetupDotNetStep("Use .NET Core 3.1 SDK")
+                {
                     DotNetVersion = "3.1.x"
                 },
-                new SetupDotNetStep("Use .NET Core 6.0 SDK") {
+                new SetupDotNetStep("Use .NET Core 6.0 SDK")
+                {
                     DotNetVersion = "6.0.x"
                 },
             }
         );
 
         buildJob.Steps.Add(
-            new UsingStep("Publish Coverage") {
+            new UsingStep("Publish Coverage")
+            {
                 Uses = "codecov/codecov-action@v1",
-                With = new Dictionary<string, string> {
+                With = new Dictionary<string, string>
+                {
                     ["name"] = "actions-${{ matrix.os }}",
                     ["fail_ci_if_error"] = "true",
                 }
@@ -101,7 +87,8 @@ public partial class Solution
         );
 
         buildJob.Steps.Add(
-            new UploadArtifactStep("Publish logs") {
+            new UploadArtifactStep("Publish logs")
+            {
                 Name = "logs",
                 Path = "artifacts/logs/",
                 If = "always()"
@@ -109,7 +96,8 @@ public partial class Solution
         );
 
         buildJob.Steps.Add(
-            new UploadArtifactStep("Publish coverage data") {
+            new UploadArtifactStep("Publish coverage data")
+            {
                 Name = "coverage",
                 Path = "coverage/",
                 If = "always()"
@@ -117,7 +105,8 @@ public partial class Solution
         );
 
         buildJob.Steps.Add(
-            new UploadArtifactStep("Publish test data") {
+            new UploadArtifactStep("Publish test data")
+            {
                 Name = "test data",
                 Path = "artifacts/test/",
                 If = "always()"
@@ -125,7 +114,8 @@ public partial class Solution
         );
 
         buildJob.Steps.Add(
-            new UploadArtifactStep("Publish NuGet Packages") {
+            new UploadArtifactStep("Publish NuGet Packages")
+            {
                 Name = "nuget",
                 Path = "artifacts/nuget/",
                 If = "always()"

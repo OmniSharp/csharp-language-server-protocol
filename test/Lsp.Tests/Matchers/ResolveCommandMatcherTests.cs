@@ -58,7 +58,7 @@ namespace Lsp.Tests.Matchers
         }
 
         [Fact]
-        public void Should_Not_Throw_Given_Another_Descriptor()
+        public async Task Should_Not_Throw_Given_Another_Descriptor()
         {
             // Given
             var resolveHandler = Substitute.For<ICodeLensHandler>();
@@ -84,7 +84,7 @@ namespace Lsp.Tests.Matchers
 
             // When
             Func<Task> a = async () => await handlerMatcher.Handle(new CodeLensParams(), CancellationToken.None, () => Task.FromResult(new CodeLensContainer()));
-            a.Should().NotThrow();
+            await a.Should().NotThrowAsync();
         }
 
         [Fact]

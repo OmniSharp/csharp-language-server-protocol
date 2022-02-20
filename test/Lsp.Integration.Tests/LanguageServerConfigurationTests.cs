@@ -57,7 +57,7 @@ namespace Lsp.Tests.Integration
                 }, ConfigureServer);
 
             Func<Task> a = () => server.Configuration.GetConfiguration(new ConfigurationItem() { Section = "mysection" });
-            a.Should().NotThrow();
+            await a.Should().NotThrowAsync();
         }
 
         [Fact]

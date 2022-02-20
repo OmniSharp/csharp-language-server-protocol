@@ -40,7 +40,7 @@ namespace Lsp.Tests.Integration
                     }, cts.Token
                 ).AsTask();
             };
-            action.Should().Throw<TaskCanceledException>();
+            await action.Should().ThrowAsync<TaskCanceledException>();
         }
 
         [Fact]
@@ -65,7 +65,7 @@ namespace Lsp.Tests.Integration
             );
 
             Func<Task> action = () => request1;
-            action.Should().Throw<ContentModifiedException>();
+            await action.Should().ThrowAsync<ContentModifiedException>();
         }
 
         [Fact]
@@ -85,11 +85,11 @@ namespace Lsp.Tests.Integration
                     }, CancellationToken
                 ).AsTask();
             };
-            action.Should().Throw<RequestCancelledException>();
+            await action.Should().ThrowAsync<RequestCancelledException>();
         }
 
         [Fact]
-        public void Should_Cancel_Requests_After_Timeout_without_Content_Modified()
+        public async Task Should_Cancel_Requests_After_Timeout_without_Content_Modified()
         {
             Func<Task> action = async () => {
                 var (client, _) = await Initialize(
@@ -105,7 +105,7 @@ namespace Lsp.Tests.Integration
                     }, CancellationToken
                 ).AsTask();
             };
-            action.Should().Throw<RequestCancelledException>();
+            await action.Should().ThrowAsync<RequestCancelledException>();
         }
 
         [Fact]
