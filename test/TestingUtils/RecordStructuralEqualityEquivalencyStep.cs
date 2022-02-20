@@ -1,15 +1,13 @@
 using FluentAssertions.Equivalency;
+using FluentAssertions.Equivalency.Steps;
 
 namespace TestingUtils
 {
     public class RecordStructuralEqualityEquivalencyStep : StructuralEqualityEquivalencyStep, IEquivalencyStep
     {
-        bool IEquivalencyStep.CanHandle(
-            IEquivalencyValidationContext context,
-            IEquivalencyAssertionOptions config
-        )
+        EquivalencyResult IEquivalencyStep.Handle(Comparands comparands, IEquivalencyValidationContext context, IEquivalencyValidator nestedValidator)
         {
-            return context?.Subject?.GetType()?.GetMethod("<Clone>$") != null;
+            return comparands.Subject?.GetType()?.GetMethod("<Clone>$") != null ? EquivalencyResult.AssertionCompleted : EquivalencyResult.ContinueWithNext;
         }
     }
 }

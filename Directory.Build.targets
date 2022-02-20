@@ -24,10 +24,10 @@
     <PackageReference Update="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.0.0" />
     <PackageReference Update="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
     <PackageReference Update="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Update="Microsoft.NET.Test.Sdk" Version="16.11.0" />
+    <PackageReference Update="Microsoft.NET.Test.Sdk" Version="17.1.0" />
     <PackageReference Update="xunit.runner.visualstudio" Version="2.4.3" />
     <PackageReference Update="xunit" Version="2.4.1" />
-    <PackageReference Update="FluentAssertions" Version="5.10.3" />
+    <PackageReference Update="FluentAssertions" Version="6.5.1" />
     <PackageReference Update="NSubstitute" Version="4.3.0" />
     <PackageReference Update="Serilog.Extensions.Logging" Version="3.1.0" />
     <PackageReference Update="Serilog.Sinks.Observable" Version="2.0.2" />
@@ -46,7 +46,7 @@
     <PackageReference Update="System.IO.Pipelines" Version="4.7.3" />
     <PackageReference Update="Nerdbank.Streams" Version="2.6.81" />
     <PackageReference Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.0.1" />
-    <PackageReference Update="Microsoft.CodeAnalysis.Analyzers" Version="3.3.2" />
+    <PackageReference Update="Microsoft.CodeAnalysis.Analyzers" Version="3.3.3" />
     <PackageReference Update="DryIoc.Internal" Version="4.8.6" />
   </ItemGroup>
 </Project>

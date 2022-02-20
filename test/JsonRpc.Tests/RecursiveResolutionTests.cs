@@ -21,7 +21,7 @@ namespace JsonRpc.Tests
         }
 
         [Fact(Skip = "appears to cause a deadlock")]
-        public void Server_Can_Be_Injected_Into_Handler_After_Creation_Using_Registration()
+        public async Task Server_Can_Be_Injected_Into_Handler_After_Creation_Using_Registration()
         {
             Func<Task> a = async () => {
                 var (_, server) = await Initialize(
@@ -34,11 +34,11 @@ namespace JsonRpc.Tests
                         .AddHandler<ClassHandler<JsonRpcServer>>()
                 );
             };
-            a.Should().NotThrow();
+            await a.Should().NotThrowAsync();
         }
 
         [Fact(Skip = "appears to cause a deadlock")]
-        public void Server_Cannot_Be_Injected_Into_Handler_During_Creation_Using_Registration()
+        public async Task Server_Cannot_Be_Injected_Into_Handler_During_Creation_Using_Registration()
         {
             Func<Task> a = () => Initialize(
                 options => { },
@@ -46,12 +46,12 @@ namespace JsonRpc.Tests
                           .AddHandler<InterfaceHandler<IJsonRpcServer>>()
                           .AddHandler<ClassHandler<JsonRpcServer>>()
             );
-            var result = a.Should().Throw<ContainerException>();
+            var result = await a.Should().ThrowAsync<ContainerException>();
             result.And.ErrorName.Should().Be("UnableToResolveFromRegisteredServices");
         }
 
         [Fact(Skip = "appears to cause a deadlock")]
-        public void Server_Cannot_Be_Injected_Into_Handler_During_Creation_Using_Description()
+        public async Task Server_Cannot_Be_Injected_Into_Handler_During_Creation_Using_Description()
         {
             Func<Task> a = () => Initialize(
                 options => { },
@@ -59,12 +59,12 @@ namespace JsonRpc.Tests
                                   .AddSingleton(JsonRpcHandlerDescription.Infer(typeof(InterfaceHandler<IJsonRpcServer>)))
                                   .AddSingleton(JsonRpcHandlerDescription.Infer(typeof(ClassHandler<JsonRpcServer>)))
             );
-            var result = a.Should().Throw<ContainerException>();
+            var result = await a.Should().ThrowAsync<ContainerException>();
             result.And.ErrorName.Should().Be("UnableToResolveFromRegisteredServices");
         }
 
         [Fact(Skip = "appears to cause a deadlock")]
-        public void Server_Cannot_Be_Injected_Into_Handler_During_Creation_Using_Injection()
+        public async Task Server_Cannot_Be_Injected_Into_Handler_During_Creation_Using_Injection()
         {
             Func<Task> a = () => Initialize(
                 options => { },
@@ -72,7 +72,7 @@ namespace JsonRpc.Tests
                                   .AddSingleton<InterfaceHandler<IJsonRpcServer>>()
                                   .AddSingleton<ClassHandler<JsonRpcServer>>()
             );
-            var result = a.Should().Throw<ContainerException>();
+            var result = await a.Should().ThrowAsync<ContainerException>();
             result.And.ErrorName.Should().Be("UnableToResolveFromRegisteredServices");
         }
 

@@ -206,8 +206,8 @@ namespace Test
 }";
 
             Func<Task> a = () => AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, "");
-            a.Should().Throw<EmptyException>().WithMessage("*Could not infer the request router(s)*");
-            a.Should().Throw<EmptyException>("cache").WithMessage("*Could not infer the request router(s)*");
+            await a.Should().ThrowAsync<EmptyException>().WithMessage("*Could not infer the request router(s)*");
+            await a.Should().ThrowAsync<EmptyException>("cache").WithMessage("*Could not infer the request router(s)*");
         }
 
         [Fact]
