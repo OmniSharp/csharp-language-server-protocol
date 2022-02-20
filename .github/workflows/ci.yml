@@ -19,17 +19,21 @@ name: ci
 on:
   push:
     branches:
-      - master
-      - next
+      - 'master'
+      - 'main'
+      - 'next'
     tags:
-      - v*
+      - 'v*'
   pull_request:
     branches:
-      - master
-      - next
+      - 'master'
+      - 'main'
+      - 'next'
 
 jobs:
   Build:
+    env:
+      NUGET_PACKAGES: '${{ github.workspace }}/.nuget/packages'
     strategy:
       fail-fast: false
       matrix:
@@ -44,18 +48,21 @@ jobs:
       - name: Fetch all history for all tags and branches
         run: |
           git fetch --prune
-      - name: 🔨 Use .NET Core 2.1 SDK
-        uses: actions/setup-dotnet@v1.9.0
+      - name: NuGet Cache
+        uses: actions/cache@v2
         with:
-          dotnet-version: '2.1.x'
+          path: '${{ github.workspace }}/.nuget/packages'
+          key: "${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Build.targets', '**/Directory.Build.props', '**/*.csproj') }}"
+          restore-keys: |
+            ${{ runner.os }}-nuget-
       - name: 🔨 Use .NET Core 3.1 SDK
         uses: actions/setup-dotnet@v1.9.0
         with:
           dotnet-version: '3.1.x'
-      - name: 🔨 Use .NET Core 5.0 SDK
+      - name: 🔨 Use .NET Core 6.0 SDK
         uses: actions/setup-dotnet@v1.9.0
         with:
-          dotnet-version: '5.0.x'
+          dotnet-version: '6.0.x'
       - name: 🎁 dotnet tool restore
         run: |
           dotnet tool restore
@@ -67,7 +74,7 @@ jobs:
           dotnet nuke Build --skip
       - name: 🚦 Test
         run: |
-          dotnet nuke Test Trigger_Code_Coverage_Reports Generate_Code_Coverage_Report_Cobertura Generate_Code_Coverage_Badges Generate_Code_Coverage_Summary Generate_Code_Coverage_Report --skip
+          dotnet nuke Test TriggerCodeCoverageReports GenerateCodeCoverageReportCobertura GenerateCodeCoverageBadges GenerateCodeCoverageSummary GenerateCodeCoverageReport --skip
       - name: 📦 Pack
         run: |
           dotnet nuke Pack --skip
@@ -78,21 +85,18 @@ jobs:
           fail_ci_if_error: 'true'
       - name: 🏺 Publish logs
         if: always()
-        continue-on-error: true
         uses: actions/upload-artifact@v2
         with:
           name: 'logs'
           path: 'artifacts/logs/'
       - name: 🏺 Publish coverage data
         if: always()
-        continue-on-error: true
         uses: actions/upload-artifact@v2
         with:
           name: 'coverage'
           path: 'coverage/'
       - name: 🏺 Publish test data
         if: always()
-        continue-on-error: true
         uses: actions/upload-artifact@v2
         with:
           name: 'test data'
@@ -103,3 +107,10 @@ jobs:
         with:
           name: 'nuget'
           path: 'artifacts/nuget/'
+  Publish:
+    needs:
+      - Build
+    secrets:
+      RSG_NUGET_API_KEY: '${{ secrets.RSG_NUGET_API_KEY }}'
+      RSG_AZURE_DEVOPS: '${{ secrets.RSG_AZURE_DEVOPS }}'
+    uses: RocketSurgeonsGuild/actions/.github/workflows/publish-nuget.yml@v0.3.0

@@ -28,8 +28,7 @@ public partial class Solution : NukeBuild,
                                 IGenerateCodeCoverageReport,
                                 IGenerateCodeCoverageSummary,
                                 IGenerateCodeCoverageBadges,
-                                IHaveConfiguration<Configuration>,
-                                ICanLint
+                                IHaveConfiguration<Configuration>
 {
     /// <summary>
     /// Support plugins are available for:
