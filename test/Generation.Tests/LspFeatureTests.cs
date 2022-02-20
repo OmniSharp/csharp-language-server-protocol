@@ -54,7 +54,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     abstract public partial class WorkspaceSymbolsPartialHandlerBase : AbstractHandlers.PartialResults<WorkspaceSymbolParams, Container<SymbolInformation>?, SymbolInformation, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>, IWorkspaceSymbolsHandler
     {
-        protected WorkspaceSymbolsPartialHandlerBase(System.Guid id, IProgressManager progressManager): base(progressManager, Container<SymbolInformation>.From)
+        protected WorkspaceSymbolsPartialHandlerBase(System.Guid id, IProgressManager progressManager) : base(progressManager, Container<SymbolInformation>.From)
         {
         }
     }
@@ -189,11 +189,7 @@ namespace Lsp.Tests.Integration.Fixtures
     public partial class UnitTestRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions
     {
         [Optional]
-        public bool WorkDoneProgress
-        {
-            get;
-            set;
-        }
+        public bool WorkDoneProgress { get; set; }
 
         class UnitTestRegistrationOptionsConverter : RegistrationOptionsConverterBase<UnitTestRegistrationOptions, StaticOptions>
         {
@@ -211,18 +207,10 @@ namespace Lsp.Tests.Integration.Fixtures
         public partial class StaticOptions : IWorkDoneProgressOptions
         {
             [Optional]
-            public bool SupportsDebugging
-            {
-                get;
-                set;
-            }
+            public bool SupportsDebugging { get; set; }
 
             [Optional]
-            public bool WorkDoneProgress
-            {
-                get;
-                set;
-            }
+            public bool WorkDoneProgress { get; set; }
         }
     }
 }
@@ -321,7 +309,7 @@ namespace Lsp.Tests.Integration.Fixtures
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
     abstract public partial class DiscoverUnitTestsPartialHandlerBase : AbstractHandlers.PartialResults<DiscoverUnitTestsParams, Container<UnitTest>, UnitTest, UnitTestRegistrationOptions, UnitTestCapability>, IDiscoverUnitTestsHandler
     {
-        protected DiscoverUnitTestsPartialHandlerBase(System.Guid id, IProgressManager progressManager): base(progressManager, Container<UnitTest>.From)
+        protected DiscoverUnitTestsPartialHandlerBase(System.Guid id, IProgressManager progressManager) : base(progressManager, Container<UnitTest>.From)
         {
         }
     }

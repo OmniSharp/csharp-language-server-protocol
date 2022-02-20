@@ -39,18 +39,10 @@ namespace Test
     public partial class DeclarationParams
     {
         [Optional]
-        public ProgressToken? WorkDoneToken
-        {
-            get;
-            init;
-        }
+        public ProgressToken? WorkDoneToken { get; init; }
 
         [Optional]
-        public ProgressToken? PartialResultToken
-        {
-            get;
-            init;
-        }
+        public ProgressToken? PartialResultToken { get; init; }
     }
 }
 #nullable restore";
