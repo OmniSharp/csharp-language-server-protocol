@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v2.4.0
 
       - name: sync milestones
-        uses: RocketSurgeonsGuild/actions/sync-milestone@v0.2.4
+        uses: RocketSurgeonsGuild/actions/sync-milestone@v0.3.0
         with:
           default-label: 'mysterious'
           github-token: ${{ secrets.GITHUB_TOKEN }}
