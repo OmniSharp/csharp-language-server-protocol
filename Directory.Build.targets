@@ -35,15 +35,15 @@
     <PackageReference Update="XunitXml.TestLogger" Version="3.0.70" />
     <PackageReference Update="coverlet.collector" Version="3.1.2" />
     <PackageReference Update="coverlet.msbuild" Version="3.1.2" />
-    <PackageReference Update="System.Reactive" Version="4.4.1" />
-    <PackageReference Update="System.Collections.Immutable" Version="1.7.1" />
+    <PackageReference Update="System.Reactive" Version="5.0.0" />
+    <PackageReference Update="System.Collections.Immutable" Version="5.0.0" />
     <PackageReference Update="System.Threading.Channels" Version="4.7.1" />
     <PackageReference Update="Microsoft.Reactive.Testing" Version="4.4.1" />
     <PackageReference Update="MediatR" Version="8.1.0" />
     <PackageReference Update="Bogus" Version="34.0.1" />
     <PackageReference Update="Snapper" Version="2.3.1" />
     <PackageReference Update="Xunit.SkippableFact" Version="1.4.13" />
-    <PackageReference Update="Nerdbank.Streams" Version="2.6.81" />
+    <PackageReference Update="Nerdbank.Streams" Version="2.8.57" />
     <PackageReference Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.0.1" />
     <PackageReference Update="Microsoft.CodeAnalysis.Analyzers" Version="3.3.3" />
     <PackageReference Update="DryIoc.Internal" Version="4.8.6" />
