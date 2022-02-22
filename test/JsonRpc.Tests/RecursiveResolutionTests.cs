@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Testing;
-using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -23,7 +22,8 @@ namespace JsonRpc.Tests
         [Fact(Skip = "appears to cause a deadlock")]
         public async Task Server_Can_Be_Injected_Into_Handler_After_Creation_Using_Registration()
         {
-            Func<Task> a = async () => {
+            Func<Task> a = async () =>
+            {
                 var (_, server) = await Initialize(
                     options => { },
                     options => { }
@@ -82,7 +82,7 @@ namespace JsonRpc.Tests
             Func<Task> a = () => Initialize(
                 options => { },
                 options => options
-                          .AddHandler<ClassHandler<IJsonRpcServerFacade>>()
+                   .AddHandler<ClassHandler<IJsonRpcServerFacade>>()
             );
             await a.Should().NotThrowAsync();
         }
@@ -115,7 +115,7 @@ namespace JsonRpc.Tests
         }
 
         [Method(nameof(ClassRequest))]
-        class ClassHandler<T> : IJsonRpcRequestHandler<ClassRequest, Unit> where T : IJsonRpcServerFacade
+        private class ClassHandler<T> : IJsonRpcRequestHandler<ClassRequest, Unit> where T : IJsonRpcServerFacade
         {
             // ReSharper disable once NotAccessedField.Local
             private readonly T _jsonRpcServer;
@@ -125,7 +125,10 @@ namespace JsonRpc.Tests
                 _jsonRpcServer = jsonRpcServer;
             }
 
-            public Task<Unit> Handle(ClassRequest classRequest, CancellationToken cancellationToken) => throw new NotImplementedException();
+            public Task<Unit> Handle(ClassRequest classRequest, CancellationToken cancellationToken)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         [Method(nameof(InterfaceRequest))]
@@ -134,7 +137,7 @@ namespace JsonRpc.Tests
         }
 
         [Method(nameof(InterfaceRequest))]
-        class InterfaceHandler<T> : IJsonRpcRequestHandler<InterfaceRequest, Unit> where T : IJsonRpcServerFacade
+        private class InterfaceHandler<T> : IJsonRpcRequestHandler<InterfaceRequest, Unit> where T : IJsonRpcServerFacade
         {
             // ReSharper disable once NotAccessedField.Local
             private readonly T _jsonRpcServer;
@@ -144,7 +147,10 @@ namespace JsonRpc.Tests
                 _jsonRpcServer = jsonRpcServer;
             }
 
-            public Task<Unit> Handle(InterfaceRequest request, CancellationToken cancellationToken) => throw new NotImplementedException();
+            public Task<Unit> Handle(InterfaceRequest request, CancellationToken cancellationToken)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

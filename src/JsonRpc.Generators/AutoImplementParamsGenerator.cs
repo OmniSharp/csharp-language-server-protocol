@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,7 +19,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             var _interfaces = "IPartialItemsRequest,IPartialItemRequest,IWorkDoneProgressParams,IHandlerIdentity";
 
             var syntaxProvider = context.SyntaxProvider.CreateSyntaxProvider(
-                predicate: (syntaxNode, token) =>
+                (syntaxNode, _) =>
                 {
                     if (syntaxNode is TypeDeclarationSyntax typeDeclarationSyntax and (ClassDeclarationSyntax or RecordDeclarationSyntax)
                      && ( typeDeclarationSyntax.AttributeLists.ContainsAttribute(_attributes)
@@ -32,7 +31,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     }
 
                     return false;
-                }, transform: (syntaxContext, token) => { return syntaxContext; }
+                }, (syntaxContext, _) => { return syntaxContext; }
             );
 
 
@@ -50,10 +49,14 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             var autoImplementProperties = AutoImplementInterfaces(candidate, symbol).ToArray();
             if (autoImplementProperties is { Length: > 0 })
             {
-                var extendedParams = candidate.WithAttributeLists(List<AttributeListSyntax>())
-                                              .WithMembers(List(autoImplementProperties))
-                                              .WithConstraintClauses(List<TypeParameterConstraintClauseSyntax>())
-                                              .WithBaseList(null);
+                var extendedParams = candidate
+                                    .WithAttributeLists(List<AttributeListSyntax>())
+                                    .WithMembers(List(autoImplementProperties))
+                                    .WithConstraintClauses(List<TypeParameterConstraintClauseSyntax>())
+                                    .WithBaseList(null)
+                                    .WithOpenBraceToken(Token(SyntaxKind.OpenBraceToken))
+                                    .WithCloseBraceToken(Token(SyntaxKind.CloseBraceToken))
+                                    .WithSemicolonToken(Token(SyntaxKind.None));
                 members.Add(extendedParams);
             }
 
@@ -65,7 +68,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             }
 
             var cu = CompilationUnit(
-                         List<ExternAliasDirectiveSyntax>(), List(candidate.SyntaxTree.GetCompilationUnitRoot().Usings), List<AttributeListSyntax>(),
+                         List<ExternAliasDirectiveSyntax>(),
+                         List(
+                             candidate.SyntaxTree.GetCompilationUnitRoot().Usings.Concat(
+                                 new[] { UsingDirective(ParseName("Newtonsoft.Json")), UsingDirective(ParseName("System.ComponentModel")) }
+                             )
+                         ), List<AttributeListSyntax>(),
                          SingletonList<MemberDeclarationSyntax>(
                              NamespaceDeclaration(ParseName(symbol.ContainingNamespace.ToDisplayString()))
                                 .WithMembers(List(members))
@@ -144,7 +152,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                                  SingletonSeparatedList(
                                                                      AttributeArgument(
                                                                          MemberAccessExpression(
-                                                                             SyntaxKind.SimpleMemberAccessExpression, IdentifierName("EditorBrowsableState"),
+                                                                             SyntaxKind.SimpleMemberAccessExpression, ParseName("EditorBrowsableState"),
                                                                              IdentifierName("Never")
                                                                          )
                                                                      )

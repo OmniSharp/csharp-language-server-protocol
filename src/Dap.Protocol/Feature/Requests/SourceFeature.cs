@@ -11,11 +11,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.Source, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record SourceArguments : IRequest<SourceResponse>
         {
             /// <summary>
@@ -25,7 +23,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public Source? Source { get; init; }
 
             /// <summary>
-            /// The reference to the source.This is the same as source.sourceReference.This is provided for backward compatibility since old backends do not understand the 'source' attribute.
+            /// The reference to the source.This is the same as source.sourceReference.This is provided for backward compatibility since old backends do not understand the
+            /// 'source' attribute.
             /// </summary>
             public long SourceReference { get; init; }
         }
@@ -35,7 +34,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// Content of the source reference.
             /// </summary>
-            public string Content { get; init; }
+            public string Content { get; init; } = null!;
 
             /// <summary>
             /// Optional content type(mime type) of the source.

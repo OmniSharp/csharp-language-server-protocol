@@ -10,16 +10,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The uri of the document
         /// </summary>
-        public DocumentUri Uri { get; init; }
+        public DocumentUri Uri { get; init; } = null!;
 
         /// <summary>
         /// The range in side the document given by the uri
         /// </summary>
-        public Range Range { get; init; }
+        public Range Range { get; init; } = null!;
 
         private string DebuggerDisplay => $"{{{Range} {Uri}}}";
 
         /// <inheritdoc />
-        public override string ToString() => DebuggerDisplay;
+        public override string ToString()
+        {
+            return DebuggerDisplay;
+        }
     }
 }

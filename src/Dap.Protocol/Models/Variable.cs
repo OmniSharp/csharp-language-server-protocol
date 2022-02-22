@@ -15,12 +15,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// The variable's name.
         /// </summary>
-        public string Name { get; init; }
+        public string Name { get; init; } = null!;
 
         /// <summary>
         /// The variable's value. This can be a multi-line text, e.g. for a function the body of a function.
         /// </summary>
-        public string Value { get; init; }
+        public string Value { get; init; } = null!;
 
         /// <summary>
         /// The type of the variable's value. Typically shown in the UI when hovering over the value.

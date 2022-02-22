@@ -12,17 +12,15 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.SetBreakpoints, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record SetBreakpointsArguments : IRequest<SetBreakpointsResponse>
         {
             /// <summary>
             /// The source location of the breakpoints; either 'source.path' or 'source.reference' must be specified.
             /// </summary>
-            public Source Source { get; init; }
+            public Source Source { get; init; } = null!;
 
             /// <summary>
             /// The code locations of the breakpoints.
@@ -47,9 +45,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         public record SetBreakpointsResponse
         {
             /// <summary>
-            /// Information about the breakpoints.The array elements are in the same order as the elements of the 'breakpoints' (or the deprecated 'lines') array in the arguments.
+            /// Information about the breakpoints.The array elements are in the same order as the elements of the 'breakpoints' (or the deprecated 'lines') array in the
+            /// arguments.
             /// </summary>
-            public Container<Breakpoint> Breakpoints { get; init; }
+            public Container<Breakpoint> Breakpoints { get; init; } = null!;
         }
     }
 }

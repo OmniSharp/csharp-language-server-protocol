@@ -13,28 +13,29 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         [Parallel]
         [Method(TextDocumentNames.DocumentFormatting, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(DocumentFormattingRegistrationOptions)), Capability(typeof(DocumentFormattingCapability))]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(DocumentFormattingRegistrationOptions))]
+        [Capability(typeof(DocumentFormattingCapability))]
         public partial record DocumentFormattingParams : ITextDocumentIdentifierParams, IRequest<TextEditContainer?>, IWorkDoneProgressParams
         {
             /// <summary>
             /// The document to format.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; init; }
+            public TextDocumentIdentifier TextDocument { get; init; } = null!;
 
             /// <summary>
             /// The format options.
             /// </summary>
-            public FormattingOptions Options { get; init; }
+            public FormattingOptions Options { get; init; } = null!;
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.DocumentFormattingProvider))]
         [RegistrationName(TextDocumentNames.DocumentFormatting)]
-        public partial class DocumentFormattingRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions { }
+        public partial class DocumentFormattingRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions
+        {
+        }
     }
 
     namespace Client.Capabilities

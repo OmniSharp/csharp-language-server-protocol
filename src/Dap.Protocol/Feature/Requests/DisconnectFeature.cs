@@ -10,11 +10,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.Disconnect, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record DisconnectArguments : IRequest<DisconnectResponse>
         {
             /// <summary>
@@ -32,8 +30,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public bool TerminateDebuggee { get; init; }
         }
 
-        public record DisconnectResponse
-        {
-        }
+        public record DisconnectResponse;
     }
 }

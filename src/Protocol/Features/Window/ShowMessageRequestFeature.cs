@@ -12,17 +12,18 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 // ReSharper disable once CheckNamespace
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-
-
     namespace Models
     {
         /// <summary>
-        /// The show message request is sent from a server to a client to ask the client to display a particular message in the user interface. In addition to the show message notification
+        /// The show message request is sent from a server to a client to ask the client to display a particular message in the user interface. In addition to the show
+        /// message notification
         /// the request allows to pass actions and to wait for an answer from the client.
         /// </summary>
         [Parallel]
         [Method(WindowNames.ShowMessageRequest, Direction.ServerToClient)]
-        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Window"), GenerateHandlerMethods, GenerateRequestMethods(typeof(IWindowLanguageServer), typeof(ILanguageServer))]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Window")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(IWindowLanguageServer), typeof(ILanguageServer))]
         public record ShowMessageRequestParams : IRequest<MessageActionItem>
         {
             /// <summary>
@@ -33,7 +34,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// The actual message
             /// </summary>
-            public string Message { get; init; }
+            public string Message { get; init; } = null!;
 
             /// <summary>
             /// The message action items to present.
@@ -48,10 +49,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// A short title like 'Retry', 'Open Log' etc.
             /// </summary>
-            public string Title { get; init; }
+            public string Title { get; init; } = null!;
 
             /// <summary>
-            /// Extension data that may contain additional properties based on <see cref="ShowMessageRequestClientCapabilities"/>
+            /// Extension data that may contain additional properties based on <see cref="ShowMessageRequestClientCapabilities" />
             /// </summary>
             [JsonExtensionData]
             public IDictionary<string, JToken> ExtensionData { get; init; } = new Dictionary<string, JToken>();
@@ -59,7 +60,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             private string DebuggerDisplay => Title;
 
             /// <inheritdoc />
-            public override string ToString() => DebuggerDisplay;
+            public override string ToString()
+            {
+                return DebuggerDisplay;
+            }
         }
     }
 
@@ -79,6 +83,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             [Optional]
             public ShowMessageRequestMessageActionItemClientCapabilities? MessageActionItem { get; set; }
         }
+
         public class ShowMessageRequestMessageActionItemClientCapabilities
         {
             /// <summary>
@@ -93,6 +98,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
     namespace Window
     {
-
     }
 }

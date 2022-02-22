@@ -14,8 +14,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.General", Name = "LanguageProtocolInitialized")]
         [GenerateHandlerMethods(typeof(ILanguageServerRegistry))]
         [GenerateRequestMethods(typeof(ILanguageClient))]
-        public partial record InitializedParams : IRequest
-        {
-        }
+        public partial record InitializedParams : IRequest;
     }
 }

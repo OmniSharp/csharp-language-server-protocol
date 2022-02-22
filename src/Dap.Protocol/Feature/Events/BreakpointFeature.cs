@@ -80,11 +80,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(EventNames.Breakpoint, Direction.ServerToClient)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record BreakpointEvent : IRequest
         {
             /// <summary>
@@ -96,7 +94,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// The 'id' attribute is used to find the target breakpoint and the other attributes are used as the new values.
             /// </summary>
-            public Breakpoint Breakpoint { get; init; }
+            public Breakpoint Breakpoint { get; init; } = null!;
         }
 
 

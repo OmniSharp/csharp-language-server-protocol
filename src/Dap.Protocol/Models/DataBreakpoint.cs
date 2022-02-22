@@ -10,7 +10,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// An id representing the data. This id is returned from the dataBreakpointInfo request.
         /// </summary>
-        public string DataId { get; init; }
+        public string DataId { get; init; } = null!;
 
         /// <summary>
         /// The access type of the data.

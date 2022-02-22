@@ -1,4 +1,3 @@
-using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -9,24 +8,26 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
-namespace Lsp.Tests.Integration.Fixtures
+namespace Lsp.Integration.Tests.Fixtures
 {
-    [Parallel, Method("tests/discover", Direction.ClientToServer)]
-    [
-        GenerateHandler,
-        GenerateHandlerMethods(typeof(ILanguageServerRegistry)),
-        GenerateRequestMethods(typeof(ILanguageClient))
-    ]
-    [RegistrationOptions(typeof(UnitTestRegistrationOptions)), Capability(typeof(UnitTestCapability))]
-    public partial class DiscoverUnitTestsParams : IPartialItemsRequest<Container<UnitTest>, UnitTest>, IWorkDoneProgressParams { }
+    [Parallel]
+    [Method("tests/discover", Direction.ClientToServer)]
+    [GenerateHandler]
+    [GenerateHandlerMethods(typeof(ILanguageServerRegistry))]
+    [GenerateRequestMethods(typeof(ILanguageClient))]
+    [RegistrationOptions(typeof(UnitTestRegistrationOptions))]
+    [Capability(typeof(UnitTestCapability))]
+    public partial class DiscoverUnitTestsParams : IPartialItemsRequest<Container<UnitTest>, UnitTest>, IWorkDoneProgressParams
+    {
+    }
 
-    [Parallel, Method("tests/run", Direction.ClientToServer)]
-    [
-        GenerateHandler(Name = "RunUnitTest"),
-        GenerateHandlerMethods(typeof(ILanguageServerRegistry)),
-        GenerateRequestMethods(typeof(ILanguageClient))
-    ]
-    [RegistrationOptions(typeof(UnitTestRegistrationOptions)), Capability(typeof(UnitTestCapability))]
+    [Parallel]
+    [Method("tests/run", Direction.ClientToServer)]
+    [GenerateHandler(Name = "RunUnitTest")]
+    [GenerateHandlerMethods(typeof(ILanguageServerRegistry))]
+    [GenerateRequestMethods(typeof(ILanguageClient))]
+    [RegistrationOptions(typeof(UnitTestRegistrationOptions))]
+    [Capability(typeof(UnitTestCapability))]
     public partial class UnitTest : IJsonRpcRequest, IDoesNotParticipateInRegistration
     {
         public string Name { get; set; } = null!;

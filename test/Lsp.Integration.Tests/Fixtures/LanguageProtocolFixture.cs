@@ -7,7 +7,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Lsp.Tests.Integration.Fixtures
+namespace Lsp.Integration.Tests.Fixtures
 {
     public class LanguageProtocolFixture<TConfigureFixture, TConfigureClient, TConfigureServer> : LanguageProtocolTestBase, IAsyncLifetime
         where TConfigureFixture : IConfigureLanguageProtocolFixture, new()
@@ -47,6 +47,9 @@ namespace Lsp.Tests.Integration.Fixtures
             Server = server;
         }
 
-        public Task DisposeAsync() => Task.CompletedTask;
+        public Task DisposeAsync()
+        {
+            return Task.CompletedTask;
+        }
     }
 }

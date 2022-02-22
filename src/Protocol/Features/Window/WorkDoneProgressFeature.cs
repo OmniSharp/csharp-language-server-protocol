@@ -87,7 +87,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             ///
             /// Examples: "Indexing" or "Linking dependencies".
             /// </summary>
-            public string Title { get; init; }
+            public string Title { get; init; } = null!;
 
             /// <summary>
             /// Controls if a cancel button should show to allow the user to cancel the

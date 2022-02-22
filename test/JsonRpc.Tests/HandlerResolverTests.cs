@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using DryIoc;
 using FluentAssertions;
-using FluentAssertions.Common;
 using MediatR;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
@@ -45,8 +44,14 @@ namespace JsonRpc.Tests
         [InlineData(typeof(IJsonRpcNotificationDataHandler), "notificationdata")]
         public void Should_Contain_AllDefinedMethods(Type requestHandler, string key)
         {
-            var handler = new HandlerCollection(Substitute.For<IResolverContext>(), new AssemblyScanningHandlerTypeDescriptorProvider(new [] { typeof(AssemblyScanningHandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly })) {
-                (IJsonRpcHandler) Substitute.For(new[] { requestHandler }, Array.Empty<object>())
+            var handler = new HandlerCollection(
+                Substitute.For<IResolverContext>(),
+                new AssemblyScanningHandlerTypeDescriptorProvider(
+                    new[] { typeof(AssemblyScanningHandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }
+                )
+            )
+            {
+                (IJsonRpcHandler)Substitute.For(new[] { requestHandler }, Array.Empty<object>())
             };
             handler.Should().Contain(x => x.Method == key);
         }
@@ -57,8 +62,14 @@ namespace JsonRpc.Tests
         [InlineData(typeof(IJsonRpcNotificationDataHandler), "notificationdata", null)]
         public void Should_Have_CorrectParams(Type requestHandler, string key, Type expected)
         {
-            var handler = new HandlerCollection(Substitute.For<IResolverContext>(), new AssemblyScanningHandlerTypeDescriptorProvider(new [] { typeof(AssemblyScanningHandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly })) {
-                (IJsonRpcHandler) Substitute.For(new[] { requestHandler }, Array.Empty<object>())
+            var handler = new HandlerCollection(
+                Substitute.For<IResolverContext>(),
+                new AssemblyScanningHandlerTypeDescriptorProvider(
+                    new[] { typeof(AssemblyScanningHandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }
+                )
+            )
+            {
+                (IJsonRpcHandler)Substitute.For(new[] { requestHandler }, Array.Empty<object>())
             };
             handler.First(x => x.Method == key).Params.Should().Be(expected);
         }

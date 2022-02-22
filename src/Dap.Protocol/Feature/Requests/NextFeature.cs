@@ -11,11 +11,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.Next, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record NextArguments : IRequest<NextResponse>
         {
             /// <summary>
@@ -30,8 +28,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public SteppingGranularity Granularity { get; init; }
         }
 
-        public record NextResponse
-        {
-        }
+        public record NextResponse;
     }
 }

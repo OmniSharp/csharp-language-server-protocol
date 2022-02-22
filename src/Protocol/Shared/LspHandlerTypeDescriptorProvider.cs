@@ -46,14 +46,27 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
                              .FirstOrDefault()?.Method;
         }
 
-        public Type? GetRegistrationType(string method) => KnownHandlers
-                                                          .SelectMany(z => z)
-                                                          .FirstOrDefault(z => z.HasRegistration && z.RegistrationMethod == method)?.RegistrationType;
+        public Type? GetRegistrationType(string method)
+        {
+            return KnownHandlers
+                  .SelectMany(z => z)
+                  .FirstOrDefault(z => z.HasRegistration && z.RegistrationMethod == method)?.RegistrationType;
+        }
 
-        public ILspHandlerTypeDescriptor? GetHandlerTypeDescriptor<TA>() => GetHandlerTypeDescriptor(typeof(TA));
-        IHandlerTypeDescriptor? IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?>.GetHandlerTypeDescriptor(Type type) => GetHandlerTypeDescriptor(type);
+        public ILspHandlerTypeDescriptor? GetHandlerTypeDescriptor<TA>()
+        {
+            return GetHandlerTypeDescriptor(typeof(TA));
+        }
 
-        IHandlerTypeDescriptor? IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?>.GetHandlerTypeDescriptor<TA>() => GetHandlerTypeDescriptor<TA>();
+        IHandlerTypeDescriptor? IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?>.GetHandlerTypeDescriptor(Type type)
+        {
+            return GetHandlerTypeDescriptor(type);
+        }
+
+        IHandlerTypeDescriptor? IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?>.GetHandlerTypeDescriptor<TA>()
+        {
+            return GetHandlerTypeDescriptor<TA>();
+        }
 
         public ILspHandlerTypeDescriptor? GetHandlerTypeDescriptor(Type type)
         {
@@ -69,12 +82,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             }
 
             var methodName = GetMethodName(type);
-            return string.IsNullOrWhiteSpace(methodName) ? null : KnownHandlers[methodName!].FirstOrDefault();
+            return string.IsNullOrWhiteSpace(methodName) ? null : KnownHandlers[methodName].FirstOrDefault();
         }
 
-        public string? GetMethodName<T>() where T : IJsonRpcHandler => GetMethodName(typeof(T));
+        public string? GetMethodName<T>() where T : IJsonRpcHandler
+        {
+            return GetMethodName(typeof(T));
+        }
 
-        public bool IsMethodName(string name, params Type[] types) => types.Any(z => GetMethodName(z)?.Equals(name) == true);
+        public bool IsMethodName(string name, params Type[] types)
+        {
+            return types.Any(z => GetMethodName(z)?.Equals(name) == true);
+        }
 
         public string? GetMethodName(Type type)
         {

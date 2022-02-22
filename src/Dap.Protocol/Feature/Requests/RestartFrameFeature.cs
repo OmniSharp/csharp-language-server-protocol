@@ -9,11 +9,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.RestartFrame, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record RestartFrameArguments : IRequest<RestartFrameResponse>
         {
             /// <summary>
@@ -22,8 +20,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public long FrameId { get; init; }
         }
 
-        public record RestartFrameResponse
-        {
-        }
+        public record RestartFrameResponse;
     }
 }

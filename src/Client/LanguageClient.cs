@@ -25,6 +25,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Shared;
+
 // ReSharper disable SuspiciousTypeConversion.Global
 
 namespace OmniSharp.Extensions.LanguageServer.Client
@@ -64,12 +65,21 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         private readonly int? _concurrency;
         private readonly IResolverContext _resolverContext;
 
-        internal static IContainer CreateContainer(LanguageClientOptions options, IServiceProvider? outerServiceProvider) =>
-            JsonRpcServerContainer.Create(outerServiceProvider)
-                                  .AddLanguageClientInternals(options, outerServiceProvider);
+        internal static IContainer CreateContainer(LanguageClientOptions options, IServiceProvider? outerServiceProvider)
+        {
+            return JsonRpcServerContainer.Create(outerServiceProvider)
+                                         .AddLanguageClientInternals(options, outerServiceProvider);
+        }
 
-        public static LanguageClient Create(LanguageClientOptions options) => Create(options, null);
-        public static LanguageClient Create(Action<LanguageClientOptions> optionsAction) => Create(optionsAction, null);
+        public static LanguageClient Create(LanguageClientOptions options)
+        {
+            return Create(options, null);
+        }
+
+        public static LanguageClient Create(Action<LanguageClientOptions> optionsAction)
+        {
+            return Create(optionsAction, null);
+        }
 
         public static LanguageClient Create(Action<LanguageClientOptions> optionsAction, IServiceProvider? outerServiceProvider)
         {
@@ -78,28 +88,53 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             return Create(options, outerServiceProvider);
         }
 
-        public static LanguageClient Create(LanguageClientOptions options, IServiceProvider? outerServiceProvider) =>
-            CreateContainer(options, outerServiceProvider).Resolve<LanguageClient>();
+        public static LanguageClient Create(LanguageClientOptions options, IServiceProvider? outerServiceProvider)
+        {
+            return CreateContainer(options, outerServiceProvider).Resolve<LanguageClient>();
+        }
 
-        public static Task<LanguageClient> From(LanguageClientOptions options) => From(options, null, CancellationToken.None);
-        public static Task<LanguageClient> From(Action<LanguageClientOptions> optionsAction) => From(optionsAction, null, CancellationToken.None);
-        public static Task<LanguageClient> From(LanguageClientOptions options, CancellationToken cancellationToken) => From(options, null, cancellationToken);
-        public static Task<LanguageClient> From(Action<LanguageClientOptions> optionsAction, CancellationToken cancellationToken) => From(optionsAction, null, cancellationToken);
+        public static Task<LanguageClient> From(LanguageClientOptions options)
+        {
+            return From(options, null, CancellationToken.None);
+        }
 
-        public static Task<LanguageClient> From(LanguageClientOptions options, IServiceProvider? outerServiceProvider) =>
-            From(options, outerServiceProvider, CancellationToken.None);
+        public static Task<LanguageClient> From(Action<LanguageClientOptions> optionsAction)
+        {
+            return From(optionsAction, null, CancellationToken.None);
+        }
 
-        public static Task<LanguageClient> From(Action<LanguageClientOptions> optionsAction, IServiceProvider? outerServiceProvider) =>
-            From(optionsAction, outerServiceProvider, CancellationToken.None);
+        public static Task<LanguageClient> From(LanguageClientOptions options, CancellationToken cancellationToken)
+        {
+            return From(options, null, cancellationToken);
+        }
 
-        public static Task<LanguageClient> From(Action<LanguageClientOptions> optionsAction, IServiceProvider? outerServiceProvider, CancellationToken cancellationToken)
+        public static Task<LanguageClient> From(Action<LanguageClientOptions> optionsAction, CancellationToken cancellationToken)
+        {
+            return From(optionsAction, null, cancellationToken);
+        }
+
+        public static Task<LanguageClient> From(LanguageClientOptions options, IServiceProvider? outerServiceProvider)
+        {
+            return From(options, outerServiceProvider, CancellationToken.None);
+        }
+
+        public static Task<LanguageClient> From(Action<LanguageClientOptions> optionsAction, IServiceProvider? outerServiceProvider)
+        {
+            return From(optionsAction, outerServiceProvider, CancellationToken.None);
+        }
+
+        public static Task<LanguageClient> From(
+            Action<LanguageClientOptions> optionsAction, IServiceProvider? outerServiceProvider, CancellationToken cancellationToken
+        )
         {
             var options = new LanguageClientOptions();
             optionsAction(options);
             return From(options, outerServiceProvider, cancellationToken);
         }
 
-        public static async Task<LanguageClient> From(LanguageClientOptions options, IServiceProvider? outerServiceProvider, CancellationToken cancellationToken)
+        public static async Task<LanguageClient> From(
+            LanguageClientOptions options, IServiceProvider? outerServiceProvider, CancellationToken cancellationToken
+        )
         {
             var server = Create(options, outerServiceProvider);
             await server.Initialize(cancellationToken).ConfigureAwait(false);
@@ -113,7 +148,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         /// </summary>
         /// <param name="optionsAction"></param>
         /// <returns></returns>
-        public static LanguageClient PreInit(Action<LanguageClientOptions> optionsAction) => Create(optionsAction);
+        public static LanguageClient PreInit(Action<LanguageClientOptions> optionsAction)
+        {
+            return Create(optionsAction);
+        }
 
         /// <summary>
         /// Create the server without connecting to the client
@@ -122,7 +160,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         /// </summary>
         /// <param name="options"></param>
         /// <returns></returns>
-        public static LanguageClient PreInit(LanguageClientOptions options) => Create(options);
+        public static LanguageClient PreInit(LanguageClientOptions options)
+        {
+            return Create(options);
+        }
 
         internal LanguageClient(
             Connection connection,
@@ -219,7 +260,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         public async Task Initialize(CancellationToken token)
         {
-            var @params = new InitializeParams {
+            var @params = new InitializeParams
+            {
                 Trace = _trace,
                 ClientInfo = _clientInfo,
                 Capabilities = _clientCapabilities,
@@ -232,7 +274,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             var capabilitiesObject = new JObject();
             foreach (var capability in _capabilities)
             {
-                var keys = capability.GetType().GetCustomAttribute<CapabilityKeyAttribute>()?.Keys.Select(key => char.ToLower(key[0]) + key.Substring(1)).ToArray();
+                var keys = capability.GetType().GetCustomAttribute<CapabilityKeyAttribute>()?.Keys.Select(key => char.ToLower(key[0]) + key.Substring(1))
+                                     .ToArray();
                 if (keys != null)
                 {
                     var value = capabilitiesObject;
@@ -247,6 +290,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                             value[key] = value = new JObject();
                         }
                     }
+
                     var lastKey = keys[keys.Length - 1];
                     value[lastKey] = JToken.FromObject(capability, _serializer.JsonSerializer);
                 }
@@ -399,8 +443,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         public IObservable<InitializeResult> Start => _initializeComplete.AsObservable();
 
-        bool IResponseRouter.TryGetRequest(long id, [NotNullWhen(true)] out string method, [NotNullWhen(true)] out TaskCompletionSource<JToken> pendingTask) =>
-            _responseRouter.TryGetRequest(id, out method, out pendingTask);
+        bool IResponseRouter.TryGetRequest(long id, [NotNullWhen(true)] out string? method, [NotNullWhen(true)] out TaskCompletionSource<JToken>? pendingTask)
+        {
+            return _responseRouter.TryGetRequest(id, out method, out pendingTask);
+        }
 
         public Task<InitializeResult> WasStarted => _initializeComplete.ToTask(_scheduler);
 
@@ -423,6 +469,9 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             return result;
         }
 
-        object IServiceProvider.GetService(Type serviceType) => Services.GetService(serviceType);
+        object IServiceProvider.GetService(Type serviceType)
+        {
+            return Services.GetService(serviceType);
+        }
     }
 }

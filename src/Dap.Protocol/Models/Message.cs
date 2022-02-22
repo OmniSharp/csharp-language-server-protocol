@@ -17,7 +17,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// A format string for the message. Embedded variables have the form '{name}'.
         /// If variable name starts with an underscore character, the variable does not contain user data (PII) and can be safely used for telemetry purposes.
         /// </summary>
-        public string Format { get; init; }
+        public string Format { get; init; } = null!;
 
         /// <summary>
         /// An object used as a dictionary for looking up the variables in the format string.

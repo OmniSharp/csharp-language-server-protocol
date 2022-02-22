@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
-
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
     /// <summary>

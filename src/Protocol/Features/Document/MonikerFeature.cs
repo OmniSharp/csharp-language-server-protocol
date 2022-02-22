@@ -23,15 +23,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// </summary>
         [Parallel]
         [Method(TextDocumentNames.Moniker, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(MonikerRegistrationOptions)), Capability(typeof(MonikerCapability))]
-        public partial record MonikerParams : TextDocumentPositionParams, IWorkDoneProgressParams, IPartialItemsRequest<Container<Moniker>?, Moniker>
-        {
-        }
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(MonikerRegistrationOptions))]
+        [Capability(typeof(MonikerCapability))]
+        public partial record MonikerParams : TextDocumentPositionParams, IWorkDoneProgressParams, IPartialItemsRequest<Container<Moniker>?, Moniker>;
 
         /// <summary>
         /// Moniker definition to match LSIF 0.5 moniker definition.
@@ -41,13 +38,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// The scheme of the moniker. For example tsc or .Net
             /// </summary>
-            public string Scheme { get; init; }
+            public string Scheme { get; init; } = null!;
 
             /// <summary>
             /// The identifier of the moniker. The value is opaque in LSIF however
             /// schema owners are allowed to define the structure if they want.
             /// </summary>
-            public string Identifier { get; init; }
+            public string Identifier { get; init; } = null!;
 
             /// <summary>
             /// The scope in which the moniker is unique
@@ -70,18 +67,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// The moniker represent a symbol that is imported into a project
             /// </summary>
-            public static readonly MonikerKind Import = new MonikerKind("import");
+            public static MonikerKind Import { get; } = new MonikerKind("import");
 
             /// <summary>
             /// The moniker represents a symbol that is exported from a project
             /// </summary>
-            public static readonly MonikerKind Export = new MonikerKind("export");
+            public static MonikerKind Export { get; } = new MonikerKind("export");
 
             /// <summary>
             /// The moniker represents a symbol that is local to a project (e.g. a local
             /// variable of a function, a class not visible outside the project, ...)
             /// </summary>
-            public static readonly MonikerKind Local = new MonikerKind("local");
+            public static MonikerKind Local { get; } = new MonikerKind("local");
         }
 
 
@@ -94,28 +91,29 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// The moniker is only unique inside a document
             /// </summary>
-            public static readonly UniquenessLevel Document = new UniquenessLevel("document");
+            public static UniquenessLevel Document { get; } = new UniquenessLevel("document");
 
             /// <summary>
             /// The moniker is unique inside a project for which a dump got created
             /// </summary>
-            public static readonly UniquenessLevel Project = new UniquenessLevel("project");
+            public static UniquenessLevel Project { get; } = new UniquenessLevel("project");
 
             /// <summary>
             /// The moniker is unique inside the group to which a project belongs
             /// </summary>
-            public static readonly UniquenessLevel Group = new UniquenessLevel("group");
+            public static UniquenessLevel Group { get; } = new UniquenessLevel("group");
 
             /// <summary>
             /// The moniker is unique inside the moniker scheme.
             /// </summary>
-            public static readonly UniquenessLevel Scheme = new UniquenessLevel("scheme");
+            public static UniquenessLevel Scheme { get; } = new UniquenessLevel("scheme");
 
             /// <summary>
             /// The moniker is globally unique
             /// </summary>
-            public static readonly UniquenessLevel Global = new UniquenessLevel("global");
+            public static UniquenessLevel Global { get; } = new UniquenessLevel("global");
         }
+
         [GenerateRegistrationOptions(nameof(ServerCapabilities.MonikerProvider))]
         [RegistrationName(TextDocumentNames.Moniker)]
         public partial class MonikerRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions

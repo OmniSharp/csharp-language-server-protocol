@@ -10,16 +10,14 @@ using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog.Events;
-using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
-using Arg = NSubstitute.Arg;
+
 // ReSharper disable SuspiciousTypeConversion.Global
 
-namespace Lsp.Tests.Integration
+namespace Lsp.Integration.Tests
 {
     public class EventingTests : LanguageProtocolTestBase
     {
@@ -59,12 +57,14 @@ namespace Lsp.Tests.Integration
         public async Task Initialize_Interface_Is_Supported_On_Handlers()
         {
             var onLanguageClientInitialize =
-                (IOnLanguageClientInitialize) Substitute.For(new[] { typeof(IOnLanguageClientInitialize), typeof(PublishDiagnosticsHandlerBase) }, Array.Empty<object>());
+                (IOnLanguageClientInitialize)Substitute.For(
+                    new[] { typeof(IOnLanguageClientInitialize), typeof(PublishDiagnosticsHandlerBase) }, Array.Empty<object>()
+                );
             var onLanguageServerInitialize =
-                (IOnLanguageServerInitialize) Substitute.For(new[] { typeof(IOnLanguageServerInitialize), typeof(CompletionHandlerBase) }, new object[] {  });
+                (IOnLanguageServerInitialize)Substitute.For(new[] { typeof(IOnLanguageServerInitialize), typeof(CompletionHandlerBase) }, new object[] { });
             var (client, server) = await Initialize(
-                options => options.AddHandler((IJsonRpcHandler) onLanguageClientInitialize!),
-                options => options.AddHandler((IJsonRpcHandler) onLanguageServerInitialize!)
+                options => options.AddHandler((IJsonRpcHandler)onLanguageClientInitialize),
+                options => options.AddHandler((IJsonRpcHandler)onLanguageServerInitialize)
             );
 
             await onLanguageClientInitialize.Received(1).OnInitialize(client, client.ClientSettings, Arg.Any<CancellationToken>());
@@ -75,16 +75,18 @@ namespace Lsp.Tests.Integration
         public async Task Initialize_Interface_Is_Supported_On_Handlers_After_Startup()
         {
             var onLanguageClientInitialize =
-                (IOnLanguageClientInitialize) Substitute.For(new[] { typeof(IOnLanguageClientInitialize), typeof(PublishDiagnosticsHandlerBase) }, Array.Empty<object>());
+                (IOnLanguageClientInitialize)Substitute.For(
+                    new[] { typeof(IOnLanguageClientInitialize), typeof(PublishDiagnosticsHandlerBase) }, Array.Empty<object>()
+                );
             var onLanguageServerInitialize =
-                (IOnLanguageServerInitialize) Substitute.For(new[] { typeof(IOnLanguageServerInitialize), typeof(CompletionHandlerBase) }, new object[] {  });
+                (IOnLanguageServerInitialize)Substitute.For(new[] { typeof(IOnLanguageServerInitialize), typeof(CompletionHandlerBase) }, new object[] { });
             var (client, server) = await Initialize(o => { }, o => { });
 
             await onLanguageClientInitialize.Received(0).OnInitialize(client, client.ClientSettings, Arg.Any<CancellationToken>());
             await onLanguageServerInitialize.Received(0).OnInitialize(server, server.ClientSettings, Arg.Any<CancellationToken>());
 
-            client.Register(r => r.AddHandler((IJsonRpcHandler) onLanguageClientInitialize!));
-            server.Register(r => r.AddHandler((IJsonRpcHandler) onLanguageServerInitialize!));
+            client.Register(r => r.AddHandler((IJsonRpcHandler)onLanguageClientInitialize));
+            server.Register(r => r.AddHandler((IJsonRpcHandler)onLanguageServerInitialize));
 
             await onLanguageClientInitialize.Received(1).OnInitialize(client, client.ClientSettings, Arg.Any<CancellationToken>());
             await onLanguageServerInitialize.Received(1).OnInitialize(server, server.ClientSettings, Arg.Any<CancellationToken>());
@@ -122,12 +124,14 @@ namespace Lsp.Tests.Integration
         public async Task Initialized_Interface_Is_Supported_On_Handlers()
         {
             var onLanguageClientInitialized =
-                (IOnLanguageClientInitialized) Substitute.For(new[] { typeof(IOnLanguageClientInitialized), typeof(PublishDiagnosticsHandlerBase) }, Array.Empty<object>());
+                (IOnLanguageClientInitialized)Substitute.For(
+                    new[] { typeof(IOnLanguageClientInitialized), typeof(PublishDiagnosticsHandlerBase) }, Array.Empty<object>()
+                );
             var onLanguageServerInitialized =
-                (IOnLanguageServerInitialized) Substitute.For(new[] { typeof(IOnLanguageServerInitialized), typeof(CompletionHandlerBase) }, new object[] { });
+                (IOnLanguageServerInitialized)Substitute.For(new[] { typeof(IOnLanguageServerInitialized), typeof(CompletionHandlerBase) }, new object[] { });
             var (client, server) = await Initialize(
-                options => options.AddHandler((IJsonRpcHandler) onLanguageClientInitialized!),
-                options => options.AddHandler((IJsonRpcHandler) onLanguageServerInitialized!)
+                options => options.AddHandler((IJsonRpcHandler)onLanguageClientInitialized!),
+                options => options.AddHandler((IJsonRpcHandler)onLanguageServerInitialized!)
             );
 
             await onLanguageClientInitialized.Received(1).OnInitialized(client, client.ClientSettings, client.ServerSettings, Arg.Any<CancellationToken>());
@@ -138,16 +142,18 @@ namespace Lsp.Tests.Integration
         public async Task Initialized_Interface_Is_Supported_On_Handlers_After_Startup()
         {
             var onLanguageClientInitialized =
-                (IOnLanguageClientInitialized) Substitute.For(new[] { typeof(IOnLanguageClientInitialized), typeof(PublishDiagnosticsHandlerBase) }, Array.Empty<object>());
+                (IOnLanguageClientInitialized)Substitute.For(
+                    new[] { typeof(IOnLanguageClientInitialized), typeof(PublishDiagnosticsHandlerBase) }, Array.Empty<object>()
+                );
             var onLanguageServerInitialized =
-                (IOnLanguageServerInitialized) Substitute.For(new[] { typeof(IOnLanguageServerInitialized), typeof(CompletionHandlerBase) }, new object[] { });
+                (IOnLanguageServerInitialized)Substitute.For(new[] { typeof(IOnLanguageServerInitialized), typeof(CompletionHandlerBase) }, new object[] { });
             var (client, server) = await Initialize(o => { }, o => { });
 
             await onLanguageClientInitialized.Received(0).OnInitialized(client, client.ClientSettings, client.ServerSettings, Arg.Any<CancellationToken>());
             await onLanguageServerInitialized.Received(0).OnInitialized(server, server.ClientSettings, server.ServerSettings, Arg.Any<CancellationToken>());
 
-            client.Register(r => r.AddHandler((IJsonRpcHandler) onLanguageClientInitialized!));
-            server.Register(r => r.AddHandler((IJsonRpcHandler) onLanguageServerInitialized!));
+            client.Register(r => r.AddHandler((IJsonRpcHandler)onLanguageClientInitialized!));
+            server.Register(r => r.AddHandler((IJsonRpcHandler)onLanguageServerInitialized!));
 
             await onLanguageClientInitialized.Received(1).OnInitialized(client, client.ClientSettings, client.ServerSettings, Arg.Any<CancellationToken>());
             await onLanguageServerInitialized.Received(1).OnInitialized(server, server.ClientSettings, server.ServerSettings, Arg.Any<CancellationToken>());
@@ -185,12 +191,14 @@ namespace Lsp.Tests.Integration
         public async Task Started_Interface_Is_Supported_On_Handlers()
         {
             var onLanguageClientStarted =
-                (IOnLanguageClientStarted) Substitute.For(new[] { typeof(IOnLanguageClientStarted), typeof(PublishDiagnosticsHandlerBase) }, Array.Empty<object>());
+                (IOnLanguageClientStarted)Substitute.For(
+                    new[] { typeof(IOnLanguageClientStarted), typeof(PublishDiagnosticsHandlerBase) }, Array.Empty<object>()
+                );
             var onLanguageServerStarted =
-                (IOnLanguageServerStarted) Substitute.For(new[] { typeof(IOnLanguageServerStarted), typeof(CompletionHandlerBase) }, new object[] { });
+                (IOnLanguageServerStarted)Substitute.For(new[] { typeof(IOnLanguageServerStarted), typeof(CompletionHandlerBase) }, new object[] { });
             var (client, server) = await Initialize(
-                options => options.AddHandler((IJsonRpcHandler) onLanguageClientStarted!),
-                options => options.AddHandler((IJsonRpcHandler) onLanguageServerStarted!)
+                options => options.AddHandler((IJsonRpcHandler)onLanguageClientStarted!),
+                options => options.AddHandler((IJsonRpcHandler)onLanguageServerStarted!)
             );
 
             await onLanguageClientStarted.Received(1).OnStarted(client, Arg.Any<CancellationToken>());
@@ -201,16 +209,18 @@ namespace Lsp.Tests.Integration
         public async Task Started_Interface_Is_Supported_On_Handlers_After_Startup()
         {
             var onLanguageClientStarted =
-                (IOnLanguageClientStarted) Substitute.For(new[] { typeof(IOnLanguageClientStarted), typeof(PublishDiagnosticsHandlerBase) }, Array.Empty<object>());
+                (IOnLanguageClientStarted)Substitute.For(
+                    new[] { typeof(IOnLanguageClientStarted), typeof(PublishDiagnosticsHandlerBase) }, Array.Empty<object>()
+                );
             var onLanguageServerStarted =
-                (IOnLanguageServerStarted) Substitute.For(new[] { typeof(IOnLanguageServerStarted), typeof(CompletionHandlerBase) }, new object[] { });
+                (IOnLanguageServerStarted)Substitute.For(new[] { typeof(IOnLanguageServerStarted), typeof(CompletionHandlerBase) }, new object[] { });
             var (client, server) = await Initialize(o => { }, o => { });
 
             await onLanguageClientStarted.Received(0).OnStarted(client, Arg.Any<CancellationToken>());
             await onLanguageServerStarted.Received(0).OnStarted(server, Arg.Any<CancellationToken>());
 
-            client.Register(r => r.AddHandler((IJsonRpcHandler) onLanguageClientStarted!));
-            server.Register(r => r.AddHandler((IJsonRpcHandler) onLanguageServerStarted!));
+            client.Register(r => r.AddHandler((IJsonRpcHandler)onLanguageClientStarted!));
+            server.Register(r => r.AddHandler((IJsonRpcHandler)onLanguageServerStarted!));
 
             await onLanguageClientStarted.Received(1).OnStarted(client, Arg.Any<CancellationToken>());
             await onLanguageServerStarted.Received(1).OnStarted(server, Arg.Any<CancellationToken>());

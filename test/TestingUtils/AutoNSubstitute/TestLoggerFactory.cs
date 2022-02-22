@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions.Internal;
 using Serilog;
 using Serilog.Events;
 using Serilog.Extensions.Logging;
@@ -42,7 +41,7 @@ namespace NSubstitute
         ILogger ILoggerFactory.CreateLogger(string categoryName)
         {
             return _additionalLoggerProviders.Count > 0
-                ? new TestLogger(new [] { _loggerProvider }.Concat(_additionalLoggerProviders).Select(z => z.CreateLogger(categoryName)))
+                ? new TestLogger(new[] { _loggerProvider }.Concat(_additionalLoggerProviders).Select(z => z.CreateLogger(categoryName)))
                 : _loggerProvider.CreateLogger(categoryName);
         }
 
@@ -75,11 +74,20 @@ namespace NSubstitute
                 Interlocked.Exchange(ref _testOutputHelper, testOutputHelper);
             }
 
-            public void WriteLine(string message) => _testOutputHelper?.WriteLine(message);
+            public void WriteLine(string message)
+            {
+                _testOutputHelper?.WriteLine(message);
+            }
 
-            public void WriteLine(string format, params object[] args) => _testOutputHelper?.WriteLine(format, args);
+            public void WriteLine(string format, params object[] args)
+            {
+                _testOutputHelper?.WriteLine(format, args);
+            }
         }
 
-        public IDisposable Subscribe(IObserver<LogEvent> observer) => _subject.Subscribe(observer);
+        public IDisposable Subscribe(IObserver<LogEvent> observer)
+        {
+            return _subject.Subscribe(observer);
+        }
     }
 }

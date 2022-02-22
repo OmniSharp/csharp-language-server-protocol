@@ -1,12 +1,10 @@
 using System;
-using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Lsp.Tests.Integration.Fixtures;
-using Newtonsoft.Json;
+using Lsp.Integration.Tests.Fixtures;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
@@ -14,12 +12,10 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Serilog.Events;
-using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
-using Nested = Lsp.Tests.Integration.Fixtures.Nested;
 
-namespace Lsp.Tests.Integration
+namespace Lsp.Integration.Tests
 {
     public partial class TypedDocumentLinkTests : LanguageProtocolTestBase
     {
@@ -31,7 +27,8 @@ namespace Lsp.Tests.Integration
         public async Task Should_Aggregate_With_All_Related_Handlers()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     var identifier = Substitute.For<ITextDocumentIdentifier>();
                     identifier.GetTextDocumentAttributes(Arg.Any<DocumentUri>()).Returns(
                         call => new TextDocumentAttributes(call.ArgAt<DocumentUri>(0), "file", "csharp")
@@ -39,13 +36,17 @@ namespace Lsp.Tests.Integration
                     options.AddTextDocumentIdentifier(identifier);
 
                     options.OnDocumentLink(
-                        codeLensParams => {
+                        codeLensParams =>
+                        {
                             return Task.FromResult(
-                                new DocumentLinkContainer<Fixtures.Data>(
-                                    new DocumentLink<Fixtures.Data> {
+                                new DocumentLinkContainer<Data>(
+                                    new DocumentLink<Data>
+                                    {
                                         Tooltip = "data-a",
-                                        Data = new Fixtures.Data {
-                                            Child = new Nested {
+                                        Data = new Data
+                                        {
+                                            Child = new Nested
+                                            {
                                                 Date = DateTimeOffset.MinValue
                                             },
                                             Id = Guid.NewGuid(),
@@ -55,67 +56,70 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        documentLink => {
-                            return Task.FromResult(documentLink with { Tooltip = "resolved-a" });
-                        },
-                        (_, _) => new DocumentLinkRegistrationOptions {
+                        documentLink => { return Task.FromResult(documentLink with { Tooltip = "resolved-a" }); },
+                        (_, _) => new DocumentLinkRegistrationOptions
+                        {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
 
                     options.OnDocumentLink(
-                        codeLensParams => {
+                        codeLensParams =>
+                        {
                             return Task.FromResult(
                                 new DocumentLinkContainer<Nested>(
-                                    new DocumentLink<Nested> {
+                                    new DocumentLink<Nested>
+                                    {
                                         Tooltip = "nested-b",
-                                        Data = new Nested {
+                                        Data = new Nested
+                                        {
                                             Date = DateTimeOffset.Now
                                         }
                                     }
                                 )
                             );
                         },
-                        documentLink => {
-                            return Task.FromResult(documentLink with { Tooltip = "resolved-b" });
-                        },
-                        (_, _) => new DocumentLinkRegistrationOptions {
+                        documentLink => { return Task.FromResult(documentLink with { Tooltip = "resolved-b" }); },
+                        (_, _) => new DocumentLinkRegistrationOptions
+                        {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
 
                     options.OnDocumentLink(
-                        codeLensParams => {
+                        codeLensParams =>
+                        {
                             return Task.FromResult(
                                 new DocumentLinkContainer(
-                                    new DocumentLink {
+                                    new DocumentLink
+                                    {
                                         Tooltip = "no-data-c",
                                     }
                                 )
                             );
                         },
-                        documentLink => {
-                            return Task.FromResult(documentLink with { Tooltip = "resolved-c" });
-                        },
-                        (_, _) => new DocumentLinkRegistrationOptions {
+                        documentLink => { return Task.FromResult(documentLink with { Tooltip = "resolved-c" }); },
+                        (_, _) => new DocumentLinkRegistrationOptions
+                        {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
 
                     options.OnDocumentLink(
-                        codeLensParams => {
+                        codeLensParams =>
+                        {
                             return Task.FromResult(
                                 new DocumentLinkContainer(
-                                    new DocumentLink {
+                                    new DocumentLink
+                                    {
                                         Tooltip = "not-included",
                                     }
                                 )
                             );
                         },
-                        documentLink => {
-                            return Task.FromResult(documentLink with { Tooltip = "resolved-d" });
-                        },
-                        (_, _) => new DocumentLinkRegistrationOptions {
+                        documentLink => { return Task.FromResult(documentLink with { Tooltip = "resolved-d" }); },
+                        (_, _) => new DocumentLinkRegistrationOptions
+                        {
                             DocumentSelector = DocumentSelector.ForLanguage("vb")
                         }
                     );
@@ -123,7 +127,8 @@ namespace Lsp.Tests.Integration
             );
 
             var items = await client.RequestDocumentLink(
-                new DocumentLinkParams {
+                new DocumentLinkParams
+                {
                     TextDocument = new TextDocumentIdentifier("/some/path/file.cs"),
                 }
             );
@@ -140,15 +145,20 @@ namespace Lsp.Tests.Integration
         public async Task Should_Resolve_With_Data_Capability()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnDocumentLink(
-                        (documentLinkParams, capability, token) => {
+                        (documentLinkParams, capability, token) =>
+                        {
                             return Task.FromResult(
-                                new DocumentLinkContainer<Fixtures.Data>(
-                                    new DocumentLink<Fixtures.Data> {
+                                new DocumentLinkContainer<Data>(
+                                    new DocumentLink<Data>
+                                    {
                                         Tooltip = "execute-a",
-                                        Data = new Fixtures.Data {
-                                            Child = new Nested {
+                                        Data = new Data
+                                        {
+                                            Child = new Nested
+                                            {
                                                 Date = DateTimeOffset.MinValue
                                             },
                                             Id = Guid.NewGuid(),
@@ -158,7 +168,8 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        (documentLink, capability, token) => {
+                        (documentLink, capability, token) =>
+                        {
                             documentLink.Data.Id.Should().NotBeEmpty();
                             documentLink.Data.Child.Should().NotBeNull();
                             documentLink.Data.Name.Should().Be("name");
@@ -181,14 +192,19 @@ namespace Lsp.Tests.Integration
         public async Task Should_Resolve_With_Partial_Data_Capability()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
-                    options.ObserveDocumentLink<Fixtures.Data>(
-                        (documentLinkParams, observer, capability, token) => {
-                            var a = new DocumentLinkContainer<Fixtures.Data>(
-                                new DocumentLink<Fixtures.Data> {
+                options => { }, options =>
+                {
+                    options.ObserveDocumentLink<Data>(
+                        (documentLinkParams, observer, capability, token) =>
+                        {
+                            var a = new DocumentLinkContainer<Data>(
+                                new DocumentLink<Data>
+                                {
                                     Tooltip = "execute-a",
-                                    Data = new Fixtures.Data {
-                                        Child = new Nested {
+                                    Data = new Data
+                                    {
+                                        Child = new Nested
+                                        {
                                             Date = DateTimeOffset.MinValue
                                         },
                                         Id = Guid.NewGuid(),
@@ -200,7 +216,8 @@ namespace Lsp.Tests.Integration
                             observer.OnNext(a);
                             observer.OnCompleted();
                         },
-                        (documentLink, capability, token) => {
+                        (documentLink, capability, token) =>
+                        {
                             documentLink.Data.Id.Should().NotBeEmpty();
                             documentLink.Data.Child.Should().NotBeNull();
                             documentLink.Data.Name.Should().Be("name");
@@ -221,15 +238,20 @@ namespace Lsp.Tests.Integration
         public async Task Should_Resolve_With_Data_CancellationToken()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnDocumentLink(
-                        (documentLinkParams, token) => {
+                        (documentLinkParams, token) =>
+                        {
                             return Task.FromResult(
-                                new DocumentLinkContainer<Fixtures.Data>(
-                                    new DocumentLink<Fixtures.Data> {
+                                new DocumentLinkContainer<Data>(
+                                    new DocumentLink<Data>
+                                    {
                                         Tooltip = "execute-a",
-                                        Data = new Fixtures.Data {
-                                            Child = new Nested {
+                                        Data = new Data
+                                        {
+                                            Child = new Nested
+                                            {
                                                 Date = DateTimeOffset.MinValue
                                             },
                                             Id = Guid.NewGuid(),
@@ -239,7 +261,8 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        (documentLink, token) => {
+                        (documentLink, token) =>
+                        {
                             documentLink.Data.Id.Should().NotBeEmpty();
                             documentLink.Data.Child.Should().NotBeNull();
                             documentLink.Data.Name.Should().Be("name");
@@ -262,14 +285,19 @@ namespace Lsp.Tests.Integration
         public async Task Should_Resolve_With_Partial_Data_CancellationToken()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
-                    options.ObserveDocumentLink<Fixtures.Data>(
-                        (documentLinkParams, observer, token) => {
-                            var a = new DocumentLinkContainer<Fixtures.Data>(
-                                new DocumentLink<Fixtures.Data> {
+                options => { }, options =>
+                {
+                    options.ObserveDocumentLink<Data>(
+                        (documentLinkParams, observer, token) =>
+                        {
+                            var a = new DocumentLinkContainer<Data>(
+                                new DocumentLink<Data>
+                                {
                                     Tooltip = "execute-a",
-                                    Data = new Fixtures.Data {
-                                        Child = new Nested {
+                                    Data = new Data
+                                    {
+                                        Child = new Nested
+                                        {
                                             Date = DateTimeOffset.MinValue
                                         },
                                         Id = Guid.NewGuid(),
@@ -281,7 +309,8 @@ namespace Lsp.Tests.Integration
                             observer.OnNext(a);
                             observer.OnCompleted();
                         },
-                        (documentLink, token) => {
+                        (documentLink, token) =>
+                        {
                             documentLink.Data.Id.Should().NotBeEmpty();
                             documentLink.Data.Child.Should().NotBeNull();
                             documentLink.Data.Name.Should().Be("name");
@@ -302,15 +331,20 @@ namespace Lsp.Tests.Integration
         public async Task Should_Resolve_With_Data()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnDocumentLink(
-                        documentLinkParams => {
+                        documentLinkParams =>
+                        {
                             return Task.FromResult(
-                                new DocumentLinkContainer<Fixtures.Data>(
-                                    new DocumentLink<Data> {
+                                new DocumentLinkContainer<Data>(
+                                    new DocumentLink<Data>
+                                    {
                                         Tooltip = "execute-a",
-                                        Data = new Data {
-                                            Child = new Nested {
+                                        Data = new Data
+                                        {
+                                            Child = new Nested
+                                            {
                                                 Date = DateTimeOffset.MinValue
                                             },
                                             Id = Guid.NewGuid(),
@@ -320,7 +354,8 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        documentLink => {
+                        documentLink =>
+                        {
                             documentLink.Data.Id.Should().NotBeEmpty();
                             documentLink.Data.Child.Should().NotBeNull();
                             documentLink.Data.Name.Should().Be("name");
@@ -343,14 +378,19 @@ namespace Lsp.Tests.Integration
         public async Task Should_Resolve_With_Partial_Data()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.ObserveDocumentLink<Data>(
-                        (documentLinkParams, observer) => {
+                        (documentLinkParams, observer) =>
+                        {
                             var a = new DocumentLinkContainer<Data>(
-                                new DocumentLink<Data> {
+                                new DocumentLink<Data>
+                                {
                                     Tooltip = "execute-a",
-                                    Data = new Data {
-                                        Child = new Nested {
+                                    Data = new Data
+                                    {
+                                        Child = new Nested
+                                        {
                                             Date = DateTimeOffset.MinValue
                                         },
                                         Id = Guid.NewGuid(),
@@ -362,7 +402,8 @@ namespace Lsp.Tests.Integration
                             observer.OnNext(a);
                             observer.OnCompleted();
                         },
-                        documentLink => {
+                        documentLink =>
+                        {
                             documentLink.Data.Id.Should().NotBeEmpty();
                             documentLink.Data.Child.Should().NotBeNull();
                             documentLink.Data.Name.Should().Be("name");
@@ -384,20 +425,21 @@ namespace Lsp.Tests.Integration
         public async Task Should_Resolve_Capability()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnDocumentLink(
-                        (documentLinkParams, capability, token) => {
+                        (documentLinkParams, capability, token) =>
+                        {
                             return Task.FromResult(
                                 new DocumentLinkContainer(
-                                    new DocumentLink {
+                                    new DocumentLink
+                                    {
                                         Tooltip = "execute-a",
                                     }
                                 )
                             );
                         },
-                        (documentLink, capability, token) => {
-                            return Task.FromResult(documentLink with { Tooltip = "resolved" });
-                        },
+                        (documentLink, capability, token) => { return Task.FromResult(documentLink with { Tooltip = "resolved" }); },
                         (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
@@ -415,11 +457,14 @@ namespace Lsp.Tests.Integration
         public async Task Should_Resolve_Partial_Capability()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.ObserveDocumentLink(
-                        (documentLinkParams, observer, capability, token) => {
+                        (documentLinkParams, observer, capability, token) =>
+                        {
                             var a = new DocumentLinkContainer(
-                                new DocumentLink {
+                                new DocumentLink
+                                {
                                     Tooltip = "execute-a",
                                 }
                             );
@@ -427,9 +472,7 @@ namespace Lsp.Tests.Integration
                             observer.OnNext(a);
                             observer.OnCompleted();
                         },
-                        (documentLink, capability, token) => {
-                            return Task.FromResult(documentLink with { Tooltip = "resolved" });
-                        },
+                        (documentLink, capability, token) => { return Task.FromResult(documentLink with { Tooltip = "resolved" }); },
                         (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
@@ -445,20 +488,21 @@ namespace Lsp.Tests.Integration
         public async Task Should_Resolve_CancellationToken()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnDocumentLink(
-                        (documentLinkParams, token) => {
+                        (documentLinkParams, token) =>
+                        {
                             return Task.FromResult(
                                 new DocumentLinkContainer(
-                                    new DocumentLink {
+                                    new DocumentLink
+                                    {
                                         Tooltip = "execute-a",
                                     }
                                 )
                             );
                         },
-                        (documentLink, token) => {
-                            return Task.FromResult(documentLink with { Tooltip = "resolved" });
-                        },
+                        (documentLink, token) => { return Task.FromResult(documentLink with { Tooltip = "resolved" }); },
                         (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
@@ -476,11 +520,14 @@ namespace Lsp.Tests.Integration
         public async Task Should_Resolve_Partial_CancellationToken()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.ObserveDocumentLink(
-                        (documentLinkParams, observer, token) => {
+                        (documentLinkParams, observer, token) =>
+                        {
                             var a = new DocumentLinkContainer(
-                                new DocumentLink {
+                                new DocumentLink
+                                {
                                     Tooltip = "execute-a",
                                 }
                             );
@@ -488,9 +535,7 @@ namespace Lsp.Tests.Integration
                             observer.OnNext(a);
                             observer.OnCompleted();
                         },
-                        (documentLink, token) => {
-                            return Task.FromResult(documentLink with { Tooltip = "resolved" });
-                        },
+                        (documentLink, token) => { return Task.FromResult(documentLink with { Tooltip = "resolved" }); },
                         (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
@@ -506,20 +551,21 @@ namespace Lsp.Tests.Integration
         public async Task Should_Resolve()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnDocumentLink(
-                        documentLinkParams => {
+                        documentLinkParams =>
+                        {
                             return Task.FromResult(
                                 new DocumentLinkContainer(
-                                    new DocumentLink {
+                                    new DocumentLink
+                                    {
                                         Tooltip = "execute-a",
                                     }
                                 )
                             );
                         },
-                        documentLink => {
-                            return Task.FromResult(documentLink with { Tooltip = "resolved" });
-                        },
+                        documentLink => { return Task.FromResult(documentLink with { Tooltip = "resolved" }); },
                         (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
@@ -537,11 +583,14 @@ namespace Lsp.Tests.Integration
         public async Task Should_Resolve_Partial()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.ObserveDocumentLink(
-                        (documentLinkParams, observer) => {
+                        (documentLinkParams, observer) =>
+                        {
                             var a = new DocumentLinkContainer(
-                                new DocumentLink {
+                                new DocumentLink
+                                {
                                     Tooltip = "execute-a",
                                 }
                             );
@@ -549,9 +598,7 @@ namespace Lsp.Tests.Integration
                             observer.OnNext(a);
                             observer.OnCompleted();
                         },
-                        documentLink => {
-                            return Task.FromResult(documentLink with { Tooltip = "resolved" });
-                        },
+                        documentLink => { return Task.FromResult(documentLink with { Tooltip = "resolved" }); },
                         (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }

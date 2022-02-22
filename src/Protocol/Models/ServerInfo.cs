@@ -14,7 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The name of the server as defined by the server.
         /// </summary>
-        public string Name { get; init; }
+        public string Name { get; init; } = null!;
 
         /// <summary>
         /// The servers's version as defined by the server.
@@ -25,6 +25,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         private string DebuggerDisplay => string.IsNullOrWhiteSpace(Version) ? Name : $"{Name} ({Version})";
 
         /// <inheritdoc />
-        public override string ToString() => DebuggerDisplay;
+        public override string ToString()
+        {
+            return DebuggerDisplay;
+        }
     }
 }

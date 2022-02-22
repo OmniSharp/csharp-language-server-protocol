@@ -1,6 +1,4 @@
 ﻿using FluentAssertions;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using Xunit;
@@ -14,7 +12,8 @@ namespace Lsp.Tests
         {
             var serializer = new LspSerializer();
             var json = serializer.SerializeObject(
-                new Diagnostic {
+                new Diagnostic
+                {
                     Tags = new Container<DiagnosticTag>(DiagnosticTag.Deprecated)
                 }
             );

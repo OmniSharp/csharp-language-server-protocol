@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
-using NSubstitute.Extensions;
 using NSubstitute.ReceivedExtensions;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
@@ -24,11 +23,13 @@ using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Lsp.Tests.Integration
+namespace Lsp.Integration.Tests
 {
     public class LanguageServerConfigurationTests : LanguageProtocolTestBase
     {
-        public LanguageServerConfigurationTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper, LogEventLevel.Verbose))
+        public LanguageServerConfigurationTests(ITestOutputHelper outputHelper) : base(
+            new JsonRpcTestOptions().ConfigureForXUnit(outputHelper, LogEventLevel.Verbose)
+        )
         {
         }
 
@@ -50,13 +51,15 @@ namespace Lsp.Tests.Integration
         public async Task Should_Allow_Null_Response()
         {
             var (client, server) = await Initialize(
-                options => {
+                options =>
+                {
                     options.WithCapability(new DidChangeConfigurationCapability());
                     options.OnConfiguration(@params => Task.FromResult(new Container<JToken>(@params.Items.Select(z => (JToken?)null))));
                     ConfigureClient(options);
-                }, ConfigureServer);
+                }, ConfigureServer
+            );
 
-            Func<Task> a = () => server.Configuration.GetConfiguration(new ConfigurationItem() { Section = "mysection" });
+            Func<Task> a = () => server.Configuration.GetConfiguration(new ConfigurationItem { Section = "mysection" });
             await a.Should().NotThrowAsync();
         }
 
@@ -78,7 +81,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Update_Configuration_On_Server_After_Starting()
         {
-            var (_, server, configuration) = await InitializeWithConfiguration(ConfigureClient, options => {});
+            var (_, server, configuration) = await InitializeWithConfiguration(ConfigureClient, options => { });
             server.Configuration.AsEnumerable().Should().BeEmpty();
             server.Configuration.AddSection("mysection", "othersection");
 
@@ -212,10 +215,13 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Support_Options()
         {
-            var (_, server, configuration) = await InitializeWithConfiguration(ConfigureClient, options => {
-                ConfigureServer(options);
-                options.Services.Configure<BinderSourceUrl>("mysection");
-            });
+            var (_, server, configuration) = await InitializeWithConfiguration(
+                ConfigureClient, options =>
+                {
+                    ConfigureServer(options);
+                    options.Services.Configure<BinderSourceUrl>("mysection");
+                }
+            );
 
             configuration.Update("mysection", new Dictionary<string, string> { ["host"] = "localhost", ["port"] = "443" });
             configuration.Update("notmysection", new Dictionary<string, string> { ["host"] = "127.0.0.1", ["port"] = "123" });
@@ -237,10 +243,13 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Support_Options_Monitor()
         {
-            var (_, server, configuration) = await InitializeWithConfiguration(ConfigureClient, options => {
-                ConfigureServer(options);
-                options.Services.Configure<BinderSourceUrl>("mysection");
-            });
+            var (_, server, configuration) = await InitializeWithConfiguration(
+                ConfigureClient, options =>
+                {
+                    ConfigureServer(options);
+                    options.Services.Configure<BinderSourceUrl>("mysection");
+                }
+            );
 
             var options = server.GetService<IOptionsMonitor<BinderSourceUrl>>();
             var sub = Substitute.For<Action<BinderSourceUrl>>();
@@ -265,7 +274,7 @@ namespace Lsp.Tests.Integration
             sub.Received(Quantity.Within(2, int.MaxValue)).Invoke(Arg.Any<BinderSourceUrl>());
         }
 
-        class BinderSourceUrl
+        private class BinderSourceUrl
         {
             public string Host { get; set; }
             public int Port { get; set; }
@@ -275,6 +284,9 @@ namespace Lsp.Tests.Integration
         {
         }
 
-        private void ConfigureServer(LanguageServerOptions options) => options.WithConfigurationSection("mysection").WithConfigurationSection("othersection");
+        private void ConfigureServer(LanguageServerOptions options)
+        {
+            options.WithConfigurationSection("mysection").WithConfigurationSection("othersection");
+        }
     }
 }

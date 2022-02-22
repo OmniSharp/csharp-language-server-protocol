@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
-using System.Reactive.Concurrency;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -27,7 +26,10 @@ namespace JsonRpc.Tests
         private readonly TestLoggerFactory _loggerFactory;
         private readonly OnUnhandledExceptionHandler _unhandledException = Substitute.For<OnUnhandledExceptionHandler>();
 
-        public InputHandlerTests(ITestOutputHelper testOutputHelper) => _loggerFactory = new TestLoggerFactory(testOutputHelper);
+        public InputHandlerTests(ITestOutputHelper testOutputHelper)
+        {
+            _loggerFactory = new TestLoggerFactory(testOutputHelper);
+        }
 
         private InputHandler NewHandler(
             PipeReader inputStream,
@@ -37,8 +39,9 @@ namespace JsonRpc.Tests
             ILoggerFactory loggerFactory,
             IResponseRouter responseRouter,
             RequestInvoker requestInvoker
-        ) =>
-            new InputHandler(
+        )
+        {
+            return new InputHandler(
                 inputStream,
                 outputHandler,
                 receiver,
@@ -49,6 +52,7 @@ namespace JsonRpc.Tests
                 _unhandledException,
                 null
             );
+        }
 
         [Fact]
         public async Task Should_Pass_In_Requests()
@@ -258,7 +262,9 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task Should_Handle_Header_Terminiator_Being_Incomplete()
         {
-            var pipe = new Pipe(new PipeOptions(readerScheduler: PipeScheduler.ThreadPool, writerScheduler: PipeScheduler.Inline, useSynchronizationContext: false));
+            var pipe = new Pipe(
+                new PipeOptions(readerScheduler: PipeScheduler.ThreadPool, writerScheduler: PipeScheduler.Inline, useSynchronizationContext: false)
+            );
 
             var outputHandler = Substitute.For<IOutputHandler>();
             var receiver = Substitute.For<IReceiver>();
@@ -407,7 +413,8 @@ namespace JsonRpc.Tests
 
                     var msgTypes = data
                                   .Select(
-                                       z => {
+                                       z =>
+                                       {
                                            if (z.MsgKind.EndsWith("response"))
                                            {
                                                return ( type: "response", kind: z.MsgType );
@@ -426,7 +433,7 @@ namespace JsonRpc.Tests
                                            return ( type: null, kind: null );
                                        }
                                    )
-                                  .Where(z => z.type != null)
+                                  .Where(z => z.type != null!)
                                   .ToLookup(z => z.kind!, z => z.type!);
 
                     Add(streamName, () => CreateReader(data), msgTypes!);
@@ -446,7 +453,8 @@ namespace JsonRpc.Tests
             {
                 var outputData = data
                    .Select<DataItem, object>(
-                        z => {
+                        z =>
+                        {
                             if (z.MsgKind.EndsWith("response"))
                             {
                                 return new OutgoingResponse(z.MsgId, z.Arg, new Request(z.MsgId, z.MsgType, JValue.CreateNull()));
@@ -454,7 +462,8 @@ namespace JsonRpc.Tests
 
                             if (z.MsgKind.EndsWith("request"))
                             {
-                                return new OutgoingRequest {
+                                return new OutgoingRequest
+                                {
                                     Id = z.MsgId,
                                     Method = z.MsgType,
                                     Params = z.Arg
@@ -463,7 +472,8 @@ namespace JsonRpc.Tests
 
                             if (z.MsgKind.EndsWith("notification"))
                             {
-                                return new OutgoingNotification {
+                                return new OutgoingNotification
+                                {
                                     Method = z.MsgType,
                                     Params = z.Arg
                                 };
@@ -478,7 +488,8 @@ namespace JsonRpc.Tests
                 var serializer = new JsonRpcSerializer();
 
                 Task.Run(
-                    async () => {
+                    async () =>
+                    {
                         foreach (var item in outputData)
                         {
                             var content = serializer.SerializeObject(item);

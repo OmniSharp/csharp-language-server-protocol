@@ -15,12 +15,11 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using Serilog.Events;
-using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
-namespace Lsp.Tests.Integration
+namespace Lsp.Integration.Tests
 {
     public class ExecuteTypedCommandTests : LanguageProtocolTestBase
     {
@@ -32,14 +31,17 @@ namespace Lsp.Tests.Integration
         public async Task Should_Execute_A_Command()
         {
             var command = Substitute.For<Func<ExecuteCommandParams<CommandResponse>, Task<CommandResponse>>>();
-            command.Invoke(Arg.Any<ExecuteCommandParams<CommandResponse>>()).Returns(new CommandResponse() { Value = "1234" });
+            command.Invoke(Arg.Any<ExecuteCommandParams<CommandResponse>>()).Returns(new CommandResponse { Value = "1234" });
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCompletion(
-                        x => {
+                        x =>
+                        {
                             return Task.FromResult(
                                 new CompletionList(
-                                    new CompletionItem {
+                                    new CompletionItem
+                                    {
                                         Command = Command.Create("execute-a", 1, "2", false)
                                     }
                                 )
@@ -48,7 +50,8 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand(
-                        command, (_, _) => new ExecuteCommandRegistrationOptions {
+                        command, (_, _) => new ExecuteCommandRegistrationOptions
+                        {
                             Commands = new Container<string>("execute-a")
                         }
                     );
@@ -70,22 +73,28 @@ namespace Lsp.Tests.Integration
         public async Task Should_Execute_The_Correct_Command()
         {
             var commanda = Substitute.For<Func<ExecuteCommandParams<CommandResponse>, Task<CommandResponse>>>();
-            commanda.Invoke(Arg.Any<ExecuteCommandParams<CommandResponse>>()).Returns(new CommandResponse() { Value = "1234" });
-            var commandb = Substitute.For<Func<ExecuteCommandParams<CommandResponse>,ExecuteCommandCapability, CancellationToken, Task<CommandResponse>>>();
-            commandb.Invoke(Arg.Any<ExecuteCommandParams<CommandResponse>>(), Arg.Any<ExecuteCommandCapability>(), Arg.Any<CancellationToken>()).Returns(new CommandResponse() { Value = "4321" });
+            commanda.Invoke(Arg.Any<ExecuteCommandParams<CommandResponse>>()).Returns(new CommandResponse { Value = "1234" });
+            var commandb = Substitute.For<Func<ExecuteCommandParams<CommandResponse>, ExecuteCommandCapability, CancellationToken, Task<CommandResponse>>>();
+            commandb.Invoke(Arg.Any<ExecuteCommandParams<CommandResponse>>(), Arg.Any<ExecuteCommandCapability>(), Arg.Any<CancellationToken>())
+                    .Returns(new CommandResponse { Value = "4321" });
             var (client, _) = await Initialize(
-                options => {
+                options =>
+                {
                     options.WithCapability(
-                        new ExecuteCommandCapability {
+                        new ExecuteCommandCapability
+                        {
                             DynamicRegistration = false
                         }
                     );
-                }, options => {
+                }, options =>
+                {
                     options.OnCompletion(
-                        x => {
+                        x =>
+                        {
                             return Task.FromResult(
                                 new CompletionList(
-                                    new CompletionItem {
+                                    new CompletionItem
+                                    {
                                         Command = Command.Create("execute-b", 1, "2", false)
                                     }
                                 )
@@ -94,13 +103,15 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand(
-                        commanda, (_, _) => new ExecuteCommandRegistrationOptions {
+                        commanda, (_, _) => new ExecuteCommandRegistrationOptions
+                        {
                             Commands = new Container<string>("execute-a")
                         }
                     );
 
                     options.OnExecuteCommand(
-                        commandb, (_, _) => new ExecuteCommandRegistrationOptions {
+                        commandb, (_, _) => new ExecuteCommandRegistrationOptions
+                        {
                             Commands = new Container<string>("execute-b")
                         }
                     );
@@ -117,7 +128,9 @@ namespace Lsp.Tests.Integration
             response.Value.Should().Be("4321");
 
             await commanda.Received(0).Invoke(Arg.Any<ExecuteCommandParams<CommandResponse>>());
-            await commandb.Received(1).Invoke(Arg.Any<ExecuteCommandParams<CommandResponse>>(), Arg.Any<ExecuteCommandCapability>(), Arg.Any<CancellationToken>());
+            await commandb.Received(1).Invoke(
+                Arg.Any<ExecuteCommandParams<CommandResponse>>(), Arg.Any<ExecuteCommandCapability>(), Arg.Any<CancellationToken>()
+            );
             var arg = commandb.ReceivedCalls().Single().GetArguments()[1];
             arg.Should().BeOfType<ExecuteCommandCapability>();
         }
@@ -125,16 +138,20 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Fail_To_Execute_A_Command_When_No_Command_Name_Is_Given()
         {
-            var command = Substitute.For<Func<ExecuteCommandParams<CommandResponse>,Task<CommandResponse>>>();
-            command.Invoke(Arg.Any<ExecuteCommandParams<CommandResponse>>()).Returns(new CommandResponse() { Value = "1234" });
+            var command = Substitute.For<Func<ExecuteCommandParams<CommandResponse>, Task<CommandResponse>>>();
+            command.Invoke(Arg.Any<ExecuteCommandParams<CommandResponse>>()).Returns(new CommandResponse { Value = "1234" });
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCompletion(
-                        x => {
+                        x =>
+                        {
                             return Task.FromResult(
                                 new CompletionList(
-                                    new CompletionItem {
-                                        Command = new Command {
+                                    new CompletionItem
+                                    {
+                                        Command = new Command
+                                        {
                                             Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                         }
                                     }
@@ -144,7 +161,8 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand(
-                        command, (_, _) => new ExecuteCommandRegistrationOptions {
+                        command, (_, _) => new ExecuteCommandRegistrationOptions
+                        {
                             Commands = new Container<string>("execute-a")
                         }
                     );
@@ -157,7 +175,7 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task<CommandResponse>> action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
+            var action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
             await action.Should().ThrowAsync<MethodNotSupportedException>();
 
             await command.Received(0).Invoke(Arg.Any<ExecuteCommandParams<CommandResponse>>());
@@ -166,17 +184,20 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Fail_To_Execute_A_Command()
         {
-            var commandc = Substitute.For<Func<ExecuteCommandParams<CommandResponse>,Task<CommandResponse>>>();
-            commandc.Invoke(Arg.Any<ExecuteCommandParams<CommandResponse>>()).Returns(new CommandResponse() { Value = "1234" });
-            var commandb = Substitute.For<Func<ExecuteCommandParams<CommandResponse>,Task<CommandResponse>>>();
-            commandb.Invoke(Arg.Any<ExecuteCommandParams<CommandResponse>>()).Returns(new CommandResponse() { Value = "1234" });
+            var commandc = Substitute.For<Func<ExecuteCommandParams<CommandResponse>, Task<CommandResponse>>>();
+            commandc.Invoke(Arg.Any<ExecuteCommandParams<CommandResponse>>()).Returns(new CommandResponse { Value = "1234" });
+            var commandb = Substitute.For<Func<ExecuteCommandParams<CommandResponse>, Task<CommandResponse>>>();
+            commandb.Invoke(Arg.Any<ExecuteCommandParams<CommandResponse>>()).Returns(new CommandResponse { Value = "1234" });
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCompletion(
-                        x => {
+                        x =>
+                        {
                             return Task.FromResult(
                                 new CompletionList(
-                                    new CompletionItem {
+                                    new CompletionItem
+                                    {
                                         Command = Command.Create("execute-a", 1, "2", false)
                                     }
                                 )
@@ -185,13 +206,15 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand(
-                        commandb, (_, _) => new ExecuteCommandRegistrationOptions {
+                        commandb, (_, _) => new ExecuteCommandRegistrationOptions
+                        {
                             Commands = new Container<string>("execute-b")
                         }
                     );
 
                     options.OnExecuteCommand(
-                        commandc, (_, _) => new ExecuteCommandRegistrationOptions {
+                        commandc, (_, _) => new ExecuteCommandRegistrationOptions
+                        {
                             Commands = new Container<string>("execute-c")
                         }
                     );
@@ -204,7 +227,7 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task<CommandResponse>> action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
+            var action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
             await action.Should().ThrowAsync<MethodNotSupportedException>();
 
             await commandc.Received(0).Invoke(Arg.Any<ExecuteCommandParams<CommandResponse>>());
@@ -215,12 +238,15 @@ namespace Lsp.Tests.Integration
         public async Task Should_Execute_1_Args()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCompletion(
-                        x => {
+                        x =>
+                        {
                             return Task.FromResult(
                                 new CompletionList(
-                                    new CompletionItem {
+                                    new CompletionItem
+                                    {
                                         Command = Command.Create("execute-a", 1)
                                     }
                                 )
@@ -229,10 +255,11 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand<int, CommandResponse>(
-                        "execute-a", i => {
+                        "execute-a", i =>
+                        {
                             i.Should().Be(1);
 
-                            return Task.FromResult(new CommandResponse() { Value = "1234" });
+                            return Task.FromResult(new CommandResponse { Value = "1234" });
                         }
                     );
                 }
@@ -244,7 +271,7 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task<CommandResponse>> action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
+            var action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
@@ -252,12 +279,15 @@ namespace Lsp.Tests.Integration
         public async Task Should_Execute_2_Args()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCompletion(
-                        x => {
+                        x =>
+                        {
                             return Task.FromResult(
                                 new CompletionList(
-                                    new CompletionItem {
+                                    new CompletionItem
+                                    {
                                         Command = Command.Create("execute-a", 1, "2")
                                     }
                                 )
@@ -266,11 +296,12 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand<int, string, CommandResponse>(
-                        "execute-a", (i, s) => {
+                        "execute-a", (i, s) =>
+                        {
                             i.Should().Be(1);
                             s.Should().Be("2");
 
-                            return Task.FromResult(new CommandResponse() { Value = "1234" });
+                            return Task.FromResult(new CommandResponse { Value = "1234" });
                         }
                     );
                 }
@@ -290,12 +321,15 @@ namespace Lsp.Tests.Integration
         public async Task Should_Execute_3_Args()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCompletion(
-                        x => {
+                        x =>
+                        {
                             return Task.FromResult(
                                 new CompletionList(
-                                    new CompletionItem {
+                                    new CompletionItem
+                                    {
                                         Command = Command.Create("execute-a", 1, "2", true)
                                     }
                                 )
@@ -304,12 +338,13 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand<int, string, bool, CommandResponse>(
-                        "execute-a", (i, s, arg3) => {
+                        "execute-a", (i, s, arg3) =>
+                        {
                             i.Should().Be(1);
                             s.Should().Be("2");
                             arg3.Should().BeTrue();
 
-                            return Task.FromResult(new CommandResponse() { Value = "1234" });
+                            return Task.FromResult(new CommandResponse { Value = "1234" });
                         }
                     );
                 }
@@ -321,7 +356,7 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task<CommandResponse>> action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
+            var action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
@@ -329,13 +364,16 @@ namespace Lsp.Tests.Integration
         public async Task Should_Execute_4_Args()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCompletion(
-                        x => {
+                        x =>
+                        {
                             return Task.FromResult(
                                 new CompletionList(
-                                    new CompletionItem {
-                                        Command = Command.Create("execute-a", 1, "2", true, new Range((0, 1), (1, 1)))
+                                    new CompletionItem
+                                    {
+                                        Command = Command.Create("execute-a", 1, "2", true, new Range(( 0, 1 ), ( 1, 1 )))
                                     }
                                 )
                             );
@@ -343,13 +381,14 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand<int, string, bool, Range, CommandResponse>(
-                        "execute-a", (i, s, arg3, arg4) => {
+                        "execute-a", (i, s, arg3, arg4) =>
+                        {
                             i.Should().Be(1);
                             s.Should().Be("2");
                             arg3.Should().BeTrue();
-                            arg4.Should().Be(new Range((0, 1), (1, 1)));
+                            arg4.Should().Be(new Range(( 0, 1 ), ( 1, 1 )));
 
-                            return Task.FromResult(new CommandResponse() { Value = "1234" });
+                            return Task.FromResult(new CommandResponse { Value = "1234" });
                         }
                     );
                 }
@@ -361,7 +400,7 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task<CommandResponse>> action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
+            var action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
@@ -369,14 +408,18 @@ namespace Lsp.Tests.Integration
         public async Task Should_Execute_5_Args()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCompletion(
-                        x => {
+                        x =>
+                        {
                             return Task.FromResult(
                                 new CompletionList(
-                                    new CompletionItem {
+                                    new CompletionItem
+                                    {
                                         Command = Command.Create(
-                                            "execute-a", 1, "2", true, new Range((0, 1), (1, 1)), new Dictionary<string, string> { ["a"] = "123", ["b"] = "456" }
+                                            "execute-a", 1, "2", true, new Range(( 0, 1 ), ( 1, 1 )),
+                                            new Dictionary<string, string> { ["a"] = "123", ["b"] = "456" }
                                         )
                                     }
                                 )
@@ -385,14 +428,15 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>, CommandResponse>(
-                        "execute-a", (i, s, arg3, arg4, arg5) => {
+                        "execute-a", (i, s, arg3, arg4, arg5) =>
+                        {
                             i.Should().Be(1);
                             s.Should().Be("2");
                             arg3.Should().BeTrue();
-                            arg4.Should().Be(new Range((0, 1), (1, 1)));
+                            arg4.Should().Be(new Range(( 0, 1 ), ( 1, 1 )));
                             arg5.Should().ContainKeys("a", "b");
 
-                            return Task.FromResult(new CommandResponse() { Value = "1234" });
+                            return Task.FromResult(new CommandResponse { Value = "1234" });
                         }
                     );
                 }
@@ -404,7 +448,7 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task<CommandResponse>> action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
+            var action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
@@ -412,14 +456,18 @@ namespace Lsp.Tests.Integration
         public async Task Should_Execute_6_Args()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCompletion(
-                        x => {
+                        x =>
+                        {
                             return Task.FromResult(
                                 new CompletionList(
-                                    new CompletionItem {
+                                    new CompletionItem
+                                    {
                                         Command = Command.Create(
-                                            "execute-a", 1, "2", true, new Range((0, 1), (1, 1)), new Dictionary<string, string> { ["a"] = "123", ["b"] = "456" },
+                                            "execute-a", 1, "2", true, new Range(( 0, 1 ), ( 1, 1 )),
+                                            new Dictionary<string, string> { ["a"] = "123", ["b"] = "456" },
                                             Guid.NewGuid()
                                         )
                                     }
@@ -429,15 +477,16 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>, Guid, CommandResponse>(
-                        "execute-a", (i, s, arg3, arg4, arg5, arg6) => {
+                        "execute-a", (i, s, arg3, arg4, arg5, arg6) =>
+                        {
                             i.Should().Be(1);
                             s.Should().Be("2");
                             arg3.Should().BeTrue();
-                            arg4.Should().Be(new Range((0, 1), (1, 1)));
+                            arg4.Should().Be(new Range(( 0, 1 ), ( 1, 1 )));
                             arg5.Should().ContainKeys("a", "b");
                             arg6.Should().NotBeEmpty();
 
-                            return Task.FromResult(new CommandResponse() { Value = "1234" });
+                            return Task.FromResult(new CommandResponse { Value = "1234" });
                         }
                     );
                 }
@@ -449,7 +498,7 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task<CommandResponse>> action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
+            var action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
@@ -457,12 +506,15 @@ namespace Lsp.Tests.Integration
         public async Task Should_Execute_1_With_Missing_Args()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCompletion(
-                        x => {
+                        x =>
+                        {
                             return Task.FromResult(
                                 new CompletionList(
-                                    new CompletionItem {
+                                    new CompletionItem
+                                    {
                                         Command = Command.Create("execute-a")
                                     }
                                 )
@@ -471,10 +523,11 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand<int, CommandResponse>(
-                        "execute-a", i => {
+                        "execute-a", i =>
+                        {
                             i.Should().Be(default);
 
-                            return Task.FromResult(new CommandResponse() { Value = "1234" });
+                            return Task.FromResult(new CommandResponse { Value = "1234" });
                         }
                     );
                 }
@@ -486,7 +539,7 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task<CommandResponse>> action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
+            var action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
@@ -494,12 +547,15 @@ namespace Lsp.Tests.Integration
         public async Task Should_Execute_2_With_Missing_Args()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCompletion(
-                        x => {
+                        x =>
+                        {
                             return Task.FromResult(
                                 new CompletionList(
-                                    new CompletionItem {
+                                    new CompletionItem
+                                    {
                                         Command = Command.Create("execute-a")
                                     }
                                 )
@@ -508,11 +564,12 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand<int, string, CommandResponse>(
-                        "execute-a", (i, s) => {
+                        "execute-a", (i, s) =>
+                        {
                             i.Should().Be(default);
                             s.Should().Be(default);
 
-                            return Task.FromResult(new CommandResponse() { Value = "1234" });
+                            return Task.FromResult(new CommandResponse { Value = "1234" });
                         }
                     );
                 }
@@ -524,7 +581,7 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task<CommandResponse>> action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
+            var action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
@@ -532,12 +589,15 @@ namespace Lsp.Tests.Integration
         public async Task Should_Execute_3_With_Missing_Args()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCompletion(
-                        x => {
+                        x =>
+                        {
                             return Task.FromResult(
                                 new CompletionList(
-                                    new CompletionItem {
+                                    new CompletionItem
+                                    {
                                         Command = Command.Create("execute-a")
                                     }
                                 )
@@ -546,12 +606,13 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand<int, string, bool, CommandResponse>(
-                        "execute-a", (i, s, arg3) => {
+                        "execute-a", (i, s, arg3) =>
+                        {
                             i.Should().Be(default);
                             s.Should().Be(default);
                             arg3.Should().Be(default);
 
-                            return Task.FromResult(new CommandResponse() { Value = "1234" });
+                            return Task.FromResult(new CommandResponse { Value = "1234" });
                         }
                     );
                 }
@@ -563,7 +624,7 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task<CommandResponse>> action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
+            var action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
@@ -571,12 +632,15 @@ namespace Lsp.Tests.Integration
         public async Task Should_Execute_4_With_Missing_Args()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCompletion(
-                        x => {
+                        x =>
+                        {
                             return Task.FromResult(
                                 new CompletionList(
-                                    new CompletionItem {
+                                    new CompletionItem
+                                    {
                                         Command = Command.Create("execute-a")
                                     }
                                 )
@@ -585,13 +649,14 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand<int, string, bool, Range, CommandResponse>(
-                        "execute-a", (i, s, arg3, arg4) => {
+                        "execute-a", (i, s, arg3, arg4) =>
+                        {
                             i.Should().Be(default);
                             s.Should().Be(default);
                             arg3.Should().Be(default);
                             arg4.Should().Be(default);
 
-                            return Task.FromResult(new CommandResponse() { Value = "1234" });
+                            return Task.FromResult(new CommandResponse { Value = "1234" });
                         }
                     );
                 }
@@ -603,7 +668,7 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task<CommandResponse>> action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
+            var action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
@@ -611,12 +676,15 @@ namespace Lsp.Tests.Integration
         public async Task Should_Execute_5_With_Missing_Args()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCompletion(
-                        x => {
+                        x =>
+                        {
                             return Task.FromResult(
                                 new CompletionList(
-                                    new CompletionItem {
+                                    new CompletionItem
+                                    {
                                         Command = Command.Create("execute-a")
                                     }
                                 )
@@ -625,14 +693,15 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>, CommandResponse>(
-                        "execute-a", (i, s, arg3, arg4, arg5) => {
+                        "execute-a", (i, s, arg3, arg4, arg5) =>
+                        {
                             i.Should().Be(default);
                             s.Should().Be(default);
                             arg3.Should().Be(default);
                             arg4.Should().Be(default);
                             arg5.Should().BeNull();
 
-                            return Task.FromResult(new CommandResponse() { Value = "1234" });
+                            return Task.FromResult(new CommandResponse { Value = "1234" });
                         }
                     );
                 }
@@ -644,7 +713,7 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task<CommandResponse>> action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
+            var action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
@@ -652,12 +721,15 @@ namespace Lsp.Tests.Integration
         public async Task Should_Execute_6_With_Missing_Args()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCompletion(
-                        x => {
+                        x =>
+                        {
                             return Task.FromResult(
                                 new CompletionList(
-                                    new CompletionItem {
+                                    new CompletionItem
+                                    {
                                         Command = Command.Create("execute-a")
                                     }
                                 )
@@ -666,7 +738,8 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>, Guid, CommandResponse>(
-                        "execute-a", (i, s, arg3, arg4, arg5, arg6) => {
+                        "execute-a", (i, s, arg3, arg4, arg5, arg6) =>
+                        {
                             i.Should().Be(default);
                             s.Should().Be(default);
                             arg3.Should().Be(default);
@@ -674,7 +747,7 @@ namespace Lsp.Tests.Integration
                             arg5.Should().BeNull();
                             arg6.Should().BeEmpty();
 
-                            return Task.FromResult(new CommandResponse() { Value = "1234" });
+                            return Task.FromResult(new CommandResponse { Value = "1234" });
                         }
                     );
                 }
@@ -686,7 +759,7 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task<CommandResponse>> action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
+            var action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
@@ -694,12 +767,15 @@ namespace Lsp.Tests.Integration
         public async Task Should_Execute_1_Null_Args()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCompletion(
-                        x => {
+                        x =>
+                        {
                             return Task.FromResult(
                                 new CompletionList(
-                                    new CompletionItem {
+                                    new CompletionItem
+                                    {
                                         Command = Command.Create("execute-a")
                                     }
                                 )
@@ -708,10 +784,11 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand<int, CommandResponse>(
-                        "execute-a", i => {
+                        "execute-a", i =>
+                        {
                             i.Should().Be(default);
 
-                            return Task.FromResult(new CommandResponse() { Value = "1234" });
+                            return Task.FromResult(new CommandResponse { Value = "1234" });
                         }
                     );
                 }
@@ -723,7 +800,7 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task<CommandResponse>> action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
+            var action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
@@ -731,12 +808,15 @@ namespace Lsp.Tests.Integration
         public async Task Should_Execute_2_Null_Args()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCompletion(
-                        x => {
+                        x =>
+                        {
                             return Task.FromResult(
                                 new CompletionList(
-                                    new CompletionItem {
+                                    new CompletionItem
+                                    {
                                         Command = Command.Create("execute-a")
                                     }
                                 )
@@ -745,11 +825,12 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand<int, string, CommandResponse>(
-                        "execute-a", (i, s) => {
+                        "execute-a", (i, s) =>
+                        {
                             i.Should().Be(default);
                             s.Should().Be(default);
 
-                            return Task.FromResult(new CommandResponse() { Value = "1234" });
+                            return Task.FromResult(new CommandResponse { Value = "1234" });
                         }
                     );
                 }
@@ -761,7 +842,7 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task<CommandResponse>> action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
+            var action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
@@ -769,12 +850,15 @@ namespace Lsp.Tests.Integration
         public async Task Should_Execute_3_Null_Args()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCompletion(
-                        x => {
+                        x =>
+                        {
                             return Task.FromResult(
                                 new CompletionList(
-                                    new CompletionItem {
+                                    new CompletionItem
+                                    {
                                         Command = Command.Create("execute-a")
                                     }
                                 )
@@ -783,12 +867,13 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand<int, string, bool, CommandResponse>(
-                        "execute-a", (i, s, arg3) => {
+                        "execute-a", (i, s, arg3) =>
+                        {
                             i.Should().Be(default);
                             s.Should().Be(default);
                             arg3.Should().Be(default);
 
-                            return Task.FromResult(new CommandResponse() { Value = "1234" });
+                            return Task.FromResult(new CommandResponse { Value = "1234" });
                         }
                     );
                 }
@@ -800,7 +885,7 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task<CommandResponse>> action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
+            var action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
@@ -808,12 +893,15 @@ namespace Lsp.Tests.Integration
         public async Task Should_Execute_4_Null_Args()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCompletion(
-                        x => {
+                        x =>
+                        {
                             return Task.FromResult(
                                 new CompletionList(
-                                    new CompletionItem {
+                                    new CompletionItem
+                                    {
                                         Command = Command.Create("execute-a")
                                     }
                                 )
@@ -822,13 +910,14 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand<int, string, bool, Range, CommandResponse>(
-                        "execute-a", (i, s, arg3, arg4) => {
+                        "execute-a", (i, s, arg3, arg4) =>
+                        {
                             i.Should().Be(default);
                             s.Should().Be(default);
                             arg3.Should().Be(default);
                             arg4.Should().Be(default);
 
-                            return Task.FromResult(new CommandResponse() { Value = "1234" });
+                            return Task.FromResult(new CommandResponse { Value = "1234" });
                         }
                     );
                 }
@@ -840,7 +929,7 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task<CommandResponse>> action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
+            var action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
@@ -848,12 +937,15 @@ namespace Lsp.Tests.Integration
         public async Task Should_Execute_5_Null_Args()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCompletion(
-                        x => {
+                        x =>
+                        {
                             return Task.FromResult(
                                 new CompletionList(
-                                    new CompletionItem {
+                                    new CompletionItem
+                                    {
                                         Command = Command.Create("execute-a")
                                     }
                                 )
@@ -862,14 +954,15 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>, CommandResponse>(
-                        "execute-a", (i, s, arg3, arg4, arg5) => {
+                        "execute-a", (i, s, arg3, arg4, arg5) =>
+                        {
                             i.Should().Be(default);
                             s.Should().Be(default);
                             arg3.Should().Be(default);
                             arg4.Should().Be(default);
                             arg5.Should().BeNull();
 
-                            return Task.FromResult(new CommandResponse() { Value = "1234" });
+                            return Task.FromResult(new CommandResponse { Value = "1234" });
                         }
                     );
                 }
@@ -881,7 +974,7 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task<CommandResponse>> action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
+            var action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
@@ -889,12 +982,15 @@ namespace Lsp.Tests.Integration
         public async Task Should_Execute_6_Null_Args()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCompletion(
-                        x => {
+                        x =>
+                        {
                             return Task.FromResult(
                                 new CompletionList(
-                                    new CompletionItem {
+                                    new CompletionItem
+                                    {
                                         Command = Command.Create("execute-a")
                                     }
                                 )
@@ -903,7 +999,8 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>, Guid, CommandResponse>(
-                        "execute-a", (i, s, arg3, arg4, arg5, arg6) => {
+                        "execute-a", (i, s, arg3, arg4, arg5, arg6) =>
+                        {
                             i.Should().Be(default);
                             s.Should().Be(default);
                             arg3.Should().Be(default);
@@ -911,7 +1008,7 @@ namespace Lsp.Tests.Integration
                             arg5.Should().BeNull();
                             arg6.Should().BeEmpty();
 
-                            return Task.FromResult(new CommandResponse() { Value = "1234" });
+                            return Task.FromResult(new CommandResponse { Value = "1234" });
                         }
                     );
                 }
@@ -923,7 +1020,7 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task<CommandResponse>> action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
+            var action = () => client.ExecuteCommandWithResponse<CommandResponse>(item.Command!);
             await action.Should().NotThrowAsync();
         }
 

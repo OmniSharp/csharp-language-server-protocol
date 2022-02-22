@@ -2,7 +2,6 @@ using System.Linq;
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using Xunit;
@@ -16,30 +15,34 @@ namespace Lsp.Tests
         {
             var serializer = new LspSerializer();
             serializer.SetClientCapabilities(
-                new ClientCapabilities {
-                    TextDocument = new TextDocumentClientCapabilities {
-                        SemanticTokens = new SemanticTokensCapability() {
+                new ClientCapabilities
+                {
+                    TextDocument = new TextDocumentClientCapabilities
+                    {
+                        SemanticTokens = new SemanticTokensCapability
+                        {
                             DynamicRegistration = true,
                             Formats = new Container<SemanticTokenFormat>(SemanticTokenFormat.Relative),
                             MultilineTokenSupport = true,
                             OverlappingTokenSupport = true,
                             TokenModifiers = new Container<SemanticTokenModifier>(SemanticTokenModifier.Deprecated),
                             TokenTypes = new Container<SemanticTokenType>(SemanticTokenType.Comment),
-                            Requests = new SemanticTokensCapabilityRequests() {
-                                Full = new SemanticTokensCapabilityRequestFull() {
+                            Requests = new SemanticTokensCapabilityRequests
+                            {
+                                Full = new SemanticTokensCapabilityRequestFull
+                                {
                                     Delta = true
                                 },
-                                Range = new SemanticTokensCapabilityRequestRange() {
-                                }
+                                Range = new SemanticTokensCapabilityRequestRange()
                             }
                         },
-
                     }
                 }
             );
 
             var json = serializer.SerializeObject(
-                new SemanticTokensLegend {
+                new SemanticTokensLegend
+                {
                     TokenModifiers = new Container<SemanticTokenModifier>(SemanticTokenModifier.Deprecated),
                     TokenTypes = new Container<SemanticTokenType>(SemanticTokenType.Comment),
                 }
@@ -55,12 +58,16 @@ namespace Lsp.Tests
         {
             var serializer = new LspSerializer();
             serializer.SetServerCapabilities(
-                new ServerCapabilities {
-                    SemanticTokensProvider = new SemanticTokensRegistrationOptions.StaticOptions() {
-                        Full = new SemanticTokensCapabilityRequestFull {
+                new ServerCapabilities
+                {
+                    SemanticTokensProvider = new SemanticTokensRegistrationOptions.StaticOptions
+                    {
+                        Full = new SemanticTokensCapabilityRequestFull
+                        {
                             Delta = true
                         },
-                        Legend = new SemanticTokensLegend {
+                        Legend = new SemanticTokensLegend
+                        {
                             TokenModifiers = new Container<SemanticTokenModifier>(SemanticTokenModifier.Deprecated),
                             TokenTypes = new Container<SemanticTokenType>(SemanticTokenType.Comment),
                         },
@@ -70,7 +77,8 @@ namespace Lsp.Tests
             );
 
             var json = serializer.SerializeObject(
-                new SemanticTokensLegend {
+                new SemanticTokensLegend
+                {
                     TokenModifiers = new Container<SemanticTokenModifier>(SemanticTokenModifier.Deprecated),
                     TokenTypes = new Container<SemanticTokenType>(SemanticTokenType.Comment),
                 }

@@ -14,22 +14,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         [Parallel]
         [Method(TextDocumentNames.LinkedEditingRange, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(LinkedEditingRangeRegistrationOptions)), Capability(typeof(LinkedEditingRangeClientCapabilities))]
-        public partial record LinkedEditingRangeParams : TextDocumentPositionParams, IWorkDoneProgressParams, IRequest<LinkedEditingRanges>
-        {
-        }
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(LinkedEditingRangeRegistrationOptions))]
+        [Capability(typeof(LinkedEditingRangeClientCapabilities))]
+        public partial record LinkedEditingRangeParams : TextDocumentPositionParams, IWorkDoneProgressParams, IRequest<LinkedEditingRanges>;
+
         public partial record LinkedEditingRanges
         {
             /// <summary>
             /// A list of ranges that can be renamed together. The ranges must have
             /// identical length and contain identical text content. The ranges cannot overlap.
             /// </summary>
-            public Container<Range> Ranges { get; init; }
+            public Container<Range> Ranges { get; init; } = null!;
 
             /// <summary>
             /// An optional word pattern (regular expression) that describes valid contents for
@@ -39,16 +37,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             [Optional]
             public string? WordPattern { get; init; }
         }
+
         [GenerateRegistrationOptions(nameof(ServerCapabilities.LinkedEditingRangeProvider))]
         [RegistrationName(TextDocumentNames.LinkedEditingRange)]
-        public partial class LinkedEditingRangeRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions { }
-
+        public partial class LinkedEditingRangeRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions
+        {
+        }
     }
 
     namespace Client.Capabilities
     {
         [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.LinkedEditingRange))]
-        public partial class LinkedEditingRangeClientCapabilities : DynamicCapability { }
+        public partial class LinkedEditingRangeClientCapabilities : DynamicCapability
+        {
+        }
     }
 
     namespace Document

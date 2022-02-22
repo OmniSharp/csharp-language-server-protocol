@@ -9,13 +9,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(EventNames.Initialized, Direction.ServerToClient)]
-        [
-            GenerateHandler(Name = "DebugAdapterInitialized"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
-        public record InitializedEvent : IRequest
-        {
-        }
+        [GenerateHandler(Name = "DebugAdapterInitialized")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
+        public record InitializedEvent : IRequest;
     }
 }

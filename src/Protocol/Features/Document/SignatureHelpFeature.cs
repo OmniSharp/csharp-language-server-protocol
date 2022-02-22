@@ -18,12 +18,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         [Parallel]
         [Method(TextDocumentNames.SignatureHelp, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(SignatureHelpRegistrationOptions)), Capability(typeof(SignatureHelpCapability))]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(SignatureHelpRegistrationOptions))]
+        [Capability(typeof(SignatureHelpCapability))]
         public partial record SignatureHelpParams : TextDocumentPositionParams, IWorkDoneProgressParams, IRequest<SignatureHelp?>
         {
             /// <summary>
@@ -32,7 +31,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             ///
             /// @since 3.15.0
             /// </summary>
-            public SignatureHelpContext Context { get; init; }
+            public SignatureHelpContext Context { get; init; } = null!;
         }
 
         /// <summary>
@@ -134,7 +133,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// The label of this signature. Will be shown in
             /// the UI.
             /// </summary>
-            public string Label { get; init; }
+            public string Label { get; init; } = null!;
 
             /// <summary>
             /// The human-readable doc-comment of this signature. Will be shown
@@ -162,7 +161,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             private string DebuggerDisplay => $"{Label}{Documentation?.ToString() ?? ""}";
 
             /// <inheritdoc />
-            public override string ToString() => DebuggerDisplay;
+            public override string ToString()
+            {
+                return DebuggerDisplay;
+            }
         }
 
         /// <summary>
@@ -176,7 +178,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// The label of this parameter. Will be shown in
             /// the UI.
             /// </summary>
-            public ParameterInformationLabel Label { get; init; }
+            public ParameterInformationLabel Label { get; init; } = null!;
 
             /// <summary>
             /// The human-readable doc-comment of this parameter. Will be shown
@@ -188,30 +190,48 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             private string DebuggerDisplay => $"{Label}{( Documentation != null ? $" {Documentation}" : string.Empty )}";
 
             /// <inheritdoc />
-            public override string ToString() => DebuggerDisplay;
+            public override string ToString()
+            {
+                return DebuggerDisplay;
+            }
         }
 
         [JsonConverter(typeof(ParameterInformationLabelConverter))]
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
         public record ParameterInformationLabel
         {
-            public ParameterInformationLabel((int start, int end) range) => Range = range;
+            public ParameterInformationLabel((int start, int end) range)
+            {
+                Range = range;
+            }
 
-            public ParameterInformationLabel(string label) => Label = label;
+            public ParameterInformationLabel(string label)
+            {
+                Label = label;
+            }
 
             public (int start, int end) Range { get; }
             public bool IsRange => Label == null;
             public string? Label { get; }
             public bool IsLabel => Label != null;
 
-            public static implicit operator ParameterInformationLabel(string label) => new ParameterInformationLabel(label);
+            public static implicit operator ParameterInformationLabel(string label)
+            {
+                return new ParameterInformationLabel(label);
+            }
 
-            public static implicit operator ParameterInformationLabel((int start, int end) range) => new ParameterInformationLabel(range);
+            public static implicit operator ParameterInformationLabel((int start, int end) range)
+            {
+                return new ParameterInformationLabel(range);
+            }
 
             private string DebuggerDisplay => IsRange ? $"(start: {Range.start}, end: {Range.end})" : IsLabel ? Label! : string.Empty;
 
             /// <inheritdoc />
-            public override string ToString() => DebuggerDisplay;
+            public override string ToString()
+            {
+                return DebuggerDisplay;
+            }
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.SignatureHelpProvider))]

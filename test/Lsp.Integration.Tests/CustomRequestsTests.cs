@@ -13,7 +13,7 @@ using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Lsp.Tests.Integration
+namespace Lsp.Integration.Tests
 {
     public class CustomRequestsTests : LanguageProtocolTestBase
     {
@@ -27,7 +27,8 @@ namespace Lsp.Tests.Integration
             var fake = Substitute.For<TelemetryEventHandlerBase<CustomTelemetryEventParams>>();
             var (_, server) = await Initialize(options => { options.AddHandler(fake); }, options => { });
 
-            var @event = new CustomTelemetryEventParams {
+            var @event = new CustomTelemetryEventParams
+            {
                 CodeFolding = true,
                 ProfileLoading = false,
                 ScriptAnalysis = true,
@@ -51,7 +52,8 @@ namespace Lsp.Tests.Integration
             var fake = Substitute.For<TelemetryEventHandlerBase>();
             var (_, server) = await Initialize(options => { options.AddHandler(fake); }, options => { });
 
-            var @event = new CustomTelemetryEventParams {
+            var @event = new CustomTelemetryEventParams
+            {
                 CodeFolding = true,
                 ProfileLoading = false,
                 ScriptAnalysis = true,
@@ -78,8 +80,10 @@ namespace Lsp.Tests.Integration
             var (_, server) = await Initialize(options => { options.AddHandler(fake); }, options => { });
 
             server.SendTelemetryEvent(
-                new TelemetryEventParams {
-                    ExtensionData = new Dictionary<string, object> {
+                new TelemetryEventParams
+                {
+                    ExtensionData = new Dictionary<string, object>
+                    {
                         ["CodeFolding"] = true,
                         ["ProfileLoading"] = false,
                         ["ScriptAnalysis"] = true,
@@ -106,7 +110,8 @@ namespace Lsp.Tests.Integration
             var fake = Substitute.For<Func<CustomTelemetryEventParams, CancellationToken, Task>>();
             var (_, server) = await Initialize(options => { options.OnTelemetryEvent(fake); }, options => { });
 
-            var @event = new CustomTelemetryEventParams {
+            var @event = new CustomTelemetryEventParams
+            {
                 CodeFolding = true,
                 ProfileLoading = false,
                 ScriptAnalysis = true,
@@ -130,7 +135,8 @@ namespace Lsp.Tests.Integration
             var fake = Substitute.For<Func<TelemetryEventParams, CancellationToken, Task>>();
             var (_, server) = await Initialize(options => { options.OnTelemetryEvent(fake); }, options => { });
 
-            var @event = new CustomTelemetryEventParams {
+            var @event = new CustomTelemetryEventParams
+            {
                 CodeFolding = true,
                 ProfileLoading = false,
                 ScriptAnalysis = true,
@@ -157,8 +163,10 @@ namespace Lsp.Tests.Integration
             var (_, server) = await Initialize(options => { options.OnTelemetryEvent(fake); }, options => { });
 
             server.SendTelemetryEvent(
-                new TelemetryEventParams {
-                    ExtensionData = new Dictionary<string, object> {
+                new TelemetryEventParams
+                {
+                    ExtensionData = new Dictionary<string, object>
+                    {
                         ["CodeFolding"] = true,
                         ["ProfileLoading"] = false,
                         ["ScriptAnalysis"] = true,

@@ -26,7 +26,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// An array of all files/folders deleted in this operation.
             /// </summary>
-            public Container<T> Files { get; init; }
+            public Container<T> Files { get; init; } = null!;
         }
 
         /// <summary>
@@ -37,110 +37,118 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// A file:// URI for the location of the file/folder being created.
             /// </summary>
-            public Uri Uri { get; init; }
+            public Uri Uri { get; init; } = null!;
         }
 
-        /// <inheritdoc cref="FileOperationParams{T}"/>
+        /// <inheritdoc cref="FileOperationParams{T}" />
         [Parallel]
         [Method(WorkspaceNames.DidCreateFiles, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(DidCreateFileRegistrationOptions)), Capability(typeof(FileOperationsWorkspaceClientCapabilities))]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(DidCreateFileRegistrationOptions))]
+        [Capability(typeof(FileOperationsWorkspaceClientCapabilities))]
         public partial record DidCreateFileParams : FileOperationParams<FileCreate>, IRequest
         {
-            public static implicit operator WillCreateFileParams(DidCreateFileParams @params) => new() { Files = @params.Files };
+            public static implicit operator WillCreateFileParams(DidCreateFileParams @params)
+            {
+                return new() { Files = @params.Files };
+            }
         }
 
-        /// <inheritdoc cref="FileOperationParams{T}"/>
+        /// <inheritdoc cref="FileOperationParams{T}" />
         [Parallel]
         [Method(WorkspaceNames.WillCreateFiles, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(WillCreateFileRegistrationOptions)), Capability(typeof(FileOperationsWorkspaceClientCapabilities))]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(WillCreateFileRegistrationOptions))]
+        [Capability(typeof(FileOperationsWorkspaceClientCapabilities))]
         public partial record WillCreateFileParams : FileOperationParams<FileCreate>, IRequest<WorkspaceEdit?>
         {
-            public static implicit operator DidCreateFileParams(WillCreateFileParams @params) => new() { Files = @params.Files };
+            public static implicit operator DidCreateFileParams(WillCreateFileParams @params)
+            {
+                return new() { Files = @params.Files };
+            }
         }
 
-        /// <inheritdoc cref="FileOperationItem"/>
-        public partial record FileCreate : FileOperationItem
-        {
-        }
-        /// <inheritdoc cref="FileOperationParams{T}"/>
+        /// <inheritdoc cref="FileOperationItem" />
+        public partial record FileCreate : FileOperationItem;
+
+        /// <inheritdoc cref="FileOperationParams{T}" />
         [Parallel]
         [Method(WorkspaceNames.DidRenameFiles, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(DidRenameFileRegistrationOptions)), Capability(typeof(FileOperationsWorkspaceClientCapabilities))]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(DidRenameFileRegistrationOptions))]
+        [Capability(typeof(FileOperationsWorkspaceClientCapabilities))]
         public partial record DidRenameFileParams : FileOperationParams<FileRename>, IRequest
         {
-            public static implicit operator WillRenameFileParams(DidRenameFileParams @params) => new() { Files = @params.Files };
+            public static implicit operator WillRenameFileParams(DidRenameFileParams @params)
+            {
+                return new() { Files = @params.Files };
+            }
         }
 
-        /// <inheritdoc cref="FileOperationParams{T}"/>
+        /// <inheritdoc cref="FileOperationParams{T}" />
         [Parallel]
         [Method(WorkspaceNames.WillRenameFiles, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(WillRenameFileRegistrationOptions)), Capability(typeof(FileOperationsWorkspaceClientCapabilities))]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(WillRenameFileRegistrationOptions))]
+        [Capability(typeof(FileOperationsWorkspaceClientCapabilities))]
         public partial record WillRenameFileParams : FileOperationParams<FileRename>, IRequest<WorkspaceEdit?>
         {
-            public static implicit operator DidRenameFileParams(WillRenameFileParams @params) => new() { Files = @params.Files };
+            public static implicit operator DidRenameFileParams(WillRenameFileParams @params)
+            {
+                return new() { Files = @params.Files };
+            }
         }
 
-        /// <inheritdoc cref="FileOperationItem"/>
-        public partial record FileRename : FileOperationItem
-        {
-        }
+        /// <inheritdoc cref="FileOperationItem" />
+        public partial record FileRename : FileOperationItem;
 
-        /// <inheritdoc cref="FileOperationParams{T}"/>
+        /// <inheritdoc cref="FileOperationParams{T}" />
         [Parallel]
         [Method(WorkspaceNames.DidDeleteFiles, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(DidDeleteFileRegistrationOptions)), Capability(typeof(FileOperationsWorkspaceClientCapabilities))]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(DidDeleteFileRegistrationOptions))]
+        [Capability(typeof(FileOperationsWorkspaceClientCapabilities))]
         public partial record DidDeleteFileParams : FileOperationParams<FileDelete>, IRequest
         {
-            public static implicit operator WillDeleteFileParams(DidDeleteFileParams @params) => new() { Files = @params.Files };
+            public static implicit operator WillDeleteFileParams(DidDeleteFileParams @params)
+            {
+                return new() { Files = @params.Files };
+            }
         }
 
-        /// <inheritdoc cref="FileOperationParams{T}"/>
+        /// <inheritdoc cref="FileOperationParams{T}" />
         [Parallel]
         [Method(WorkspaceNames.WillDeleteFiles, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(WillDeleteFileRegistrationOptions)), Capability(typeof(FileOperationsWorkspaceClientCapabilities))]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(WillDeleteFileRegistrationOptions))]
+        [Capability(typeof(FileOperationsWorkspaceClientCapabilities))]
         public partial record WillDeleteFileParams : FileOperationParams<FileDelete>, IRequest<WorkspaceEdit?>
         {
-            public static implicit operator DidDeleteFileParams(WillDeleteFileParams @params) => new() { Files = @params.Files };
+            public static implicit operator DidDeleteFileParams(WillDeleteFileParams @params)
+            {
+                return new() { Files = @params.Files };
+            }
         }
 
-        /// <inheritdoc cref="FileOperationItem"/>
-        public partial record FileDelete : FileOperationItem
-        {
-        }
+        /// <inheritdoc cref="FileOperationItem" />
+        public partial record FileDelete : FileOperationItem;
 
-        /// <inheritdoc cref="FileOperationRegistrationOptions"/>
+        /// <inheritdoc cref="IFileOperationRegistrationOptions" />
         [GenerateRegistrationOptions(
-            nameof(ServerCapabilities.Workspace), nameof(WorkspaceServerCapabilities.FileOperations), nameof(FileOperationsWorkspaceServerCapabilities.WillCreate)
+            nameof(ServerCapabilities.Workspace), nameof(WorkspaceServerCapabilities.FileOperations),
+            nameof(FileOperationsWorkspaceServerCapabilities.WillCreate)
         )]
         [RegistrationName(WorkspaceNames.WillCreateFiles)]
         public partial class WillCreateFileRegistrationOptions : IFileOperationRegistrationOptions
@@ -151,9 +159,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public Container<FileOperationFilter> Filters { get; set; } = new Container<FileOperationFilter>();
         }
 
-        /// <inheritdoc cref="FileOperationRegistrationOptions"/>
+        /// <inheritdoc cref="IFileOperationRegistrationOptions" />
         [GenerateRegistrationOptions(
-            nameof(ServerCapabilities.Workspace), nameof(WorkspaceServerCapabilities.FileOperations), nameof(FileOperationsWorkspaceServerCapabilities.DidCreate)
+            nameof(ServerCapabilities.Workspace), nameof(WorkspaceServerCapabilities.FileOperations),
+            nameof(FileOperationsWorkspaceServerCapabilities.DidCreate)
         )]
         [RegistrationName(WorkspaceNames.DidCreateFiles)]
         public partial class DidCreateFileRegistrationOptions : IFileOperationRegistrationOptions
@@ -164,9 +173,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public Container<FileOperationFilter> Filters { get; set; } = new Container<FileOperationFilter>();
         }
 
-        /// <inheritdoc cref="FileOperationRegistrationOptions"/>
+        /// <inheritdoc cref="IFileOperationRegistrationOptions" />
         [GenerateRegistrationOptions(
-            nameof(ServerCapabilities.Workspace), nameof(WorkspaceServerCapabilities.FileOperations), nameof(FileOperationsWorkspaceServerCapabilities.WillRename)
+            nameof(ServerCapabilities.Workspace), nameof(WorkspaceServerCapabilities.FileOperations),
+            nameof(FileOperationsWorkspaceServerCapabilities.WillRename)
         )]
         [RegistrationName(WorkspaceNames.WillRenameFiles)]
         public partial class WillRenameFileRegistrationOptions : IFileOperationRegistrationOptions
@@ -177,9 +187,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public Container<FileOperationFilter> Filters { get; set; } = new Container<FileOperationFilter>();
         }
 
-        /// <inheritdoc cref="FileOperationRegistrationOptions"/>
+        /// <inheritdoc cref="IFileOperationRegistrationOptions" />
         [GenerateRegistrationOptions(
-            nameof(ServerCapabilities.Workspace), nameof(WorkspaceServerCapabilities.FileOperations), nameof(FileOperationsWorkspaceServerCapabilities.DidRename)
+            nameof(ServerCapabilities.Workspace), nameof(WorkspaceServerCapabilities.FileOperations),
+            nameof(FileOperationsWorkspaceServerCapabilities.DidRename)
         )]
         [RegistrationName(WorkspaceNames.DidRenameFiles)]
         public partial class DidRenameFileRegistrationOptions : IFileOperationRegistrationOptions
@@ -190,9 +201,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public Container<FileOperationFilter> Filters { get; set; } = new Container<FileOperationFilter>();
         }
 
-        /// <inheritdoc cref="FileOperationRegistrationOptions"/>
+        /// <inheritdoc cref="IFileOperationRegistrationOptions" />
         [GenerateRegistrationOptions(
-            nameof(ServerCapabilities.Workspace), nameof(WorkspaceServerCapabilities.FileOperations), nameof(FileOperationsWorkspaceServerCapabilities.WillDelete)
+            nameof(ServerCapabilities.Workspace), nameof(WorkspaceServerCapabilities.FileOperations),
+            nameof(FileOperationsWorkspaceServerCapabilities.WillDelete)
         )]
         [RegistrationName(WorkspaceNames.WillDeleteFiles)]
         public partial class WillDeleteFileRegistrationOptions : IFileOperationRegistrationOptions
@@ -203,9 +215,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public Container<FileOperationFilter> Filters { get; set; } = new Container<FileOperationFilter>();
         }
 
-        /// <inheritdoc cref="FileOperationRegistrationOptions"/>
+        /// <inheritdoc cref="IFileOperationRegistrationOptions" />
         [GenerateRegistrationOptions(
-            nameof(ServerCapabilities.Workspace), nameof(WorkspaceServerCapabilities.FileOperations), nameof(FileOperationsWorkspaceServerCapabilities.DidDelete)
+            nameof(ServerCapabilities.Workspace), nameof(WorkspaceServerCapabilities.FileOperations),
+            nameof(FileOperationsWorkspaceServerCapabilities.DidDelete)
         )]
         [RegistrationName(WorkspaceNames.DidDeleteFiles)]
         public partial class DidDeleteFileRegistrationOptions : IFileOperationRegistrationOptions
@@ -216,11 +229,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public Container<FileOperationFilter> Filters { get; set; } = new Container<FileOperationFilter>();
         }
 
-        ///<summary>
+        /// <summary>
         /// The options to register for file operations.
-        ///
+        /// 
         /// @since 3.16.0
-        ///</summary>
+        /// </summary>
         public interface IFileOperationRegistrationOptions
         {
             /// <summary>
@@ -268,12 +281,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// - `?` to match on one character in a path segment
             /// - `**` to match any number of path segments, including none
             /// - `{}` to group conditions (e.g. `**​/*.{ts,js}` matches all TypeScript
-            ///   and JavaScript files)
+            /// and JavaScript files)
             /// - `[]` to declare a range of characters to match in a path segment
-            ///   (e.g., `example.[0-9]` to match on `example.0`, `example.1`, …)
+            /// (e.g., `example.[0-9]` to match on `example.0`, `example.1`, …)
             /// - `[!...]` to negate a range of characters to match in a path segment
-            ///   (e.g., `example.[!0-9]` to match on `example.a`, `example.b`, but
-            ///   not `example.0`)
+            /// (e.g., `example.[!0-9]` to match on `example.a`, `example.b`, but
+            /// not `example.0`)
             /// </summary>
             public string Glob { get; init; }
 

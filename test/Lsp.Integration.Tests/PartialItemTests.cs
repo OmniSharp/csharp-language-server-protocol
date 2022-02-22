@@ -5,22 +5,22 @@ using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Lsp.Tests.Integration.Fixtures;
+using Lsp.Integration.Tests.Fixtures;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server;
-using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Lsp.Tests.Integration
+namespace Lsp.Integration.Tests
 {
     public static class PartialItemTests
     {
         public class Delegates : LanguageProtocolFixtureTest<DefaultOptions, DefaultClient, Delegates.DelegateServer>
         {
-            public Delegates(ITestOutputHelper testOutputHelper, LanguageProtocolFixture<DefaultOptions, DefaultClient, DelegateServer> fixture) : base(testOutputHelper, fixture)
+            public Delegates(ITestOutputHelper testOutputHelper, LanguageProtocolFixture<DefaultOptions, DefaultClient, DelegateServer> fixture) : base(
+                testOutputHelper, fixture
+            )
             {
             }
 
@@ -28,7 +28,7 @@ namespace Lsp.Tests.Integration
             public async Task Should_Behave_Like_A_Task()
             {
                 var result = await Client.TextDocument.RequestSemanticTokens(
-                    new SemanticTokensParams() { TextDocument = new TextDocumentIdentifier(@"c:\test.cs") }, CancellationToken
+                    new SemanticTokensParams { TextDocument = new TextDocumentIdentifier(@"c:\test.cs") }, CancellationToken
                 );
                 result.Should().NotBeNull();
                 result!.Data.Should().HaveCount(3);
@@ -39,10 +39,11 @@ namespace Lsp.Tests.Integration
             {
                 var items = await Client.TextDocument
                                         .RequestSemanticTokens(
-                                             new SemanticTokensParams() { TextDocument = new TextDocumentIdentifier(@"c:\test.cs") }, CancellationToken
+                                             new SemanticTokensParams { TextDocument = new TextDocumentIdentifier(@"c:\test.cs") }, CancellationToken
                                          )
                                         .Aggregate(
-                                             new List<SemanticTokensPartialResult>(), (acc, v) => {
+                                             new List<SemanticTokensPartialResult>(), (acc, v) =>
+                                             {
                                                  acc.Add(v);
                                                  return acc;
                                              }
@@ -56,7 +57,9 @@ namespace Lsp.Tests.Integration
             [Fact]
             public async Task Should_Behave_Like_An_Observable_Without_Progress_Support()
             {
-                var response = await Client.SendRequest(new SemanticTokensParams { TextDocument = new TextDocumentIdentifier(@"c:\test.cs") }, CancellationToken);
+                var response = await Client.SendRequest(
+                    new SemanticTokensParams { TextDocument = new TextDocumentIdentifier(@"c:\test.cs") }, CancellationToken
+                );
 
                 response.Should().NotBeNull();
                 response!.Data.Should().HaveCount(3);
@@ -64,14 +67,18 @@ namespace Lsp.Tests.Integration
 
             public class DelegateServer : IConfigureLanguageServerOptions
             {
-                public void Configure(LanguageServerOptions options) => options.ObserveSemanticTokensFull(
-                    (@params, observer, arg3) => {
-                        observer.OnNext(new SemanticTokensPartialResult() { Data = new[] { 0 }.ToImmutableArray() });
-                        observer.OnNext(new SemanticTokensPartialResult() { Data = new[] { 0, 1 }.ToImmutableArray() });
-                        observer.OnNext(new SemanticTokensPartialResult() { Data = new[] { 0, 1, 2 }.ToImmutableArray() });
-                        observer.OnCompleted();
-                    }, (_, _) => new SemanticTokensRegistrationOptions()
-                );
+                public void Configure(LanguageServerOptions options)
+                {
+                    options.ObserveSemanticTokensFull(
+                        (@params, observer, arg3) =>
+                        {
+                            observer.OnNext(new SemanticTokensPartialResult { Data = new[] { 0 }.ToImmutableArray() });
+                            observer.OnNext(new SemanticTokensPartialResult { Data = new[] { 0, 1 }.ToImmutableArray() });
+                            observer.OnNext(new SemanticTokensPartialResult { Data = new[] { 0, 1, 2 }.ToImmutableArray() });
+                            observer.OnCompleted();
+                        }, (_, _) => new SemanticTokensRegistrationOptions()
+                    );
+                }
             }
         }
     }

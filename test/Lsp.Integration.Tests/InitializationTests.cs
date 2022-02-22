@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
-using NSubstitute.ReceivedExtensions;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Client;
@@ -21,11 +18,10 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog.Events;
-using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Lsp.Tests.Integration
+namespace Lsp.Integration.Tests
 {
     public class InitializationTests : LanguageProtocolTestBase
     {
@@ -57,29 +53,33 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Not_Be_Able_To_Send_Messages_Unit_Initialization()
         {
-            if (!(TestOptions.ClientLoggerFactory is TestLoggerFactory loggerFactory)) throw new Exception("wtf");
+            if (!( TestOptions.ClientLoggerFactory is TestLoggerFactory loggerFactory )) throw new Exception("wtf");
             var logs = new List<LogEvent>();
             var onInitializeNotify = Substitute.For<Action>();
             var onInitializedNotify = Substitute.For<Action>();
             using var _ = loggerFactory.Where(z => z.Level == LogEventLevel.Warning).Subscribe(z => logs.Add(z));
 
             var (client, server) = await Initialize(
-                options => {
+                options =>
+                {
                     ConfigureClient(options);
                     options
                        .OnNotification("OnInitializeNotify", onInitializeNotify)
                        .OnNotification("OnInitializedNotify", onInitializedNotify);
-                }, options => {
+                }, options =>
+                {
                     ConfigureServer(options);
                     options
                        .OnInitialize(
-                            (languageServer, request, token) => {
+                            (languageServer, request, token) =>
+                            {
                                 languageServer.SendNotification("OnInitializeNotify");
                                 return Task.CompletedTask;
                             }
                         )
                        .OnInitialized(
-                            (languageServer, request, response, token) => {
+                            (languageServer, request, response, token) =>
+                            {
                                 languageServer.SendNotification("OnInitializedNotify");
                                 return Task.CompletedTask;
                             }
@@ -119,35 +119,51 @@ namespace Lsp.Tests.Integration
             response.Should().NotBeNull();
         }
 
-        class CodeLensHandlerA : CodeLensHandlerBase
+        private class CodeLensHandlerA : CodeLensHandlerBase
         {
             public CodeLensHandlerA(ILanguageServerFacade languageServerFacade)
             {
                 languageServerFacade.Should().NotBeNull();
             }
 
-            public override Task<CodeLensContainer> Handle(CodeLensParams request, CancellationToken cancellationToken) => Task.FromResult(new CodeLensContainer());
+            public override Task<CodeLensContainer> Handle(CodeLensParams request, CancellationToken cancellationToken)
+            {
+                return Task.FromResult(new CodeLensContainer());
+            }
 
-            public override Task<CodeLens> Handle(CodeLens request, CancellationToken cancellationToken) => Task.FromResult(request);
-            protected internal override CodeLensRegistrationOptions CreateRegistrationOptions(CodeLensCapability capability, ClientCapabilities clientCapabilities) => new ();
+            public override Task<CodeLens> Handle(CodeLens request, CancellationToken cancellationToken)
+            {
+                return Task.FromResult(request);
+            }
+
+            protected internal override CodeLensRegistrationOptions CreateRegistrationOptions(
+                CodeLensCapability capability, ClientCapabilities clientCapabilities
+            )
+            {
+                return new();
+            }
         }
 
         private readonly List<string> _logs = new List<string>();
 
-        private void ConfigureClient(LanguageClientOptions options) =>
+        private void ConfigureClient(LanguageClientOptions options)
+        {
             options.OnLogMessage(log => { _logs.Add(log.Message); });
+        }
 
         private void ConfigureServer(LanguageServerOptions options)
         {
             options.OnInitialize(
-                (server, request, token) => {
+                (server, request, token) =>
+                {
                     server.Window.LogInfo("OnInitialize");
                     return Task.CompletedTask;
                 }
             );
             options.AddHandler<CodeLensHandlerA>();
             options.OnInitialized(
-                (server, request, response, token) => {
+                (server, request, response, token) =>
+                {
                     server.Window.LogInfo("OnInitialized");
                     return Task.CompletedTask;
                 }

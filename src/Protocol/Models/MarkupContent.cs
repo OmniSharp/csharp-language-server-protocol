@@ -37,11 +37,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The content itself
         /// </summary>
-        public string Value { get; init; }
+        public string Value { get; init; } = null!;
 
         private string DebuggerDisplay => $"[{Kind}] {Value}";
 
         /// <inheritdoc />
-        public override string ToString() => DebuggerDisplay;
+        public override string ToString()
+        {
+            return DebuggerDisplay;
+        }
     }
 }

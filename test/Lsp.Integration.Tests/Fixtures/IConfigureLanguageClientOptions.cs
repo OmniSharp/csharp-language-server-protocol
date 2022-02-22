@@ -1,6 +1,6 @@
 ﻿using OmniSharp.Extensions.LanguageServer.Client;
 
-namespace Lsp.Tests.Integration.Fixtures
+namespace Lsp.Integration.Tests.Fixtures
 {
     public interface IConfigureLanguageClientOptions
     {

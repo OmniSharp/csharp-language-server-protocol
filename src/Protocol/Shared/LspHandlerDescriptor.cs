@@ -32,7 +32,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             ILspHandlerTypeDescriptor? typeDescriptor
         ) : this(
             index,
-            method, key, handler, handlerType, @params, registrationType, registrationMethod, registrationOptions, capabilityType, requestProcessType, disposeAction,
+            method, key, handler, handlerType, @params, registrationType, registrationMethod, registrationOptions, capabilityType, requestProcessType,
+            disposeAction,
             typeDescriptor, null
         )
         {
@@ -73,7 +74,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
                                .Select(x => x.GetGenericArguments()[0])
                                .OrderBy(x => x == typeof(Unit))
                                .FirstOrDefault()
-                              ?? typeDescriptor?.ResponseType ?? typeof(Unit);
+                    ?? typeDescriptor?.ResponseType ?? typeof(Unit);
 
             // If multiple are implemented this behavior is unknown
             CanBeResolvedHandlerType = handler.GetType().GetTypeInfo()
@@ -88,7 +89,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
                                       typeof(DelegatingNotification<>).IsAssignableFrom(@params.GetGenericTypeDefinition())
                                   );
 
-            IsNotification = handlerType.GetInterfaces().Any(z => z.IsGenericType && typeof(IJsonRpcNotificationHandler<>).IsAssignableFrom(z.GetGenericTypeDefinition()));
+            IsNotification = handlerType.GetInterfaces()
+                                        .Any(z => z.IsGenericType && typeof(IJsonRpcNotificationHandler<>).IsAssignableFrom(z.GetGenericTypeDefinition()));
             IsRequest = !IsNotification;
             RequestProcessType = requestProcessType;
             TypeDescriptor = typeDescriptor;
@@ -101,7 +103,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             string key,
             object? registrationOptions
         ) : this(
-            descriptor.Index, descriptor.Method, key, descriptor.Handler, descriptor.HandlerType, descriptor.Params, descriptor.RegistrationType, descriptor.RegistrationMethod,
+            descriptor.Index, descriptor.Method, key, descriptor.Handler, descriptor.HandlerType, descriptor.Params, descriptor.RegistrationType,
+            descriptor.RegistrationMethod,
             registrationOptions, descriptor.CapabilityType, descriptor.RequestProcessType, descriptor._disposeAction, descriptor.TypeDescriptor, descriptor.Id
         )
         {
@@ -137,35 +140,54 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
         public RequestProcessType? RequestProcessType { get; }
         public ILspHandlerTypeDescriptor? TypeDescriptor { get; }
 
-        public void Dispose() => _disposeAction();
+        public void Dispose()
+        {
+            _disposeAction();
+        }
 
-        public override bool Equals(object? obj) => Equals(obj as LspHandlerDescriptor);
+        public override bool Equals(object? obj)
+        {
+            return Equals(obj as LspHandlerDescriptor);
+        }
 
-        public bool Equals(LspHandlerDescriptor? other) =>
-            other is not null &&
+        public bool Equals(LspHandlerDescriptor? other)
+        {
+            return other is not null &&
 //            EqualityComparer<Type>.Default.Equals(HandlerType, other.HandlerType) &&
-            Method == other.Method &&
-            Key == other.Key;
+                   Method == other.Method &&
+                   Key == other.Key;
+        }
 
         public override int GetHashCode()
         {
             var hashCode = -45133801;
 //            hashCode = hashCode * -1521134295 + EqualityComparer<Type>.Default.GetHashCode(HandlerType);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Method);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Key);
+            hashCode = ( hashCode * -1521134295 ) + EqualityComparer<string>.Default.GetHashCode(Method);
+            hashCode = ( hashCode * -1521134295 ) + EqualityComparer<string>.Default.GetHashCode(Key);
             return hashCode;
         }
 
-        public static bool operator ==(LspHandlerDescriptor descriptor1, LspHandlerDescriptor descriptor2) =>
-            EqualityComparer<LspHandlerDescriptor>.Default.Equals(descriptor1, descriptor2);
+        public static bool operator ==(LspHandlerDescriptor descriptor1, LspHandlerDescriptor descriptor2)
+        {
+            return EqualityComparer<LspHandlerDescriptor>.Default.Equals(descriptor1, descriptor2);
+        }
 
-        public static bool operator !=(LspHandlerDescriptor descriptor1, LspHandlerDescriptor descriptor2) => !( descriptor1 == descriptor2 );
+        public static bool operator !=(LspHandlerDescriptor descriptor1, LspHandlerDescriptor descriptor2)
+        {
+            return !( descriptor1 == descriptor2 );
+        }
 
         internal class AllowAllEqualityComparer : IEqualityComparer<LspHandlerDescriptor>
         {
-            public bool Equals(LspHandlerDescriptor x, LspHandlerDescriptor y) => x.Id == y.Id;
+            public bool Equals(LspHandlerDescriptor x, LspHandlerDescriptor y)
+            {
+                return x.Id == y.Id;
+            }
 
-            public int GetHashCode(LspHandlerDescriptor obj) => obj.Id.GetHashCode();
+            public int GetHashCode(LspHandlerDescriptor obj)
+            {
+                return obj.Id.GetHashCode();
+            }
         }
     }
 }

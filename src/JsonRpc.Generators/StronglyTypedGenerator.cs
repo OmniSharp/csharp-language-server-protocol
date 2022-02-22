@@ -13,7 +13,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
     [Generator]
     public class StronglyTypedGenerator : IIncrementalGenerator
     {
-        private static string[] RequiredUsings = new[]
+        private static readonly string[] RequiredUsings =
         {
             "System.Collections.Generic",
             "System.Collections.ObjectModel",
@@ -27,7 +27,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         {
             var attributes = context.CompilationProvider
                                     .Select(
-                                         (compilation, token) => new AttributeData(
+                                         (compilation, _) => new AttributeData(
                                              compilation.GetTypeByMetadataName(
                                                  "OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateTypedDataAttribute"
                                              )!,
@@ -38,30 +38,30 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                      );
 
             var createContainersSyntaxProvider = context.SyntaxProvider.CreateSyntaxProvider(
-                predicate: (syntaxNode, token) => syntaxNode switch
+                (syntaxNode, _) => syntaxNode switch
                 {
                     StructDeclarationSyntax structDeclarationSyntax when structDeclarationSyntax.AttributeLists.ContainsAttribute("GenerateContainer") => true,
                     TypeDeclarationSyntax typeDeclarationSyntax and (ClassDeclarationSyntax or RecordDeclarationSyntax) when typeDeclarationSyntax
                        .AttributeLists.ContainsAttribute("GenerateContainer") => true,
                     _ => false
-                }, transform: (syntaxContext, token) => syntaxContext
+                }, (syntaxContext, _) => syntaxContext
             );
 
             var canBeResolvedSyntaxProvider = context.SyntaxProvider.CreateSyntaxProvider(
-                predicate: (syntaxNode, token) =>
+                (syntaxNode, _) =>
                     syntaxNode is TypeDeclarationSyntax { BaseList: { } } typeDeclarationSyntax and (ClassDeclarationSyntax or RecordDeclarationSyntax)
                  && syntaxNode.SyntaxTree.HasCompilationUnitRoot
                  && typeDeclarationSyntax.Members.OfType<PropertyDeclarationSyntax>().Any(z => z.Identifier.Text == "Data")
                  && typeDeclarationSyntax.BaseList.Types.Any(z => z.Type.GetSyntaxName() == "ICanBeResolved"),
-                transform: (syntaxContext, token) => syntaxContext
+                (syntaxContext, _) => syntaxContext
             );
 
             var canHaveDataSyntaxProvider = context.SyntaxProvider.CreateSyntaxProvider(
-                predicate: (syntaxNode, token) =>
+                (syntaxNode, _) =>
                     syntaxNode is TypeDeclarationSyntax { BaseList: { } } typeDeclarationSyntax and (ClassDeclarationSyntax or RecordDeclarationSyntax)
                  && syntaxNode.SyntaxTree.HasCompilationUnitRoot
                  && typeDeclarationSyntax.Members.OfType<PropertyDeclarationSyntax>().Any(z => z.Identifier.Text == "Data")
-                 && typeDeclarationSyntax.BaseList.Types.Any(z => z.Type.GetSyntaxName() == "ICanHaveData"), transform: (syntaxContext, token) => syntaxContext
+                 && typeDeclarationSyntax.BaseList.Types.Any(z => z.Type.GetSyntaxName() == "ICanHaveData"), (syntaxContext, _) => syntaxContext
             );
 
             context.RegisterSourceOutput(createContainersSyntaxProvider.Combine(attributes), GenerateContainerClass);
@@ -123,10 +123,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             var (syntaxContext, attributeData) = valueTuple;
             var canBeResolved = (TypeDeclarationSyntax)syntaxContext.Node;
             var typeSymbol = syntaxContext.SemanticModel.GetDeclaredSymbol(canBeResolved)!;
-            
+
             var dataInterfaceName = IdentifierName("ICanBeResolved");
             CreateTypedClass(
-                context, canBeResolved, typeSymbol, dataInterfaceName, attributeData.GenerateTypedDataAttributeSymbol, attributeData.GenerateContainerAttributeSymbol, true
+                context, canBeResolved, typeSymbol, dataInterfaceName, attributeData.GenerateTypedDataAttributeSymbol,
+                attributeData.GenerateContainerAttributeSymbol, true
             );
         }
 
@@ -135,10 +136,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             var (syntaxContext, attributeData) = valueTuple;
             var canBeResolved = (TypeDeclarationSyntax)syntaxContext.Node;
             var typeSymbol = syntaxContext.SemanticModel.GetDeclaredSymbol(canBeResolved)!;
-            
+
             var dataInterfaceName = IdentifierName("ICanHaveData");
             CreateTypedClass(
-                context, canBeResolved, typeSymbol, dataInterfaceName, attributeData.GenerateTypedDataAttributeSymbol, attributeData.GenerateContainerAttributeSymbol, true
+                context, canBeResolved, typeSymbol, dataInterfaceName, attributeData.GenerateTypedDataAttributeSymbol,
+                attributeData.GenerateContainerAttributeSymbol, true
             );
         }
 
@@ -169,6 +171,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                               .WithAttributeLists(List<AttributeListSyntax>())
                               .WithBaseList(null)
                               .WithMembers(List<MemberDeclarationSyntax>())
+                              .WithOpenBraceToken(Token(SyntaxKind.OpenBraceToken))
+                              .WithCloseBraceToken(Token(SyntaxKind.CloseBraceToken))
+                              .WithSemicolonToken(Token(SyntaxKind.None))
                               .AddMembers(
                                    GetWithDataMethod(candidate, HandlerIdentityConstraintClause(includeHandlerIdentity, IdentifierName("TData"))),
                                    GetFromMethod(candidate, includeHandlerIdentity)
@@ -385,8 +390,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         {
             return syntax.Members.OfType<PropertyDeclarationSyntax>()
                          .Where(
-                              z => z.AccessorList?.Accessors.Any(a => a.Keyword.Kind() == SyntaxKind.SetKeyword || a.Keyword.Kind() == SyntaxKind.InitKeyword)
-                                == true
+                              z => z.AccessorList?.Accessors.Any(
+                                  a =>
+                                      a.Keyword.IsKind(SyntaxKind.SetKeyword)
+                                   || a.Keyword.IsKind(SyntaxKind.InitKeyword)
+                              ) == true
                           )
                          .Where(z => z.Identifier.Text != "Data")
                          .Select(
@@ -465,7 +473,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                        Token(SyntaxKind.ImplicitKeyword),
                        GenericName(identifier).WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("T"))))
                    )
-                  .WithModifiers(TokenList(new[] { Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword) }))
+                  .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword)))
                   .WithParameterList(
                        ParameterList(
                            SingletonSeparatedList(Parameter(paramIdentifier).WithType(name))
@@ -557,7 +565,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                    );
         }
 
-        static PropertyDeclarationSyntax GetPropertyImpl(PropertyDeclarationSyntax syntax)
+        private static PropertyDeclarationSyntax GetPropertyImpl(PropertyDeclarationSyntax syntax)
         {
             return syntax.WithAccessorList(
                 AccessorList(
@@ -847,7 +855,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
             static BaseMethodDeclarationSyntax AddConversionBody(TypeSyntax typeName, SyntaxToken collectionName, BaseMethodDeclarationSyntax syntax)
             {
-                TypeSyntax objectName = syntax is ConversionOperatorDeclarationSyntax d ? d.Type : syntax is MethodDeclarationSyntax m ? m.ReturnType : null!;
+                var objectName = syntax is ConversionOperatorDeclarationSyntax d ? d.Type : syntax is MethodDeclarationSyntax m ? m.ReturnType : null!;
                 objectName = objectName.EnsureNotNullable();
                 return syntax
                       .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword)))

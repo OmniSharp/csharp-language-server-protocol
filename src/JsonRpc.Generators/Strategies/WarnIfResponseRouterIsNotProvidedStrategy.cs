@@ -13,14 +13,18 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 
             var generateRequestMethods = item.JsonRpcAttributes.GenerateRequestMethods;
             if (generateRequestMethods != null && (
-                                                      generateRequestMethods.Data.ConstructorArguments.Length == 0 ||
-                                                      generateRequestMethods.Data.ConstructorArguments[0].Kind != TypedConstantKind.Array
-                                                   && generateRequestMethods.Data.ConstructorArguments[0].Value == null
-                                                   || generateRequestMethods.Data.ConstructorArguments[0].Kind == TypedConstantKind.Array
-                                                   && generateRequestMethods.Data.ConstructorArguments[0].Values.Length == 0 )
-                                               && !extensionMethodContext.TypeSymbol.ContainingNamespace.ToDisplayString().StartsWith("OmniSharp.Extensions.DebugAdapter.Protocol"))
+                    generateRequestMethods.Data.ConstructorArguments.Length == 0 ||
+                    ( generateRequestMethods.Data.ConstructorArguments[0].Kind != TypedConstantKind.Array
+                   && generateRequestMethods.Data.ConstructorArguments[0].Value == null )
+                 || ( generateRequestMethods.Data.ConstructorArguments[0].Kind == TypedConstantKind.Array
+                   && generateRequestMethods.Data.ConstructorArguments[0].Values.Length == 0 ) ) && !extensionMethodContext.TypeSymbol.ContainingNamespace
+                   .ToDisplayString().StartsWith("OmniSharp.Extensions.DebugAdapter.Protocol"))
             {
-                context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.NoResponseRouterProvided, item.TypeDeclaration.Identifier.GetLocation(), item.TypeDeclaration.Identifier.Text));
+                context.ReportDiagnostic(
+                    Diagnostic.Create(
+                        GeneratorDiagnostics.NoResponseRouterProvided, item.TypeDeclaration.Identifier.GetLocation(), item.TypeDeclaration.Identifier.Text
+                    )
+                );
             }
         }
     }

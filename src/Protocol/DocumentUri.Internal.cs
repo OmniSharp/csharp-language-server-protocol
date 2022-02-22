@@ -15,17 +15,35 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         private static readonly Regex SingleSlashStart = new Regex(@"^\/");
         private static readonly Regex DoubleSlashStart = new Regex(@"^\/\/");
 
-        private static bool IsHighSurrogate(int charCode) => 0xD800 <= charCode && charCode <= 0xDBFF;
+        private static bool IsHighSurrogate(int charCode)
+        {
+            return 0xD800 <= charCode && charCode <= 0xDBFF;
+        }
 
-        private static bool IsLowSurrogate(int charCode) => 0xDC00 <= charCode && charCode <= 0xDFFF;
+        private static bool IsLowSurrogate(int charCode)
+        {
+            return 0xDC00 <= charCode && charCode <= 0xDFFF;
+        }
 
-        private static bool IsLowerAsciiHex(int code) => code >= CharCode.a && code <= CharCode.f;
+        private static bool IsLowerAsciiHex(int code)
+        {
+            return code >= CharCode.a && code <= CharCode.f;
+        }
 
-        private static bool IsLowerAsciiLetter(int code) => code >= CharCode.a && code <= CharCode.z;
+        private static bool IsLowerAsciiLetter(int code)
+        {
+            return code >= CharCode.a && code <= CharCode.z;
+        }
 
-        private static bool IsUpperAsciiLetter(int code) => code >= CharCode.A && code <= CharCode.Z;
+        private static bool IsUpperAsciiLetter(int code)
+        {
+            return code >= CharCode.A && code <= CharCode.Z;
+        }
 
-        private static bool IsAsciiLetter(int code) => IsLowerAsciiLetter(code) || IsUpperAsciiLetter(code);
+        private static bool IsAsciiLetter(int code)
+        {
+            return IsLowerAsciiLetter(code) || IsUpperAsciiLetter(code);
+        }
 
         private static void _validateUri(DocumentUri ret, bool? strict)
         {
@@ -111,7 +129,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             return path;
         }
 
-        private static readonly IDictionary<int, string> EncodeTable = new Dictionary<int, string> {
+        private static readonly IDictionary<int, string> EncodeTable = new Dictionary<int, string>
+        {
             [CharCode.Colon] = "%3A", // gen-delims
             [CharCode.Slash] = "%2F",
             [CharCode.QuestionMark] = "%3F",
@@ -146,19 +165,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
                 // unreserved characters: https://tools.ietf.org/html/rfc3986#section-2.3
                 if (
-                    code >= CharCode.a && code <= CharCode.z
-                 || code >= CharCode.A && code <= CharCode.Z
-                 || code >= CharCode.Digit0 && code <= CharCode.Digit9
+                    ( code >= CharCode.a && code <= CharCode.z )
+                 || ( code >= CharCode.A && code <= CharCode.Z )
+                 || ( code >= CharCode.Digit0 && code <= CharCode.Digit9 )
                  || code == CharCode.Dash
                  || code == CharCode.Period
                  || code == CharCode.Underline
                  || code == CharCode.Tilde
-                 || allowSlash && code == CharCode.Slash
-                 || allowSlash && ( pos == 1 || pos == 2 ) && (
-                        uriComponent.Length >= 3 && uriComponent[0] == CharCode.Slash &&
-                        uriComponent[2] == CharCode.Colon
-                     || uriComponent.Length >= 2 && uriComponent[1] == CharCode.Colon
-                    )
+                 || ( allowSlash && code == CharCode.Slash )
+                 || ( allowSlash && ( pos == 1 || pos == 2 ) && (
+                        ( uriComponent.Length >= 3 && uriComponent[0] == CharCode.Slash &&
+                          uriComponent[2] == CharCode.Colon )
+                     || ( uriComponent.Length >= 2 && uriComponent[1] == CharCode.Colon )
+                    ) )
                 )
                 {
                     // check if we are delaying native encode
@@ -249,8 +268,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             else if (
                 uri.Path.Length >= 3
              && uri.Path[0] == CharCode.Slash
-             && ( uri.Path[1] >= CharCode.A && uri.Path[1] <= CharCode.Z ||
-                  uri.Path[1] >= CharCode.a && uri.Path[1] <= CharCode.z )
+             && ( ( uri.Path[1] >= CharCode.A && uri.Path[1] <= CharCode.Z ) ||
+                  ( uri.Path[1] >= CharCode.a && uri.Path[1] <= CharCode.z ) )
              && uri.Path[2] == CharCode.Colon
             )
             {

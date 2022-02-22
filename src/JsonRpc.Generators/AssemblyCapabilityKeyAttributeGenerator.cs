@@ -15,7 +15,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
             var syntaxProvider = context.SyntaxProvider.CreateSyntaxProvider(
-                predicate: (syntaxNode, token) =>
+                (syntaxNode, _) =>
                 {
                     if (syntaxNode.Parent is TypeDeclarationSyntax) return false;
                     if (syntaxNode is TypeDeclarationSyntax { Arity: 0, BaseList: { } bl } typeDeclarationSyntax
@@ -38,11 +38,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
                     return false;
                 },
-                transform: (syntaxContext, token) =>
+                (syntaxContext, _) =>
                 {
-                    var namespaces = new HashSet<string>() { "OmniSharp.Extensions.LanguageServer.Protocol" };
+                    var namespaces = new HashSet<string> { "OmniSharp.Extensions.LanguageServer.Protocol" };
                     var tds = (TypeDeclarationSyntax)syntaxContext.Node;
-                    
+
                     foreach (var item in syntaxContext.Node.SyntaxTree.GetCompilationUnitRoot()
                                                       .Usings.Where(z => z.Alias == null)
                                                       .Select(z => z.Name.ToFullString()))
@@ -52,14 +52,26 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
                     var typeSymbol = syntaxContext.SemanticModel.GetDeclaredSymbol(syntaxContext.Node)!;
 
-                    return (namespaces, Attribute(IdentifierName("AssemblyCapabilityKey"), AttributeArgumentList(SeparatedList(new[] { AttributeArgument(TypeOfExpression(ParseName(typeSymbol.ToDisplayString()))), }.Concat(tds.AttributeLists.GetAttribute("CapabilityKey")!.ArgumentList!.Arguments)))));
+                    return ( namespaces,
+                             Attribute(
+                                 IdentifierName("AssemblyCapabilityKey"),
+                                 AttributeArgumentList(
+                                     SeparatedList(
+                                         new[] { AttributeArgument(TypeOfExpression(ParseName(typeSymbol.ToDisplayString()))), }.Concat(
+                                             tds.AttributeLists.GetAttribute("CapabilityKey")!.ArgumentList!.Arguments
+                                         )
+                                     )
+                                 )
+                             ) );
                 }
             ).Collect();
-            
+
             context.RegisterSourceOutput(syntaxProvider, GenerateAssemblyCapabilityKeys);
         }
 
-        private void GenerateAssemblyCapabilityKeys(SourceProductionContext context, ImmutableArray<(HashSet<string> namespaces, AttributeSyntax attribute)> types)
+        private void GenerateAssemblyCapabilityKeys(
+            SourceProductionContext context, ImmutableArray<(HashSet<string> namespaces, AttributeSyntax attribute)> types
+        )
         {
             var namespaces = types.Aggregate(
                 new HashSet<string>(), (set, tuple) =>
@@ -75,8 +87,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             if (types.Any())
             {
                 var cu = CompilationUnit()
-                                      .WithUsings(List(namespaces.OrderBy(z => z).Select(z => UsingDirective(ParseName(z)))))
-                                      .AddAttributeLists(AttributeList(target: AttributeTargetSpecifier(Token(SyntaxKind.AssemblyKeyword)), SeparatedList(types.Select(z => z.attribute))));
+                        .WithUsings(List(namespaces.OrderBy(z => z).Select(z => UsingDirective(ParseName(z)))))
+                        .AddAttributeLists(
+                             AttributeList(AttributeTargetSpecifier(Token(SyntaxKind.AssemblyKeyword)), SeparatedList(types.Select(z => z.attribute)))
+                         );
 
                 context.AddSource("AssemblyCapabilityKeys.cs", cu.NormalizeWhitespace().GetText(Encoding.UTF8));
             }

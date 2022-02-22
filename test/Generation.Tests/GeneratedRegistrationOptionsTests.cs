@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc.Generators;
-using TestingUtils;
 using Xunit;
 
 namespace Generation.Tests
@@ -60,6 +59,7 @@ namespace Test
 #nullable restore";
             await GenerationHelpers.AssertGeneratedAsExpected<RegistrationOptionsGenerator>(source, expected);
         }
+
         [Fact]
         public async Task Supports_Generating_Strongly_Typed_WorkDone_Registration_Options_Interface()
         {

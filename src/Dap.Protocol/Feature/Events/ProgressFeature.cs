@@ -14,7 +14,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// The ID that was introduced in the initial 'progressStart' event.
             /// </summary>
-            public ProgressToken ProgressId { get; init; }
+            public ProgressToken ProgressId { get; init; } = null!;
 
             /// <summary>
             /// Optional, more detailed progress message. If omitted, the previous message (if any) is used.
@@ -25,17 +25,15 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
 
         [Serial]
         [Method(EventNames.ProgressStart, Direction.ServerToClient)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record ProgressStartEvent : ProgressEvent, IRequest
         {
             /// <summary>
             /// Mandatory (short) title of the progress reporting. Shown in the UI to describe the long running operation.
             /// </summary>
-            public string Title { get; init; }
+            public string Title { get; init; } = null!;
 
             /// <summary>
             /// The request ID that this progress report is related to. If specified a debug adapter is expected to emit
@@ -62,11 +60,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
 
         [Serial]
         [Method(EventNames.ProgressUpdate, Direction.ServerToClient)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record ProgressUpdateEvent : ProgressEvent, IRequest
         {
             /// <summary>
@@ -78,13 +74,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
 
         [Serial]
         [Method(EventNames.ProgressEnd, Direction.ServerToClient)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
-        public record ProgressEndEvent : ProgressEvent, IRequest
-        {
-        }
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
+        public record ProgressEndEvent : ProgressEvent, IRequest;
     }
 }

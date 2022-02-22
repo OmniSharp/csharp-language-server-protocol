@@ -11,11 +11,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.TerminateThreads, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record TerminateThreadsArguments : IRequest<TerminateThreadsResponse>
         {
             /// <summary>
@@ -25,9 +23,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public Container<long>? ThreadIds { get; init; }
         }
 
-        public record TerminateThreadsResponse
-        {
-        }
+        public record TerminateThreadsResponse;
     }
 
     namespace Models

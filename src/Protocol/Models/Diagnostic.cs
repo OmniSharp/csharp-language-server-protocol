@@ -16,7 +16,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The range at which the message applies.
         /// </summary>
-        public Range Range { get; init; }
+        public Range Range { get; init; } = null!;
 
         /// <summary>
         /// The diagnostic's severity. Can be omitted. If omitted it is up to the
@@ -49,7 +49,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The diagnostic's message.
         /// </summary>
-        public string Message { get; init; }
+        public string Message { get; init; } = null!;
 
         /// <summary>
         /// Additional metadata about the diagnostic.
@@ -97,17 +97,29 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         }
 
         public bool IsLong => String == null;
-        public long Long { get;  }
+        public long Long { get; }
         public bool IsString => String != null;
-        public string? String { get;  }
+        public string? String { get; }
 
-        public static implicit operator DiagnosticCode(long value) => new DiagnosticCode(value);
+        public static implicit operator DiagnosticCode(long value)
+        {
+            return new DiagnosticCode(value);
+        }
 
-        public static implicit operator DiagnosticCode(string value) => new DiagnosticCode(value);
+        public static implicit operator DiagnosticCode(string value)
+        {
+            return new DiagnosticCode(value);
+        }
 
-        public static implicit operator long(DiagnosticCode value) => value.IsLong ? value.Long : 0;
+        public static implicit operator long(DiagnosticCode value)
+        {
+            return value.IsLong ? value.Long : 0;
+        }
 
-        public static implicit operator string?(DiagnosticCode value) => value.IsString ? value.String : null;
+        public static implicit operator string?(DiagnosticCode value)
+        {
+            return value.IsString ? value.String : null;
+        }
     }
 
     [JsonConverter(typeof(NumberEnumConverter))]
@@ -168,7 +180,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// An URI to open with more information about the diagnostic error.
         /// </summary>
-        public Uri Href { get; init; }
+        public Uri Href { get; init; } = null!;
     }
 
     /// <summary>
@@ -181,11 +193,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The location of this related diagnostic information.
         /// </summary>
-        public Location Location { get; init; }
+        public Location Location { get; init; } = null!;
 
         /// <summary>
         /// The message of this related diagnostic information.
         /// </summary>
-        public string Message { get; init; }
+        public string Message { get; init; } = null!;
     }
 }

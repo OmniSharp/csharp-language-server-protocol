@@ -18,7 +18,7 @@ using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Lsp.Tests.Integration
+namespace Lsp.Integration.Tests
 {
     public class RecursiveResolutionTests : LanguageProtocolTestBase
     {
@@ -31,7 +31,8 @@ namespace Lsp.Tests.Integration
         [InlineData(Side.Server)]
         public async Task Server_Can_Be_Injected_Into_Handler_After_Creation_Using_Registration(Side side)
         {
-            Func<Task> a = async () => {
+            Func<Task> a = async () =>
+            {
                 var (client, server) = await Initialize(
                     options => { },
                     options => { }
@@ -64,7 +65,8 @@ namespace Lsp.Tests.Integration
         public async Task Server_Cannot_Be_Injected_Into_Handler_During_Creation_Using_Registration(Side side)
         {
             Func<Task> a = () => Initialize(
-                options => {
+                options =>
+                {
                     if (side == Side.Client)
                     {
                         options
@@ -72,7 +74,8 @@ namespace Lsp.Tests.Integration
                            .AddHandler<ClassHandler<LanguageClient>>();
                     }
                 },
-                options => {
+                options =>
+                {
                     if (side == Side.Server)
                     {
                         options
@@ -91,7 +94,8 @@ namespace Lsp.Tests.Integration
         public async Task Server_Cannot_Be_Injected_Into_Handler_During_Creation_Using_Description(Side side)
         {
             Func<Task> a = () => Initialize(
-                options => {
+                options =>
+                {
                     if (side == Side.Client)
                     {
                         options.Services
@@ -99,7 +103,8 @@ namespace Lsp.Tests.Integration
                                .AddSingleton(JsonRpcHandlerDescription.Infer(typeof(ClassHandler<LanguageClient>)));
                     }
                 },
-                options => {
+                options =>
+                {
                     if (side == Side.Server)
                     {
                         options.Services
@@ -118,7 +123,8 @@ namespace Lsp.Tests.Integration
         public async Task Server_Cannot_Be_Injected_Into_Handler_During_Creation_Using_Injection(Side side)
         {
             Func<Task> a = () => Initialize(
-                options => {
+                options =>
+                {
                     if (side == Side.Client)
                     {
                         options.Services
@@ -126,7 +132,8 @@ namespace Lsp.Tests.Integration
                                .AddSingleton<ClassHandler<LanguageClient>>();
                     }
                 },
-                options => {
+                options =>
+                {
                     if (side == Side.Server)
                     {
                         options.Services
@@ -145,14 +152,16 @@ namespace Lsp.Tests.Integration
         public async Task Server_Facade_Can_Be_Injected_Into_Handler_During_Creation_Using_Registration(Side side)
         {
             Func<Task> a = () => Initialize(
-                options => {
+                options =>
+                {
                     if (side == Side.Client)
                     {
                         options
                            .AddHandler<InterfaceHandler<ILanguageClientFacade>>();
                     }
                 },
-                options => {
+                options =>
+                {
                     if (side == Side.Server)
                     {
                         options
@@ -169,14 +178,16 @@ namespace Lsp.Tests.Integration
         public async Task Server_Facade_Can_Be_Injected_Into_Handler_During_Creation_Using_Description(Side side)
         {
             Func<Task> a = () => Initialize(
-                options => {
+                options =>
+                {
                     if (side == Side.Client)
                     {
                         options.Services
                                .AddSingleton(JsonRpcHandlerDescription.Infer(typeof(InterfaceHandler<ILanguageClientFacade>)));
                     }
                 },
-                options => {
+                options =>
+                {
                     if (side == Side.Server)
                     {
                         options.Services
@@ -193,14 +204,16 @@ namespace Lsp.Tests.Integration
         public async Task Server_Facade_Can_Injected_Into_Handler_During_Creation_Using_Injection(Side side)
         {
             Func<Task> a = () => Initialize(
-                options => {
+                options =>
+                {
                     if (side == Side.Client)
                     {
                         options.Services
                                .AddSingleton<InterfaceHandler<ILanguageClientFacade>>();
                     }
                 },
-                options => {
+                options =>
+                {
                     if (side == Side.Server)
                     {
                         options.Services
@@ -217,13 +230,15 @@ namespace Lsp.Tests.Integration
         public async Task Should_Allow_Nested_Registration_During_Creation_Using_Registration(Side side)
         {
             var (client, server) = await Initialize(
-                options => {
+                options =>
+                {
                     if (side == Side.Client)
                     {
                         options.AddHandler<NestedClientHandler>();
                     }
                 },
-                options => {
+                options =>
+                {
                     if (side == Side.Server)
                     {
                         options.AddHandler<NestedServerHandler>();
@@ -254,13 +269,15 @@ namespace Lsp.Tests.Integration
         public async Task Should_Allow_Nested_Registration_During_Creation_Using_Description(Side side)
         {
             var (client, server) = await Initialize(
-                options => {
+                options =>
+                {
                     if (side == Side.Client)
                     {
                         options.Services.AddSingleton(JsonRpcHandlerDescription.Infer(typeof(NestedClientHandler)));
                     }
                 },
-                options => {
+                options =>
+                {
                     if (side == Side.Server)
                     {
                         options.Services.AddSingleton(JsonRpcHandlerDescription.Infer(typeof(NestedServerHandler)));
@@ -291,13 +308,15 @@ namespace Lsp.Tests.Integration
         public async Task Should_Allow_Nested_Registration_During_Creation_Using_Injection(Side side)
         {
             var (client, server) = await Initialize(
-                options => {
+                options =>
+                {
                     if (side == Side.Client)
                     {
                         options.Services.AddSingleton<NestedClientHandler>();
                     }
                 },
-                options => {
+                options =>
+                {
                     if (side == Side.Server)
                     {
                         options.Services.AddSingleton<NestedServerHandler>();
@@ -334,7 +353,7 @@ namespace Lsp.Tests.Integration
         }
 
         [Method(nameof(ClassRequest))]
-        class ClassHandler<T> : IJsonRpcRequestHandler<ClassRequest, Unit> where T : class
+        private class ClassHandler<T> : IJsonRpcRequestHandler<ClassRequest, Unit> where T : class
         {
             // ReSharper disable once NotAccessedField.Local
             private readonly T _jsonRpcServer;
@@ -344,7 +363,10 @@ namespace Lsp.Tests.Integration
                 _jsonRpcServer = jsonRpcServer;
             }
 
-            public Task<Unit> Handle(ClassRequest classRequest, CancellationToken cancellationToken) => throw new NotImplementedException();
+            public Task<Unit> Handle(ClassRequest classRequest, CancellationToken cancellationToken)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         [Method(nameof(InterfaceRequest))]
@@ -353,7 +375,7 @@ namespace Lsp.Tests.Integration
         }
 
         [Method(nameof(InterfaceRequest))]
-        class InterfaceHandler<T> : IJsonRpcRequestHandler<InterfaceRequest, Unit>
+        private class InterfaceHandler<T> : IJsonRpcRequestHandler<InterfaceRequest, Unit>
         {
             // ReSharper disable once NotAccessedField.Local
             private readonly T _jsonRpcServer;
@@ -363,7 +385,10 @@ namespace Lsp.Tests.Integration
                 _jsonRpcServer = jsonRpcServer;
             }
 
-            public Task<Unit> Handle(InterfaceRequest request, CancellationToken cancellationToken) => throw new NotImplementedException();
+            public Task<Unit> Handle(InterfaceRequest request, CancellationToken cancellationToken)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         [Method(nameof(NestedRequest))]
@@ -372,7 +397,7 @@ namespace Lsp.Tests.Integration
         }
 
         [Method(nameof(NestedRequest))]
-        class NestedClientHandler : IJsonRpcRequestHandler<NestedRequest, Unit>
+        private class NestedClientHandler : IJsonRpcRequestHandler<NestedRequest, Unit>
         {
             // ReSharper disable once NotAccessedField.Local
             private readonly ILanguageClientFacade _languageClientFacade;
@@ -383,11 +408,14 @@ namespace Lsp.Tests.Integration
                 languageClientFacade.Register(r => r.AddHandler<InterfaceHandler<ILanguageClientFacade>>());
             }
 
-            public Task<Unit> Handle(NestedRequest request, CancellationToken cancellationToken) => throw new NotImplementedException();
+            public Task<Unit> Handle(NestedRequest request, CancellationToken cancellationToken)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         [Method(nameof(NestedRequest))]
-        class NestedServerHandler : IJsonRpcRequestHandler<NestedRequest, Unit>
+        private class NestedServerHandler : IJsonRpcRequestHandler<NestedRequest, Unit>
         {
             // ReSharper disable once NotAccessedField.Local
             private readonly ILanguageServerFacade _languageClientFacade;
@@ -398,7 +426,10 @@ namespace Lsp.Tests.Integration
                 languageClientFacade.Register(z => z.AddHandler<InterfaceHandler<ILanguageServerFacade>>());
             }
 
-            public Task<Unit> Handle(NestedRequest request, CancellationToken cancellationToken) => throw new NotImplementedException();
+            public Task<Unit> Handle(NestedRequest request, CancellationToken cancellationToken)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

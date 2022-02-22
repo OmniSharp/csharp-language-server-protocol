@@ -10,21 +10,17 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.LoadedSources, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
-        public record LoadedSourcesArguments : IRequest<LoadedSourcesResponse>
-        {
-        }
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
+        public record LoadedSourcesArguments : IRequest<LoadedSourcesResponse>;
 
         public record LoadedSourcesResponse
         {
             /// <summary>
             /// Set of loaded sources.
             /// </summary>
-            public Container<Source> Sources { get; init; }
+            public Container<Source> Sources { get; init; } = null!;
         }
     }
 

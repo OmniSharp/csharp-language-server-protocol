@@ -10,11 +10,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.Terminate, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record TerminateArguments : IRequest<TerminateResponse>
         {
             /// <summary>
@@ -24,9 +22,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public bool Restart { get; init; }
         }
 
-        public record TerminateResponse
-        {
-        }
+        public record TerminateResponse;
     }
 
     namespace Models

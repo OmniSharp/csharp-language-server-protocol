@@ -6,6 +6,6 @@
     /// </summary>
     public record ModulesViewDescriptor
     {
-        public Container<ColumnDescriptor> Columns { get; init; }
+        public Container<ColumnDescriptor> Columns { get; init; } = null!;
     }
 }

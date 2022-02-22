@@ -9,18 +9,17 @@ using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog.Events;
-using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Lsp.Tests.Integration
+namespace Lsp.Integration.Tests
 {
     public class MonikerTests : LanguageProtocolTestBase
     {
         private readonly Func<MonikerParams, CancellationToken, Task<Container<Moniker>?>> _request;
+
         public MonikerTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper, LogEventLevel.Verbose))
         {
             _request = Substitute.For<Func<MonikerParams, CancellationToken, Task<Container<Moniker>?>>>();
@@ -30,16 +29,17 @@ namespace Lsp.Tests.Integration
         public async Task Should_Get_Monikers()
         {
             _request.Invoke(Arg.Any<MonikerParams>(), Arg.Any<CancellationToken>())
-                    .Returns(new Container<Moniker>(
-                                 new[] {
-                                     new Moniker() {
-                                         Identifier = "abcd",
-                                         Kind = MonikerKind.Export,
-                                         Scheme = "http",
-                                         Unique = UniquenessLevel.Document
-                                     },
-                                 }
-                             ));
+                    .Returns(
+                         new Container<Moniker>(
+                             new Moniker
+                             {
+                                 Identifier = "abcd",
+                                 Kind = MonikerKind.Export,
+                                 Scheme = "http",
+                                 Unique = UniquenessLevel.Document
+                             }
+                         )
+                     );
 
 
             var (client, _) = await Initialize(ClientOptionsAction, ServerOptionsAction);
@@ -53,7 +53,8 @@ namespace Lsp.Tests.Integration
         private void ServerOptionsAction(LanguageServerOptions obj)
         {
             obj.OnMoniker(
-                _request, (_, _) => new MonikerRegistrationOptions() {
+                _request, (_, _) => new MonikerRegistrationOptions
+                {
                     DocumentSelector = DocumentSelector.ForLanguage("csharp"),
                 }
             );

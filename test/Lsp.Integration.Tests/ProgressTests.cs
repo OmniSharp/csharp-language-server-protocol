@@ -7,7 +7,7 @@ using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Lsp.Tests.Integration.Fixtures;
+using Lsp.Integration.Tests.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -15,11 +15,13 @@ using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Lsp.Tests.Integration
+namespace Lsp.Integration.Tests
 {
     public class ProgressTests : LanguageProtocolFixtureTest<DefaultOptions, DefaultClient, DefaultServer>
     {
-        public ProgressTests(ITestOutputHelper testOutputHelper, LanguageProtocolFixture<DefaultOptions, DefaultClient, DefaultServer> fixture) : base(testOutputHelper, fixture)
+        public ProgressTests(ITestOutputHelper testOutputHelper, LanguageProtocolFixture<DefaultOptions, DefaultClient, DefaultServer> fixture) : base(
+            testOutputHelper, fixture
+        )
         {
         }
 
@@ -34,32 +36,39 @@ namespace Lsp.Tests.Integration
             var token = new ProgressToken(Guid.NewGuid().ToString());
 
             using var observer = Client.ProgressManager.For<Data>(token, CancellationToken);
-            var workDoneObservable = Server.ProgressManager.Monitor(token, x => x.ToObject<Data>(Server.Services.GetRequiredService<ISerializer>().JsonSerializer));
+            var workDoneObservable = Server.ProgressManager.Monitor(
+                token, x => x.ToObject<Data>(Server.Services.GetRequiredService<ISerializer>().JsonSerializer)
+            );
             var observable = workDoneObservable.Replay();
             using var _ = observable.Connect();
 
             observer.OnNext(
-                new Data {
+                new Data
+                {
                     Value = "1"
                 }
             );
             observer.OnNext(
-                new Data {
+                new Data
+                {
                     Value = "3"
                 }
             );
             observer.OnNext(
-                new Data {
+                new Data
+                {
                     Value = "2"
                 }
             );
             observer.OnNext(
-                new Data {
+                new Data
+                {
                     Value = "4"
                 }
             );
             observer.OnNext(
-                new Data {
+                new Data
+                {
                     Value = "5"
                 }
             );
@@ -67,7 +76,8 @@ namespace Lsp.Tests.Integration
             observer.OnCompleted();
 
             await Observable.Create<Unit>(
-                innerObserver => new CompositeDisposable() {
+                innerObserver => new CompositeDisposable
+                {
                     observable.Take(5).Select(z => z.Value).Subscribe(v => innerObserver.OnNext(Unit.Default), innerObserver.OnCompleted),
                     workDoneObservable
                 }
@@ -75,7 +85,7 @@ namespace Lsp.Tests.Integration
 
             var data = await observable.Select(z => z.Value).ToArray().ToTask(CancellationToken);
 
-            data.Should().ContainInOrder(new[] { "1", "3", "2", "4", "5" });
+            data.Should().ContainInOrder("1", "3", "2", "4", "5");
         }
 
         [Fact]
@@ -84,32 +94,39 @@ namespace Lsp.Tests.Integration
             var token = new ProgressToken(Guid.NewGuid().ToString());
 
             using var observer = Server.ProgressManager.For<Data>(token, CancellationToken);
-            var workDoneObservable = Client.ProgressManager.Monitor(token, x => x.ToObject<Data>(Client.Services.GetRequiredService<ISerializer>().JsonSerializer));
+            var workDoneObservable = Client.ProgressManager.Monitor(
+                token, x => x.ToObject<Data>(Client.Services.GetRequiredService<ISerializer>().JsonSerializer)
+            );
             var observable = workDoneObservable.Replay();
             using var _ = observable.Connect();
 
             observer.OnNext(
-                new Data {
+                new Data
+                {
                     Value = "1"
                 }
             );
             observer.OnNext(
-                new Data {
+                new Data
+                {
                     Value = "3"
                 }
             );
             observer.OnNext(
-                new Data {
+                new Data
+                {
                     Value = "2"
                 }
             );
             observer.OnNext(
-                new Data {
+                new Data
+                {
                     Value = "4"
                 }
             );
             observer.OnNext(
-                new Data {
+                new Data
+                {
                     Value = "5"
                 }
             );
@@ -117,7 +134,8 @@ namespace Lsp.Tests.Integration
             observer.OnCompleted();
 
             await Observable.Create<Unit>(
-                innerObserver => new CompositeDisposable() {
+                innerObserver => new CompositeDisposable
+                {
                     observable
                        .Take(5)
                        .Select(z => z.Value)
@@ -128,7 +146,7 @@ namespace Lsp.Tests.Integration
 
             var data = await observable.Select(z => z.Value).ToArray().ToTask(CancellationToken);
 
-            data.Should().ContainInOrder(new[] { "1", "3", "2", "4", "5" });
+            data.Should().ContainInOrder("1", "3", "2", "4", "5");
         }
 
         [Fact]
@@ -148,39 +166,45 @@ namespace Lsp.Tests.Integration
             using var _ = observable.Connect();
 
             using var workDoneObserver = await Server.WorkDoneManager.Create(
-                token, new WorkDoneProgressBegin {
+                token, new WorkDoneProgressBegin
+                {
                     Cancellable = true,
                     Message = "Begin",
                     Percentage = 0,
                     Title = "Work is pending"
-                }, onComplete: () => new WorkDoneProgressEnd {
+                }, onComplete: () => new WorkDoneProgressEnd
+                {
                     Message = "End"
                 }
             );
 
             workDoneObserver.OnNext(
-                new WorkDoneProgressReport {
+                new WorkDoneProgressReport
+                {
                     Percentage = 10,
                     Message = "Report 1"
                 }
             );
 
             workDoneObserver.OnNext(
-                new WorkDoneProgressReport {
+                new WorkDoneProgressReport
+                {
                     Percentage = 20,
                     Message = "Report 2"
                 }
             );
 
             workDoneObserver.OnNext(
-                new WorkDoneProgressReport {
+                new WorkDoneProgressReport
+                {
                     Percentage = 30,
                     Message = "Report 3"
                 }
             );
 
             workDoneObserver.OnNext(
-                new WorkDoneProgressReport {
+                new WorkDoneProgressReport
+                {
                     Percentage = 40,
                     Message = "Report 4"
                 }
@@ -189,7 +213,8 @@ namespace Lsp.Tests.Integration
             workDoneObserver.OnCompleted();
 
             var results = await observable.Select(
-                z => z switch {
+                z => z switch
+                {
                     WorkDoneProgressBegin begin  => begin.Message,
                     WorkDoneProgressReport begin => begin.Message,
                     WorkDoneProgressEnd begin    => begin.Message,
@@ -210,39 +235,45 @@ namespace Lsp.Tests.Integration
             using var _ = observable.Connect();
 
             using var workDoneObserver = await Server.WorkDoneManager.Create(
-                token, new WorkDoneProgressBegin {
+                token, new WorkDoneProgressBegin
+                {
                     Cancellable = true,
                     Message = "Begin",
                     Percentage = 0,
                     Title = "Work is pending"
-                }, onComplete: () => new WorkDoneProgressEnd {
+                }, onComplete: () => new WorkDoneProgressEnd
+                {
                     Message = "End"
                 }
             );
 
             workDoneObserver.OnNext(
-                new WorkDoneProgressReport {
+                new WorkDoneProgressReport
+                {
                     Percentage = 10,
                     Message = "Report 1"
                 }
             );
 
             workDoneObserver.OnNext(
-                new WorkDoneProgressReport {
+                new WorkDoneProgressReport
+                {
                     Percentage = 20,
                     Message = "Report 2"
                 }
             );
 
             workDoneObserver.OnNext(
-                new WorkDoneProgressReport {
+                new WorkDoneProgressReport
+                {
                     Percentage = 30,
                     Message = "Report 3"
                 }
             );
 
             workDoneObserver.OnNext(
-                new WorkDoneProgressReport {
+                new WorkDoneProgressReport
+                {
                     Percentage = 40,
                     Message = "Report 4"
                 }
@@ -251,7 +282,8 @@ namespace Lsp.Tests.Integration
             workDoneObserver.OnCompleted();
 
             var results = await observable.Select(
-                z => z switch {
+                z => z switch
+                {
                     WorkDoneProgressBegin begin  => begin.Message,
                     WorkDoneProgressReport begin => begin.Message,
                     WorkDoneProgressEnd begin    => begin.Message,
@@ -272,25 +304,29 @@ namespace Lsp.Tests.Integration
             using var _ = workDoneObservable.Subscribe(x => data.Add(x));
 
             using var workDoneObserver = await Server.WorkDoneManager.Create(
-                token, new WorkDoneProgressBegin {
+                token, new WorkDoneProgressBegin
+                {
                     Cancellable = true,
                     Message = "Begin",
                     Percentage = 0,
                     Title = "Work is pending"
-                }, onComplete: () => new WorkDoneProgressEnd {
+                }, onComplete: () => new WorkDoneProgressEnd
+                {
                     Message = "End"
                 }
             );
 
             workDoneObserver.OnNext(
-                new WorkDoneProgressReport {
+                new WorkDoneProgressReport
+                {
                     Percentage = 10,
                     Message = "Report 1"
                 }
             );
 
             workDoneObserver.OnNext(
-                new WorkDoneProgressReport {
+                new WorkDoneProgressReport
+                {
                     Percentage = 20,
                     Message = "Report 2"
                 }
@@ -301,14 +337,16 @@ namespace Lsp.Tests.Integration
             workDoneObservable.Dispose();
 
             workDoneObserver.OnNext(
-                new WorkDoneProgressReport {
+                new WorkDoneProgressReport
+                {
                     Percentage = 30,
                     Message = "Report 3"
                 }
             );
 
             workDoneObserver.OnNext(
-                new WorkDoneProgressReport {
+                new WorkDoneProgressReport
+                {
                     Percentage = 40,
                     Message = "Report 4"
                 }
@@ -318,7 +356,8 @@ namespace Lsp.Tests.Integration
 
             var results = data
                          .Select(
-                              z => z switch {
+                              z => z switch
+                              {
                                   WorkDoneProgressBegin begin  => begin.Message,
                                   WorkDoneProgressReport begin => begin.Message,
                                   WorkDoneProgressEnd begin    => begin.Message,

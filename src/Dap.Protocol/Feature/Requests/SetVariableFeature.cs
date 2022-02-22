@@ -11,11 +11,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.SetVariable, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record SetVariableArguments : IRequest<SetVariableResponse>
         {
             /// <summary>
@@ -26,12 +24,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// The name of the variable in the container.
             /// </summary>
-            public string Name { get; init; }
+            public string Name { get; init; } = null!;
 
             /// <summary>
             /// The value of the variable.
             /// </summary>
-            public string Value { get; init; }
+            public string Value { get; init; } = null!;
 
             /// <summary>
             /// Specifies details on how to format the response value.
@@ -45,7 +43,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// The new value of the variable.
             /// </summary>
-            public string Value { get; init; }
+            public string Value { get; init; } = null!;
 
             /// <summary>
             /// The type of the new value.Typically shown in the UI when hovering over the value.

@@ -15,12 +15,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         [Parallel]
         [Method(TextDocumentNames.DocumentColor, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(DocumentColorRegistrationOptions)), Capability(typeof(ColorProviderCapability))]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(DocumentColorRegistrationOptions))]
+        [Capability(typeof(ColorProviderCapability))]
         public partial record DocumentColorParams : IPartialItemsRequest<Container<ColorInformation>, ColorInformation>, IWorkDoneProgressParams
         {
             /// <summary>
@@ -43,7 +42,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public ColorPresentationParams For(TextDocumentIdentifier textDocumentIdentifier)
             {
-                return new ColorPresentationParams() {
+                return new ColorPresentationParams
+                {
                     Color = Color,
                     Range = Range,
                     TextDocument = textDocumentIdentifier
@@ -53,18 +53,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         [Parallel]
         [Method(TextDocumentNames.ColorPresentation, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
-        ]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
         [Capability(typeof(ColorProviderCapability))]
         public partial record ColorPresentationParams : ColorInformation, IRequest<Container<ColorPresentation>>, IDoesNotParticipateInRegistration
         {
             /// <summary>
             /// The document to provide document links for.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; init; }
+            public TextDocumentIdentifier TextDocument { get; init; } = null!;
         }
 
         public partial record ColorPresentation
@@ -74,7 +72,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// picker header. By default this is also the text that is inserted when selecting
             /// this color presentation.
             /// </summary>
-            public string Label { get; init; }
+            public string Label { get; init; } = null!;
 
             /// <summary>
             /// An [edit](#TextEdit) which is applied to a document when selecting
@@ -121,7 +119,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             private string DebuggerDisplay => $"R:{Red} G:{Green} B:{Blue} A:{Alpha}";
 
             /// <inheritdoc />
-            public override string ToString() => DebuggerDisplay;
+            public override string ToString()
+            {
+                return DebuggerDisplay;
+            }
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.ColorProvider))]

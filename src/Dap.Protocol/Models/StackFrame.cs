@@ -70,8 +70,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
     [StringEnum]
     public readonly partial struct StackFramePresentationHint
     {
-        public static SourcePresentationHint Normal { get; } = new SourcePresentationHint("normal");
-        public static SourcePresentationHint Label { get; } = new SourcePresentationHint("label");
-        public static SourcePresentationHint Subtle { get; } = new SourcePresentationHint("subtle");
+        public static StackFramePresentationHint Normal { get; } = new StackFramePresentationHint("normal");
+        public static StackFramePresentationHint Label { get; } = new StackFramePresentationHint("label");
+        public static StackFramePresentationHint Subtle { get; } = new StackFramePresentationHint("subtle");
     }
 }

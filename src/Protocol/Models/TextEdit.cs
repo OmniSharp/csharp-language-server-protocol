@@ -15,18 +15,22 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The range of the text document to be manipulated. To insert
         /// text into a document create a range where start === end.
         /// </summary>
-        public Range Range { get; init; }
+        public Range Range { get; init; } = null!;
 
         /// <summary>
         /// The string to be inserted. For delete operations use an
         /// empty string.
         /// </summary>
-        public string NewText { get; init; }
+        public string NewText { get; init; } = null!;
 
-        private string DebuggerDisplay => $"{Range} {( string.IsNullOrWhiteSpace(NewText) ? string.Empty : NewText.Length > 30 ? NewText.Substring(0, 30) : NewText )}";
+        private string DebuggerDisplay =>
+            $"{Range} {( string.IsNullOrWhiteSpace(NewText) ? string.Empty : NewText.Length > 30 ? NewText.Substring(0, 30) : NewText )}";
 
         /// <inheritdoc />
-        public override string ToString() => DebuggerDisplay;
+        public override string ToString()
+        {
+            return DebuggerDisplay;
+        }
     }
 
     /// <summary>
@@ -40,23 +44,26 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The string to be inserted.
         /// </summary>
-        public string NewText { get; init; }
+        public string NewText { get; init; } = null!;
 
         /// <summary>
         /// The range if the insert is requested
         /// </summary>
-        public Range Insert { get; init; }
+        public Range Insert { get; init; } = null!;
 
         /// <summary>
         /// The range if the replace is requested.
         /// </summary>
-        public Range Replace { get; init; }
+        public Range Replace { get; init; } = null!;
 
         private string DebuggerDisplay =>
             $"{Insert} / {Replace} {( string.IsNullOrWhiteSpace(NewText) ? string.Empty : NewText.Length > 30 ? NewText.Substring(0, 30) : NewText )}";
 
         /// <inheritdoc />
-        public override string ToString() => DebuggerDisplay;
+        public override string ToString()
+        {
+            return DebuggerDisplay;
+        }
     }
 
     [JsonConverter(typeof(TextEditOrInsertReplaceEditConverter))]
@@ -84,7 +91,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public InsertReplaceEdit? InsertReplaceEdit
         {
             get => _insertReplaceEdit;
-            set {
+            set
+            {
                 _insertReplaceEdit = value;
                 _textEdit = null;
             }
@@ -95,7 +103,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public TextEdit? TextEdit
         {
             get => _textEdit;
-            set {
+            set
+            {
                 _insertReplaceEdit = default;
                 _textEdit = value;
             }
@@ -103,23 +112,41 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public object? RawValue
         {
-            get {
+            get
+            {
                 if (IsTextEdit) return TextEdit!;
                 if (IsInsertReplaceEdit) return InsertReplaceEdit!;
                 return default;
             }
         }
 
-        public static TextEditOrInsertReplaceEdit From(TextEdit value) => new(value);
-        public static implicit operator TextEditOrInsertReplaceEdit(TextEdit value) => new(value);
+        public static TextEditOrInsertReplaceEdit From(TextEdit value)
+        {
+            return new(value);
+        }
 
-        public static TextEditOrInsertReplaceEdit From(InsertReplaceEdit value) => new(value);
-        public static implicit operator TextEditOrInsertReplaceEdit(InsertReplaceEdit value) => new(value);
+        public static implicit operator TextEditOrInsertReplaceEdit(TextEdit value)
+        {
+            return new(value);
+        }
+
+        public static TextEditOrInsertReplaceEdit From(InsertReplaceEdit value)
+        {
+            return new(value);
+        }
+
+        public static implicit operator TextEditOrInsertReplaceEdit(InsertReplaceEdit value)
+        {
+            return new(value);
+        }
 
         private string DebuggerDisplay => $"{( IsInsertReplaceEdit ? $"insert: {InsertReplaceEdit}" : IsTextEdit ? $"edit: {TextEdit}" : "..." )}";
 
         /// <inheritdoc />
-        public override string ToString() => DebuggerDisplay;
+        public override string ToString()
+        {
+            return DebuggerDisplay;
+        }
     }
 
     /// <summary>
@@ -133,7 +160,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// A human-readable string describing the actual change. The string
         /// is rendered prominent in the user interface.
         /// </summary>
-        public string Label { get; init; }
+        public string Label { get; init; } = null!;
 
         /// <summary>
         /// A flag which indicates that user confirmation is needed
@@ -157,11 +184,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///
         /// @since 3.16.0
         /// </summary>
-        public string Identifier { get; init; }
+        public string Identifier { get; init; } = null!;
 
-        public static implicit operator string(ChangeAnnotationIdentifier identifier) => identifier.Identifier;
+        public static implicit operator string(ChangeAnnotationIdentifier identifier)
+        {
+            return identifier.Identifier;
+        }
 
-        public static implicit operator ChangeAnnotationIdentifier(string identifier) => new() { Identifier = identifier };
+        public static implicit operator ChangeAnnotationIdentifier(string identifier)
+        {
+            return new() { Identifier = identifier };
+        }
     }
 
     /// <summary>
@@ -176,12 +209,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The actual annotation
         /// </summary>
-        public ChangeAnnotationIdentifier AnnotationId { get; init; }
+        public ChangeAnnotationIdentifier AnnotationId { get; init; } = null!;
 
         private string DebuggerDisplay =>
             $"annotationId: {Range} {( string.IsNullOrWhiteSpace(NewText) ? string.Empty : NewText.Length > 30 ? NewText.Substring(0, 30) : NewText )}";
 
         /// <inheritdoc />
-        public override string ToString() => DebuggerDisplay;
+        public override string ToString()
+        {
+            return DebuggerDisplay;
+        }
     }
 }

@@ -8,7 +8,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// ID of an exception filter returned by the 'exceptionBreakpointFilters'
         /// capability.
         /// </summary>
-        public string FilterId { get; init; }
+        public string FilterId { get; init; } = null!;
 
         /// <summary>
         /// An optional expression for conditional exceptions.

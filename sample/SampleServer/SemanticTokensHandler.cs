@@ -9,7 +9,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace SampleServer
 {
@@ -18,8 +17,10 @@ namespace SampleServer
     {
         private readonly ILogger _logger;
 
-        public SemanticTokensHandler(ILogger<SemanticTokensHandler> logger) =>
+        public SemanticTokensHandler(ILogger<SemanticTokensHandler> logger)
+        {
             _logger = logger;
+        }
 
         public override async Task<SemanticTokens?> Handle(
             SemanticTokensParams request, CancellationToken cancellationToken
@@ -57,7 +58,7 @@ namespace SampleServer
             var content = await File.ReadAllTextAsync(DocumentUri.GetFileSystemPath(identifier), cancellationToken).ConfigureAwait(false);
             await Task.Yield();
 
-            foreach (var (line, text) in content.Split('\n').Select((text, line) => (line, text)))
+            foreach (var (line, text) in content.Split('\n').Select((text, line) => ( line, text )))
             {
                 var parts = text.TrimEnd().Split(';', ' ', '.', '"', '(', ')');
                 var index = 0;
@@ -73,8 +74,10 @@ namespace SampleServer
         }
 
         protected override Task<SemanticTokensDocument>
-            GetSemanticTokensDocument(ITextDocumentIdentifierParams @params, CancellationToken cancellationToken) =>
-            Task.FromResult(new SemanticTokensDocument(RegistrationOptions.Legend));
+            GetSemanticTokensDocument(ITextDocumentIdentifierParams @params, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(new SemanticTokensDocument(RegistrationOptions.Legend));
+        }
 
 
         private IEnumerable<T> RotateEnum<T>(IEnumerable<T> values)
@@ -86,17 +89,25 @@ namespace SampleServer
             }
         }
 
-        protected override SemanticTokensRegistrationOptions CreateRegistrationOptions(SemanticTokensCapability capability, ClientCapabilities clientCapabilities) => new SemanticTokensRegistrationOptions {
-            DocumentSelector = DocumentSelector.ForLanguage("csharp"),
-            Legend = new SemanticTokensLegend() {
-                TokenModifiers = capability.TokenModifiers,
-                TokenTypes = capability.TokenTypes
-            },
-            Full = new SemanticTokensCapabilityRequestFull {
-                Delta = true
-            },
-            Range = true
-        };
+        protected override SemanticTokensRegistrationOptions CreateRegistrationOptions(
+            SemanticTokensCapability capability, ClientCapabilities clientCapabilities
+        )
+        {
+            return new SemanticTokensRegistrationOptions
+            {
+                DocumentSelector = DocumentSelector.ForLanguage("csharp"),
+                Legend = new SemanticTokensLegend
+                {
+                    TokenModifiers = capability.TokenModifiers,
+                    TokenTypes = capability.TokenTypes
+                },
+                Full = new SemanticTokensCapabilityRequestFull
+                {
+                    Delta = true
+                },
+                Range = true
+            };
+        }
     }
 #pragma warning restore 618
 }

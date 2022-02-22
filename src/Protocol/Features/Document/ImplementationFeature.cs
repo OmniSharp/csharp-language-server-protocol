@@ -12,18 +12,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         [Parallel]
         [Method(TextDocumentNames.Implementation, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(ImplementationRegistrationOptions)), Capability(typeof(ImplementationCapability))]
-        public partial record ImplementationParams : TextDocumentPositionParams, IWorkDoneProgressParams, IPartialItemsRequest<LocationOrLocationLinks, LocationOrLocationLink> { }
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(ImplementationRegistrationOptions))]
+        [Capability(typeof(ImplementationCapability))]
+        public partial record ImplementationParams : TextDocumentPositionParams, IWorkDoneProgressParams,
+                                                     IPartialItemsRequest<LocationOrLocationLinks, LocationOrLocationLink>;
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.ImplementationProvider))]
         [RegistrationName(TextDocumentNames.Implementation)]
-        public partial class ImplementationRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions, IStaticRegistrationOptions { }
-
+        public partial class ImplementationRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions, IStaticRegistrationOptions
+        {
+        }
     }
 
     namespace Client.Capabilities

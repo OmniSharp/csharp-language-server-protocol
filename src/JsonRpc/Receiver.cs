@@ -27,7 +27,10 @@ namespace OmniSharp.Extensions.JsonRpc
             return false;
         }
 
-        public void Initialized() => _initialized = true;
+        public void Initialized()
+        {
+            _initialized = true;
+        }
 
         public virtual (IEnumerable<Renor> results, bool hasResponse) GetRequests(JToken container)
         {
@@ -63,9 +66,12 @@ namespace OmniSharp.Extensions.JsonRpc
             // ReSharper disable once AssignmentInConditionalExpression
             if (hasRequestId = request.TryGetValue("id", out var id))
             {
-                var idString = id.Type == JTokenType.String ? (string) id : null;
-                var idLong = id.Type == JTokenType.Integer ? (long?) id : null;
-                requestId = idString ?? ( idLong.HasValue ? (object) idLong.Value : null );
+                requestId = id switch
+                {
+                    { Type: JTokenType.String }  => id.Value<string>(),
+                    { Type: JTokenType.Integer } => id.Value<long>(),
+                    _ => null
+                };
             }
 
             if (hasRequestId && request.TryGetValue("result", out var response))
@@ -109,20 +115,23 @@ namespace OmniSharp.Extensions.JsonRpc
             // !id == notification
             if (!hasRequestId)
             {
-                return new Notification(method!, @params) {
+                return new Notification(method!, @params)
+                {
                     TraceState = traceState,
                     TraceParent = traceParent,
                 };
             }
-            else
+
+            return new Request(requestId!, method!, @params)
             {
-                return new Request(requestId!, method!, @params) {
-                    TraceState = traceState,
-                    TraceParent = traceParent,
-                };
-            }
+                TraceState = traceState,
+                TraceParent = traceParent,
+            };
         }
 
-        public bool ShouldOutput(object value) => _initialized;
+        public bool ShouldOutput(object value)
+        {
+            return _initialized;
+        }
     }
 }

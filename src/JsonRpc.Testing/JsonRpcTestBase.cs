@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reactive;
-using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
-using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -35,8 +33,16 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
         public ISettler Events { get; }
         public JsonRpcTestOptions TestOptions { get; }
         public CancellationToken CancellationToken => _cancellationTokenSource.Token;
-        public Task SettleNext() => Events.SettleNext();
-        public IObservable<Unit> Settle() => Events.Settle();
+
+        public Task SettleNext()
+        {
+            return Events.SettleNext();
+        }
+
+        public IObservable<Unit> Settle()
+        {
+            return Events.Settle();
+        }
 
         public void Dispose()
         {

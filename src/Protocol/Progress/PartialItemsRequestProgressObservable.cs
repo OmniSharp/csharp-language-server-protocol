@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -17,7 +16,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 {
-    internal class PartialItemsRequestProgressObservable<TItem, TResult> : IRequestProgressObservable<IEnumerable<TItem>, TResult>, IObserver<JToken>, IDisposable
+    internal class PartialItemsRequestProgressObservable<TItem, TResult> : IRequestProgressObservable<IEnumerable<TItem>, TResult>, IObserver<JToken>,
+                                                                           IDisposable
         where TResult : IEnumerable<TItem>?
     {
         private readonly ISerializer _serializer;
@@ -37,13 +37,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         {
             _serializer = serializer;
             _dataSubject = new ReplaySubject<IEnumerable<TItem>>(int.MaxValue, Scheduler.Immediate);
-            _disposable = new CompositeDisposable() { _dataSubject };
+            _disposable = new CompositeDisposable { _dataSubject };
             _task = Observable.Create<TResult>(
-                                   observer => new CompositeDisposable() {
+                                   observer => new CompositeDisposable
+                                   {
                                        _dataSubject
                                           .Aggregate(
                                                new List<TItem>(),
-                                               (acc, data) => {
+                                               (acc, data) =>
+                                               {
                                                    acc.AddRange(data);
                                                    return acc;
                                                }
@@ -70,8 +72,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         public ProgressToken ProgressToken { get; }
         public Type ParamsType { get; } = typeof(TItem);
 
-        void IObserver<JToken>.OnCompleted() => OnCompleted();
-        void IObserver<JToken>.OnError(Exception error) => OnError(error);
+        void IObserver<JToken>.OnCompleted()
+        {
+            OnCompleted();
+        }
+
+        void IObserver<JToken>.OnError(Exception error)
+        {
+            OnError(error);
+        }
 
         private void OnCompleted()
         {
@@ -99,15 +108,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         }
 
 //        public IDisposable Subscribe(IObserver<IEnumerable<TItem>> observer) => _disposable.IsDisposed ? Disposable.Empty : _dataSubject.Subscribe(observer);
-        public IDisposable Subscribe(IObserver<IEnumerable<TItem>> observer) => _dataSubject.Subscribe(observer);
+        public IDisposable Subscribe(IObserver<IEnumerable<TItem>> observer)
+        {
+            return _dataSubject.Subscribe(observer);
+        }
 
 #pragma warning disable VSTHRD003
-        public Task<TResult> AsTask() => _task;
+        public Task<TResult> AsTask()
+        {
+            return _task;
+        }
 #pragma warning restore VSTHRD003
-        public TaskAwaiter<TResult> GetAwaiter() => _task.GetAwaiter();
+        public TaskAwaiter<TResult> GetAwaiter()
+        {
+            return _task.GetAwaiter();
+        }
     }
 
-    internal class PartialItemsRequestProgressObservable<TItem> : PartialItemsRequestProgressObservable<TItem, Container<TItem>?>, IRequestProgressObservable<TItem>
+    internal class PartialItemsRequestProgressObservable<TItem> : PartialItemsRequestProgressObservable<TItem, Container<TItem>?>,
+                                                                  IRequestProgressObservable<TItem>
     {
         public PartialItemsRequestProgressObservable(
             ISerializer serializer,

@@ -6,7 +6,7 @@ namespace OmniSharp.Extensions.JsonRpc
     /// 
     /// Server --> -->
     /// |
-    /// Client <-- <--
+    /// Client (-- (--
     /// 
     /// </summary>
     /// <typeparam name="TResponse"></typeparam>

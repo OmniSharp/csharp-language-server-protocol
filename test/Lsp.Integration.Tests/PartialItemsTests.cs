@@ -7,7 +7,8 @@ using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Lsp.Tests.Integration.Fixtures;
+using Lsp.Integration.Tests.Fixtures;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
@@ -19,13 +20,15 @@ using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Lsp.Tests.Integration
+namespace Lsp.Integration.Tests
 {
     public static class PartialItemsTests
     {
         public class Delegates : LanguageProtocolFixtureTest<DefaultOptions, DefaultClient, Delegates.DelegateServer>
         {
-            public Delegates(ITestOutputHelper testOutputHelper, LanguageProtocolFixture<DefaultOptions, DefaultClient, DelegateServer> fixture) : base(testOutputHelper, fixture)
+            public Delegates(ITestOutputHelper testOutputHelper, LanguageProtocolFixture<DefaultOptions, DefaultClient, DelegateServer> fixture) : base(
+                testOutputHelper, fixture
+            )
             {
             }
 
@@ -33,7 +36,8 @@ namespace Lsp.Tests.Integration
             public async Task Should_Behave_Like_A_Task()
             {
                 var result = await Client.TextDocument.RequestCodeLens(
-                    new CodeLensParams {
+                    new CodeLensParams
+                    {
                         TextDocument = new TextDocumentIdentifier(@"c:\test.cs")
                     }, CancellationToken
                 );
@@ -47,12 +51,14 @@ namespace Lsp.Tests.Integration
             {
                 var items = await Client.TextDocument
                                         .RequestCodeLens(
-                                             new CodeLensParams {
+                                             new CodeLensParams
+                                             {
                                                  TextDocument = new TextDocumentIdentifier(@"c:\test.cs")
                                              }, CancellationToken
                                          )
                                         .Aggregate(
-                                             new List<CodeLens>(), (acc, v) => {
+                                             new List<CodeLens>(), (acc, v) =>
+                                             {
                                                  acc.AddRange(v);
                                                  return acc;
                                              }
@@ -67,7 +73,8 @@ namespace Lsp.Tests.Integration
             public async Task Should_Behave_Like_An_Observable_Without_Progress_Support()
             {
                 var response = await Client.SendRequest(
-                    new CodeLensParams {
+                    new CodeLensParams
+                    {
                         TextDocument = new TextDocumentIdentifier(@"c:\test.cs")
                     }, CancellationToken
                 );
@@ -78,31 +85,42 @@ namespace Lsp.Tests.Integration
 
             public class DelegateServer : IConfigureLanguageServerOptions
             {
-                public void Configure(LanguageServerOptions options) =>
+                public void Configure(LanguageServerOptions options)
+                {
                     options.ObserveCodeLens(
-                        (@params, observer, capability, cancellationToken) => {
+                        (@params, observer, capability, cancellationToken) =>
+                        {
                             observer.OnNext(
-                                new[] {
-                                    new CodeLens {
-                                        Command = new Command {
+                                new[]
+                                {
+                                    new CodeLens
+                                    {
+                                        Command = new Command
+                                        {
                                             Name = "CodeLens 1"
                                         }
                                     },
                                 }
                             );
                             observer.OnNext(
-                                new[] {
-                                    new CodeLens {
-                                        Command = new Command {
+                                new[]
+                                {
+                                    new CodeLens
+                                    {
+                                        Command = new Command
+                                        {
                                             Name = "CodeLens 2"
                                         }
                                     },
                                 }
                             );
                             observer.OnNext(
-                                new[] {
-                                    new CodeLens {
-                                        Command = new Command {
+                                new[]
+                                {
+                                    new CodeLens
+                                    {
+                                        Command = new Command
+                                        {
                                             Name = "CodeLens 3"
                                         }
                                     },
@@ -111,12 +129,15 @@ namespace Lsp.Tests.Integration
                             observer.OnCompleted();
                         }, (_, _) => new CodeLensRegistrationOptions()
                     );
+                }
             }
         }
 
         public class Handlers : LanguageProtocolFixtureTest<DefaultOptions, DefaultClient, Handlers.HandlersServer>
         {
-            public Handlers(ITestOutputHelper testOutputHelper, LanguageProtocolFixture<DefaultOptions, DefaultClient, HandlersServer> fixture) : base(testOutputHelper, fixture)
+            public Handlers(ITestOutputHelper testOutputHelper, LanguageProtocolFixture<DefaultOptions, DefaultClient, HandlersServer> fixture) : base(
+                testOutputHelper, fixture
+            )
             {
             }
 
@@ -128,9 +149,11 @@ namespace Lsp.Tests.Integration
                 Client.TextDocument
                       .ObserveWorkDone(
                            new CodeLensParams { TextDocument = new TextDocumentIdentifier(@"c:\test.cs") },
-                           (client, request) => CodeLensExtensions.RequestCodeLens(client, request, CancellationToken),
+                           (client, request) => client.RequestCodeLens(request, CancellationToken),
                            Observer.Create<WorkDoneProgress>(z => work.Add(z))
-                       ).Subscribe(x => items.AddRange(x));
+                       ).Subscribe(
+                           x => items.AddRange(x)
+                       );
 
 
                 await work.DelayUntilCount(6, CancellationToken);
@@ -147,7 +170,10 @@ namespace Lsp.Tests.Integration
 
             public class HandlersServer : IConfigureLanguageServerOptions
             {
-                public void Configure(LanguageServerOptions options) => options.AddHandler<InnerCodeLensHandler>();
+                public void Configure(LanguageServerOptions options)
+                {
+                    options.AddHandler<InnerCodeLensHandler>();
+                }
             }
         }
 
@@ -166,75 +192,93 @@ namespace Lsp.Tests.Integration
             {
                 var partial = _progressManager.For(request, cancellationToken);
                 var workDone = _workDoneManager.For(
-                    request, new WorkDoneProgressBegin {
+                    request, new WorkDoneProgressBegin
+                    {
                         Cancellable = true,
                         Message = "Begin",
                         Percentage = 0,
                         Title = "Work is pending"
-                    }, onComplete: () => new WorkDoneProgressEnd {
+                    }, onComplete: () => new WorkDoneProgressEnd
+                    {
                         Message = "End"
                     }
                 );
 
                 partial.OnNext(
-                    new[] {
-                        new CodeLens {
-                            Command = new Command {
+                    new[]
+                    {
+                        new CodeLens
+                        {
+                            Command = new Command
+                            {
                                 Name = "CodeLens 1"
                             }
                         },
                     }
                 );
                 workDone.OnNext(
-                    new WorkDoneProgressReport {
+                    new WorkDoneProgressReport
+                    {
                         Percentage = 10,
                         Message = "Report 1"
                     }
                 );
 
                 partial.OnNext(
-                    new[] {
-                        new CodeLens {
-                            Command = new Command {
+                    new[]
+                    {
+                        new CodeLens
+                        {
+                            Command = new Command
+                            {
                                 Name = "CodeLens 2"
                             }
                         },
                     }
                 );
                 workDone.OnNext(
-                    new WorkDoneProgressReport {
+                    new WorkDoneProgressReport
+                    {
                         Percentage = 20,
                         Message = "Report 2"
                     }
                 );
 
                 partial.OnNext(
-                    new[] {
-                        new CodeLens {
-                            Command = new Command {
+                    new[]
+                    {
+                        new CodeLens
+                        {
+                            Command = new Command
+                            {
                                 Name = "CodeLens 3"
                             }
                         },
                     }
                 );
                 workDone.OnNext(
-                    new WorkDoneProgressReport {
+                    new WorkDoneProgressReport
+                    {
                         Percentage = 30,
                         Message = "Report 3"
                     }
                 );
 
                 partial.OnNext(
-                    new[] {
-                        new CodeLens {
-                            Command = new Command {
+                    new[]
+                    {
+                        new CodeLens
+                        {
+                            Command = new Command
+                            {
                                 Name = "CodeLens 4"
                             }
                         },
                     }
                 );
                 workDone.OnNext(
-                    new WorkDoneProgressReport {
+                    new WorkDoneProgressReport
+                    {
                         Percentage = 40,
                         Message = "Report 4"
                     }
@@ -247,8 +291,17 @@ namespace Lsp.Tests.Integration
                 return new CodeLensContainer();
             }
 
-            public override Task<CodeLens> Handle(CodeLens request, CancellationToken cancellationToken) => Task.FromResult(request);
-            protected internal override CodeLensRegistrationOptions CreateRegistrationOptions(CodeLensCapability capability, ClientCapabilities clientCapabilities) => new CodeLensRegistrationOptions();
+            public override Task<CodeLens> Handle(CodeLens request, CancellationToken cancellationToken)
+            {
+                return Task.FromResult(request);
+            }
+
+            protected internal override CodeLensRegistrationOptions CreateRegistrationOptions(
+                CodeLensCapability capability, ClientCapabilities clientCapabilities
+            )
+            {
+                return new CodeLensRegistrationOptions();
+            }
         }
     }
 }

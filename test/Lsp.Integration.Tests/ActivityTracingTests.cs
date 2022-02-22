@@ -1,7 +1,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Testing;
@@ -10,7 +9,7 @@ using Serilog.Events;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Lsp.Tests.Integration
+namespace Lsp.Integration.Tests
 {
     public class ActivityTracingTests : LanguageProtocolTestBase
     {
@@ -46,10 +45,10 @@ namespace Lsp.Tests.Integration
             var (client, server) = await Initialize(
                 options => options
                           .WithActivityTracingStrategy(clientStub)
-                          .OnRequest("test", (Func<CancellationToken, Task>) ( ct => Task.CompletedTask )),
+                          .OnRequest("test", (Func<CancellationToken, Task>)( ct => Task.CompletedTask )),
                 options => options
                           .WithActivityTracingStrategy(serverStub)
-                          .OnRequest("test", (Func<CancellationToken, Task>) ( ct => Task.CompletedTask ))
+                          .OnRequest("test", (Func<CancellationToken, Task>)( ct => Task.CompletedTask ))
             );
 
             await client.SendRequest("test").ReturningVoid(CancellationToken);

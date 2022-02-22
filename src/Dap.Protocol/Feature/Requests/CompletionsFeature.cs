@@ -13,11 +13,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.Completions, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record CompletionsArguments : IRequest<CompletionsResponse>
         {
             /// <summary>
@@ -29,7 +27,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// One or more source lines.Typically this is the text a user has typed into the debug console before he asked for completion.
             /// </summary>
-            public string Text { get; init; }
+            public string Text { get; init; } = null!;
 
             /// <summary>
             /// The character position for which to determine the completion proposals.
@@ -48,7 +46,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// The possible completions for .
             /// </summary>
-            public Container<CompletionItem> Targets { get; init; }
+            public Container<CompletionItem> Targets { get; init; } = null!;
         }
     }
 
@@ -62,7 +60,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// The label of this completion item. By default this is also the text that is inserted when selecting this completion.
             /// </summary>
-            public string Label { get; init; }
+            public string Label { get; init; } = null!;
 
             /// <summary>
             /// If text is not falsy then it is inserted instead of the label.
@@ -113,7 +111,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         [JsonConverter(typeof(StringEnumConverter))]
         public enum CompletionItemType
         {
-            Method, Function, Constructor, Field, Variable, Class, Interface, Module, Property, Unit, Value, Enum, Keyword, Snippet, Text, Color, File, Reference, CustomColor
+            Method, Function, Constructor, Field, Variable, Class, Interface, Module, Property, Unit, Value, Enum, Keyword, Snippet, Text, Color, File,
+            Reference, CustomColor
         }
     }
 }

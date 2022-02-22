@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -17,7 +15,7 @@ using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Lsp.Tests.Integration
+namespace Lsp.Integration.Tests
 {
     public class LanguageServerLoggingTests : LanguageProtocolTestBase
     {
@@ -31,7 +29,8 @@ namespace Lsp.Tests.Integration
             var logs = new ConcurrentBag<LogMessageParams>();
             var (client, server) = await Initialize(
                 options => { options.Trace = InitializeTrace.Verbose; },
-                options => {
+                options =>
+                {
                     options.ConfigureLogging(
                         z => z
                             .AddLanguageProtocolLogging()
@@ -70,7 +69,8 @@ namespace Lsp.Tests.Integration
             var logs = new ConcurrentBag<LogMessageParams>();
             var (client, server) = await Initialize(
                 options => { },
-                options => {
+                options =>
+                {
                     options.ConfigureLogging(
                         z => z
                             .AddLanguageProtocolLogging()
@@ -109,7 +109,8 @@ namespace Lsp.Tests.Integration
             var logs = new ConcurrentBag<LogMessageParams>();
             var (client, server) = await Initialize(
                 options => { options.Trace = InitializeTrace.Messages; },
-                options => {
+                options =>
+                {
                     options.ConfigureLogging(
                         z => z
                             .AddLanguageProtocolLogging()
@@ -148,7 +149,8 @@ namespace Lsp.Tests.Integration
             var logs = new ConcurrentBag<LogMessageParams>();
             var (client, server) = await Initialize(
                 options => { },
-                options => {
+                options =>
+                {
                     options.ConfigureLogging(
                         z => z
                             .AddLanguageProtocolLogging()
@@ -214,10 +216,9 @@ namespace Lsp.Tests.Integration
         {
             var logs = new ConcurrentBag<LogMessageParams>();
             var (client, server) = await Initialize(
-                options => {
-                    options.Trace = InitializeTrace.Verbose;
-                },
-                options => {
+                options => { options.Trace = InitializeTrace.Verbose; },
+                options =>
+                {
                     options.ConfigureLogging(
                         z => z
                             .AddLanguageProtocolLogging()

@@ -7,9 +7,9 @@ using OmniSharp.Extensions.DebugAdapter.Server;
 using OmniSharp.Extensions.DebugAdapter.Testing;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Testing;
-using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
+
 #pragma warning disable CS0162
 
 namespace Dap.Tests.Integration
@@ -30,7 +30,7 @@ namespace Dap.Tests.Integration
             var result = await client.SendRequest("keepalive").Returning<bool>(CancellationToken);
             result.Should().BeTrue();
 
-            Func<Task> a = () => client.SendRequest("throw").ReturningVoid(CancellationToken);
+            var a = () => client.SendRequest("throw").ReturningVoid(CancellationToken);
             await a.Should().ThrowAsync<InternalErrorException>();
 
             result = await client.SendRequest("keepalive").Returning<bool>(CancellationToken);
@@ -45,7 +45,7 @@ namespace Dap.Tests.Integration
             var result = await server.SendRequest("keepalive").Returning<bool>(CancellationToken);
             result.Should().BeTrue();
 
-            Func<Task> a = () => server.SendRequest("throw").ReturningVoid(CancellationToken);
+            var a = () => server.SendRequest("throw").ReturningVoid(CancellationToken);
             await a.Should().ThrowAsync<InternalErrorException>();
 
             result = await server.SendRequest("keepalive").Returning<bool>(CancellationToken);
@@ -60,7 +60,7 @@ namespace Dap.Tests.Integration
             var result = await client.SendRequest("ka").Returning<bool>(CancellationToken);
             result.Should().BeTrue();
 
-            Func<Task> a = () => client.SendRequest("t").ReturningVoid(CancellationToken);
+            var a = () => client.SendRequest("t").ReturningVoid(CancellationToken);
             await a.Should().ThrowAsync<InternalErrorException>();
 
             result = await client.SendRequest("ka").Returning<bool>(CancellationToken);
@@ -75,7 +75,7 @@ namespace Dap.Tests.Integration
             var result = await server.SendRequest("ka").Returning<bool>(CancellationToken);
             result.Should().BeTrue();
 
-            Func<Task> a = () => server.SendRequest("t").ReturningVoid(CancellationToken);
+            var a = () => server.SendRequest("t").ReturningVoid(CancellationToken);
             await a.Should().ThrowAsync<InternalErrorException>();
 
             result = await server.SendRequest("ka").Returning<bool>(CancellationToken);
@@ -88,7 +88,8 @@ namespace Dap.Tests.Integration
             options.WithLink("keepalive", "ka");
             options.WithLink("throw", "t");
             options.OnRequest(
-                "throw", async ct => {
+                "throw", async ct =>
+                {
                     throw new NotSupportedException();
                     return Task.CompletedTask;
                 }
@@ -101,7 +102,8 @@ namespace Dap.Tests.Integration
             options.WithLink("keepalive", "ka");
             options.WithLink("throw", "t");
             options.OnRequest(
-                "throw", async ct => {
+                "throw", async ct =>
+                {
                     throw new NotSupportedException();
                     return Task.CompletedTask;
                 }

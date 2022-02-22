@@ -24,28 +24,29 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// </summary>
         [Parallel]
         [Method(TextDocumentNames.CodeAction, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(CodeActionRegistrationOptions)), Capability(typeof(CodeActionCapability)), Resolver(typeof(CodeAction))]
-        public partial record CodeActionParams : ITextDocumentIdentifierParams, IPartialItemsRequest<CommandOrCodeActionContainer, CommandOrCodeAction>, IWorkDoneProgressParams
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(CodeActionRegistrationOptions))]
+        [Capability(typeof(CodeActionCapability))]
+        [Resolver(typeof(CodeAction))]
+        public partial record CodeActionParams : ITextDocumentIdentifierParams, IPartialItemsRequest<CommandOrCodeActionContainer, CommandOrCodeAction>,
+                                                 IWorkDoneProgressParams
         {
             /// <summary>
             /// The document in which the command was invoked.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; init; }
+            public TextDocumentIdentifier TextDocument { get; init; } = null!;
 
             /// <summary>
             /// The range for which the command was invoked.
             /// </summary>
-            public Range Range { get; init; }
+            public Range Range { get; init; } = null!;
 
             /// <summary>
             /// Context carrying additional information.
             /// </summary>
-            public CodeActionContext Context { get; init; }
+            public CodeActionContext Context { get; init; } = null!;
         }
 
         /// <summary>
@@ -61,7 +62,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// that these accurately reflect the error state of the resource. The primary parameter
             /// to compute code actions is the provided range.
             /// </summary>
-            public Container<Diagnostic> Diagnostics { get; init; }
+            public Container<Diagnostic> Diagnostics { get; init; } = null!;
 
             /// <summary>
             /// Requested kind of actions to return.
@@ -76,20 +77,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
         [Parallel]
         [Method(TextDocumentNames.CodeActionResolve, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document", Name = "CodeActionResolve"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient)),
-            GenerateTypedData,
-            GenerateContainer
-        ]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document", Name = "CodeActionResolve")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [GenerateTypedData]
+        [GenerateContainer]
         [Capability(typeof(CodeActionCapability))]
         public partial record CodeAction : ICanBeResolved, IRequest<CodeAction>, IDoesNotParticipateInRegistration
         {
             /// <summary>
             /// A short, human-readable, title for this code action.
             /// </summary>
-            public string Title { get; init; }
+            public string Title { get; init; } = null!;
 
             /// <summary>
             /// The kind of the code action.
@@ -133,19 +132,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             /// <summary>
             /// Marks that the code action cannot currently be applied.
-            ///
+            /// 
             /// Clients should follow the following guidelines regarding disabled code actions:
-            ///
-            ///   - Disabled code actions are not shown in automatic [lightbulb](https://code.visualstudio.com/docs/editor/editingevolved#_code-action)
-            ///     code action menu.
-            ///
-            ///   - Disabled actions are shown as faded out in the code action menu when the user request a more specific type
-            ///     of code action, such as refactorings.
-            ///
-            ///   - If the user has a [keybinding](https://code.visualstudio.com/docs/editor/refactoring#_keybindings-for-code-actions)
-            ///     that auto applies a code action and only a disabled code actions are returned, the client should show the user an
-            ///     error message with `reason` in the editor.
-            ///
+            /// 
+            /// - Disabled code actions are not shown in automatic [lightbulb](https://code.visualstudio.com/docs/editor/editingevolved#_code-action)
+            /// code action menu.
+            /// 
+            /// - Disabled actions are shown as faded out in the code action menu when the user request a more specific type
+            /// of code action, such as refactorings.
+            /// 
+            /// - If the user has a [keybinding](https://code.visualstudio.com/docs/editor/refactoring#_keybindings-for-code-actions)
+            /// that auto applies a code action and only a disabled code actions are returned, the client should show the user an
+            /// error message with `reason` in the editor.
+            /// 
             /// @since 3.16.0
             /// </summary>
             [Optional]
@@ -161,24 +160,27 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             private string DebuggerDisplay => $"[{Kind}] {Title}";
 
             /// <inheritdoc />
-            public override string ToString() => DebuggerDisplay;
+            public override string ToString()
+            {
+                return DebuggerDisplay;
+            }
         }
 
         /// <summary>
         /// Marks that the code action cannot currently be applied.
-        ///
+        /// 
         /// Clients should follow the following guidelines regarding disabled code actions:
-        ///
-        ///   - Disabled code actions are not shown in automatic [lightbulb](https://code.visualstudio.com/docs/editor/editingevolved#_code-action)
-        ///     code action menu.
-        ///
-        ///   - Disabled actions are shown as faded out in the code action menu when the user request a more specific type
-        ///     of code action, such as refactorings.
-        ///
-        ///   - If the user has a [keybinding](https://code.visualstudio.com/docs/editor/refactoring#_keybindings-for-code-actions)
-        ///     that auto applies a code action and only a disabled code actions are returned, the client should show the user an
-        ///     error message with `reason` in the editor.
-        ///
+        /// 
+        /// - Disabled code actions are not shown in automatic [lightbulb](https://code.visualstudio.com/docs/editor/editingevolved#_code-action)
+        /// code action menu.
+        /// 
+        /// - Disabled actions are shown as faded out in the code action menu when the user request a more specific type
+        /// of code action, such as refactorings.
+        /// 
+        /// - If the user has a [keybinding](https://code.visualstudio.com/docs/editor/refactoring#_keybindings-for-code-actions)
+        /// that auto applies a code action and only a disabled code actions are returned, the client should show the user an
+        /// error message with `reason` in the editor.
+        /// 
         /// @since 3.16.0
         /// </summary>
         public record CodeActionDisabled
@@ -188,7 +190,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             ///
             /// This is displayed in the code actions UI.
             /// </summary>
-            public string Reason { get; init; }
+            public string Reason { get; init; } = null!;
         }
 
         [JsonConverter(typeof(CommandOrCodeActionConverter))]
@@ -216,7 +218,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public Command? Command
             {
                 get => _command;
-                set {
+                set
+                {
                     _command = value;
                     _codeAction = null;
                 }
@@ -227,7 +230,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public CodeAction? CodeAction
             {
                 get => _codeAction;
-                set {
+                set
+                {
                     _command = default;
                     _codeAction = value;
                 }
@@ -235,29 +239,52 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public object? RawValue
             {
-                get {
+                get
+                {
                     if (IsCommand) return Command!;
                     if (IsCodeAction) return CodeAction!;
                     return default;
                 }
             }
 
-            public static CommandOrCodeAction From(Command value) => new(value);
-            public static implicit operator CommandOrCodeAction(Command value) => new(value);
+            public static CommandOrCodeAction From(Command value)
+            {
+                return new(value);
+            }
 
-            public static CommandOrCodeAction From(CodeAction value) => new(value);
-            public static implicit operator CommandOrCodeAction(CodeAction value) => new(value);
-            public static CommandOrCodeAction From<T>(CodeAction<T> value) where T : class?, IHandlerIdentity? => new(value);
+            public static implicit operator CommandOrCodeAction(Command value)
+            {
+                return new(value);
+            }
+
+            public static CommandOrCodeAction From(CodeAction value)
+            {
+                return new(value);
+            }
+
+            public static implicit operator CommandOrCodeAction(CodeAction value)
+            {
+                return new(value);
+            }
+
+            public static CommandOrCodeAction From<T>(CodeAction<T> value) where T : class?, IHandlerIdentity?
+            {
+                return new(value);
+            }
 
             private string DebuggerDisplay => $"{( IsCommand ? $"command: {Command}" : IsCodeAction ? $"code action: {CodeAction}" : "..." )}";
 
             /// <inheritdoc />
-            public override string ToString() => DebuggerDisplay;
+            public override string ToString()
+            {
+                return DebuggerDisplay;
+            }
 
             JToken? ICanBeResolved.Data
             {
                 get => _codeAction?.Data;
-                init {
+                init
+                {
                     if (_codeAction == null) return;
                     _codeAction = _codeAction with { Data = value };
                 }
@@ -266,7 +293,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         public partial class CodeActionContainer<T>
         {
-            public static implicit operator CommandOrCodeActionContainer(CodeActionContainer<T> container) => new(container.Select(CommandOrCodeAction.From));
+            public static implicit operator CommandOrCodeActionContainer(CodeActionContainer<T> container)
+            {
+                return new(container.Select(CommandOrCodeAction.From));
+            }
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.CodeActionProvider))]
@@ -292,7 +322,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             [Optional]
             public bool ResolveProvider { get; set; }
 
-            class CodeActionRegistrationOptionsConverter : RegistrationOptionsConverterBase<CodeActionRegistrationOptions, StaticOptions>
+            private class CodeActionRegistrationOptionsConverter : RegistrationOptionsConverterBase<CodeActionRegistrationOptions, StaticOptions>
             {
                 private readonly IHandlersManager _handlersManager;
 
@@ -303,7 +333,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
                 public override StaticOptions Convert(CodeActionRegistrationOptions source)
                 {
-                    return new() {
+                    return new()
+                    {
                         CodeActionKinds = source.CodeActionKinds,
                         ResolveProvider = source.ResolveProvider || _handlersManager.Descriptors.Any(z => z.HandlerType == typeof(ICodeActionResolveHandler)),
                         WorkDoneProgress = source.WorkDoneProgress,
@@ -408,8 +439,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public bool IsPreferredSupport { get; set; }
 
             /// <summary>
-            ///  Whether code action supports the `disabled` property.
-            ///
+            /// Whether code action supports the `disabled` property.
+            /// 
             /// @since 3.16.0
             /// </summary>
             [Optional]

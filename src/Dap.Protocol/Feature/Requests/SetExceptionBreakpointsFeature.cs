@@ -13,24 +13,23 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.SetExceptionBreakpoints, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record SetExceptionBreakpointsArguments : IRequest<SetExceptionBreakpointsResponse>
         {
             /// <summary>
             /// IDs of checked exception options.The set of IDs is returned via the 'exceptionBreakpointFilters' capability.
             /// </summary>
-            public Container<string> Filters { get; init; }
+            public Container<string> Filters { get; init; } = null!;
+
             /// <summary>
-            ///  Set of exception filters and their options. The set of all possible
-                ///  exception filters is defined by the 'exceptionBreakpointFilters'
-            ///  capability. This attribute is only honored by a debug adapter if the
-                ///  capability 'supportsExceptionFilterOptions' is true. The 'filter' and
-   /// 'filterOptions' sets are additive.
-                /// </summary>
+            /// Set of exception filters and their options. The set of all possible
+            /// exception filters is defined by the 'exceptionBreakpointFilters'
+            /// capability. This attribute is only honored by a debug adapter if the
+            /// capability 'supportsExceptionFilterOptions' is true. The 'filter' and
+            /// 'filterOptions' sets are additive.
+            /// </summary>
             [Optional]
             public Container<ExceptionFilterOptions>? FilterOptions { get; init; }
 
@@ -41,9 +40,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public Container<ExceptionOptions>? ExceptionOptions { get; init; }
         }
 
-        public record SetExceptionBreakpointsResponse
-        {
-        }
+        public record SetExceptionBreakpointsResponse;
     }
 
     namespace Models
@@ -55,7 +52,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         public record ExceptionOptions
         {
             /// <summary>
-            /// A path that selects a single or multiple exceptions in a tree. If 'path' is missing, the whole tree is selected. By convention the first segment of the path is a category that is
+            /// A path that selects a single or multiple exceptions in a tree. If 'path' is missing, the whole tree is selected. By convention the first segment of the path is
+            /// a category that is
             /// used to group exceptions in the UI.
             /// </summary>
             [Optional]
@@ -68,7 +66,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         }
 
         /// <summary>
-        /// An ExceptionPathSegment represents a segment in a path that is used to match leafs or nodes in a tree of exceptions.If a segment consists of more than one name, it matches the
+        /// An ExceptionPathSegment represents a segment in a path that is used to match leafs or nodes in a tree of exceptions.If a segment consists of more than one
+        /// name, it matches the
         /// names provided if ‘negate’ is false or missing or it matches anything except the names provided if ‘negate’ is true.
         /// </summary>
         public record ExceptionPathSegment
@@ -82,7 +81,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// Depending on the value of 'negate' the names that should match or not match.
             /// </summary>
-            public Container<string> Names { get; init; }
+            public Container<string> Names { get; init; } = null!;
         }
 
         /// <summary>

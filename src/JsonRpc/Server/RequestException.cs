@@ -49,7 +49,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         /// </param>
         public RequestException(int errorCode, string? message, string? requestId, Exception inner) : base(message, inner)
         {
-            RequestId = !string.IsNullOrWhiteSpace(requestId) ? requestId! : UnknownRequestId;
+            RequestId = !string.IsNullOrWhiteSpace(requestId) ? requestId : UnknownRequestId;
             ErrorCode = errorCode;
         }
 

@@ -1,28 +1,22 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Lsp.Tests.Integration.Fixtures;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using Lsp.Integration.Tests.Fixtures;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
-using OmniSharp.Extensions.LanguageServer.Protocol.Document;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Serilog.Events;
-using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Lsp.Tests.Integration
+namespace Lsp.Integration.Tests
 {
     public class TypedCallHierarchyTests : LanguageProtocolTestBase
     {
@@ -38,7 +32,8 @@ namespace Lsp.Tests.Integration
             var outgoingHandlerA = Substitute.For<Func<CallHierarchyOutgoingCallsParams<Data>, Task<Container<CallHierarchyOutgoingCall>?>>>();
             var outgoingHandlerB = Substitute.For<Func<CallHierarchyOutgoingCallsParams<Nested>, Task<Container<CallHierarchyOutgoingCall>?>>>();
             var (client, _) = await Initialize(
-                options => { options.EnableAllCapabilities(); }, options => {
+                options => { options.EnableAllCapabilities(); }, options =>
+                {
                     var identifier = Substitute.For<ITextDocumentIdentifier>();
                     identifier.GetTextDocumentAttributes(Arg.Any<DocumentUri>()).Returns(
                         call => new TextDocumentAttributes(call.ArgAt<DocumentUri>(0), "file", "csharp")
@@ -48,11 +43,14 @@ namespace Lsp.Tests.Integration
                     options.OnCallHierarchy(
                         @params => Task.FromResult(
                             new Container<CallHierarchyItem<Data>?>(
-                                new CallHierarchyItem<Data> {
+                                new CallHierarchyItem<Data>
+                                {
                                     Name = "Test",
                                     Kind = SymbolKind.Boolean,
-                                    Data = new Data {
-                                        Child = new Nested {
+                                    Data = new Data
+                                    {
+                                        Child = new Nested
+                                        {
                                             Date = DateTimeOffset.MinValue
                                         },
                                         Id = Guid.NewGuid(),
@@ -63,7 +61,8 @@ namespace Lsp.Tests.Integration
                         )!,
                         incomingHandlerA,
                         outgoingHandlerA,
-                        (_, _) => new() {
+                        (_, _) => new()
+                        {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -71,10 +70,12 @@ namespace Lsp.Tests.Integration
                     options.OnCallHierarchy(
                         @params => Task.FromResult(
                             new Container<CallHierarchyItem<Nested>?>(
-                                new CallHierarchyItem<Nested> {
+                                new CallHierarchyItem<Nested>
+                                {
                                     Name = "Test Nested",
                                     Kind = SymbolKind.Constant,
-                                    Data = new Nested {
+                                    Data = new Nested
+                                    {
                                         Date = DateTimeOffset.MinValue
                                     }
                                 }
@@ -82,7 +83,8 @@ namespace Lsp.Tests.Integration
                         )!,
                         incomingHandlerB,
                         outgoingHandlerB,
-                        (_, _) => new() {
+                        (_, _) => new()
+                        {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -90,7 +92,8 @@ namespace Lsp.Tests.Integration
             );
 
             var items = await client.RequestCallHierarchyPrepare(
-                new CallHierarchyPrepareParams() {
+                new CallHierarchyPrepareParams
+                {
                     TextDocument = new TextDocumentIdentifier("/some/path/file.cs"),
                 }
             );
@@ -98,10 +101,14 @@ namespace Lsp.Tests.Integration
             var lens = items.ToArray();
             lens.Select(z => z.Name).Should().Contain(new[] { "Test", "Test Nested" });
 
-            var incomingItems = await Task.WhenAll(lens.Select(z => client.RequestCallHierarchyIncoming(new CallHierarchyIncomingCallsParams() { Item = z }).AsTask()));
+            var incomingItems = await Task.WhenAll(
+                lens.Select(z => client.RequestCallHierarchyIncoming(new CallHierarchyIncomingCallsParams { Item = z }).AsTask())
+            );
             incomingHandlerA.Received(1).Invoke(Arg.Any<CallHierarchyIncomingCallsParams<Data>>());
             incomingHandlerB.Received(1).Invoke(Arg.Any<CallHierarchyIncomingCallsParams<Nested>>());
-            var outgoingItems = await Task.WhenAll(lens.Select(z => client.RequestCallHierarchyOutgoing(new CallHierarchyOutgoingCallsParams() { Item = z }).AsTask()));
+            var outgoingItems = await Task.WhenAll(
+                lens.Select(z => client.RequestCallHierarchyOutgoing(new CallHierarchyOutgoingCallsParams { Item = z }).AsTask())
+            );
             outgoingHandlerA.Received(1).Invoke(Arg.Any<CallHierarchyOutgoingCallsParams<Data>>());
             outgoingHandlerB.Received(1).Invoke(Arg.Any<CallHierarchyOutgoingCallsParams<Nested>>());
         }
@@ -112,15 +119,19 @@ namespace Lsp.Tests.Integration
             var incomingHandler = Substitute.For<Func<CallHierarchyIncomingCallsParams<Data>, Task<Container<CallHierarchyIncomingCall>?>>>();
             var outgoingHandler = Substitute.For<Func<CallHierarchyOutgoingCallsParams<Data>, Task<Container<CallHierarchyOutgoingCall>?>>>();
             var (client, _) = await Initialize(
-                options => { options.EnableAllCapabilities(); }, options => {
+                options => { options.EnableAllCapabilities(); }, options =>
+                {
                     options.OnCallHierarchy(
                         @params => Task.FromResult(
                             new Container<CallHierarchyItem<Data>?>(
-                                new CallHierarchyItem<Data> {
+                                new CallHierarchyItem<Data>
+                                {
                                     Name = "Test",
                                     Kind = SymbolKind.Boolean,
-                                    Data = new Data {
-                                        Child = new Nested {
+                                    Data = new Data
+                                    {
+                                        Child = new Nested
+                                        {
                                             Date = DateTimeOffset.MinValue
                                         },
                                         Id = Guid.NewGuid(),
@@ -131,7 +142,8 @@ namespace Lsp.Tests.Integration
                         )!,
                         incomingHandler,
                         outgoingHandler,
-                        (_, _) => new() {
+                        (_, _) => new()
+                        {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -139,16 +151,17 @@ namespace Lsp.Tests.Integration
             );
 
             var items = await client.RequestCallHierarchyPrepare(
-                new CallHierarchyPrepareParams() {
+                new CallHierarchyPrepareParams
+                {
                     TextDocument = new TextDocumentIdentifier("/some/path/file.cs"),
                 }
             );
 
             var item = items.Single();
 
-            var incomingItems = await client.RequestCallHierarchyIncoming(new CallHierarchyIncomingCallsParams() { Item = item });
+            var incomingItems = await client.RequestCallHierarchyIncoming(new CallHierarchyIncomingCallsParams { Item = item });
             incomingHandler.Received(1).Invoke(Arg.Any<CallHierarchyIncomingCallsParams<Data>>());
-            var outgoingItems = await client.RequestCallHierarchyOutgoing(new CallHierarchyOutgoingCallsParams() { Item = item });
+            var outgoingItems = await client.RequestCallHierarchyOutgoing(new CallHierarchyOutgoingCallsParams { Item = item });
             outgoingHandler.Received(1).Invoke(Arg.Any<CallHierarchyOutgoingCallsParams<Data>>());
         }
 
@@ -158,16 +171,21 @@ namespace Lsp.Tests.Integration
             var incomingHandler = Substitute.For<Action<CallHierarchyIncomingCallsParams<Data>, IObserver<IEnumerable<CallHierarchyIncomingCall>>>>();
             var outgoingHandler = Substitute.For<Action<CallHierarchyOutgoingCallsParams<Data>, IObserver<IEnumerable<CallHierarchyOutgoingCall>>>>();
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCallHierarchy<Data>(
-                        (completionParams, observer) => {
+                        (completionParams, observer) =>
+                        {
                             var a = new Container<CallHierarchyItem<Data>?>(
                                 new Container<CallHierarchyItem<Data>?>(
-                                    new CallHierarchyItem<Data> {
+                                    new CallHierarchyItem<Data>
+                                    {
                                         Name = "Test",
                                         Kind = SymbolKind.Boolean,
-                                        Data = new Data {
-                                            Child = new Nested {
+                                        Data = new Data
+                                        {
+                                            Child = new Nested
+                                            {
                                                 Date = DateTimeOffset.MinValue
                                             },
                                             Id = Guid.NewGuid(),
@@ -180,12 +198,14 @@ namespace Lsp.Tests.Integration
                             observer.OnNext(a);
                             observer.OnCompleted();
                         },
-                        (a, b) => {
+                        (a, b) =>
+                        {
                             incomingHandler(a, b);
                             b.OnNext(Enumerable.Empty<CallHierarchyIncomingCall>());
                             b.OnCompleted();
                         },
-                        (a, b) => {
+                        (a, b) =>
+                        {
                             outgoingHandler(a, b);
                             b.OnNext(Enumerable.Empty<CallHierarchyOutgoingCall>());
                             b.OnCompleted();
@@ -196,19 +216,19 @@ namespace Lsp.Tests.Integration
             );
 
             var items = await client
-                             .RequestCallHierarchyPrepare(new CallHierarchyPrepareParams() { TextDocument = new TextDocumentIdentifier("/some/path/file.cs"), })
+                             .RequestCallHierarchyPrepare(new CallHierarchyPrepareParams { TextDocument = new TextDocumentIdentifier("/some/path/file.cs"), })
                              .Take(1)
                              .ToTask(CancellationToken);
 
             var item = items.Single();
 
             var incomingItems = await client
-                                     .RequestCallHierarchyIncoming(new CallHierarchyIncomingCallsParams() { Item = item })
+                                     .RequestCallHierarchyIncoming(new CallHierarchyIncomingCallsParams { Item = item })
                                      .Take(1)
                                      .ToTask(CancellationToken);
             incomingHandler.Received(1).Invoke(Arg.Any<CallHierarchyIncomingCallsParams<Data>>(), Arg.Any<IObserver<IEnumerable<CallHierarchyIncomingCall>>>());
             var outgoingItems = await client
-                                     .RequestCallHierarchyOutgoing(new CallHierarchyOutgoingCallsParams() { Item = item })
+                                     .RequestCallHierarchyOutgoing(new CallHierarchyOutgoingCallsParams { Item = item })
                                      .Take(1)
                                      .ToTask(CancellationToken);
             outgoingHandler.Received(1).Invoke(Arg.Any<CallHierarchyOutgoingCallsParams<Data>>(), Arg.Any<IObserver<IEnumerable<CallHierarchyOutgoingCall>>>());

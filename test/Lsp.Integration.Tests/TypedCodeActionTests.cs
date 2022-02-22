@@ -1,12 +1,10 @@
 using System;
-using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Lsp.Tests.Integration.Fixtures;
-using Newtonsoft.Json;
+using Lsp.Integration.Tests.Fixtures;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Testing;
@@ -15,12 +13,10 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Serilog.Events;
-using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
-using Nested = Lsp.Tests.Integration.Fixtures.Nested;
 
-namespace Lsp.Tests.Integration
+namespace Lsp.Integration.Tests
 {
     public class TypedCodeActionTests : LanguageProtocolTestBase
     {
@@ -32,7 +28,8 @@ namespace Lsp.Tests.Integration
         public async Task Should_Aggregate_With_All_Related_Handlers()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     var identifier = Substitute.For<ITextDocumentIdentifier>();
                     identifier.GetTextDocumentAttributes(Arg.Any<DocumentUri>()).Returns(
                         call => new TextDocumentAttributes(call.ArgAt<DocumentUri>(0), "file", "csharp")
@@ -40,18 +37,23 @@ namespace Lsp.Tests.Integration
                     options.AddTextDocumentIdentifier(identifier);
 
                     options.OnCodeAction(
-                        codeActionParams => {
+                        codeActionParams =>
+                        {
                             return Task.FromResult(
-                                new CodeActionContainer<Fixtures.Data>(
-                                    new CodeAction<Fixtures.Data> {
+                                new CodeActionContainer<Data>(
+                                    new CodeAction<Data>
+                                    {
                                         Title = "data-a",
                                         Kind = CodeActionKind.QuickFix,
-                                        Command = new Command {
+                                        Command = new Command
+                                        {
                                             Name = "data-a",
                                             Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                         },
-                                        Data = new Fixtures.Data {
-                                            Child = new Nested {
+                                        Data = new Data
+                                        {
+                                            Child = new Nested
+                                            {
                                                 Date = DateTimeOffset.MinValue
                                             },
                                             Id = Guid.NewGuid(),
@@ -61,48 +63,53 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        action => {
-                            return Task.FromResult(action with { Command = action.Command with { Name = "resolved-a" } });
-                        },
-                        (_, _) => new CodeActionRegistrationOptions {
+                        action => { return Task.FromResult(action with { Command = action.Command with { Name = "resolved-a" } }); },
+                        (_, _) => new CodeActionRegistrationOptions
+                        {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
 
                     options.OnCodeAction(
-                        codeActionParams => {
+                        codeActionParams =>
+                        {
                             return Task.FromResult(
                                 new CodeActionContainer<Nested>(
-                                    new CodeAction<Nested> {
+                                    new CodeAction<Nested>
+                                    {
                                         Title = "nested-b",
                                         Kind = CodeActionKind.QuickFix,
-                                        Command = new Command {
+                                        Command = new Command
+                                        {
                                             Name = "nested-b",
                                             Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                         },
-                                        Data = new Nested {
+                                        Data = new Nested
+                                        {
                                             Date = DateTimeOffset.Now
                                         }
                                     }
                                 )
                             );
                         },
-                        action => {
-                            return Task.FromResult(action with { Command = action.Command with { Name = "resolved-b" } });
-                        },
-                        (_, _) => new CodeActionRegistrationOptions {
+                        action => { return Task.FromResult(action with { Command = action.Command with { Name = "resolved-b" } }); },
+                        (_, _) => new CodeActionRegistrationOptions
+                        {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
 
                     options.OnCodeAction(
-                        codeActionParams => {
+                        codeActionParams =>
+                        {
                             return Task.FromResult(
                                 new CommandOrCodeActionContainer(
-                                    new CodeAction {
+                                    new CodeAction
+                                    {
                                         Title = "no-data-c",
                                         Kind = CodeActionKind.QuickFix,
-                                        Command = new Command {
+                                        Command = new Command
+                                        {
                                             Name = "no-data-c",
                                             Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                         }
@@ -110,22 +117,24 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        action => {
-                            return Task.FromResult(action with { Command = action.Command with { Name = "resolved-c" } });
-                        },
-                        (_, _) => new CodeActionRegistrationOptions {
+                        action => { return Task.FromResult(action with { Command = action.Command with { Name = "resolved-c" } }); },
+                        (_, _) => new CodeActionRegistrationOptions
+                        {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
 
                     options.OnCodeAction(
-                        codeActionParams => {
+                        codeActionParams =>
+                        {
                             return Task.FromResult(
                                 new CommandOrCodeActionContainer(
-                                    new CodeAction {
+                                    new CodeAction
+                                    {
                                         Title = "not-included",
                                         Kind = CodeActionKind.QuickFix,
-                                        Command = new Command {
+                                        Command = new Command
+                                        {
                                             Name = "not-included",
                                             Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                         }
@@ -133,10 +142,9 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        action => {
-                            return Task.FromResult(action with { Command = action.Command with { Name = "resolved-d" } });
-                        },
-                        (_, _) => new CodeActionRegistrationOptions {
+                        action => { return Task.FromResult(action with { Command = action.Command with { Name = "resolved-d" } }); },
+                        (_, _) => new CodeActionRegistrationOptions
+                        {
                             DocumentSelector = DocumentSelector.ForLanguage("vb")
                         }
                     );
@@ -144,7 +152,8 @@ namespace Lsp.Tests.Integration
             );
 
             var codeAction = await client.RequestCodeAction(
-                new CodeActionParams {
+                new CodeActionParams
+                {
                     TextDocument = new TextDocumentIdentifier("/some/path/file.cs"),
                 }
             );
@@ -161,20 +170,26 @@ namespace Lsp.Tests.Integration
         public async Task Should_Resolve_With_Data_Capability()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCodeAction(
-                        (codeActionParams, capability, token) => {
+                        (codeActionParams, capability, token) =>
+                        {
                             return Task.FromResult(
-                                new CodeActionContainer<Fixtures.Data>(
-                                    new CodeAction<Fixtures.Data> {
+                                new CodeActionContainer<Data>(
+                                    new CodeAction<Data>
+                                    {
                                         Title = "name",
                                         Kind = CodeActionKind.QuickFix,
-                                        Command = new Command {
+                                        Command = new Command
+                                        {
                                             Name = "execute-a",
                                             Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                         },
-                                        Data = new Fixtures.Data {
-                                            Child = new Nested {
+                                        Data = new Data
+                                        {
+                                            Child = new Nested
+                                            {
                                                 Date = DateTimeOffset.MinValue
                                             },
                                             Id = Guid.NewGuid(),
@@ -184,7 +199,8 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        (codeAction, capability, token) => {
+                        (codeAction, capability, token) =>
+                        {
                             codeAction.Data.Id.Should().NotBeEmpty();
                             codeAction.Data.Child.Should().NotBeNull();
                             codeAction.Data.Name.Should().Be("name");
@@ -207,19 +223,25 @@ namespace Lsp.Tests.Integration
         public async Task Should_Resolve_With_Partial_Data_Capability()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
-                    options.ObserveCodeAction<Fixtures.Data>(
-                        (codeActionParams, observer, capability, token) => {
-                            var a = new CodeActionContainer<Fixtures.Data>(
-                                new CodeAction<Fixtures.Data> {
+                options => { }, options =>
+                {
+                    options.ObserveCodeAction<Data>(
+                        (codeActionParams, observer, capability, token) =>
+                        {
+                            var a = new CodeActionContainer<Data>(
+                                new CodeAction<Data>
+                                {
                                     Title = "name",
                                     Kind = CodeActionKind.QuickFix,
-                                    Command = new Command {
+                                    Command = new Command
+                                    {
                                         Name = "execute-a",
                                         Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                     },
-                                    Data = new Fixtures.Data {
-                                        Child = new Nested {
+                                    Data = new Data
+                                    {
+                                        Child = new Nested
+                                        {
                                             Date = DateTimeOffset.MinValue
                                         },
                                         Id = Guid.NewGuid(),
@@ -231,7 +253,8 @@ namespace Lsp.Tests.Integration
                             observer.OnNext(a);
                             observer.OnCompleted();
                         },
-                        (codeAction, capability, token) => {
+                        (codeAction, capability, token) =>
+                        {
                             codeAction.Data.Id.Should().NotBeEmpty();
                             codeAction.Data.Child.Should().NotBeNull();
                             codeAction.Data.Name.Should().Be("name");
@@ -252,20 +275,26 @@ namespace Lsp.Tests.Integration
         public async Task Should_Resolve_With_Data_CancellationToken()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCodeAction(
-                        (codeActionParams, token) => {
+                        (codeActionParams, token) =>
+                        {
                             return Task.FromResult(
-                                new CodeActionContainer<Fixtures.Data>(
-                                    new CodeAction<Fixtures.Data> {
+                                new CodeActionContainer<Data>(
+                                    new CodeAction<Data>
+                                    {
                                         Title = "execute-a",
                                         Kind = CodeActionKind.QuickFix,
-                                        Command = new Command {
+                                        Command = new Command
+                                        {
                                             Name = "execute-a",
                                             Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                         },
-                                        Data = new Fixtures.Data {
-                                            Child = new Nested {
+                                        Data = new Data
+                                        {
+                                            Child = new Nested
+                                            {
                                                 Date = DateTimeOffset.MinValue
                                             },
                                             Id = Guid.NewGuid(),
@@ -275,7 +304,8 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        (codeAction, token) => {
+                        (codeAction, token) =>
+                        {
                             codeAction.Data.Id.Should().NotBeEmpty();
                             codeAction.Data.Child.Should().NotBeNull();
                             codeAction.Data.Name.Should().Be("name");
@@ -298,19 +328,25 @@ namespace Lsp.Tests.Integration
         public async Task Should_Resolve_With_Partial_Data_CancellationToken()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
-                    options.ObserveCodeAction<Fixtures.Data>(
-                        (codeActionParams, observer, token) => {
-                            var a = new CodeActionContainer<Fixtures.Data>(
-                                new CodeAction<Fixtures.Data> {
+                options => { }, options =>
+                {
+                    options.ObserveCodeAction<Data>(
+                        (codeActionParams, observer, token) =>
+                        {
+                            var a = new CodeActionContainer<Data>(
+                                new CodeAction<Data>
+                                {
                                     Title = "execute-a",
                                     Kind = CodeActionKind.QuickFix,
-                                    Command = new Command {
+                                    Command = new Command
+                                    {
                                         Name = "execute-a",
                                         Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                     },
-                                    Data = new Fixtures.Data {
-                                        Child = new Nested {
+                                    Data = new Data
+                                    {
+                                        Child = new Nested
+                                        {
                                             Date = DateTimeOffset.MinValue
                                         },
                                         Id = Guid.NewGuid(),
@@ -322,7 +358,8 @@ namespace Lsp.Tests.Integration
                             observer.OnNext(a);
                             observer.OnCompleted();
                         },
-                        (codeAction, token) => {
+                        (codeAction, token) =>
+                        {
                             codeAction.Data.Id.Should().NotBeEmpty();
                             codeAction.Data.Child.Should().NotBeNull();
                             codeAction.Data.Name.Should().Be("name");
@@ -343,20 +380,26 @@ namespace Lsp.Tests.Integration
         public async Task Should_Resolve_With_Data()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCodeAction(
-                        codeActionParams => {
+                        codeActionParams =>
+                        {
                             return Task.FromResult(
-                                new CodeActionContainer<Fixtures.Data>(
-                                    new CodeAction<Data> {
+                                new CodeActionContainer<Data>(
+                                    new CodeAction<Data>
+                                    {
                                         Title = "execute-a",
                                         Kind = CodeActionKind.QuickFix,
-                                        Command = new Command {
+                                        Command = new Command
+                                        {
                                             Name = "execute-a",
                                             Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                         },
-                                        Data = new Data {
-                                            Child = new Nested {
+                                        Data = new Data
+                                        {
+                                            Child = new Nested
+                                            {
                                                 Date = DateTimeOffset.MinValue
                                             },
                                             Id = Guid.NewGuid(),
@@ -366,7 +409,8 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        codeAction => {
+                        codeAction =>
+                        {
                             codeAction.Data.Id.Should().NotBeEmpty();
                             codeAction.Data.Child.Should().NotBeNull();
                             codeAction.Data.Name.Should().Be("name");
@@ -389,19 +433,25 @@ namespace Lsp.Tests.Integration
         public async Task Should_Resolve_With_Partial_Data()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.ObserveCodeAction<Data>(
-                        (codeActionParams, observer) => {
+                        (codeActionParams, observer) =>
+                        {
                             var a = new CodeActionContainer<Data>(
-                                new CodeAction<Data> {
+                                new CodeAction<Data>
+                                {
                                     Title = "execute-a",
                                     Kind = CodeActionKind.QuickFix,
-                                    Command = new Command {
+                                    Command = new Command
+                                    {
                                         Name = "execute-a",
                                         Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                     },
-                                    Data = new Data {
-                                        Child = new Nested {
+                                    Data = new Data
+                                    {
+                                        Child = new Nested
+                                        {
                                             Date = DateTimeOffset.MinValue
                                         },
                                         Id = Guid.NewGuid(),
@@ -413,7 +463,8 @@ namespace Lsp.Tests.Integration
                             observer.OnNext(a);
                             observer.OnCompleted();
                         },
-                        codeAction => {
+                        codeAction =>
+                        {
                             codeAction.Data.Id.Should().NotBeEmpty();
                             codeAction.Data.Child.Should().NotBeNull();
                             codeAction.Data.Name.Should().Be("name");
@@ -435,15 +486,19 @@ namespace Lsp.Tests.Integration
         public async Task Should_Resolve_Capability()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCodeAction(
-                        (codeActionParams, capability, token) => {
+                        (codeActionParams, capability, token) =>
+                        {
                             return Task.FromResult(
                                 new CommandOrCodeActionContainer(
-                                    new CodeAction {
+                                    new CodeAction
+                                    {
                                         Title = "execute-a",
                                         Kind = CodeActionKind.QuickFix,
-                                        Command = new Command {
+                                        Command = new Command
+                                        {
                                             Name = "execute-a",
                                             Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                         }
@@ -451,7 +506,8 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        (codeAction, capability, token) => {
+                        (codeAction, capability, token) =>
+                        {
                             return Task.FromResult(codeAction with { Command = codeAction.Command with { Name = "resolved" } });
                         },
                         (_, _) => new CodeActionRegistrationOptions()
@@ -471,14 +527,18 @@ namespace Lsp.Tests.Integration
         public async Task Should_Resolve_Partial_Capability()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.ObserveCodeAction(
-                        (codeActionParams, observer, capability, token) => {
+                        (codeActionParams, observer, capability, token) =>
+                        {
                             var a = new CommandOrCodeActionContainer(
-                                new CodeAction {
+                                new CodeAction
+                                {
                                     Title = "execute-a",
                                     Kind = CodeActionKind.QuickFix,
-                                    Command = new Command {
+                                    Command = new Command
+                                    {
                                         Name = "execute-a",
                                         Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                     },
@@ -488,7 +548,8 @@ namespace Lsp.Tests.Integration
                             observer.OnNext(a);
                             observer.OnCompleted();
                         },
-                        (codeAction, capability, token) => {
+                        (codeAction, capability, token) =>
+                        {
                             return Task.FromResult(codeAction with { Command = codeAction.Command with { Name = "resolved" } });
                         },
                         (_, _) => new CodeActionRegistrationOptions()
@@ -506,15 +567,19 @@ namespace Lsp.Tests.Integration
         public async Task Should_Resolve_CancellationToken()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCodeAction(
-                        (codeActionParams, token) => {
+                        (codeActionParams, token) =>
+                        {
                             return Task.FromResult(
                                 new CommandOrCodeActionContainer(
-                                    new CodeAction {
+                                    new CodeAction
+                                    {
                                         Title = "execute-a",
                                         Kind = CodeActionKind.QuickFix,
-                                        Command = new Command {
+                                        Command = new Command
+                                        {
                                             Name = "execute-a",
                                             Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                         },
@@ -522,9 +587,7 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        (codeAction, token) => {
-                            return Task.FromResult(codeAction with { Command = codeAction.Command with { Name = "resolved" } });
-                        },
+                        (codeAction, token) => { return Task.FromResult(codeAction with { Command = codeAction.Command with { Name = "resolved" } }); },
                         (_, _) => new CodeActionRegistrationOptions()
                     );
                 }
@@ -542,14 +605,18 @@ namespace Lsp.Tests.Integration
         public async Task Should_Resolve_Partial_CancellationToken()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.ObserveCodeAction(
-                        (codeActionParams, observer, token) => {
+                        (codeActionParams, observer, token) =>
+                        {
                             var a = new CommandOrCodeActionContainer(
-                                new CodeAction {
+                                new CodeAction
+                                {
                                     Title = "execute-a",
                                     Kind = CodeActionKind.QuickFix,
-                                    Command = new Command {
+                                    Command = new Command
+                                    {
                                         Name = "execute-a",
                                         Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                     },
@@ -559,9 +626,7 @@ namespace Lsp.Tests.Integration
                             observer.OnNext(a);
                             observer.OnCompleted();
                         },
-                        (codeAction, token) => {
-                            return Task.FromResult(codeAction with { Command = codeAction.Command with { Name = "resolved" } });
-                        },
+                        (codeAction, token) => { return Task.FromResult(codeAction with { Command = codeAction.Command with { Name = "resolved" } }); },
                         (_, _) => new CodeActionRegistrationOptions()
                     );
                 }
@@ -577,15 +642,19 @@ namespace Lsp.Tests.Integration
         public async Task Should_Resolve()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.OnCodeAction(
-                        codeActionParams => {
+                        codeActionParams =>
+                        {
                             return Task.FromResult(
                                 new CommandOrCodeActionContainer(
-                                    new CodeAction {
+                                    new CodeAction
+                                    {
                                         Title = "execute-a",
                                         Kind = CodeActionKind.QuickFix,
-                                        Command = new Command {
+                                        Command = new Command
+                                        {
                                             Name = "execute-a",
                                             Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                         },
@@ -593,9 +662,7 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        codeAction => {
-                            return Task.FromResult(codeAction with { Command = codeAction.Command with { Name = "resolved" } });
-                        },
+                        codeAction => { return Task.FromResult(codeAction with { Command = codeAction.Command with { Name = "resolved" } }); },
                         (_, _) => new CodeActionRegistrationOptions()
                     );
                 }
@@ -613,14 +680,18 @@ namespace Lsp.Tests.Integration
         public async Task Should_Resolve_Partial()
         {
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { }, options =>
+                {
                     options.ObserveCodeAction(
-                        (codeActionParams, observer) => {
+                        (codeActionParams, observer) =>
+                        {
                             var a = new CommandOrCodeActionContainer(
-                                new CodeAction {
+                                new CodeAction
+                                {
                                     Title = "execute-a",
                                     Kind = CodeActionKind.QuickFix,
-                                    Command = new Command {
+                                    Command = new Command
+                                    {
                                         Name = "execute-a",
                                         Arguments = JArray.FromObject(new object[] { 1, "2", false })
                                     },
@@ -630,9 +701,7 @@ namespace Lsp.Tests.Integration
                             observer.OnNext(a);
                             observer.OnCompleted();
                         },
-                        codeAction => {
-                            return Task.FromResult(codeAction with { Command = codeAction.Command! with { Name = "resolved"}});
-                        },
+                        codeAction => { return Task.FromResult(codeAction with { Command = codeAction.Command! with { Name = "resolved" } }); },
                         (_, _) => new CodeActionRegistrationOptions()
                     );
                 }

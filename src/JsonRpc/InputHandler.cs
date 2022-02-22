@@ -83,15 +83,18 @@ namespace OmniSharp.Extensions.JsonRpc
                 new RequestInvokerOptions(
                     requestTimeout,
                     supportContentModified,
-                    concurrency ?? 0),
+                    concurrency ?? 0
+                ),
                 loggerFactory,
-                scheduler),
+                scheduler
+            ),
             loggerFactory,
             unhandledInputProcessException,
-            getException)
+            getException
+        )
         {
         }
-        
+
         public InputHandler(
             PipeReader pipeReader,
             IOutputHandler outputHandler,
@@ -120,7 +123,8 @@ namespace OmniSharp.Extensions.JsonRpc
                 new Memory<byte>(_contentLengthValueBuffer); // Max string length of the long value
             _stopProcessing = new CancellationTokenSource();
 
-            _disposable = new CompositeDisposable {
+            _disposable = new CompositeDisposable
+            {
                 Disposable.Create(() => _stopProcessing.Cancel()),
                 _stopProcessing,
                 _requestInvoker,
@@ -133,16 +137,19 @@ namespace OmniSharp.Extensions.JsonRpc
         public void Start()
         {
             _disposable.Add(
-                Observable.FromAsync(async () => {
-                    try
+                Observable.FromAsync(
+                    async () =>
                     {
-                        await ProcessInputStream(_stopProcessing.Token).ConfigureAwait(false);
+                        try
+                        {
+                            await ProcessInputStream(_stopProcessing.Token).ConfigureAwait(false);
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogCritical(e, "unhandled exception");
+                        }
                     }
-                    catch (Exception e)
-                    {
-                        _logger.LogCritical(e, "unhandled exception");
-                    }
-                }).Subscribe(_inputActive)
+                ).Subscribe(_inputActive)
             );
             _disposable.Add(
                 _inputQueue
@@ -250,7 +257,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     return false;
                 }
 
-                var slice = buffer.Slice(0, colon!.Value);
+                var slice = buffer.Slice(0, colon.Value);
                 slice.CopyTo(_contentLengthBuffer.Span);
 
                 if (IsEqual(_contentLengthBuffer.Span, ContentLength))
@@ -280,7 +287,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     var whitespacePosition = lengthSlice.PositionOf((byte)' ');
                     if (whitespacePosition.HasValue)
                     {
-                        lengthSlice = lengthSlice.Slice(0, whitespacePosition!.Value);
+                        lengthSlice = lengthSlice.Slice(0, whitespacePosition.Value);
                     }
 
                     lengthSlice.CopyTo(_contentLengthValueMemory.Span);
@@ -415,7 +422,8 @@ namespace OmniSharp.Extensions.JsonRpc
 
                     _inputQueue.OnNext(
                         Observable.Create<Unit>(
-                            observer => {
+                            observer =>
+                            {
                                 if (response is ServerResponse serverResponse)
                                 {
                                     // _logger.LogDebug("Setting successful Response for {ResponseId}", response.Id);
@@ -455,7 +463,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         var requestHandle = _requestInvoker.InvokeRequest(descriptor, item.Request);
 
                         _requests.TryAdd(requestHandle.Request.Id, requestHandle);
-                        requestHandle.OnComplete += (request) => _requests.TryRemove(request.Id, out _);
+                        requestHandle.OnComplete += r => _requests.TryRemove(r.Id, out _);
                     }
                     catch (JsonReaderException e)
                     {
@@ -480,11 +488,11 @@ namespace OmniSharp.Extensions.JsonRpc
                             var cancelParams = item.Notification.Params?.ToObject<CancelParams>();
                             if (cancelParams == null)
                             {
-                                _logger.LogDebug("Got incorrect cancellation params", item.Notification.Method);
+                                _logger.LogDebug("Got incorrect cancellation params for {Method}", item.Notification.Method);
                                 continue;
                             }
 
-                            _logger.LogDebug("Cancelling pending request", item.Notification.Method);
+                            _logger.LogDebug("Cancelling pending request for {Method}", item.Notification.Method);
                             if (_requests.TryGetValue(cancelParams.Id, out var requestHandle))
                             {
                                 requestHandle.CancellationTokenSource.Cancel();
@@ -522,8 +530,10 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
-        private static Exception DefaultErrorParser(string? method, ServerError error, CreateResponseExceptionHandler? customHandler) =>
-            error.Error.Code switch {
+        private static Exception DefaultErrorParser(string? method, ServerError error, CreateResponseExceptionHandler? customHandler)
+        {
+            return error.Error.Code switch
+            {
                 ErrorCodes.ServerNotInitialized => new ServerNotInitializedException(error.Id),
                 ErrorCodes.MethodNotSupported   => new MethodNotSupportedException(error.Id, method ?? "UNKNOWN"),
                 ErrorCodes.InvalidRequest       => new InvalidRequestException(error.Id),
@@ -540,5 +550,6 @@ namespace OmniSharp.Extensions.JsonRpc
                          error.Error.Data?.ToString() ?? string.Empty
                      )
             };
+        }
     }
 }

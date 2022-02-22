@@ -12,11 +12,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(EventNames.Output, Direction.ServerToClient)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record OutputEvent : IRequest
         {
             /// <summary>
@@ -29,13 +27,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// The output to report.
             /// </summary>
-            public string Output { get; init; }
+            public string Output { get; init; } = null!;
 
             /// <summary>
             /// Support for keeping an output log organized by grouping related messages.
             /// Values:
             /// 'start': Start a new group in expanded mode. Subsequent output events are
-            ///  members of the group and should be shown indented.
+            /// members of the group and should be shown indented.
             /// The 'output' attribute becomes the name of the group and is not indented.
             /// 'startCollapsed': Start a new group in collapsed mode. Subsequent output
             /// events are members of the group and should be shown indented (as soon as

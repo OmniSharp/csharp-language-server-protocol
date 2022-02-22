@@ -13,11 +13,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.Launch, Direction.ClientToServer)]
-        [
-            GenerateHandler(Name = "Launch", AllowDerivedRequests = true),
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler(Name = "Launch", AllowDerivedRequests = true)]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record LaunchRequestArguments : IRequest<LaunchResponse>
         {
             /// <summary>
@@ -38,8 +36,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             [JsonExtensionData] public IDictionary<string, object> ExtensionData { get; init; } = new Dictionary<string, object>();
         }
 
-        public record LaunchResponse
-        {
-        }
+        public record LaunchResponse;
     }
 }

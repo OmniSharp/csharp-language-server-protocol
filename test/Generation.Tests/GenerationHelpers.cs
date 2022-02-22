@@ -11,12 +11,12 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
-//using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 using OmniSharp.Extensions.JsonRpc.Generation;
-using OmniSharp.Extensions.JsonRpc.Generators;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-//using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Xunit;
+
+//using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
+//using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace Generation.Tests
 {
@@ -82,7 +82,10 @@ namespace Generation.Tests
             return generatedText;
         }
 
-        public static string NormalizeToLf(string input) => input.Replace(CrLf, Lf);
+        public static string NormalizeToLf(string input)
+        {
+            return input.Replace(CrLf, Lf);
+        }
 
         public static async Task<IEnumerable<SyntaxTree>> GenerateAsync<T>(string source) where T : IIncrementalGenerator, new()
         {
@@ -154,7 +157,7 @@ namespace Generation.Tests
         }
     }
 
-    class NotSureWhatToCallYou : CSharpSyntaxWalker
+    internal class NotSureWhatToCallYou : CSharpSyntaxWalker
     {
         private readonly ISyntaxReceiver _syntaxReceiver;
 

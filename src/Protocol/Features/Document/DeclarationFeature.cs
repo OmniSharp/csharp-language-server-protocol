@@ -12,13 +12,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         [Parallel]
         [Method(TextDocumentNames.Declaration, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(DeclarationRegistrationOptions)), Capability(typeof(DeclarationCapability))]
-        public partial record DeclarationParams : TextDocumentPositionParams, IWorkDoneProgressParams, IPartialItemsRequest<LocationOrLocationLinks, LocationOrLocationLink> { }
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(DeclarationRegistrationOptions))]
+        [Capability(typeof(DeclarationCapability))]
+        public partial record DeclarationParams : TextDocumentPositionParams, IWorkDoneProgressParams,
+                                                  IPartialItemsRequest<LocationOrLocationLinks, LocationOrLocationLink>;
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.DeclarationProvider))]
         [RegistrationName(TextDocumentNames.Declaration)]

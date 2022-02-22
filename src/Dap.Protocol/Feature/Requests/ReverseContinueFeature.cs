@@ -9,11 +9,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.ReverseContinue, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record ReverseContinueArguments : IRequest<ReverseContinueResponse>
         {
             /// <summary>
@@ -22,8 +20,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public long ThreadId { get; init; }
         }
 
-        public record ReverseContinueResponse
-        {
-        }
+        public record ReverseContinueResponse;
     }
 }

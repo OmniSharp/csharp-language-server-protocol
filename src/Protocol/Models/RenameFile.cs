@@ -15,12 +15,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The old (existing) location.
         /// </summary>
-        public DocumentUri OldUri { get; init; }
+        public DocumentUri OldUri { get; init; } = null!;
 
         /// <summary>
         /// The new location.
         /// </summary>
-        public DocumentUri NewUri { get; init; }
+        public DocumentUri NewUri { get; init; } = null!;
 
         /// <summary>
         /// Rename Options.

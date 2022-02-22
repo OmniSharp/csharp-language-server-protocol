@@ -33,9 +33,12 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters
             object? requestId = null;
             if (obj.TryGetValue("id", out var id))
             {
-                var idString = id.Type == JTokenType.String ? (string) id : null;
-                var idLong = id.Type == JTokenType.Integer ? (long?) id : null;
-                requestId = idString ?? ( idLong.HasValue ? (object) idLong.Value : null );
+                requestId = id switch
+                {
+                    { Type: JTokenType.String }  => id.Value<string>(),
+                    { Type: JTokenType.Integer } => id.Value<long>(),
+                    _                            => null
+                };
             }
 
             ErrorMessage? data = null;

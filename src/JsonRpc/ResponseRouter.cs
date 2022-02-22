@@ -18,38 +18,57 @@ namespace OmniSharp.Extensions.JsonRpc
         internal readonly ConcurrentDictionary<long, (string method, TaskCompletionSource<JToken> pendingTask)> Requests =
             new ConcurrentDictionary<long, (string method, TaskCompletionSource<JToken> pendingTask)>();
 
-        public ResponseRouter(Lazy<IOutputHandler> outputHandler, ISerializer serializer, IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?> handlerTypeDescriptorProvider)
+        public ResponseRouter(
+            Lazy<IOutputHandler> outputHandler, ISerializer serializer, IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?> handlerTypeDescriptorProvider
+        )
         {
             OutputHandler = outputHandler;
             Serializer = serializer;
             _handlerTypeDescriptorProvider = handlerTypeDescriptorProvider;
         }
 
-        public void SendNotification(string method) =>
+        public void SendNotification(string method)
+        {
             OutputHandler.Value.Send(
-                new OutgoingNotification {
+                new OutgoingNotification
+                {
                     Method = method
                 }
             );
+        }
 
-        public void SendNotification<T>(string method, T @params) =>
+        public void SendNotification<T>(string method, T @params)
+        {
             OutputHandler.Value.Send(
-                new OutgoingNotification {
+                new OutgoingNotification
+                {
                     Method = method,
                     Params = @params
                 }
             );
+        }
 
-        public void SendNotification(IRequest @params) => SendNotification(GetMethodName(@params.GetType()), @params);
+        public void SendNotification(IRequest @params)
+        {
+            SendNotification(GetMethodName(@params.GetType()), @params);
+        }
 
-        public Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> @params, CancellationToken cancellationToken) =>
-            SendRequest(GetMethodName(@params.GetType()), @params).Returning<TResponse>(cancellationToken);
+        public Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> @params, CancellationToken cancellationToken)
+        {
+            return SendRequest(GetMethodName(@params.GetType()), @params).Returning<TResponse>(cancellationToken);
+        }
 
-        public IResponseRouterReturns SendRequest(string method) => new ResponseRouterReturnsImpl(this, method, new object());
+        public IResponseRouterReturns SendRequest(string method)
+        {
+            return new ResponseRouterReturnsImpl(this, method, new object());
+        }
 
-        public IResponseRouterReturns SendRequest<T>(string method, T @params) => new ResponseRouterReturnsImpl(this, method, @params);
+        public IResponseRouterReturns SendRequest<T>(string method, T @params)
+        {
+            return new ResponseRouterReturnsImpl(this, method, @params);
+        }
 
-        public bool TryGetRequest(long id, [NotNullWhen(true)] out string method, [NotNullWhen(true)] out TaskCompletionSource<JToken> pendingTask)
+        public bool TryGetRequest(long id, [NotNullWhen(true)] out string? method, [NotNullWhen(true)] out TaskCompletionSource<JToken>? pendingTask)
         {
             var result = Requests.TryGetValue(id, out var source);
             method = source.method;
@@ -57,8 +76,11 @@ namespace OmniSharp.Extensions.JsonRpc
             return result;
         }
 
-        private string GetMethodName(Type type) =>
-            _handlerTypeDescriptorProvider.GetMethodName(type) ?? throw new NotSupportedException($"Unable to infer method name for type {type.FullName}");
+        private string GetMethodName(Type type)
+        {
+            return _handlerTypeDescriptorProvider.GetMethodName(type)
+                ?? throw new NotSupportedException($"Unable to infer method name for type {type.FullName}");
+        }
 
         private class ResponseRouterReturnsImpl : IResponseRouterReturns
         {
@@ -84,14 +106,16 @@ namespace OmniSharp.Extensions.JsonRpc
                 try
                 {
                     _router.OutputHandler.Value.Send(
-                        new OutgoingRequest {
+                        new OutgoingRequest
+                        {
                             Method = _method,
                             Params = _params,
                             Id = nextId
                         }
                     );
                     cancellationToken.Register(
-                        () => {
+                        () =>
+                        {
                             if (tcs.Task.IsCompleted) return;
                             _router.CancelRequest(new CancelParams { Id = nextId });
                         }
@@ -100,7 +124,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     var result = await tcs.Task.ConfigureAwait(false);
                     if (typeof(TResponse) == typeof(Unit))
                     {
-                        return (TResponse) (object) Unit.Value;
+                        return (TResponse)(object)Unit.Value;
                     }
 
                     return result.ToObject<TResponse>(_router.Serializer.JsonSerializer);
@@ -111,7 +135,10 @@ namespace OmniSharp.Extensions.JsonRpc
                 }
             }
 
-            public async Task ReturningVoid(CancellationToken cancellationToken) => await Returning<Unit>(cancellationToken).ConfigureAwait(false);
+            public async Task ReturningVoid(CancellationToken cancellationToken)
+            {
+                await Returning<Unit>(cancellationToken).ConfigureAwait(false);
+            }
         }
     }
 }

@@ -21,7 +21,7 @@ using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Lsp.Tests.Integration
+namespace Lsp.Integration.Tests
 {
     public class DisableDefaultsTests : LanguageProtocolTestBase
     {
@@ -55,7 +55,7 @@ namespace Lsp.Tests.Integration
             var serverAction = Substitute.For<Action<DidChangeWorkspaceFoldersParams>>();
             var (client, server) = await Initialize(
                 options => options.OnWorkspaceFolders(clientAction),
-                options => options.OnDidChangeWorkspaceFolders(serverAction, x => new () { Supported = x.Workspace?.WorkspaceFolders.IsSupported == true})
+                options => options.OnDidChangeWorkspaceFolders(serverAction, x => new() { Supported = x.Workspace?.WorkspaceFolders.IsSupported == true })
             );
 
             var clientManager = client.Services.GetRequiredService<IHandlersManager>();
@@ -63,7 +63,9 @@ namespace Lsp.Tests.Integration
             clientManager.Descriptors.Should().ContainSingle(f => f.Method == WorkspaceNames.WorkspaceFolders);
 
             var serverManager = server.Services.GetRequiredService<IHandlersManager>();
-            serverManager.Descriptors.Should().Contain(f => f.Handler is LanguageProtocolDelegatingHandlers.Notification<DidChangeWorkspaceFoldersParams, DidChangeWorkspaceFolderRegistrationOptions>);
+            serverManager.Descriptors.Should().Contain(
+                f => f.Handler is LanguageProtocolDelegatingHandlers.Notification<DidChangeWorkspaceFoldersParams, DidChangeWorkspaceFolderRegistrationOptions>
+            );
             serverManager.Descriptors.Should().ContainSingle(f => f.Method == WorkspaceNames.DidChangeWorkspaceFolders);
         }
 
@@ -74,16 +76,17 @@ namespace Lsp.Tests.Integration
             var (client, server) = await Initialize(
                 options => { },
                 options => options
-                   .OnDidChangeWorkspaceFolders(action, x => new () { Supported = x.Workspace?.WorkspaceFolders.IsSupported == true})
+                   .OnDidChangeWorkspaceFolders(action, x => new() { Supported = x.Workspace?.WorkspaceFolders.IsSupported == true })
             );
 
             var config = client.Services.GetRequiredService<TestConfigurationProvider>();
-            config.Update("mysection", new Dictionary<string, string>() { ["data"] = "value" });
+            config.Update("mysection", new Dictionary<string, string> { ["data"] = "value" });
 
-            client.WorkspaceFoldersManager.Add(new WorkspaceFolder() { Name = "foldera", Uri = "/some/path" });
+            client.WorkspaceFoldersManager.Add(new WorkspaceFolder { Name = "foldera", Uri = "/some/path" });
 
             await TestHelper.DelayUntil(
-                () => {
+                () =>
+                {
                     try
                     {
                         action.Received(1).Invoke(Arg.Any<DidChangeWorkspaceFoldersParams>());
@@ -117,7 +120,7 @@ namespace Lsp.Tests.Integration
             var action = Substitute.For<Action<DidChangeConfigurationParams>>();
             var (client, server) = await Initialize(
                 options => options
-                          .WithCapability(new DidChangeConfigurationCapability() { DynamicRegistration = true })
+                          .WithCapability(new DidChangeConfigurationCapability { DynamicRegistration = true })
                           .WithServices(z => z.AddSingleton<TestConfigurationProvider>()),
                 options => options
                           .WithConfigurationSection("mysection")
@@ -131,10 +134,11 @@ namespace Lsp.Tests.Integration
             serverManager.ContainsHandler(typeof(IDidChangeConfigurationHandler)).Should().BeTrue();
 
             var config = client.Services.GetRequiredService<TestConfigurationProvider>();
-            config.Update("mysection", new Dictionary<string, string>() { ["data"] = "value" });
+            config.Update("mysection", new Dictionary<string, string> { ["data"] = "value" });
 
             await TestHelper.DelayUntil(
-                () => {
+                () =>
+                {
                     try
                     {
                         action.Received(1).Invoke(Arg.Is<DidChangeConfigurationParams>(z => Equals(z.Settings, JValue.CreateNull())));

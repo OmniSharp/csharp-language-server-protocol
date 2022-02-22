@@ -16,20 +16,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         [Parallel]
         [Method(TextDocumentNames.DocumentSymbol, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(DocumentSymbolRegistrationOptions)), Capability(typeof(DocumentSymbolCapability))]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(DocumentSymbolRegistrationOptions))]
+        [Capability(typeof(DocumentSymbolCapability))]
         public partial record DocumentSymbolParams : ITextDocumentIdentifierParams,
-                                                    IPartialItemsRequest<SymbolInformationOrDocumentSymbolContainer, SymbolInformationOrDocumentSymbol>,
-                                                    IWorkDoneProgressParams
+                                                     IPartialItemsRequest<SymbolInformationOrDocumentSymbolContainer, SymbolInformationOrDocumentSymbol>,
+                                                     IWorkDoneProgressParams
         {
             /// <summary>
             /// The text document.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; init; }
+            public TextDocumentIdentifier TextDocument { get; init; } = null!;
         }
 
         [JsonConverter(typeof(SymbolInformationOrDocumentSymbolConverter))]
@@ -55,18 +54,34 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public bool IsDocumentSymbol => DocumentSymbol != null;
             public DocumentSymbol? DocumentSymbol { get; }
 
-            public static SymbolInformationOrDocumentSymbol Create(SymbolInformation value) => value;
+            public static SymbolInformationOrDocumentSymbol Create(SymbolInformation value)
+            {
+                return value;
+            }
 
-            public static SymbolInformationOrDocumentSymbol Create(DocumentSymbol value) => value;
+            public static SymbolInformationOrDocumentSymbol Create(DocumentSymbol value)
+            {
+                return value;
+            }
 
-            public static implicit operator SymbolInformationOrDocumentSymbol(SymbolInformation value) => new SymbolInformationOrDocumentSymbol(value);
+            public static implicit operator SymbolInformationOrDocumentSymbol(SymbolInformation value)
+            {
+                return new SymbolInformationOrDocumentSymbol(value);
+            }
 
-            public static implicit operator SymbolInformationOrDocumentSymbol(DocumentSymbol value) => new SymbolInformationOrDocumentSymbol(value);
+            public static implicit operator SymbolInformationOrDocumentSymbol(DocumentSymbol value)
+            {
+                return new SymbolInformationOrDocumentSymbol(value);
+            }
 
-            private string DebuggerDisplay => IsDocumentSymbol ? DocumentSymbol!.ToString() : IsDocumentSymbolInformation ? SymbolInformation!.ToString() : string.Empty;
+            private string DebuggerDisplay =>
+                IsDocumentSymbol ? DocumentSymbol!.ToString() : IsDocumentSymbolInformation ? SymbolInformation!.ToString() : string.Empty;
 
             /// <inheritdoc />
-            public override string ToString() => DebuggerDisplay;
+            public override string ToString()
+            {
+                return DebuggerDisplay;
+            }
         }
 
         /// <summary>
@@ -80,7 +95,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// The name of this symbol.
             /// </summary>
-            public string Name { get; init; }
+            public string Name { get; init; } = null!;
 
             /// <summary>
             /// More detail for this symbol, e.g the signature of a function. If not provided the
@@ -113,13 +128,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// like comments. This information is typically used to determine if the the clients cursor is
             /// inside the symbol to reveal in the symbol in the UI.
             /// </summary>
-            public Range Range { get; init; }
+            public Range Range { get; init; } = null!;
 
             /// <summary>
             /// The range that should be selected and revealed when this symbol is being picked, e.g the name of a function.
             /// Must be contained by the the `range`.
             /// </summary>
-            public Range SelectionRange { get; init; }
+            public Range SelectionRange { get; init; } = null!;
 
             /// <summary>
             /// Children of this symbol, e.g. properties of a class.
@@ -130,7 +145,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             private string DebuggerDisplay => $"[{Kind}] {Name} {{ range: {Range}, selection: {SelectionRange}, detail: {Detail ?? string.Empty} }}";
 
             /// <inheritdoc />
-            public override string ToString() => DebuggerDisplay;
+            public override string ToString()
+            {
+                return DebuggerDisplay;
+            }
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.DocumentSymbolProvider))]

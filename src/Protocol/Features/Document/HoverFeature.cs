@@ -16,15 +16,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         [Parallel]
         [Method(TextDocumentNames.Hover, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(HoverRegistrationOptions)), Capability(typeof(HoverCapability))]
-        public partial record HoverParams : TextDocumentPositionParams, IWorkDoneProgressParams, IRequest<Hover?>
-        {
-        }
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(HoverRegistrationOptions))]
+        [Capability(typeof(HoverCapability))]
+        public partial record HoverParams : TextDocumentPositionParams, IWorkDoneProgressParams, IRequest<Hover?>;
 
         /// <summary>
         /// The result of a hover request.
@@ -35,7 +32,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// The hover's content
             /// </summary>
-            public MarkedStringsOrMarkupContent Contents { get; init; }
+            public MarkedStringsOrMarkupContent Contents { get; init; } = null!;
 
             /// <summary>
             /// An optional range is a range inside a text document
@@ -47,12 +44,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             private string DebuggerDisplay => $"{Contents}{( Range is not null ? $" {Range}" : string.Empty )}";
 
             /// <inheritdoc />
-            public override string ToString() => DebuggerDisplay;
+            public override string ToString()
+            {
+                return DebuggerDisplay;
+            }
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.HoverProvider))]
         [RegistrationName(TextDocumentNames.Hover)]
-        public partial class HoverRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions { }
+        public partial class HoverRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions
+        {
+        }
     }
 
     namespace Client.Capabilities

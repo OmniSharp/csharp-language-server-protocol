@@ -7,7 +7,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
@@ -46,16 +45,20 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             var expectedHoverContent = new MarkedStringsOrMarkupContent("123", "456", "789");
 
             var (client, _) = await Initialize(
-                clientOptions => {
+                clientOptions =>
+                {
                     clientOptions.WithCapability(
-                        new HoverCapability {
+                        new HoverCapability
+                        {
                             ContentFormat = new Container<MarkupKind>(MarkupKind.Markdown, MarkupKind.PlainText),
                         }
                     );
                 },
-                serverOptions => {
+                serverOptions =>
+                {
                     serverOptions.OnHover(
-                        (request, _) => {
+                        (request, _) =>
+                        {
                             Assert.NotNull(request.TextDocument);
 
                             Assert.Equal(
@@ -67,9 +70,11 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                             Assert.Equal(column, request.Position.Character);
 
                             return Task.FromResult(
-                                new Hover {
+                                new Hover
+                                {
                                     Contents = expectedHoverContent,
-                                    Range = new Range {
+                                    Range = new Range
+                                    {
                                         Start = request.Position,
                                         End = request.Position
                                     }
@@ -81,7 +86,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             );
 
             var hover = await client.TextDocument.RequestHover(
-                new HoverParams {
+                new HoverParams
+                {
                     TextDocument = AbsoluteDocumentPath,
                     Position = ( line, column )
                 }
@@ -118,11 +124,14 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             const int column = 5;
             var expectedDocumentPath = AbsoluteDocumentPath;
             var expectedDocumentUri = DocumentUri.FromFileSystemPath(expectedDocumentPath);
-            var expectedCompletionItems = new[] {
-                new CompletionItem {
+            var expectedCompletionItems = new[]
+            {
+                new CompletionItem
+                {
                     Kind = CompletionItemKind.Class,
                     Label = "Class1",
-                    TextEdit = new TextEdit {
+                    TextEdit = new TextEdit
+                    {
                         Range = ( ( line, column ), ( line, column ) ),
                         NewText = "Class1",
                     }
@@ -130,15 +139,19 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             };
 
             var (client, _) = await Initialize(
-                clientOptions => {
+                clientOptions =>
+                {
                     clientOptions.WithCapability(
-                        new CompletionCapability {
-                            CompletionItem = new CompletionItemCapabilityOptions {
+                        new CompletionCapability
+                        {
+                            CompletionItem = new CompletionItemCapabilityOptions
+                            {
                                 DeprecatedSupport = true,
                                 DocumentationFormat = new Container<MarkupKind>(MarkupKind.Markdown, MarkupKind.PlainText),
                                 PreselectSupport = true,
                                 SnippetSupport = true,
-                                TagSupport = new CompletionItemTagSupportCapabilityOptions {
+                                TagSupport = new CompletionItemTagSupportCapabilityOptions
+                                {
                                     ValueSet = new[] { CompletionItemTag.Deprecated }
                                 },
                                 CommitCharactersSupport = true
@@ -146,9 +159,11 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                         }
                     );
                 },
-                serverOptions => {
+                serverOptions =>
+                {
                     serverOptions.OnCompletion(
-                        (request, _) => {
+                        (request, _) =>
+                        {
                             Assert.NotNull(request.TextDocument);
 
                             Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
@@ -168,7 +183,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             );
 
             var actualCompletions = await client.TextDocument.RequestCompletion(
-                new CompletionParams {
+                new CompletionParams
+                {
                     TextDocument = AbsoluteDocumentPath,
                     Position = ( line, column ),
                 }, CancellationToken
@@ -179,7 +195,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
 
             var actualCompletionItems = actualCompletions.Items.ToArray();
             Assert.Collection(
-                actualCompletionItems, actualCompletionItem => {
+                actualCompletionItems, actualCompletionItem =>
+                {
                     var expectedCompletionItem = expectedCompletionItems[0];
 
                     Assert.Equal(expectedCompletionItem.Kind, actualCompletionItem.Kind);
@@ -223,15 +240,20 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             var expectedDocumentPath = AbsoluteDocumentPath;
             var expectedDocumentUri = DocumentUri.FromFileSystemPath(expectedDocumentPath);
 
-            var expectedSignatureHelp = new SignatureHelp {
+            var expectedSignatureHelp = new SignatureHelp
+            {
                 ActiveParameter = 0,
                 ActiveSignature = 0,
-                Signatures = new[] {
-                    new SignatureInformation {
+                Signatures = new[]
+                {
+                    new SignatureInformation
+                    {
                         Documentation = new StringOrMarkupContent("test documentation"),
                         Label = "TestSignature",
-                        Parameters = new[] {
-                            new ParameterInformation {
+                        Parameters = new[]
+                        {
+                            new ParameterInformation
+                            {
                                 Documentation = "test parameter documentation",
                                 Label = "parameter label"
                             }
@@ -241,22 +263,28 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             };
 
             var (client, _) = await Initialize(
-                clientOptions => {
+                clientOptions =>
+                {
                     clientOptions.WithCapability(
-                        new SignatureHelpCapability {
+                        new SignatureHelpCapability
+                        {
                             ContextSupport = true,
-                            SignatureInformation = new SignatureInformationCapabilityOptions {
+                            SignatureInformation = new SignatureInformationCapabilityOptions
+                            {
                                 DocumentationFormat = new Container<MarkupKind>(MarkupKind.Markdown),
-                                ParameterInformation = new SignatureParameterInformationCapabilityOptions {
+                                ParameterInformation = new SignatureParameterInformationCapabilityOptions
+                                {
                                     LabelOffsetSupport = true
                                 }
                             }
                         }
                     );
                 },
-                serverOptions => {
+                serverOptions =>
+                {
                     serverOptions.OnSignatureHelp(
-                        (request, cancellationToken) => {
+                        (request, cancellationToken) =>
+                        {
                             Assert.NotNull(request.TextDocument);
 
                             Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
@@ -271,7 +299,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             );
 
             var actualSignatureHelp = await client.TextDocument.RequestSignatureHelp(
-                new SignatureHelpParams {
+                new SignatureHelpParams
+                {
                     TextDocument = AbsoluteDocumentPath,
                     Position = ( line, column ),
                 }, CancellationToken
@@ -282,7 +311,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
 
             var actualSignatures = actualSignatureHelp.Signatures.ToArray();
             Assert.Collection(
-                actualSignatures, actualSignature => {
+                actualSignatures, actualSignature =>
+                {
                     var expectedSignature = expectedSignatureHelp.Signatures.ToArray()[0];
 
                     Assert.True(actualSignature.Documentation!.HasString);
@@ -294,7 +324,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                     var actualParameters = actualSignature.Parameters!.ToArray();
 
                     Assert.Collection(
-                        actualParameters, actualParameter => {
+                        actualParameters, actualParameter =>
+                        {
                             var expectedParameter = expectedParameters[0];
                             Assert.True(actualParameter.Documentation!.HasString);
                             Assert.Equal(expectedParameter.Documentation!.String, actualParameter.Documentation.String);
@@ -318,7 +349,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
 
             var expectedDefinitions = new LocationOrLocationLinks(
                 new LocationOrLocationLink(
-                    new Location {
+                    new Location
+                    {
                         Uri = expectedDocumentUri,
                         Range = ( ( line, column ), ( line, column ) ),
                     }
@@ -326,16 +358,20 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             );
 
             var (client, _) = await Initialize(
-                clientOptions => {
+                clientOptions =>
+                {
                     clientOptions.WithCapability(
-                        new DefinitionCapability {
+                        new DefinitionCapability
+                        {
                             LinkSupport = true
                         }
                     );
                 },
-                serverOptions => {
+                serverOptions =>
+                {
                     serverOptions.OnDefinition(
-                        (request, cancellationToken) => {
+                        (request, cancellationToken) =>
+                        {
                             Assert.NotNull(request.TextDocument);
 
                             Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
@@ -350,7 +386,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             );
 
             var definitions = await client.TextDocument.RequestDefinition(
-                new DefinitionParams {
+                new DefinitionParams
+                {
                     TextDocument = AbsoluteDocumentPath,
                     Position = ( line, column ),
                 }, CancellationToken
@@ -358,7 +395,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
 
             var actualDefinitions = definitions.ToArray();
             Assert.Collection(
-                actualDefinitions, actualDefinition => {
+                actualDefinitions, actualDefinition =>
+                {
                     var expectedDefinition = expectedDefinitions.Single();
 
                     Assert.NotNull(actualDefinition.Location);
@@ -393,21 +431,25 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             var expectedDocumentUri = DocumentUri.FromFileSystemPath(expectedDocumentPath);
 
             var expectedHighlights = new DocumentHighlightContainer(
-                new DocumentHighlight {
+                new DocumentHighlight
+                {
                     Kind = DocumentHighlightKind.Write,
                     Range = ( ( line, column ), ( line, column ) ),
                 }
             );
 
             var (client, _) = await Initialize(
-                clientOptions => {
+                clientOptions =>
+                {
                     clientOptions.WithCapability(
                         new DocumentHighlightCapability()
                     );
                 },
-                serverOptions => {
+                serverOptions =>
+                {
                     serverOptions.OnDocumentHighlight(
-                        (request, cancellationToken) => {
+                        (request, cancellationToken) =>
+                        {
                             Assert.NotNull(request.TextDocument);
 
                             Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
@@ -422,7 +464,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             );
 
             var definitions = await client.TextDocument.RequestDocumentHighlight(
-                new DocumentHighlightParams {
+                new DocumentHighlightParams
+                {
                     TextDocument = AbsoluteDocumentPath,
                     Position = ( line, column ),
                 }, CancellationToken
@@ -430,7 +473,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
 
             var actualDefinitions = definitions!.ToArray();
             Assert.Collection(
-                actualDefinitions, actualHighlight => {
+                actualDefinitions, actualHighlight =>
+                {
                     var expectedHighlight = expectedHighlights.Single();
 
                     Assert.Equal(DocumentHighlightKind.Write, expectedHighlight.Kind);
@@ -458,7 +502,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             var expectedDocumentUri = DocumentUri.FromFileSystemPath(expectedDocumentPath);
             var detail = "some detail";
 
-            var documentSymbol = new DocumentSymbol {
+            var documentSymbol = new DocumentSymbol
+            {
                 Detail = detail,
                 Kind = SymbolKind.Class,
                 Range = new Range(new Position(line, character), new Position(line, character))
@@ -468,26 +513,32 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             );
 
             var (client, _) = await Initialize(
-                clientOptions => {
+                clientOptions =>
+                {
                     clientOptions.WithCapability(
-                        new DocumentSymbolCapability {
+                        new DocumentSymbolCapability
+                        {
                             DynamicRegistration = true,
-                            SymbolKind = new SymbolKindCapabilityOptions {
+                            SymbolKind = new SymbolKindCapabilityOptions
+                            {
                                 ValueSet = new Container<SymbolKind>(
                                     Enum.GetValues(typeof(SymbolKind)).Cast<SymbolKind>()
                                         .ToArray()
                                 )
                             },
-                            TagSupport = new TagSupportCapabilityOptions {
+                            TagSupport = new TagSupportCapabilityOptions
+                            {
                                 ValueSet = new[] { SymbolTag.Deprecated }
                             },
                             HierarchicalDocumentSymbolSupport = true
                         }
                     );
                 },
-                serverOptions => {
+                serverOptions =>
+                {
                     serverOptions.OnDocumentSymbol(
-                        (request, cancellationToken) => {
+                        (request, cancellationToken) =>
+                        {
                             Assert.NotNull(request.TextDocument);
 
                             Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
@@ -499,14 +550,16 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             );
 
             var symbols = await client.TextDocument.RequestDocumentSymbol(
-                new DocumentSymbolParams {
+                new DocumentSymbolParams
+                {
                     TextDocument = expectedDocumentUri
                 }, CancellationToken
             );
 
             var actualSymbols = symbols.ToArray();
             Assert.Collection(
-                actualSymbols, actualSymbol => {
+                actualSymbols, actualSymbol =>
+                {
                     var expectedSymbol = expectedSymbols.Single();
 
                     Assert.True(expectedSymbol.IsDocumentSymbol);
@@ -541,7 +594,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             var expectedDocumentUri = DocumentUri.FromFileSystemPath(expectedDocumentPath);
 
             var expectedFoldingRanges = new Container<FoldingRange>(
-                new FoldingRange {
+                new FoldingRange
+                {
                     Kind = FoldingRangeKind.Region,
                     StartLine = 5,
                     StartCharacter = 1,
@@ -551,17 +605,21 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             );
 
             var (client, _) = await Initialize(
-                clientOptions => {
+                clientOptions =>
+                {
                     clientOptions.WithCapability(
-                        new FoldingRangeCapability {
+                        new FoldingRangeCapability
+                        {
                             RangeLimit = 100,
                             LineFoldingOnly = true
                         }
                     );
                 },
-                serverOptions => {
+                serverOptions =>
+                {
                     serverOptions.OnFoldingRange(
-                        (request, cancellationToken) => {
+                        (request, cancellationToken) =>
+                        {
                             Assert.NotNull(request.TextDocument);
                             Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
                             return Task.FromResult(expectedFoldingRanges)!;
@@ -571,14 +629,16 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             );
 
             var foldingRanges = await client.TextDocument.RequestFoldingRange(
-                new FoldingRangeRequestParam {
+                new FoldingRangeRequestParam
+                {
                     TextDocument = AbsoluteDocumentPath
                 }, CancellationToken
             );
 
             var actualFoldingRanges = foldingRanges!.ToArray();
             Assert.Collection(
-                actualFoldingRanges, actualFoldingRange => {
+                actualFoldingRanges, actualFoldingRange =>
+                {
                     var expectedFoldingRange = expectedFoldingRanges.Single();
 
                     Assert.Equal(FoldingRangeKind.Region, expectedFoldingRange.Kind);
@@ -599,17 +659,22 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         {
             var documentPath = AbsoluteDocumentPath;
             var expectedDocumentUri = DocumentUri.FromFileSystemPath(documentPath);
-            var expectedDiagnostics = new List<Diagnostic> {
-                new Diagnostic {
+            var expectedDiagnostics = new List<Diagnostic>
+            {
+                new Diagnostic
+                {
                     Source = "Test",
                     Code = new DiagnosticCode(1234),
                     Message = "This is a diagnostic message.",
-                    Range = new Range {
-                        Start = new Position {
+                    Range = new Range
+                    {
+                        Start = new Position
+                        {
                             Line = 2,
                             Character = 5
                         },
-                        End = new Position {
+                        End = new Position
+                        {
                             Line = 3,
                             Character = 7
                         }
@@ -624,9 +689,11 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             List<Diagnostic>? actualDiagnostics = null;
 
             var (_, server) = await Initialize(
-                clientOptions => {
+                clientOptions =>
+                {
                     clientOptions.OnPublishDiagnostics(
-                        request => {
+                        request =>
+                        {
                             actualDocumentUri = request.Uri;
                             actualDiagnostics = request.Diagnostics.ToList();
 
@@ -639,7 +706,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             );
 
             server.TextDocument.PublishDiagnostics(
-                new PublishDiagnosticsParams {
+                new PublishDiagnosticsParams
+                {
                     Uri = DocumentUri.FromFileSystemPath(documentPath),
                     Diagnostics = expectedDiagnostics
                 }

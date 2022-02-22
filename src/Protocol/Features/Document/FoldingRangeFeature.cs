@@ -17,18 +17,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         [Parallel]
         [Method(TextDocumentNames.FoldingRange, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document", Name = "FoldingRange"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(FoldingRangeRegistrationOptions)), Capability(typeof(FoldingRangeCapability))]
-        public partial record FoldingRangeRequestParam : ITextDocumentIdentifierParams, IPartialItemsRequest<Container<FoldingRange>?, FoldingRange>, IWorkDoneProgressParams
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document", Name = "FoldingRange")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(FoldingRangeRegistrationOptions))]
+        [Capability(typeof(FoldingRangeCapability))]
+        public partial record FoldingRangeRequestParam : ITextDocumentIdentifierParams, IPartialItemsRequest<Container<FoldingRange>?, FoldingRange>,
+                                                         IWorkDoneProgressParams
         {
             /// <summary>
             /// The text document.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; init; }
+            public TextDocumentIdentifier TextDocument { get; init; } = null!;
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// The zero-based line number from where the folded range starts.
             /// </summary>
             /// <remarks>
-            /// <see cref="uint"/> in the LSP spec
+            /// <see cref="uint" /> in the LSP spec
             /// </remarks>
             public int StartLine { get; init; }
 
@@ -49,7 +49,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// The zero-based character offset from where the folded range starts. If not defined, defaults to the length of the start line.
             /// </summary>
             /// <remarks>
-            /// <see cref="uint"/> in the LSP spec
+            /// <see cref="uint" /> in the LSP spec
             /// </remarks>
             [Optional]
             public int? StartCharacter { get; init; }
@@ -58,7 +58,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// The zero-based line number where the folded range ends.
             /// </summary>
             /// <remarks>
-            /// <see cref="uint"/> in the LSP spec
+            /// <see cref="uint" /> in the LSP spec
             /// </remarks>
             public int EndLine { get; init; }
 
@@ -66,7 +66,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// The zero-based character offset before the folded range ends. If not defined, defaults to the length of the end line.
             /// </summary>
             /// <remarks>
-            /// <see cref="uint"/> in the LSP spec
+            /// <see cref="uint" /> in the LSP spec
             /// </remarks>
             [Optional]
             public int? EndCharacter { get; init; }
@@ -83,7 +83,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 $"[start: (line: {StartLine}{( StartCharacter.HasValue ? $", char: {StartCharacter}" : string.Empty )}), end: (line: {EndLine}, char: {( EndCharacter.HasValue ? $", char: {EndCharacter}" : string.Empty )})]";
 
             /// <inheritdoc />
-            public override string ToString() => DebuggerDisplay;
+            public override string ToString()
+            {
+                return DebuggerDisplay;
+            }
         }
 
         /// <summary>
@@ -125,7 +128,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// hint, servers are free to follow the limit.
             /// </summary>
             /// <remarks>
-            /// <see cref="uint"/> in the LSP spec
+            /// <see cref="uint" /> in the LSP spec
             /// </remarks>
             [Optional]
             public int? RangeLimit { get; set; }

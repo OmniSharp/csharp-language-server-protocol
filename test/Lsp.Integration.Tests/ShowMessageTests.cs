@@ -14,11 +14,13 @@ using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Lsp.Tests.Integration
+namespace Lsp.Integration.Tests
 {
     public class ShowMessageTests : LanguageProtocolTestBase
     {
-        public ShowMessageTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper).WithWaitTime(TimeSpan.FromMilliseconds(500)))
+        public ShowMessageTests(ITestOutputHelper outputHelper) : base(
+            new JsonRpcTestOptions().ConfigureForXUnit(outputHelper).WithWaitTime(TimeSpan.FromMilliseconds(500))
+        )
         {
         }
 
@@ -34,12 +36,14 @@ namespace Lsp.Tests.Integration
             server.Window.ShowWarning("Uh-oh...");
             server.Window.Show("Just gotta let you know!");
             server.Window.Show(
-                new ShowMessageParams {
+                new ShowMessageParams
+                {
                     Type = MessageType.Log, Message = "1234"
                 }
             );
             server.Window.ShowMessage(
-                new ShowMessageParams {
+                new ShowMessageParams
+                {
                     Type = MessageType.Log, Message = "1234"
                 }
             );
@@ -63,12 +67,14 @@ namespace Lsp.Tests.Integration
             server.ShowWarning("Uh-oh...");
             server.Show("Just gotta let you know!");
             server.Show(
-                new ShowMessageParams {
+                new ShowMessageParams
+                {
                     Type = MessageType.Log, Message = "1234"
                 }
             );
             server.ShowMessage(
-                new ShowMessageParams {
+                new ShowMessageParams
+                {
                     Type = MessageType.Log, Message = "1234"
                 }
             );
@@ -82,7 +88,10 @@ namespace Lsp.Tests.Integration
             _receivedMessages.Should().Contain(z => z.Type == MessageType.Log).And.Subject.Count(z => z.Type == MessageType.Log).Should().Be(3);
         }
 
-        private void ConfigureClient(LanguageClientOptions options) => options.OnShowMessage(request => { _receivedMessages.Add(request); });
+        private void ConfigureClient(LanguageClientOptions options)
+        {
+            options.OnShowMessage(request => { _receivedMessages.Add(request); });
+        }
 
         private void ConfigureServer(LanguageServerOptions options)
         {

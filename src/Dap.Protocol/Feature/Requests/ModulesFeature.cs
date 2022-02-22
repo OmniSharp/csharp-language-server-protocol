@@ -11,11 +11,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.Modules, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record ModulesArguments : IRequest<ModulesResponse>
         {
             /// <summary>
@@ -36,7 +34,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// All modules or range of modules.
             /// </summary>
-            public Container<Module> Modules { get; init; }
+            public Container<Module> Modules { get; init; } = null!;
 
             /// <summary>
             /// The total number of modules available.

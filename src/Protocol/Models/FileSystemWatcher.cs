@@ -16,7 +16,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// - `[]` to declare a range of characters to match in a path segment (e.g., `example.[0-9]` to match on `example.0`, `example.1`, …)
         /// - `[!...]` to negate a range of characters to match in a path segment (e.g., `example.[!0-9]` to match on `example.a`, `example.b`, but not `example.0`)
         /// </summary>
-        public string GlobPattern { get; init; }
+        public string GlobPattern { get; init; } = null!;
 
         /// <summary>
         /// The kind of events of interest. If omitted it defaults
@@ -28,6 +28,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         private string DebuggerDisplay => $"[{Kind}] {GlobPattern}";
 
         /// <inheritdoc />
-        public override string ToString() => DebuggerDisplay;
+        public override string ToString()
+        {
+            return DebuggerDisplay;
+        }
     }
 }

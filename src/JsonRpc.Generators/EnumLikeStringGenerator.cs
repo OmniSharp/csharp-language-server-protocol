@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -15,10 +14,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
             var syntaxProvider = context.SyntaxProvider.CreateSyntaxProvider(
-                predicate: (node, token) => node is StructDeclarationSyntax tds && tds.AttributeLists.ContainsAttribute("StringEnum"),
-                transform: (syntaxContext, token) => syntaxContext
+                (node, _) => node is StructDeclarationSyntax tds && tds.AttributeLists.ContainsAttribute("StringEnum"),
+                (syntaxContext, _) => syntaxContext
             );
-            
+
             context.RegisterSourceOutput(syntaxProvider, GenerateEnum);
         }
 
@@ -47,25 +46,48 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                 .WithMembers(SingletonList<MemberDeclarationSyntax>(GetImplementation(candidate)))
                          )
                      )
-                    .AddUsings(UsingDirective(ParseName("System")), UsingDirective(ParseName("System.Collections.Generic")), UsingDirective(ParseName("System.Diagnostics")), UsingDirective(ParseName("System.Linq")), UsingDirective(ParseName("System.Reflection")), UsingDirective(ParseName("Newtonsoft.Json")), UsingDirective(ParseName("OmniSharp.Extensions.JsonRpc")), UsingDirective(ParseName("OmniSharp.Extensions.JsonRpc.Serialization.Converters")))
+                    .AddUsings(
+                         UsingDirective(ParseName("System")), UsingDirective(ParseName("System.Collections.Generic")),
+                         UsingDirective(ParseName("System.Diagnostics")), UsingDirective(ParseName("System.Linq")),
+                         UsingDirective(ParseName("System.Reflection")), UsingDirective(ParseName("Newtonsoft.Json")),
+                         UsingDirective(ParseName("OmniSharp.Extensions.JsonRpc")),
+                         UsingDirective(ParseName("OmniSharp.Extensions.JsonRpc.Serialization.Converters"))
+                     )
                     .WithLeadingTrivia()
                     .WithTrailingTrivia()
                     .WithLeadingTrivia(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true)))
                     .WithTrailingTrivia(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true)));
 
-            context.AddSource($"{Path.GetFileNameWithoutExtension(candidate.SyntaxTree.FilePath)}_{candidate.Identifier.Text}{( candidate.Arity > 0 ? candidate.Arity.ToString() : "" )}.cs", cu.NormalizeWhitespace().GetText(Encoding.UTF8));
+            context.AddSource(
+                $"{Path.GetFileNameWithoutExtension(candidate.SyntaxTree.FilePath)}_{candidate.Identifier.Text}{( candidate.Arity > 0 ? candidate.Arity.ToString() : "" )}.cs",
+                cu.NormalizeWhitespace().GetText(Encoding.UTF8)
+            );
         }
 
         private static StructDeclarationSyntax GetImplementation(StructDeclarationSyntax syntax)
         {
+            var items = syntax.Members
+                              .OfType<PropertyDeclarationSyntax>()
+                              .Where(z => z.Modifiers.Any(SyntaxKind.StaticKeyword))
+                              .Select(z => IdentifierName(z.Identifier.Text))
+                              .Concat(
+                                   syntax.Members
+                                         .OfType<FieldDeclarationSyntax>()
+                                         .Where(z => z.Modifiers.Any(SyntaxKind.StaticKeyword))
+                                         .Where(z => z.Declaration.Variables.Count == 1)
+                                         .Select(z => IdentifierName(z.Declaration.Variables[0].Identifier.Text))
+                               );
             return syntax
                   .WithBaseList(
                        BaseList(
                            SeparatedList(
-                               new BaseTypeSyntax[] {
+                               new BaseTypeSyntax[]
+                               {
                                    SimpleBaseType(
                                        GenericName(Identifier("IEquatable"))
-                                          .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList<TypeSyntax>(PredefinedType(Token(SyntaxKind.StringKeyword)))))
+                                          .WithTypeArgumentList(
+                                               TypeArgumentList(SingletonSeparatedList<TypeSyntax>(PredefinedType(Token(SyntaxKind.StringKeyword))))
+                                           )
                                    ),
                                    SimpleBaseType(
                                        GenericName(Identifier("IEquatable"))
@@ -78,7 +100,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                    )
                   .WithAttributeLists(
                        List(
-                           new[] {
+                           new[]
+                           {
                                AttributeList(
                                    SingletonSeparatedList(
                                        Attribute(IdentifierName("JsonConverter"))
@@ -112,7 +135,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                    )
                   .WithMembers(
                        List(
-                           new MemberDeclarationSyntax[] {
+                           new MemberDeclarationSyntax[]
+                           {
                                FieldDeclaration(
                                        VariableDeclaration(
                                                GenericName(Identifier("Lazy"))
@@ -121,7 +145,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                            SingletonSeparatedList<TypeSyntax>(
                                                                GenericName(Identifier("IReadOnlyList"))
                                                                   .WithTypeArgumentList(
-                                                                       TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName(syntax.Identifier.Text)))
+                                                                       TypeArgumentList(
+                                                                           SingletonSeparatedList<TypeSyntax>(IdentifierName(syntax.Identifier.Text))
+                                                                       )
                                                                    )
                                                            )
                                                        )
@@ -140,7 +166,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                                                        GenericName(Identifier("IReadOnlyList"))
                                                                                           .WithTypeArgumentList(
                                                                                                TypeArgumentList(
-                                                                                                   SingletonSeparatedList<TypeSyntax>(IdentifierName(syntax.Identifier.Text))
+                                                                                                   SingletonSeparatedList<TypeSyntax>(
+                                                                                                       IdentifierName(syntax.Identifier.Text)
+                                                                                                   )
                                                                                                )
                                                                                            )
                                                                                    )
@@ -156,169 +184,25 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                                                            Block(
                                                                                                SingletonList<StatementSyntax>(
                                                                                                    ReturnStatement(
-                                                                                                       InvocationExpression(
-                                                                                                           MemberAccessExpression(
-                                                                                                               SyntaxKind.SimpleMemberAccessExpression,
-                                                                                                               InvocationExpression(
-                                                                                                                   MemberAccessExpression(
-                                                                                                                       SyntaxKind.SimpleMemberAccessExpression,
-                                                                                                                       InvocationExpression(
-                                                                                                                               MemberAccessExpression(
-                                                                                                                                   SyntaxKind.SimpleMemberAccessExpression,
-                                                                                                                                   InvocationExpression(
-                                                                                                                                           MemberAccessExpression(
-                                                                                                                                               SyntaxKind
-                                                                                                                                                  .SimpleMemberAccessExpression,
-                                                                                                                                               InvocationExpression(
-                                                                                                                                                       MemberAccessExpression(
-                                                                                                                                                           SyntaxKind
-                                                                                                                                                              .SimpleMemberAccessExpression,
-                                                                                                                                                           TypeOfExpression(
-                                                                                                                                                               IdentifierName(
-                                                                                                                                                                   syntax.Identifier
-                                                                                                                                                                      .Text
-                                                                                                                                                               )
-                                                                                                                                                           ),
-                                                                                                                                                           IdentifierName(
-                                                                                                                                                               "GetProperties"
-                                                                                                                                                           )
-                                                                                                                                                       )
-                                                                                                                                                   )
-                                                                                                                                                  .WithArgumentList(
-                                                                                                                                                       ArgumentList(
-                                                                                                                                                           SingletonSeparatedList(
-                                                                                                                                                               Argument(
-                                                                                                                                                                   BinaryExpression(
-                                                                                                                                                                       SyntaxKind
-                                                                                                                                                                          .BitwiseOrExpression,
-                                                                                                                                                                       MemberAccessExpression(
-                                                                                                                                                                           SyntaxKind
-                                                                                                                                                                              .SimpleMemberAccessExpression,
-                                                                                                                                                                           IdentifierName(
-                                                                                                                                                                               "BindingFlags"
-                                                                                                                                                                           ),
-                                                                                                                                                                           IdentifierName(
-                                                                                                                                                                               "Static"
-                                                                                                                                                                           )
-                                                                                                                                                                       ),
-                                                                                                                                                                       MemberAccessExpression(
-                                                                                                                                                                           SyntaxKind
-                                                                                                                                                                              .SimpleMemberAccessExpression,
-                                                                                                                                                                           IdentifierName(
-                                                                                                                                                                               "BindingFlags"
-                                                                                                                                                                           ),
-                                                                                                                                                                           IdentifierName(
-                                                                                                                                                                               "Public"
-                                                                                                                                                                           )
-                                                                                                                                                                       )
-                                                                                                                                                                   )
-                                                                                                                                                               )
-                                                                                                                                                           )
-                                                                                                                                                       )
-                                                                                                                                                   ),
-                                                                                                                                               IdentifierName("Where")
-                                                                                                                                           )
-                                                                                                                                       )
-                                                                                                                                      .WithArgumentList(
-                                                                                                                                           ArgumentList(
-                                                                                                                                               SingletonSeparatedList(
-                                                                                                                                                   Argument(
-                                                                                                                                                       SimpleLambdaExpression(
-                                                                                                                                                               Parameter(
-                                                                                                                                                                   Identifier("z")
-                                                                                                                                                               )
-                                                                                                                                                           )
-                                                                                                                                                          .WithExpressionBody(
-                                                                                                                                                               BinaryExpression(
-                                                                                                                                                                   SyntaxKind
-                                                                                                                                                                      .NotEqualsExpression,
-                                                                                                                                                                   MemberAccessExpression(
-                                                                                                                                                                       SyntaxKind
-                                                                                                                                                                          .SimpleMemberAccessExpression,
-                                                                                                                                                                       IdentifierName(
-                                                                                                                                                                           "z"
-                                                                                                                                                                       ),
-                                                                                                                                                                       IdentifierName(
-                                                                                                                                                                           "Name"
-                                                                                                                                                                       )
-                                                                                                                                                                   ),
-                                                                                                                                                                   InvocationExpression(
-                                                                                                                                                                           IdentifierName(
-                                                                                                                                                                               "nameof"
-                                                                                                                                                                           )
-                                                                                                                                                                       )
-                                                                                                                                                                      .WithArgumentList(
-                                                                                                                                                                           ArgumentList(
-                                                                                                                                                                               SingletonSeparatedList(
-                                                                                                                                                                                   Argument(
-                                                                                                                                                                                       IdentifierName(
-                                                                                                                                                                                           "Defaults"
-                                                                                                                                                                                       )
-                                                                                                                                                                                   )
-                                                                                                                                                                               )
-                                                                                                                                                                           )
-                                                                                                                                                                       )
-                                                                                                                                                               )
-                                                                                                                                                           )
-                                                                                                                                                   )
-                                                                                                                                               )
-                                                                                                                                           )
-                                                                                                                                       ),
-                                                                                                                                   IdentifierName("Select")
+                                                                                                       ArrayCreationExpression(
+                                                                                                               ArrayType(IdentifierName(syntax.Identifier.Text))
+                                                                                                                  .WithRankSpecifiers(
+                                                                                                                       SingletonList(
+                                                                                                                           ArrayRankSpecifier(
+                                                                                                                               SingletonSeparatedList<
+                                                                                                                                   ExpressionSyntax>(
+                                                                                                                                   OmittedArraySizeExpression()
                                                                                                                                )
                                                                                                                            )
-                                                                                                                          .WithArgumentList(
-                                                                                                                               ArgumentList(
-                                                                                                                                   SingletonSeparatedList(
-                                                                                                                                       Argument(
-                                                                                                                                           SimpleLambdaExpression(
-                                                                                                                                                   Parameter(
-                                                                                                                                                       Identifier("z")
-                                                                                                                                                   )
-                                                                                                                                               )
-                                                                                                                                              .WithExpressionBody(
-                                                                                                                                                   InvocationExpression(
-                                                                                                                                                           MemberAccessExpression(
-                                                                                                                                                               SyntaxKind
-                                                                                                                                                                  .SimpleMemberAccessExpression,
-                                                                                                                                                               IdentifierName("z"),
-                                                                                                                                                               IdentifierName(
-                                                                                                                                                                   "GetValue"
-                                                                                                                                                               )
-                                                                                                                                                           )
-                                                                                                                                                       )
-                                                                                                                                                      .WithArgumentList(
-                                                                                                                                                           ArgumentList(
-                                                                                                                                                               SingletonSeparatedList(
-                                                                                                                                                                       Argument(
-                                                                                                                                                                           LiteralExpression(
-                                                                                                                                                                               SyntaxKind
-                                                                                                                                                                                  .NullLiteralExpression
-                                                                                                                                                                           )
-                                                                                                                                                                       )
-                                                                                                                                                                   )
-                                                                                                                                                           )
-                                                                                                                                                       )
-                                                                                                                                               )
-                                                                                                                                       )
-                                                                                                                                   )
-                                                                                                                               )
-                                                                                                                           ),
-                                                                                                                       GenericName(
-                                                                                                                               Identifier("Cast")
-                                                                                                                           )
-                                                                                                                          .WithTypeArgumentList(
-                                                                                                                               TypeArgumentList(
-                                                                                                                                   SingletonSeparatedList<TypeSyntax>(
-                                                                                                                                       IdentifierName(syntax.Identifier.Text)
-                                                                                                                                   )
-                                                                                                                               )
-                                                                                                                           )
+                                                                                                                       )
                                                                                                                    )
-                                                                                                               ),
-                                                                                                               IdentifierName("ToArray")
                                                                                                            )
-                                                                                                       )
+                                                                                                          .WithInitializer(
+                                                                                                               InitializerExpression(
+                                                                                                                   SyntaxKind.ArrayInitializerExpression,
+                                                                                                                   SeparatedList<ExpressionSyntax>(items)
+                                                                                                               )
+                                                                                                           )
                                                                                                    )
                                                                                                )
                                                                                            )
@@ -334,11 +218,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                    )
                                   .WithModifiers(
                                        TokenList(
-                                           new[] {
-                                               Token(SyntaxKind.PrivateKeyword),
-                                               Token(SyntaxKind.StaticKeyword),
-                                               Token(SyntaxKind.ReadOnlyKeyword)
-                                           }
+                                           Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.ReadOnlyKeyword)
                                        )
                                    ),
                                PropertyDeclaration(
@@ -356,10 +236,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                    )
                                   .WithModifiers(
                                        TokenList(
-                                           new[] {
-                                               Token(SyntaxKind.PublicKeyword),
-                                               Token(SyntaxKind.StaticKeyword)
-                                           }
+                                           Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword)
                                        )
                                    )
                                   .WithExpressionBody(
@@ -390,10 +267,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                    )
                                   .WithModifiers(
                                        TokenList(
-                                           new[] {
-                                               Token(SyntaxKind.PrivateKeyword),
-                                               Token(SyntaxKind.ReadOnlyKeyword)
-                                           }
+                                           Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.ReadOnlyKeyword)
                                        )
                                    ),
                                ConstructorDeclaration(
@@ -436,10 +310,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                    )
                                   .WithModifiers(
                                        TokenList(
-                                           new[] {
-                                               Token(SyntaxKind.PublicKeyword),
-                                               Token(SyntaxKind.StaticKeyword)
-                                           }
+                                           Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword)
                                        )
                                    )
                                   .WithParameterList(
@@ -483,10 +354,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                    )
                                   .WithModifiers(
                                        TokenList(
-                                           new[] {
-                                               Token(SyntaxKind.PublicKeyword),
-                                               Token(SyntaxKind.StaticKeyword)
-                                           }
+                                           Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword)
                                        )
                                    )
                                   .WithParameterList(
@@ -521,10 +389,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                    )
                                   .WithModifiers(
                                        TokenList(
-                                           new[] {
-                                               Token(SyntaxKind.PublicKeyword),
-                                               Token(SyntaxKind.OverrideKeyword)
-                                           }
+                                           Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.OverrideKeyword)
                                        )
                                    )
                                   .WithExpressionBody(
@@ -619,10 +484,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                    )
                                   .WithModifiers(
                                        TokenList(
-                                           new[] {
-                                               Token(SyntaxKind.PublicKeyword),
-                                               Token(SyntaxKind.OverrideKeyword)
-                                           }
+                                           Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.OverrideKeyword)
                                        )
                                    )
                                   .WithParameterList(
@@ -706,10 +568,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                    )
                                   .WithModifiers(
                                        TokenList(
-                                           new[] {
-                                               Token(SyntaxKind.PublicKeyword),
-                                               Token(SyntaxKind.OverrideKeyword)
-                                           }
+                                           Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.OverrideKeyword)
                                        )
                                    )
                                   .WithExpressionBody(
@@ -734,16 +593,14 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                    )
                                   .WithModifiers(
                                        TokenList(
-                                           new[] {
-                                               Token(SyntaxKind.PublicKeyword),
-                                               Token(SyntaxKind.StaticKeyword)
-                                           }
+                                           Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword)
                                        )
                                    )
                                   .WithParameterList(
                                        ParameterList(
                                            SeparatedList<ParameterSyntax>(
-                                               new SyntaxNodeOrToken[] {
+                                               new SyntaxNodeOrToken[]
+                                               {
                                                    Parameter(
                                                            Identifier("left")
                                                        )
@@ -792,16 +649,14 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                    )
                                   .WithModifiers(
                                        TokenList(
-                                           new[] {
-                                               Token(SyntaxKind.PublicKeyword),
-                                               Token(SyntaxKind.StaticKeyword)
-                                           }
+                                           Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword)
                                        )
                                    )
                                   .WithParameterList(
                                        ParameterList(
                                            SeparatedList<ParameterSyntax>(
-                                               new SyntaxNodeOrToken[] {
+                                               new SyntaxNodeOrToken[]
+                                               {
                                                    Parameter(
                                                            Identifier("left")
                                                        )
@@ -848,6 +703,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                            }
                        )
                    )
+                  .NormalizeWhitespace()
                 ;
         }
     }

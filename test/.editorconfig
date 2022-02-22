@@ -8,3 +8,4 @@ dotnet_diagnostic.VSTHRD103.severity = none
 dotnet_diagnostic.VSTHRD105.severity = none
 dotnet_diagnostic.VSTHRD110.severity = none
 dotnet_diagnostic.VSTHRD200.severity = none
+resharper_unused_parameter_local_highlighting = none

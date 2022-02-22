@@ -15,7 +15,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
 {
     public static class DebugAdapterClientServiceCollectionExtensions
     {
-        internal static IContainer AddDebugAdapterClientInternals(this IContainer container, DebugAdapterClientOptions options, IServiceProvider? outerServiceProvider)
+        internal static IContainer AddDebugAdapterClientInternals(
+            this IContainer container, DebugAdapterClientOptions options, IServiceProvider? outerServiceProvider
+        )
         {
             container = container.AddDebugAdapterProtocolInternals(options);
 
@@ -31,9 +33,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
             container.RegisterInstance<IOptionsFactory<DebugAdapterClientOptions>>(new ValueOptionsFactory<DebugAdapterClientOptions>(options));
 
             container.RegisterInstance(
-                new InitializeRequestArguments {
+                new InitializeRequestArguments
+                {
                     Locale = options.Locale,
-                    AdapterId = options.AdapterId!,
+                    AdapterId = options.AdapterId,
                     ClientId = options.ClientId,
                     ClientName = options.ClientName,
                     PathFormat = options.PathFormat,
@@ -55,14 +58,17 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
                 setup: Setup.With(condition: req => req.IsResolutionRoot || req.Container.Resolve<IInsanceHasStarted>().Started)
             );
             container.RegisterMany<DefaultDebugAdapterClientFacade>(
-                serviceTypeCondition: type => type.IsClass || !type.Name.Contains("Proxy") && typeof(DefaultDebugAdapterClientFacade).GetInterfaces().Except(typeof(DefaultDebugAdapterClientFacade).BaseType!.GetInterfaces()).Any(z => type == z),
+                serviceTypeCondition: type => type.IsClass || ( !type.Name.Contains("Proxy") && typeof(DefaultDebugAdapterClientFacade).GetInterfaces()
+                   .Except(typeof(DefaultDebugAdapterClientFacade).BaseType!.GetInterfaces()).Any(z => type == z) ),
                 reuse: Reuse.Singleton
             );
 
             // container.
-            var providedConfiguration = options.Services.FirstOrDefault(z => z.ServiceType == typeof(IConfiguration) && z.ImplementationInstance is IConfiguration);
+            var providedConfiguration =
+                options.Services.FirstOrDefault(z => z.ServiceType == typeof(IConfiguration) && z.ImplementationInstance is IConfiguration);
             container.RegisterDelegate<IConfiguration>(
-                _ => {
+                _ =>
+                {
                     var builder = new ConfigurationBuilder();
                     if (outerServiceProvider != null)
                     {
@@ -75,7 +81,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
 
                     if (providedConfiguration != null)
                     {
-                        builder.CustomAddConfiguration((providedConfiguration.ImplementationInstance as IConfiguration)!);
+                        builder.CustomAddConfiguration(( providedConfiguration.ImplementationInstance as IConfiguration )!);
                     }
 
                     return builder.Build();
@@ -86,10 +92,14 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
             return container;
         }
 
-        public static IServiceCollection AddDebugAdapterClient(this IServiceCollection services, Action<DebugAdapterClientOptions>? configureOptions = null) =>
-            AddDebugAdapterClient(services, Options.DefaultName, configureOptions);
+        public static IServiceCollection AddDebugAdapterClient(this IServiceCollection services, Action<DebugAdapterClientOptions>? configureOptions = null)
+        {
+            return AddDebugAdapterClient(services, Options.DefaultName, configureOptions);
+        }
 
-        public static IServiceCollection AddDebugAdapterClient(this IServiceCollection services, string name, Action<DebugAdapterClientOptions>? configureOptions = null)
+        public static IServiceCollection AddDebugAdapterClient(
+            this IServiceCollection services, string name, Action<DebugAdapterClientOptions>? configureOptions = null
+        )
         {
             // If we get called multiple times we're going to remove the default server
             // and force consumers to use the resolver.
@@ -100,15 +110,21 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
                 services.RemoveAll<IDebugAdapterClientFacade>();
                 services.AddSingleton<IDebugAdapterClient>(
                     _ =>
-                        throw new NotSupportedException("DebugAdapterClient has been registered multiple times, you must use DebugAdapterClientResolver instead")
+                        throw new NotSupportedException(
+                            "DebugAdapterClient has been registered multiple times, you must use DebugAdapterClientResolver instead"
+                        )
                 );
                 services.AddSingleton<IDebugAdapterClientFacade>(
                     _ =>
-                        throw new NotSupportedException("DebugAdapterClient has been registered multiple times, you must use DebugAdapterClientResolver instead")
+                        throw new NotSupportedException(
+                            "DebugAdapterClient has been registered multiple times, you must use DebugAdapterClientResolver instead"
+                        )
                 );
                 services.AddSingleton<DebugAdapterClient>(
                     _ =>
-                        throw new NotSupportedException("DebugAdapterClient has been registered multiple times, you must use DebugAdapterClientResolver instead")
+                        throw new NotSupportedException(
+                            "DebugAdapterClient has been registered multiple times, you must use DebugAdapterClientResolver instead"
+                        )
                 );
             }
 

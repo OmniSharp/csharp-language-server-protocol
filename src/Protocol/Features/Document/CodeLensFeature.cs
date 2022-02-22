@@ -19,18 +19,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         [Parallel]
         [Method(TextDocumentNames.CodeLens, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(CodeLensRegistrationOptions)), Capability(typeof(CodeLensCapability)), Resolver(typeof(CodeLens))]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(CodeLensRegistrationOptions))]
+        [Capability(typeof(CodeLensCapability))]
+        [Resolver(typeof(CodeLens))]
         public partial record CodeLensParams : ITextDocumentIdentifierParams, IWorkDoneProgressParams, IPartialItemsRequest<CodeLensContainer, CodeLens>
         {
             /// <summary>
             /// The document to request code lens for.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; init; }
+            public TextDocumentIdentifier TextDocument { get; init; } = null!;
         }
 
         /// <summary>
@@ -43,20 +43,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
         [Parallel]
         [Method(TextDocumentNames.CodeLensResolve, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document", Name = "CodeLensResolve"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient)),
-            GenerateTypedData,
-            GenerateContainer
-        ]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document", Name = "CodeLensResolve")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [GenerateTypedData]
+        [GenerateContainer]
         [Capability(typeof(CodeLensCapability))]
         public partial record CodeLens : IRequest<CodeLens>, ICanBeResolved, IDoesNotParticipateInRegistration
         {
             /// <summary>
             /// The range in which this code lens is valid. Should only span a single line.
             /// </summary>
-            public Range Range { get; init; }
+            public Range Range { get; init; } = null!;
 
             /// <summary>
             /// The command this code lens represents.
@@ -74,7 +72,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             private string DebuggerDisplay => $"{Range}{( Command != null ? $" {Command}" : "" )}";
 
             /// <inheritdoc />
-            public override string ToString() => DebuggerDisplay;
+            public override string ToString()
+            {
+                return DebuggerDisplay;
+            }
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.CodeLensProvider))]
@@ -99,7 +100,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
                 public override StaticOptions Convert(CodeLensRegistrationOptions source)
                 {
-                    return new() {
+                    return new()
+                    {
                         ResolveProvider = source.ResolveProvider || _handlersManager.Descriptors.Any(z => z.HandlerType == typeof(ICodeLensResolveHandler)),
                         WorkDoneProgress = source.WorkDoneProgress
                     };
@@ -112,12 +114,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         [Parallel]
         [Method(WorkspaceNames.CodeLensRefresh, Direction.ServerToClient)]
-        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace"), GenerateHandlerMethods,
-         GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
         [Capability(typeof(CodeLensWorkspaceClientCapabilities))]
-        public partial record CodeLensRefreshParams : IRequest
-        {
-        }
+        public partial record CodeLensRefreshParams : IRequest;
     }
 
     namespace Client.Capabilities

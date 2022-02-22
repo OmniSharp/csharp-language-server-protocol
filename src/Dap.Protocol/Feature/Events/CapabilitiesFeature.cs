@@ -105,7 +105,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public Container<ChecksumAlgorithm>? SupportedChecksumAlgorithms { get; set; }
 
             /// <summary>
-            /// The debug adapter supports the 'restart' request. In this case a client should not implement 'restart' by terminating and relaunching the adapter but by calling the
+            /// The debug adapter supports the 'restart' request. In this case a client should not implement 'restart' by terminating and relaunching the adapter but by
+            /// calling the
             /// RestartRequest.
             /// </summary>
             [Optional]
@@ -136,7 +137,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public bool SupportTerminateDebuggee { get; set; }
 
             /// <summary>
-            /// The debug adapter supports the delayed loading of parts of the stack, which requires that both the 'startFrame' and 'levels' arguments and the 'totalFrames' result of the
+            /// The debug adapter supports the delayed loading of parts of the stack, which requires that both the 'startFrame' and 'levels' arguments and the 'totalFrames'
+            /// result of the
             /// 'StackTrace' request are supported.
             /// </summary>
             [Optional]
@@ -233,17 +235,15 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(EventNames.Capabilities, Direction.ServerToClient)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record CapabilitiesEvent : IRequest
         {
             /// <summary>
             /// The set of updated capabilities.
             /// </summary>
-            public Capabilities Capabilities { get; init; }
+            public Capabilities Capabilities { get; init; } = null!;
         }
     }
 }

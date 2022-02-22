@@ -25,7 +25,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
-using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using OmniSharp.Extensions.LanguageServer.Server.Logging;
 using OmniSharp.Extensions.LanguageServer.Shared;
@@ -35,7 +34,8 @@ using OmniSharp.Extensions.LanguageServer.Shared;
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
     [BuiltIn]
-    public partial class LanguageServer : JsonRpcServerBase, ILanguageServer, ILanguageProtocolInitializeHandler, ILanguageProtocolInitializedHandler, IAwaitableTermination
+    public partial class LanguageServer : JsonRpcServerBase, ILanguageServer, ILanguageProtocolInitializeHandler, ILanguageProtocolInitializedHandler,
+                                          IAwaitableTermination
     {
         private readonly Connection _connection;
         private ClientVersion? _clientVersion;
@@ -63,12 +63,21 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly ILookup<string, Type> _capabilityTypes;
         private readonly IResolverContext _resolverContext;
 
-        internal static IContainer CreateContainer(LanguageServerOptions options, IServiceProvider? outerServiceProvider) =>
-            JsonRpcServerContainer.Create(outerServiceProvider)
-                                  .AddLanguageServerInternals(options, outerServiceProvider);
+        internal static IContainer CreateContainer(LanguageServerOptions options, IServiceProvider? outerServiceProvider)
+        {
+            return JsonRpcServerContainer.Create(outerServiceProvider)
+                                         .AddLanguageServerInternals(options, outerServiceProvider);
+        }
 
-        public static LanguageServer Create(LanguageServerOptions options) => Create(options, null);
-        public static LanguageServer Create(Action<LanguageServerOptions> optionsAction) => Create(optionsAction, null);
+        public static LanguageServer Create(LanguageServerOptions options)
+        {
+            return Create(options, null);
+        }
+
+        public static LanguageServer Create(Action<LanguageServerOptions> optionsAction)
+        {
+            return Create(optionsAction, null);
+        }
 
         public static LanguageServer Create(Action<LanguageServerOptions> optionsAction, IServiceProvider? outerServiceProvider)
         {
@@ -77,28 +86,53 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return Create(options, outerServiceProvider);
         }
 
-        public static LanguageServer Create(LanguageServerOptions options, IServiceProvider? outerServiceProvider) =>
-            CreateContainer(options, outerServiceProvider).Resolve<LanguageServer>();
+        public static LanguageServer Create(LanguageServerOptions options, IServiceProvider? outerServiceProvider)
+        {
+            return CreateContainer(options, outerServiceProvider).Resolve<LanguageServer>();
+        }
 
-        public static Task<LanguageServer> From(LanguageServerOptions options) => From(options, null, CancellationToken.None);
-        public static Task<LanguageServer> From(Action<LanguageServerOptions> optionsAction) => From(optionsAction, null, CancellationToken.None);
-        public static Task<LanguageServer> From(LanguageServerOptions options, CancellationToken cancellationToken) => From(options, null, cancellationToken);
-        public static Task<LanguageServer> From(Action<LanguageServerOptions> optionsAction, CancellationToken cancellationToken) => From(optionsAction, null, cancellationToken);
+        public static Task<LanguageServer> From(LanguageServerOptions options)
+        {
+            return From(options, null, CancellationToken.None);
+        }
 
-        public static Task<LanguageServer> From(LanguageServerOptions options, IServiceProvider? outerServiceProvider) =>
-            From(options, outerServiceProvider, CancellationToken.None);
+        public static Task<LanguageServer> From(Action<LanguageServerOptions> optionsAction)
+        {
+            return From(optionsAction, null, CancellationToken.None);
+        }
 
-        public static Task<LanguageServer> From(Action<LanguageServerOptions> optionsAction, IServiceProvider? outerServiceProvider) =>
-            From(optionsAction, outerServiceProvider, CancellationToken.None);
+        public static Task<LanguageServer> From(LanguageServerOptions options, CancellationToken cancellationToken)
+        {
+            return From(options, null, cancellationToken);
+        }
 
-        public static Task<LanguageServer> From(Action<LanguageServerOptions> optionsAction, IServiceProvider? outerServiceProvider, CancellationToken cancellationToken)
+        public static Task<LanguageServer> From(Action<LanguageServerOptions> optionsAction, CancellationToken cancellationToken)
+        {
+            return From(optionsAction, null, cancellationToken);
+        }
+
+        public static Task<LanguageServer> From(LanguageServerOptions options, IServiceProvider? outerServiceProvider)
+        {
+            return From(options, outerServiceProvider, CancellationToken.None);
+        }
+
+        public static Task<LanguageServer> From(Action<LanguageServerOptions> optionsAction, IServiceProvider? outerServiceProvider)
+        {
+            return From(optionsAction, outerServiceProvider, CancellationToken.None);
+        }
+
+        public static Task<LanguageServer> From(
+            Action<LanguageServerOptions> optionsAction, IServiceProvider? outerServiceProvider, CancellationToken cancellationToken
+        )
         {
             var options = new LanguageServerOptions();
             optionsAction(options);
             return From(options, outerServiceProvider, cancellationToken);
         }
 
-        public static async Task<LanguageServer> From(LanguageServerOptions options, IServiceProvider? outerServiceProvider, CancellationToken cancellationToken)
+        public static async Task<LanguageServer> From(
+            LanguageServerOptions options, IServiceProvider? outerServiceProvider, CancellationToken cancellationToken
+        )
         {
             var server = Create(options, outerServiceProvider);
             await server.Initialize(cancellationToken).ConfigureAwait(false);
@@ -112,7 +146,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         /// </summary>
         /// <param name="optionsAction"></param>
         /// <returns></returns>
-        public static LanguageServer PreInit(Action<LanguageServerOptions> optionsAction) => Create(optionsAction);
+        public static LanguageServer PreInit(Action<LanguageServerOptions> optionsAction)
+        {
+            return Create(optionsAction);
+        }
 
         /// <summary>
         /// Create the server without connecting to the client
@@ -121,7 +158,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         /// </summary>
         /// <param name="options"></param>
         /// <returns></returns>
-        public static LanguageServer PreInit(LanguageServerOptions options) => Create(options);
+        public static LanguageServer PreInit(LanguageServerOptions options)
+        {
+            return Create(options);
+        }
 
         internal LanguageServer(
             Connection connection,
@@ -358,9 +398,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _supportedCapabilities.Initialize(clientCapabilities);
             foreach (var group in _capabilityTypes)
             {
-                foreach (var capabilityType in @group)
+                foreach (var capabilityType in group)
                 {
-                    if (request.Capabilities.SelectToken(@group.Key) is JObject capabilityData)
+                    if (request.Capabilities.SelectToken(group.Key) is JObject capabilityData)
                     {
                         var capability = capabilityData.ToObject(capabilityType) as ICapability;
                         _supportedCapabilities.Add(capability!);
@@ -461,7 +501,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                                .Select(x => x.Handler)
                                .OfType<IDidChangeTextDocumentHandler>()
                                .Select(
-                                    x => ( (TextDocumentChangeRegistrationOptions?) x.GetRegistrationOptions(textDocumentCapabilities.Synchronization!, clientCapabilities) )
+                                    x => ( (TextDocumentChangeRegistrationOptions?)x.GetRegistrationOptions(
+                                             textDocumentCapabilities.Synchronization!, clientCapabilities
+                                         ) )
                                        ?.SyncKind
                                       ?? TextDocumentSyncKind.None
                                 )
@@ -479,7 +521,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 }
                 else
                 {
-                    serverCapabilities.TextDocumentSync = new TextDocumentSyncOptions {
+                    serverCapabilities.TextDocumentSync = new TextDocumentSyncOptions
+                    {
                         Change = textDocumentSyncKind,
                         OpenClose = _collection.ContainsHandler(typeof(IDidOpenTextDocumentHandler)) ||
                                     _collection.ContainsHandler(typeof(IDidCloseTextDocumentHandler)),
@@ -495,7 +538,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             // TODO: Need a call back here
             // serverCapabilities.Experimental;
 
-            var result = ServerSettings = new InitializeResult {
+            var result = ServerSettings = new InitializeResult
+            {
                 Capabilities = serverCapabilities,
                 ServerInfo = _serverInfo
             };
@@ -523,10 +567,15 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 LanguageServerHelpers.InitHandlers(this, result, _supportedCapabilities);
             }
 
-            return LanguageServerHelpers.RegisterHandlers(_initializeComplete.Select(_ => System.Reactive.Unit.Default), Client, WorkDoneManager, _supportedCapabilities, result);
+            return LanguageServerHelpers.RegisterHandlers(
+                _initializeComplete.Select(_ => System.Reactive.Unit.Default), Client, WorkDoneManager, _supportedCapabilities, result
+            );
             //            return LanguageServerHelpers.RegisterHandlers(_initializingTask ?? _initializeComplete.ToTask(), Client, WorkDoneManager, _supportedCapabilities, result);
         }
 
-        object IServiceProvider.GetService(Type serviceType) => Services.GetService(serviceType);
+        object IServiceProvider.GetService(Type serviceType)
+        {
+            return Services.GetService(serviceType);
+        }
     }
 }
