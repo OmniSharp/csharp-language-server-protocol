@@ -1,7 +1,18 @@
 [*]
 dotnet_diagnostic.CA2007.severity = none
 dotnet_diagnostic.CS0618.severity = none
+dotnet_diagnostic.CS0168.severity = none
+dotnet_diagnostic.CS0105.severity = none
 dotnet_diagnostic.CS4014.severity = none
+dotnet_diagnostic.CS0162.severity = none
+dotnet_diagnostic.CS8602.severity = none
+dotnet_diagnostic.CS8604.severity = none
+dotnet_diagnostic.CS8618.severity = none
+dotnet_diagnostic.CS8619.severity = none
+dotnet_diagnostic.CS8620.severity = none
+dotnet_diagnostic.CS8625.severity = none
+dotnet_diagnostic.CS8762.severity = none
+dotnet_diagnostic.CS8767.severity = none
 dotnet_diagnostic.CS1998.severity = none
 dotnet_diagnostic.VSTHRD003.severity = none
 dotnet_diagnostic.VSTHRD103.severity = none
