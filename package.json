@@ -4,7 +4,7 @@
         "@prettier/plugin-xml": "1.2.0",
         "husky": "7.0.4",
         "lint-staged": "12.3.4",
-        "prettier": "2.5.1"
+        "prettier": "2.6.2"
     },
     "scripts": {
         "prepare": "husky install"
