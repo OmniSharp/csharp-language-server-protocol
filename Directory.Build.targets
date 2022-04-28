@@ -40,7 +40,7 @@
     <PackageReference Update="System.Threading.Channels" Version="4.7.1" />
     <PackageReference Update="Microsoft.Reactive.Testing" Version="4.4.1" />
     <PackageReference Update="MediatR" Version="8.1.0" />
-    <PackageReference Update="Bogus" Version="34.0.1" />
+    <PackageReference Update="Bogus" Version="34.0.2" />
     <PackageReference Update="Snapper" Version="2.3.1" />
     <PackageReference Update="Xunit.SkippableFact" Version="1.4.13" />
     <PackageReference Update="Nerdbank.Streams" Version="2.8.57" />
