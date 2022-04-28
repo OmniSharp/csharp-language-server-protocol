@@ -35,7 +35,7 @@
     <PackageVersion Include="Microsoft.Extensions.Options" Version="6.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-    <PackageVersion Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.4.3" />
     <PackageVersion Include="xunit" Version="2.4.1" />
