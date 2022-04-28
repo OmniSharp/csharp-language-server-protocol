@@ -79,7 +79,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.4.2
+        uses: actions/checkout@v3.0.2
         with:
           clean: 'false'
           fetch-depth: '0'
@@ -87,18 +87,18 @@ jobs:
         run: |
           git fetch --prune
       - name: NuGet Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: '${{ github.workspace }}/.nuget/packages'
           key: "${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props') }}-${{ hashFiles('**/Directory.Packages.support.props') }}"
           restore-keys: |
             ${{ runner.os }}-nuget-
       - name: 🔨 Use .NET Core 3.1 SDK
-        uses: actions/setup-dotnet@v1.9.1
+        uses: actions/setup-dotnet@v2.0.0
         with:
           dotnet-version: '3.1.x'
       - name: 🔨 Use .NET Core 6.0 SDK
-        uses: actions/setup-dotnet@v1.9.1
+        uses: actions/setup-dotnet@v2.0.0
         with:
           dotnet-version: '6.0.x'
       - name: 🎁 dotnet tool restore
@@ -117,36 +117,36 @@ jobs:
         run: |
           dotnet nuke Pack --skip
       - name: 🐿 Publish Coverage
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
         with:
           name: 'actions-${{ matrix.os }}'
       - name: 🏺 Publish logs
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: 'logs'
           path: 'artifacts/logs/'
       - name: 🏺 Publish coverage data
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: 'coverage'
           path: 'coverage/'
       - name: 🏺 Publish test data
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: 'test data'
           path: 'artifacts/test/'
       - name: 🏺 Publish NuGet Packages
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: 'nuget'
           path: 'artifacts/nuget/'
       - name: 🏺 Publish Docs
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: 'docs'
           path: 'artifacts/docs/'
