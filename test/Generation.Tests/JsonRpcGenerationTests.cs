@@ -1,8 +1,6 @@
-using System;
 using System.Threading.Tasks;
 using FluentAssertions;
 using OmniSharp.Extensions.JsonRpc.Generators;
-using TestingUtils;
 using Xunit;
 using Xunit.Sdk;
 using static Generation.Tests.GenerationHelpers;
@@ -205,7 +203,7 @@ namespace Test
     }
 }";
 
-            Func<Task> a = () => AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, "");
+            var a = () => AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, "");
             await a.Should().ThrowAsync<EmptyException>().WithMessage("*Could not infer the request router(s)*");
             await a.Should().ThrowAsync<EmptyException>("cache").WithMessage("*Could not infer the request router(s)*");
         }

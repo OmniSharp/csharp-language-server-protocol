@@ -11,11 +11,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.Scopes, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record ScopesArguments : IRequest<ScopesResponse>
         {
             /// <summary>
@@ -29,7 +27,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// The scopes of the stackframe.If the array has length zero, there are no scopes available.
             /// </summary>
-            public Container<Scope> Scopes { get; init; }
+            public Container<Scope> Scopes { get; init; } = null!;
         }
     }
 
@@ -43,7 +41,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// Name of the scope such as 'Arguments', 'Locals', or 'Registers'. This string is shown in the UI as is and can be translated.
             /// </summary>
-            public string Name { get; init; }
+            public string Name { get; init; } = null!;
 
             /// <summary>
             /// An optional hint for how to present this scope in the UI. If this attribute is missing, the scope is shown with a generic UI.

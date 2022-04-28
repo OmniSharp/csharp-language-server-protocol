@@ -10,17 +10,15 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.SetDataBreakpoints, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record SetDataBreakpointsArguments : IRequest<SetDataBreakpointsResponse>
         {
             /// <summary>
             /// The contents of this array replaces all existing data breakpoints. An empty array clears all data breakpoints.
             /// </summary>
-            public Container<DataBreakpoint> Breakpoints { get; init; }
+            public Container<DataBreakpoint> Breakpoints { get; init; } = null!;
         }
 
         public record SetDataBreakpointsResponse
@@ -28,7 +26,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// Information about the data breakpoints.The array elements correspond to the elements of the input argument 'breakpoints' array.
             /// </summary>
-            public Container<Breakpoint> Breakpoints { get; init; }
+            public Container<Breakpoint> Breakpoints { get; init; } = null!;
         }
     }
 }

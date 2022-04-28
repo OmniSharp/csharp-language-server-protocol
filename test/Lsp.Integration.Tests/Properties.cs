@@ -1,3 +1,3 @@
-using System;
+using Xunit;
 
-[assembly: Xunit.CollectionBehavior(MaxParallelThreads = 10)]
+[assembly: CollectionBehavior(MaxParallelThreads = 10)]

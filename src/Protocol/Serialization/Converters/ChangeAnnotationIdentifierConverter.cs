@@ -4,7 +4,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    internal class ChangeAnnotationIdentifierConverter : JsonConverter<ChangeAnnotationIdentifier>
+    internal class ChangeAnnotationIdentifierConverter : JsonConverter<ChangeAnnotationIdentifier?>
     {
         public override ChangeAnnotationIdentifier? ReadJson(
             JsonReader reader, Type objectType, ChangeAnnotationIdentifier? existingValue,

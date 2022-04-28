@@ -11,17 +11,15 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.Evaluate, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record EvaluateArguments : IRequest<EvaluateResponse>
         {
             /// <summary>
             /// The expression to evaluate.
             /// </summary>
-            public string Expression { get; init; }
+            public string Expression { get; init; } = null!;
 
             /// <summary>
             /// Evaluate the expression in the scope of this stack frame. If not specified, the expression is evaluated in the global scope.
@@ -61,7 +59,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// The result of the evaluate request.
             /// </summary>
-            public string Result { get; init; }
+            public string Result { get; init; } = null!;
 
             /// <summary>
             /// The optional type of the evaluate result.
@@ -95,7 +93,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public long? IndexedVariables { get; init; }
 
             /// <summary>
-            /// Memory reference to a location appropriate for this result.For pointer type eval results, this is generally a reference to the memory address contained in the pointer.
+            /// Memory reference to a location appropriate for this result.For pointer type eval results, this is generally a reference to the memory address contained in the
+            /// pointer.
             /// </summary>
             [Optional]
             public string? MemoryReference { get; init; }

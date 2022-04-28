@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO.Pipelines;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Text;
 using System.Threading;
 using System.Threading.Channels;
@@ -30,7 +28,6 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly TaskCompletionSource<object?> _outputIsFinished;
         private readonly CompositeDisposable _disposable;
         private bool _delayComplete;
-        private readonly CancellationTokenSource _stopProcessing;
         private readonly Channel<object> _channel;
         private readonly ChannelWriter<object> _writer;
 
@@ -52,7 +49,8 @@ namespace OmniSharp.Extensions.JsonRpc
             _outputIsFinished = new TaskCompletionSource<object?>();
 
             _channel = Channel.CreateUnbounded<object>(
-                new UnboundedChannelOptions() {
+                new UnboundedChannelOptions
+                {
                     AllowSynchronousContinuations = true,
                     SingleReader = true,
                     SingleWriter = false
@@ -61,11 +59,12 @@ namespace OmniSharp.Extensions.JsonRpc
             _queue = _channel.Reader;
             _writer = _channel.Writer;
 
-            _stopProcessing = new CancellationTokenSource();
-            _disposable = new CompositeDisposable {
-                Disposable.Create(() => _stopProcessing.Cancel()),
-                _stopProcessing,
-                Observable.FromAsync(() => ProcessOutputStream(_stopProcessing.Token))
+            var stopProcessing = new CancellationTokenSource();
+            _disposable = new CompositeDisposable
+            {
+                Disposable.Create(() => stopProcessing.Cancel()),
+                stopProcessing,
+                Observable.FromAsync(() => ProcessOutputStream(stopProcessing.Token))
                           .Do(_ => { }, e => _logger.LogCritical(e, "unhandled exception"))
                           .Subscribe()
             };
@@ -141,7 +140,8 @@ namespace OmniSharp.Extensions.JsonRpc
                     // TODO: this will be part of the serialization refactor to make streaming first class
                     var content = _serializer.SerializeObject(value);
                     var contentBytes = Encoding.UTF8.GetBytes(content).AsMemory();
-                    await _pipeWriter.WriteAsync(Encoding.UTF8.GetBytes($"Content-Length: {contentBytes.Length}\r\n\r\n"), cancellationToken).ConfigureAwait(false);
+                    await _pipeWriter.WriteAsync(Encoding.UTF8.GetBytes($"Content-Length: {contentBytes.Length}\r\n\r\n"), cancellationToken)
+                                     .ConfigureAwait(false);
                     await _pipeWriter.WriteAsync(contentBytes, cancellationToken).ConfigureAwait(false);
                     await _pipeWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
                 } while (true);
@@ -163,7 +163,10 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
-        public Task WaitForShutdown() => _outputIsFinished.Task;
+        public Task WaitForShutdown()
+        {
+            return _outputIsFinished.Task;
+        }
 
         private void Error(Exception ex)
         {

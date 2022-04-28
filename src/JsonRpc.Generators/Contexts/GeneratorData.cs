@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -8,7 +7,7 @@ using static OmniSharp.Extensions.JsonRpc.Generators.Helpers;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
 {
-    abstract record GeneratorData(
+    internal abstract record GeneratorData(
         TypeDeclarationSyntax TypeDeclaration,
         INamedTypeSymbol TypeSymbol,
         JsonRpcAttributes JsonRpcAttributes,
@@ -91,7 +90,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                              && tds.AttributeLists.ContainsAttribute("GenerateHandler")
                        )?.GetSyntax() is TypeDeclarationSyntax declarationSyntax)
             {
-                return Create(parent.Compilation, declarationSyntax, parent.Compilation.GetSemanticModel(declarationSyntax.SyntaxTree), parent.AdditionalUsings) as RequestItem; }
+                return Create(
+                    parent.Compilation, declarationSyntax, parent.Compilation.GetSemanticModel(declarationSyntax.SyntaxTree), parent.AdditionalUsings
+                ) as RequestItem;
+            }
 
             return null;
         }

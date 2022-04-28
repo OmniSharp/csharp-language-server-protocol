@@ -1,6 +1,5 @@
 ﻿using System;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 {
@@ -13,8 +12,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             return serializer.Deserialize<TTo>(reader);
         }
 
-        public override bool CanConvert(Type objectType) => objectType == typeof(TFrom);
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) => throw new NotImplementedException();
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(TFrom);
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+
         public override bool CanWrite => false;
     }
 }

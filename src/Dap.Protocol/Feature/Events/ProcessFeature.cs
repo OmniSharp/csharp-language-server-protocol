@@ -10,17 +10,15 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(EventNames.Process, Direction.ServerToClient)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record ProcessEvent : IRequest
         {
             /// <summary>
             /// The logical name of the process. This is usually the full path to process's executable file. Example: /home/example/myproj/program.js.
             /// </summary>
-            public string Name { get; init; }
+            public string Name { get; init; } = null!;
 
             /// <summary>
             /// The system process id of the debugged process. This property will be missing for non-system processes.

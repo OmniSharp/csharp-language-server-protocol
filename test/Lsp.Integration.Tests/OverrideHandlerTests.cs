@@ -12,11 +12,10 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
-using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Lsp.Tests.Integration
+namespace Lsp.Integration.Tests
 {
     public class OverrideHandlerTests : LanguageProtocolTestBase
     {
@@ -28,15 +27,12 @@ namespace Lsp.Tests.Integration
         public async Task Should_Support_Custom_Execute_Command_Handlers()
         {
             var (client, _) = await Initialize(
-                options => {
-
-                }, options => {
-                    options.AddHandler<CustomExecuteCommandHandler>();
-                }
+                options => { }, options => { options.AddHandler<CustomExecuteCommandHandler>(); }
             );
 
             var response = await client.SendRequest(
-                new CustomExecuteCommandParams() {
+                new CustomExecuteCommandParams
+                {
                     Command = "mycommand",
                 }, CancellationToken
             );
@@ -48,23 +44,24 @@ namespace Lsp.Tests.Integration
         public async Task Should_Support_Mixed_Execute_Command_Handlers()
         {
             var (client, _) = await Initialize(
-                options => {
-
-                }, options => {
+                options => { }, options =>
+                {
                     options.AddHandler<CustomExecuteCommandHandler>();
                     options.OnExecuteCommand<JObject>("myothercommand", (a, ct) => Unit.Task);
                 }
             );
 
             var normalResponse = await client.SendRequest(
-                new ExecuteCommandParams() {
+                new ExecuteCommandParams
+                {
                     Command = "myothercommand",
                     Arguments = new JArray(new JObject())
                 }, CancellationToken
             );
 
             var customResponse = await client.SendRequest(
-                new CustomExecuteCommandParams() {
+                new CustomExecuteCommandParams
+                {
                     Command = "mycommand",
                 }, CancellationToken
             );
@@ -75,11 +72,14 @@ namespace Lsp.Tests.Integration
     }
 
     [Method(WorkspaceNames.ExecuteCommand)]
-    public class CustomExecuteCommandHandler : IJsonRpcRequestHandler<CustomExecuteCommandParams, JToken>, IRegistration<ExecuteCommandRegistrationOptions, ExecuteCommandCapability>
+    public class CustomExecuteCommandHandler : IJsonRpcRequestHandler<CustomExecuteCommandParams, JToken>,
+                                               IRegistration<ExecuteCommandRegistrationOptions, ExecuteCommandCapability>
     {
         // ReSharper disable once NotAccessedField.Local
         private ExecuteCommandCapability? _capability;
-        private readonly ExecuteCommandRegistrationOptions _executeCommandRegistrationOptions = new ExecuteCommandRegistrationOptions() {
+
+        private readonly ExecuteCommandRegistrationOptions _executeCommandRegistrationOptions = new ExecuteCommandRegistrationOptions
+        {
             WorkDoneProgress = true,
             Commands = new Container<string>("mycommand")
         };

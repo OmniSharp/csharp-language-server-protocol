@@ -9,7 +9,6 @@ using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Testing;
-using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -50,13 +49,16 @@ namespace JsonRpc.Tests
         {
             var (client, server) = await Initialize(
                 clientOptions => { clientOptions.OnRequest("myrequest", async (Request request) => new Data { Value = "myresponse" }); },
-                serverOptions => { serverOptions.OnRequest("myrequest", async (Request request) => new Data { Value = string.Join("", "myresponse".Reverse()) }); }
+                serverOptions =>
+                {
+                    serverOptions.OnRequest("myrequest", async (Request request) => new Data { Value = string.Join("", "myresponse".Reverse()) });
+                }
             );
 
-            Func<Task> clientRequest = () => client.SendRequest("myrequest", (Request) null!).Returning<Data>(CancellationToken);
+            Func<Task> clientRequest = () => client.SendRequest("myrequest", (Request)null!).Returning<Data>(CancellationToken);
             await clientRequest.Should().ThrowAsync<InvalidParametersException>();
 
-            Func<Task> serverRequest = () => server.SendRequest("myrequest", (Request) null!).Returning<Data>(CancellationToken);
+            Func<Task> serverRequest = () => server.SendRequest("myrequest", (Request)null!).Returning<Data>(CancellationToken);
             await serverRequest.Should().ThrowAsync<InvalidParametersException>();
         }
 
@@ -64,8 +66,8 @@ namespace JsonRpc.Tests
         public async Task Should_throw_when_receiving_requests()
         {
             var (client, server) = await Initialize(
-                clientOptions => { clientOptions.OnRequest("myrequest", async (Request request) => (Data) null!); },
-                serverOptions => { serverOptions.OnRequest("myrequest", async (Request request) => (Data) null!); }
+                clientOptions => { clientOptions.OnRequest("myrequest", async (Request request) => (Data)null!); },
+                serverOptions => { serverOptions.OnRequest("myrequest", async (Request request) => (Data)null!); }
             );
 
             Func<Task> clientRequest = () => client.SendRequest("myrequest", new Request()).Returning<Data>(CancellationToken);
@@ -81,17 +83,21 @@ namespace JsonRpc.Tests
             var clientNotification = new AsyncSubject<Data>();
             var serverNotification = new AsyncSubject<Data>();
             var (client, server) = await Initialize(
-                clientOptions => {
+                clientOptions =>
+                {
                     clientOptions.OnNotification(
-                        "mynotification", (Data data) => {
+                        "mynotification", (Data data) =>
+                        {
                             clientNotification.OnNext(data);
                             clientNotification.OnCompleted();
                         }
                     );
                 },
-                serverOptions => {
+                serverOptions =>
+                {
                     serverOptions.OnNotification(
-                        "mynotification", (Data data) => {
+                        "mynotification", (Data data) =>
+                        {
                             serverNotification.OnNext(data);
                             serverNotification.OnCompleted();
                         }
@@ -112,17 +118,21 @@ namespace JsonRpc.Tests
         public async Task Should_Send_and_cancel_requests_immediate()
         {
             var (client, server) = await Initialize(
-                clientOptions => {
+                clientOptions =>
+                {
                     clientOptions.OnRequest(
-                        "myrequest", async ct => {
+                        "myrequest", async ct =>
+                        {
                             await Task.Delay(TimeSpan.FromMinutes(1), ct);
                             return new Data { Value = "myresponse" };
                         }
                     );
                 },
-                serverOptions => {
+                serverOptions =>
+                {
                     serverOptions.OnRequest(
-                        "myrequest", async ct => {
+                        "myrequest", async ct =>
+                        {
                             await Task.Delay(TimeSpan.FromMinutes(1), ct);
                             return new Data { Value = string.Join("", "myresponse".Reverse()) };
                         }
@@ -148,17 +158,21 @@ namespace JsonRpc.Tests
         public async Task Should_Send_and_cancel_requests_from_otherside()
         {
             var (client, server) = await Initialize(
-                clientOptions => {
+                clientOptions =>
+                {
                     clientOptions.OnRequest(
-                        "myrequest", async ct => {
+                        "myrequest", async ct =>
+                        {
                             await Task.Delay(TimeSpan.FromMinutes(1), ct);
                             return new Data { Value = "myresponse" };
                         }
                     );
                 },
-                serverOptions => {
+                serverOptions =>
+                {
                     serverOptions.OnRequest(
-                        "myrequest", async ct => {
+                        "myrequest", async ct =>
+                        {
                             await Task.Delay(TimeSpan.FromMinutes(1), ct);
                             return new Data { Value = string.Join("", "myresponse".Reverse()) };
                         }
@@ -185,10 +199,12 @@ namespace JsonRpc.Tests
         public async Task Should_Cancel_Parallel_Requests_When_Options_Are_Given()
         {
             var (client, server) = await Initialize(
-                clientOptions => {
+                clientOptions =>
+                {
                     clientOptions.OnRequest(
                         "parallelrequest",
-                        async ct => {
+                        async ct =>
+                        {
                             await Task.Delay(TimeSpan.FromSeconds(10), ct);
                             return new Data { Value = "myresponse" };
                         },
@@ -200,10 +216,12 @@ namespace JsonRpc.Tests
                         new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial }
                     );
                 },
-                serverOptions => {
+                serverOptions =>
+                {
                     serverOptions.OnRequest(
                         "parallelrequest",
-                        async ct => {
+                        async ct =>
+                        {
                             await Task.Delay(TimeSpan.FromSeconds(10), ct);
                             return new Data { Value = "myresponse" };
                         },
@@ -236,13 +254,15 @@ namespace JsonRpc.Tests
         public async Task Should_Link_Request_A_to_Request_B()
         {
             var (client, server) = await Initialize(
-                clientOptions => {
+                clientOptions =>
+                {
                     clientOptions
                        .OnRequest("myrequest", async () => new Data { Value = "myresponse" })
                        .WithLink("myrequest", "myrequest2")
                         ;
                 },
-                serverOptions => {
+                serverOptions =>
+                {
                     serverOptions
                        .OnRequest("myrequest", async () => new Data { Value = string.Join("", "myresponse".Reverse()) })
                        .WithLink("myrequest", "myrequest2")

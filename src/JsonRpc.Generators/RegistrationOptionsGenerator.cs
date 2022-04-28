@@ -15,7 +15,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
     [Generator]
     public class RegistrationOptionsGenerator : IIncrementalGenerator
     {
-        private static string[] RequiredUsings =
+        private static readonly string[] RequiredUsings =
         {
             "OmniSharp.Extensions.LanguageServer.Protocol",
             "OmniSharp.Extensions.LanguageServer.Protocol.Serialization",
@@ -26,11 +26,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             INamedTypeSymbol RegistrationOptionsInterfaceSymbol, INamedTypeSymbol TextDocumentRegistrationOptionsInterfaceSymbol,
             INamedTypeSymbol WorkDoneProgressOptionsInterfaceSymbol, INamedTypeSymbol StaticRegistrationOptionsInterfaceSymbol
         );
+
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
             var attributes = context.CompilationProvider
                                     .Select(
-                                         (compilation, token) =>
+                                         (compilation, _) =>
                                          {
                                              var registrationOptionsInterfaceSymbol =
                                                  compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions")!;
@@ -53,16 +54,16 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                          }
                                      );
             var syntaxProvider = context.SyntaxProvider.CreateSyntaxProvider(
-                                             predicate: (syntaxNode, token) =>
+                                             (syntaxNode, _) =>
                                                  syntaxNode is TypeDeclarationSyntax tds and (ClassDeclarationSyntax or RecordDeclarationSyntax)
                                               && tds.AttributeLists
                                                     .SelectMany(z => z.Attributes)
                                                     .Any(z => z.Name.ToFullString().Contains("GenerateRegistrationOptions")),
-                                             (syntaxContext, token) => syntaxContext
+                                             (syntaxContext, _) => syntaxContext
                                          )
                                         .Combine(context.CompilationProvider)
                                         .Select(
-                                             (tuple, token) =>
+                                             (tuple, _) =>
                                              {
                                                  var (syntaxContext, compilation) = tuple;
                                                  var typeSymbol = syntaxContext.SemanticModel.GetDeclaredSymbol((TypeDeclarationSyntax)syntaxContext.Node);
@@ -75,13 +76,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                  return data is not { }
                                                      ? default!
                                                      : ( registrationOptions: (TypeDeclarationSyntax)syntaxContext.Node,
-                                                         semanticModel: syntaxContext.SemanticModel, typeSymbol: typeSymbol, data: data! );
+                                                         semanticModel: syntaxContext.SemanticModel, typeSymbol, data: data! );
                                              }
                                          )
                                         .Where(z => z is { data: { } })
                                         .Combine(attributes)
                                         .Select(
-                                             (tuple, token) => (
+                                             (tuple, _) => (
                                                  tuple.Left.registrationOptions, tuple.Left.data, tuple.Left.semanticModel, tuple.Left.typeSymbol,
                                                  attributes: tuple.Right )
                                          )
@@ -91,8 +92,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             context.RegisterSourceOutput(
                 syntaxProvider
                    .Select(
-                        (tuple, token) => ( namespaces: tuple.typeSymbol.ContainingNamespace.ToDisplayString(),
-                                            AttributeArgument(TypeOfExpression(IdentifierName(tuple.typeSymbol.Name))) )
+                        (tuple, _) => ( namespaces: tuple.typeSymbol.ContainingNamespace.ToDisplayString(),
+                                        AttributeArgument(TypeOfExpression(IdentifierName(tuple.typeSymbol.Name))) )
                     )
                    .Collect(), GenerateAssemblyRegistrationOptions
             );
@@ -128,7 +129,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                                      .WithMembers(List<MemberDeclarationSyntax>());
 
 
-                var staticRegistrationOptions = registrationOptions.WithIdentifier(Identifier($"StaticOptions"))
+                var staticRegistrationOptions = registrationOptions.WithIdentifier(Identifier("StaticOptions"))
                                                                    .WithMembers(
                                                                         List<MemberDeclarationSyntax>(
                                                                             registrationOptions.Members.OfType<PropertyDeclarationSyntax>()
@@ -247,7 +248,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
                 extendedRegistrationOptions = extendedRegistrationOptions.AddMembers(staticRegistrationOptions);
 
-                var members = new List<MemberDeclarationSyntax>() { extendedRegistrationOptions };
+                var members = new List<MemberDeclarationSyntax> { extendedRegistrationOptions };
 
                 var cu = CompilationUnit()
                         .WithUsings(registrationOptions.SyntaxTree.GetCompilationUnitRoot().Usings)
@@ -282,7 +283,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             SourceProductionContext context, ImmutableArray<(string @namespace, AttributeArgumentSyntax argumentSyntax)> types
         )
         {
-            var namespaces = new HashSet<string>() { "OmniSharp.Extensions.LanguageServer.Protocol" };
+            var namespaces = new HashSet<string> { "OmniSharp.Extensions.LanguageServer.Protocol" };
             if (types.Any())
             {
                 foreach (var item in types)
@@ -294,7 +295,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                         .WithUsings(List(namespaces.OrderBy(z => z).Select(z => UsingDirective(ParseName(z)))))
                         .AddAttributeLists(
                              AttributeList(
-                                 target: AttributeTargetSpecifier(Token(SyntaxKind.AssemblyKeyword)),
+                                 AttributeTargetSpecifier(Token(SyntaxKind.AssemblyKeyword)),
                                  SingletonSeparatedList(
                                      Attribute(
                                          IdentifierName("AssemblyRegistrationOptions"),
@@ -309,7 +310,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         }
 
 
-        static TypeDeclarationSyntax ExtendAndImplementInterface(TypeDeclarationSyntax syntax, ITypeSymbol symbolToExtendFrom)
+        private static TypeDeclarationSyntax ExtendAndImplementInterface(TypeDeclarationSyntax syntax, ITypeSymbol symbolToExtendFrom)
         {
             return syntax switch
             {
@@ -319,7 +320,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             };
         }
 
-        static PropertyDeclarationSyntax GetWorkDoneProperty()
+        private static PropertyDeclarationSyntax GetWorkDoneProperty()
         {
             return PropertyDeclaration(PredefinedType(Token(SyntaxKind.BoolKeyword)), Identifier("WorkDoneProgress"))
                   .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
@@ -333,7 +334,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                   .WithAccessorList(CommonElements.GetSetAccessor);
         }
 
-        static PropertyDeclarationSyntax GetIdProperty()
+        private static PropertyDeclarationSyntax GetIdProperty()
         {
             return PropertyDeclaration(NullableType(PredefinedType(Token(SyntaxKind.StringKeyword))), Identifier("Id"))
                   .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))

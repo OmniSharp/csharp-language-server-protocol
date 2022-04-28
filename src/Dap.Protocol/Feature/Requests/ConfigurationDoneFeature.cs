@@ -9,17 +9,11 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.ConfigurationDone, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
-        public record ConfigurationDoneArguments : IRequest<ConfigurationDoneResponse>
-        {
-        }
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
+        public record ConfigurationDoneArguments : IRequest<ConfigurationDoneResponse>;
 
-        public record ConfigurationDoneResponse
-        {
-        }
+        public record ConfigurationDoneResponse;
     }
 }

@@ -18,18 +18,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         [Parallel]
         [Method(TextDocumentNames.DocumentLink, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(DocumentLinkRegistrationOptions)), Capability(typeof(DocumentLinkCapability)), Resolver(typeof(DocumentLink))]
-        public partial record DocumentLinkParams : ITextDocumentIdentifierParams, IPartialItemsRequest<DocumentLinkContainer, DocumentLink>, IWorkDoneProgressParams
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(DocumentLinkRegistrationOptions))]
+        [Capability(typeof(DocumentLinkCapability))]
+        [Resolver(typeof(DocumentLink))]
+        public partial record DocumentLinkParams : ITextDocumentIdentifierParams, IPartialItemsRequest<DocumentLinkContainer, DocumentLink>,
+                                                   IWorkDoneProgressParams
         {
             /// <summary>
             /// The document to provide document links for.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; init; }
+            public TextDocumentIdentifier TextDocument { get; init; } = null!;
         }
 
         /// <summary>
@@ -39,20 +40,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Parallel]
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
         [Method(TextDocumentNames.DocumentLinkResolve, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document", Name = "DocumentLinkResolve"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient)),
-            GenerateTypedData,
-            GenerateContainer
-        ]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document", Name = "DocumentLinkResolve")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [GenerateTypedData]
+        [GenerateContainer]
         [Capability(typeof(DocumentLinkCapability))]
         public partial record DocumentLink : ICanBeResolved, IRequest<DocumentLink>, IDoesNotParticipateInRegistration
         {
             /// <summary>
             /// The range this link applies to.
             /// </summary>
-            public Range Range { get; init; }
+            public Range Range { get; init; } = null!;
 
             /// <summary>
             /// The uri this link points to. If missing a resolve request is sent later.
@@ -79,10 +78,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             [Optional]
             public string? Tooltip { get; init; }
 
-            private string DebuggerDisplay => $"{Range}{( Target is not null ? $" {Target}" : "" )}{( string.IsNullOrWhiteSpace(Tooltip) ? $" {Tooltip}" : "" )}";
+            private string DebuggerDisplay =>
+                $"{Range}{( Target is not null ? $" {Target}" : "" )}{( string.IsNullOrWhiteSpace(Tooltip) ? $" {Tooltip}" : "" )}";
 
             /// <inheritdoc />
-            public override string ToString() => DebuggerDisplay;
+            public override string ToString()
+            {
+                return DebuggerDisplay;
+            }
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.DocumentLinkProvider))]
@@ -96,7 +99,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             [Optional]
             public bool ResolveProvider { get; set; }
 
-            class DocumentLinkRegistrationOptionsConverter : RegistrationOptionsConverterBase<DocumentLinkRegistrationOptions, StaticOptions>
+            private class DocumentLinkRegistrationOptionsConverter : RegistrationOptionsConverterBase<DocumentLinkRegistrationOptions, StaticOptions>
             {
                 private readonly IHandlersManager _handlersManager;
 
@@ -105,10 +108,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     _handlersManager = handlersManager;
                 }
 
-                public override StaticOptions Convert(DocumentLinkRegistrationOptions source) => new() {
-                    ResolveProvider = source.ResolveProvider || _handlersManager.Descriptors.Any(z => z.HandlerType == typeof(IDocumentLinkResolveHandler)),
-                    WorkDoneProgress = source.WorkDoneProgress,
-                };
+                public override StaticOptions Convert(DocumentLinkRegistrationOptions source)
+                {
+                    return new()
+                    {
+                        ResolveProvider = source.ResolveProvider || _handlersManager.Descriptors.Any(z => z.HandlerType == typeof(IDocumentLinkResolveHandler)),
+                        WorkDoneProgress = source.WorkDoneProgress,
+                    };
+                }
             }
         }
     }

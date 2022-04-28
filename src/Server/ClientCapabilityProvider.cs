@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Shared;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
@@ -17,8 +15,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly bool _supportsProgress;
 
         public ClientCapabilityProvider(
-        IHandlerCollection collection,
-            bool supportsProgress)
+            IHandlerCollection collection,
+            bool supportsProgress
+        )
         {
             _collection = collection;
             _supportsProgress = supportsProgress;
@@ -31,11 +30,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             // However if the client does not tell us it's capabilities we should just assume that they do not support
             // dynamic registrations but we should report any capabilities statically
             if (capability.IsSupported && capability.Value != null && capability.Value.DynamicRegistration) return false;
-            return _collection.Any(z => z.HasCapability &&z.CapabilityType == typeof(T));
+            return _collection.Any(z => z.HasCapability && z.CapabilityType == typeof(T));
         }
 
         public IOptionsGetter GetStaticOptions<T>(Supports<T> capability) where T : DynamicCapability
-            => !HasStaticHandler(capability) ? Null : new OptionsGetter(_collection, _supportsProgress);
+        {
+            return !HasStaticHandler(capability) ? Null : new OptionsGetter(_collection, _supportsProgress);
+        }
 
         private static readonly IOptionsGetter Null = new NullOptionsGetter();
 
@@ -68,11 +69,17 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         {
             public TOptions? Get<TInterface, TOptions>(Func<TInterface, IEnumerable<IHandlerDescriptor>, TOptions> action)
                 where TOptions : class
-                where TInterface : notnull => null;
+                where TInterface : notnull
+            {
+                return null;
+            }
 
             public TOptions? Reduce<TInterface, TOptions>(Func<IEnumerable<TInterface>, IEnumerable<IHandlerDescriptor>, TOptions> action)
                 where TOptions : class
-                where TInterface : notnull => null;
+                where TInterface : notnull
+            {
+                return null;
+            }
         }
 
         private class OptionsGetter : IOptionsGetter

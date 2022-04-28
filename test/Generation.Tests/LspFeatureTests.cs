@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc.Generators;
-using TestingUtils;
 using Xunit;
 
 namespace Generation.Tests

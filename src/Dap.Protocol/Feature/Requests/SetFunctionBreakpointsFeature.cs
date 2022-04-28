@@ -11,17 +11,15 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.SetFunctionBreakpoints, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record SetFunctionBreakpointsArguments : IRequest<SetFunctionBreakpointsResponse>
         {
             /// <summary>
             /// The function names of the breakpoints.
             /// </summary>
-            public Container<FunctionBreakpoint> Breakpoints { get; init; }
+            public Container<FunctionBreakpoint> Breakpoints { get; init; } = null!;
         }
 
         public record SetFunctionBreakpointsResponse
@@ -29,7 +27,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// Information about the breakpoints.The array elements correspond to the elements of the 'breakpoints' array.
             /// </summary>
-            public Container<Breakpoint> Breakpoints { get; init; }
+            public Container<Breakpoint> Breakpoints { get; init; } = null!;
         }
     }
 
@@ -44,7 +42,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// The name of the function.
             /// </summary>
-            public string Name { get; init; }
+            public string Name { get; init; } = null!;
 
             /// <summary>
             /// An optional expression for conditional breakpoints.

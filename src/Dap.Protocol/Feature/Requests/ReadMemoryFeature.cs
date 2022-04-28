@@ -10,17 +10,15 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.ReadMemory, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record ReadMemoryArguments : IRequest<ReadMemoryResponse>
         {
             /// <summary>
             /// Memory reference to the base location from which data should be read.
             /// </summary>
-            public string MemoryReference { get; init; }
+            public string MemoryReference { get; init; } = null!;
 
             /// <summary>
             /// Optional offset(in bytes) to be applied to the reference location before reading data.Can be negative.
@@ -40,10 +38,11 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// The address of the first byte of data returned.Treated as a hex value if prefixed with '0x', or as a decimal value otherwise.
             /// </summary>
-            public string Address { get; init; }
+            public string Address { get; init; } = null!;
 
             /// <summary>
-            /// The number of unreadable bytes encountered after the last successfully read byte. This can be used to determine the number of bytes that must be skipped before a subsequent
+            /// The number of unreadable bytes encountered after the last successfully read byte. This can be used to determine the number of bytes that must be skipped before
+            /// a subsequent
             /// 'readMemory' request will succeed.
             /// </summary>
             [Optional]

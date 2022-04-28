@@ -14,11 +14,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.RunInTerminal, Direction.ServerToClient)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record RunInTerminalArguments : IRequest<RunInTerminalResponse>
         {
             /// <summary>
@@ -36,12 +34,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// Working directory of the command.
             /// </summary>
-            public string Cwd { get; init; }
+            public string Cwd { get; init; } = null!;
 
             /// <summary>
             /// List of arguments.The first argument is the command to run.
             /// </summary>
-            public Container<string> Args { get; init; }
+            public Container<string> Args { get; init; } = null!;
 
             /// <summary>
             /// Environment key-value pairs that are added to or removed from the default environment.

@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The file's URI.
         /// </summary>
-        public DocumentUri Uri { get; init; }
+        public DocumentUri Uri { get; init; } = null!;
 
         /// <summary>
         /// The change type.
@@ -21,6 +21,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         private string DebuggerDisplay => $"[{Type}] {Uri}";
 
         /// <inheritdoc />
-        public override string ToString() => DebuggerDisplay;
+        public override string ToString()
+        {
+            return DebuggerDisplay;
+        }
     }
 }

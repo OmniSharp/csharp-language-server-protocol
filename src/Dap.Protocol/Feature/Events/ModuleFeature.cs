@@ -1,7 +1,7 @@
 ﻿using MediatR;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 
 // ReSharper disable once CheckNamespace
 namespace OmniSharp.Extensions.DebugAdapter.Protocol
@@ -10,11 +10,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(EventNames.Module, Direction.ServerToClient)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record ModuleEvent : IRequest
         {
             /// <summary>
@@ -25,7 +23,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// The new, changed, or removed module. In case of 'removed' only the module id is used.
             /// </summary>
-            public Module Module { get; init; }
+            public Module Module { get; init; } = null!;
         }
 
         [StringEnum]

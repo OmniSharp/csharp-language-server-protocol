@@ -8,7 +8,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The text document's language identifier.
         /// </summary>
-        public string LanguageId { get; init; }
+        public string LanguageId { get; init; } = null!;
 
         /// <summary>
         /// The version number of this document (it will strictly increase after each
@@ -19,11 +19,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The content of the opened text document.
         /// </summary>
-        public string Text { get; init; }
+        public string Text { get; init; } = null!;
 
         private string DebuggerDisplay => $"({LanguageId}@{Version}) {Uri}";
 
         /// <inheritdoc />
-        public override string ToString() => DebuggerDisplay;
+        public override string ToString()
+        {
+            return DebuggerDisplay;
+        }
     }
 }

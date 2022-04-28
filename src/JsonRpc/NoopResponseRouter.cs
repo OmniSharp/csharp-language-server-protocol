@@ -29,13 +29,22 @@ namespace OmniSharp.Extensions.JsonRpc
         {
         }
 
-        public IResponseRouterReturns SendRequest<T>(string method, T @params) => new Impl();
+        public IResponseRouterReturns SendRequest<T>(string method, T @params)
+        {
+            return new Impl();
+        }
 
-        public IResponseRouterReturns SendRequest(string method) => new Impl();
+        public IResponseRouterReturns SendRequest(string method)
+        {
+            return new Impl();
+        }
 
-        public Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken) => Task.FromResult<TResponse>(default!);
+        public Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken)
+        {
+            return Task.FromResult<TResponse>(default!);
+        }
 
-        bool IResponseRouter.TryGetRequest(long id, [NotNullWhen(true)] out string method, [NotNullWhen(true)] out TaskCompletionSource<JToken> pendingTask)
+        bool IResponseRouter.TryGetRequest(long id, [NotNullWhen(true)] out string? method, [NotNullWhen(true)] out TaskCompletionSource<JToken>? pendingTask)
         {
             method = default!;
             pendingTask = default!;
@@ -44,9 +53,15 @@ namespace OmniSharp.Extensions.JsonRpc
 
         private class Impl : IResponseRouterReturns
         {
-            public Task<TResponse> Returning<TResponse>(CancellationToken cancellationToken) => Task.FromResult<TResponse>(default!);
+            public Task<TResponse> Returning<TResponse>(CancellationToken cancellationToken)
+            {
+                return Task.FromResult<TResponse>(default!);
+            }
 
-            public Task ReturningVoid(CancellationToken cancellationToken) => Task.CompletedTask;
+            public Task ReturningVoid(CancellationToken cancellationToken)
+            {
+                return Task.CompletedTask;
+            }
         }
     }
 }

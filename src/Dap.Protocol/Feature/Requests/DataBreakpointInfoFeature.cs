@@ -11,11 +11,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.DataBreakpointInfo, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record DataBreakpointInfoArguments : IRequest<DataBreakpointInfoResponse>
         {
             /// <summary>
@@ -27,7 +25,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// The name of the Variable's child to obtain data breakpoint information for. If variableReference isn’t provided, this can be an expression.
             /// </summary>
-            public string Name { get; init; }
+            public string Name { get; init; } = null!;
         }
 
         public record DataBreakpointInfoResponse
@@ -35,12 +33,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// An identifier for the data on which a data breakpoint can be registered with the setDataBreakpoints request or null if no data breakpoint is available.
             /// </summary>
-            public string DataId { get; init; }
+            public string DataId { get; init; } = null!;
 
             /// <summary>
             /// UI string that describes on what data the breakpoint is set on or why a data breakpoint is not available.
             /// </summary>
-            public string Description { get; init; }
+            public string Description { get; init; } = null!;
 
             /// <summary>
             /// Optional attribute listing the available access types for a potential data breakpoint.A UI frontend could surface this information.

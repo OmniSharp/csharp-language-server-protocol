@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using NSubstitute;
-using NSubstitute.Callbacks;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Client;
@@ -19,7 +18,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
-namespace Lsp.Tests.Integration
+namespace Lsp.Integration.Tests
 {
     public class RenameTests : LanguageProtocolTestBase
     {
@@ -37,7 +36,8 @@ namespace Lsp.Tests.Integration
         {
             _prepareRename.Invoke(Arg.Any<PrepareRenameParams>(), Arg.Any<RenameCapability>(), Arg.Any<CancellationToken>())
                           .Returns(
-                               call => {
+                               call =>
+                               {
                                    var pos = call.Arg<PrepareRenameParams>().Position;
                                    return new RangeOrPlaceholderRange(
                                        new Range(
@@ -50,17 +50,24 @@ namespace Lsp.Tests.Integration
 
             _rename.Invoke(Arg.Any<RenameParams>(), Arg.Any<RenameCapability>(), Arg.Any<CancellationToken>())
                    .Returns(
-                        new WorkspaceEdit() {
-                            DocumentChanges = new Container<WorkspaceEditDocumentChange>(new WorkspaceEditDocumentChange(new CreateFile() {
-                                Uri = DocumentUri.FromFileSystemPath("/abcd/create.cs")
-                            }))
+                        new WorkspaceEdit
+                        {
+                            DocumentChanges = new Container<WorkspaceEditDocumentChange>(
+                                new WorkspaceEditDocumentChange(
+                                    new CreateFile
+                                    {
+                                        Uri = DocumentUri.FromFileSystemPath("/abcd/create.cs")
+                                    }
+                                )
+                            )
                         }
                     );
 
             var (client, _) = await Initialize(ClientOptionsAction, ServerOptionsAction);
 
             var result = await client.PrepareRename(
-                new PrepareRenameParams() {
+                new PrepareRenameParams
+                {
                     Position = ( 1, 1 ),
                     TextDocument = DocumentUri.FromFileSystemPath("/abcd/file.cs")
                 },
@@ -70,7 +77,8 @@ namespace Lsp.Tests.Integration
             result.Should().NotBeNull();
 
             var renameResponse = await client.RequestRename(
-                new RenameParams() {
+                new RenameParams
+                {
                     Position = result!.Range!.Start,
                     NewName = "newname",
                     TextDocument = DocumentUri.FromFileSystemPath("/abcd/file.cs")
@@ -96,7 +104,8 @@ namespace Lsp.Tests.Integration
             var (client, _) = await Initialize(ClientOptionsAction, ServerOptionsAction);
 
             var result = await client.PrepareRename(
-                new PrepareRenameParams() {
+                new PrepareRenameParams
+                {
                     Position = ( 1, 1 ),
                     TextDocument = DocumentUri.FromFileSystemPath("/abcd/file.cs")
                 },
@@ -111,7 +120,8 @@ namespace Lsp.Tests.Integration
         {
             _prepareRename.Invoke(Arg.Any<PrepareRenameParams>(), Arg.Any<RenameCapability>(), Arg.Any<CancellationToken>())
                           .Returns(
-                               call => {
+                               call =>
+                               {
                                    var pos = call.Arg<PrepareRenameParams>().Position;
                                    return new RangeOrPlaceholderRange(
                                        new Range(
@@ -125,7 +135,8 @@ namespace Lsp.Tests.Integration
             var (client, _) = await Initialize(ClientOptionsAction, ServerOptionsAction);
 
             var result = await client.PrepareRename(
-                new PrepareRenameParams() {
+                new PrepareRenameParams
+                {
                     Position = ( 1, 1 ),
                     TextDocument = DocumentUri.FromFileSystemPath("/abcd/file.cs")
                 },
@@ -140,10 +151,12 @@ namespace Lsp.Tests.Integration
         {
             _prepareRename.Invoke(Arg.Any<PrepareRenameParams>(), Arg.Any<RenameCapability>(), Arg.Any<CancellationToken>())
                           .Returns(
-                               call => {
+                               call =>
+                               {
                                    var pos = call.Arg<PrepareRenameParams>().Position;
                                    return new RangeOrPlaceholderRange(
-                                       new PlaceholderRange() {
+                                       new PlaceholderRange
+                                       {
                                            Range =
                                                new Range(
                                                    pos,
@@ -158,7 +171,8 @@ namespace Lsp.Tests.Integration
             var (client, _) = await Initialize(ClientOptionsAction, ServerOptionsAction);
 
             var result = await client.PrepareRename(
-                new PrepareRenameParams() {
+                new PrepareRenameParams
+                {
                     Position = ( 1, 1 ),
                     TextDocument = DocumentUri.FromFileSystemPath("/abcd/file.cs")
                 },
@@ -174,7 +188,8 @@ namespace Lsp.Tests.Integration
             _prepareRename.Invoke(Arg.Any<PrepareRenameParams>(), Arg.Any<RenameCapability>(), Arg.Any<CancellationToken>())
                           .Returns(
                                call => new RangeOrPlaceholderRange(
-                                   new RenameDefaultBehavior() {
+                                   new RenameDefaultBehavior
+                                   {
                                        DefaultBehavior = true
                                    }
                                )
@@ -183,7 +198,8 @@ namespace Lsp.Tests.Integration
             var (client, _) = await Initialize(ClientOptionsAction, ServerOptionsAction);
 
             var result = await client.PrepareRename(
-                new PrepareRenameParams() {
+                new PrepareRenameParams
+                {
                     Position = ( 1, 1 ),
                     TextDocument = DocumentUri.FromFileSystemPath("/abcd/file.cs")
                 },
@@ -210,12 +226,14 @@ namespace Lsp.Tests.Integration
         private void ServerOptionsAction(LanguageServerOptions obj)
         {
             obj.OnPrepareRename(
-                _prepareRename, (_, _) => new RenameRegistrationOptions() {
+                _prepareRename, (_, _) => new RenameRegistrationOptions
+                {
                     DocumentSelector = DocumentSelector.ForLanguage("csharp")
                 }
             );
             obj.OnRename(
-                _rename, (_, _) =>new RenameRegistrationOptions() {
+                _rename, (_, _) => new RenameRegistrationOptions
+                {
                     DocumentSelector = DocumentSelector.ForLanguage("csharp"),
                     PrepareProvider = true,
                 }
@@ -225,7 +243,8 @@ namespace Lsp.Tests.Integration
         private void ClientOptionsAction(LanguageClientOptions obj)
         {
             obj.WithCapability(
-                new RenameCapability() {
+                new RenameCapability
+                {
                     PrepareSupport = true,
                     PrepareSupportDefaultBehavior = PrepareSupportDefaultBehavior.Identifier
                 }

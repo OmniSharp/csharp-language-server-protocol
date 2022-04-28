@@ -6,7 +6,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
     /// <summary>
     /// A Module object represents a row in the modules view.
-    /// Two attributes are mandatory: an id identifies a module in the modules view and is used in a ModuleEvent for identifying a module for adding, updating or deleting.
+    /// Two attributes are mandatory: an id identifies a module in the modules view and is used in a ModuleEvent for identifying a module for adding, updating or
+    /// deleting.
     /// The name is used to minimally render the module in the UI.
     /// Additional attributes can be added to the module.They will show up in the module View if they have a corresponding ColumnDescriptor.
     /// To avoid an unnecessary proliferation of additional attributes with similar semantics but different names
@@ -22,7 +23,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// A name of the module.
         /// </summary>
-        public string Name { get; init; }
+        public string Name { get; init; } = null!;
 
         /// <summary>
         /// optional but recommended attributes.

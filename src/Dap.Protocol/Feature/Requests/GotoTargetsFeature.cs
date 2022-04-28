@@ -11,17 +11,15 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.GotoTargets, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record GotoTargetsArguments : IRequest<GotoTargetsResponse>
         {
             /// <summary>
             /// The source location for which the goto targets are determined.
             /// </summary>
-            public Source Source { get; init; }
+            public Source Source { get; init; } = null!;
 
             /// <summary>
             /// The line location for which the goto targets are determined.
@@ -40,7 +38,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// The possible goto targets of the specified location.
             /// </summary>
-            public Container<GotoTarget> Targets { get; init; }
+            public Container<GotoTarget> Targets { get; init; } = null!;
         }
     }
 
@@ -60,7 +58,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// The name of the goto target (shown in the UI).
             /// </summary>
-            public string Label { get; init; }
+            public string Label { get; init; } = null!;
 
             /// <summary>
             /// The line of the goto target.

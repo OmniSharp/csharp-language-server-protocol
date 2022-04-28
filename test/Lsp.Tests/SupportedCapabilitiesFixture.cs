@@ -1,9 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Shared;
 
@@ -18,9 +14,15 @@ namespace Lsp.Tests
         {
             // ReSharper disable once UnusedParameter.Local
             // ReSharper disable once UnusedMember.Local
-            public bool AllowsDynamicRegistration(ILspHandlerDescriptor descriptor) => true;
+            public bool AllowsDynamicRegistration(ILspHandlerDescriptor descriptor)
+            {
+                return true;
+            }
 
-            public bool AllowsDynamicRegistration(Type capabilityType) => true;
+            public bool AllowsDynamicRegistration(Type capabilityType)
+            {
+                return true;
+            }
 
             protected override bool TryGetCapability(Type capabilityType, [NotNullWhen(true)] out object? capability)
             {
@@ -33,9 +35,15 @@ namespace Lsp.Tests
         {
             // ReSharper disable once UnusedParameter.Local
             // ReSharper disable once UnusedMember.Local
-            public bool AllowsDynamicRegistration(ILspHandlerDescriptor descriptor) => false;
+            public bool AllowsDynamicRegistration(ILspHandlerDescriptor descriptor)
+            {
+                return false;
+            }
 
-            public bool AllowsDynamicRegistration(Type capabilityType) => false;
+            public bool AllowsDynamicRegistration(Type capabilityType)
+            {
+                return false;
+            }
 
             protected override bool TryGetCapability(Type capabilityType, [NotNullWhen(true)] out object? capability)
             {

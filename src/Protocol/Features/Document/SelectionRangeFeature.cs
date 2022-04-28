@@ -14,23 +14,23 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         [Parallel]
         [Method(TextDocumentNames.SelectionRange, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(SelectionRangeRegistrationOptions)), Capability(typeof(SelectionRangeCapability))]
-        public partial record SelectionRangeParams : ITextDocumentIdentifierParams, IPartialItemsRequest<Container<SelectionRange>?, SelectionRange>, IWorkDoneProgressParams
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(SelectionRangeRegistrationOptions))]
+        [Capability(typeof(SelectionRangeCapability))]
+        public partial record SelectionRangeParams : ITextDocumentIdentifierParams, IPartialItemsRequest<Container<SelectionRange>?, SelectionRange>,
+                                                     IWorkDoneProgressParams
         {
             /// <summary>
             /// The text document.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; init; }
+            public TextDocumentIdentifier TextDocument { get; init; } = null!;
 
             /// <summary>
             /// The positions inside the text document.
             /// </summary>
-            public Container<Position> Positions { get; init; }
+            public Container<Position> Positions { get; init; } = null!;
         }
 
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
@@ -39,22 +39,27 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// The [range](#Range) of this selection range.
             /// </summary>
-            public Range Range { get; init; }
+            public Range Range { get; init; } = null!;
 
             /// <summary>
             /// The parent selection range containing this range. Therefore `parent.range` must contain `this.range`.
             /// </summary>
-            public SelectionRange Parent { get; init; }
+            public SelectionRange Parent { get; init; } = null!;
 
             private string DebuggerDisplay => $"{Range} {{{Parent}}}";
 
             /// <inheritdoc />
-            public override string ToString() => DebuggerDisplay;
+            public override string ToString()
+            {
+                return DebuggerDisplay;
+            }
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.SelectionRangeProvider))]
         [RegistrationName(TextDocumentNames.SelectionRange)]
-        public partial class SelectionRangeRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions, IStaticRegistrationOptions { }
+        public partial class SelectionRangeRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions, IStaticRegistrationOptions
+        {
+        }
     }
 
     namespace Client.Capabilities

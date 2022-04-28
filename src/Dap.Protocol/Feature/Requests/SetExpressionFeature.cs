@@ -11,22 +11,20 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.SetExpression, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record SetExpressionArguments : IRequest<SetExpressionResponse>
         {
             /// <summary>
             /// The l-value expression to assign to.
             /// </summary>
-            public string Expression { get; init; }
+            public string Expression { get; init; } = null!;
 
             /// <summary>
             /// The value expression to assign to the l-value expression.
             /// </summary>
-            public string Value { get; init; }
+            public string Value { get; init; } = null!;
 
             /// <summary>
             /// Evaluate the expressions in the scope of this stack frame. If not specified, the expressions are evaluated in the global scope.
@@ -46,7 +44,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// The new value of the expression.
             /// </summary>
-            public string Value { get; init; }
+            public string Value { get; init; } = null!;
 
             /// <summary>
             /// The optional type of the value.

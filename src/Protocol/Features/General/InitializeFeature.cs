@@ -110,10 +110,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public string? RootPath
             {
                 get => RootUri?.GetFileSystemPath();
-                init {
+                init
+                {
                     if (!string.IsNullOrEmpty(value))
                     {
-                        RootUri = DocumentUri.FromFileSystemPath(value!);
+                        RootUri = DocumentUri.FromFileSystemPath(value);
                     }
                 }
             }
@@ -195,7 +196,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.General", Name = "LanguageProtocolInitialize")]
         [GenerateHandlerMethods(typeof(ILanguageServerRegistry))]
         [GenerateRequestMethods(typeof(ILanguageClient))]
-        internal partial record InternalInitializeParams : IInitializeParams<JObject>, IRequest<InitializeResult> // This is required for generation to work correctly.
+        internal partial record
+            InternalInitializeParams : IInitializeParams<JObject>, IRequest<InitializeResult> // This is required for generation to work correctly.
         {
             /// <summary>
             /// The process Id of the parent process that started
@@ -230,7 +232,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// folder is open. If both `rootPath` and `rootUri` are set
             /// `rootUri` wins.
             /// </summary>
-            public DocumentUri RootUri { get; init; }
+            public DocumentUri RootUri { get; init; } = null!;
 
             /// <summary>
             /// User provided initialization options.
@@ -240,7 +242,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// The capabilities provided by the client (editor or tool)
             /// </summary>
-            public JObject Capabilities { get; init; }
+            public JObject Capabilities { get; init; } = null!;
 
             /// <summary>
             /// The initial trace setting. If omitted trace is disabled ('off').

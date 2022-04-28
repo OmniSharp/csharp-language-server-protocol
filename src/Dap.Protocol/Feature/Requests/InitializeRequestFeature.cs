@@ -12,18 +12,17 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.Initialize, Direction.ClientToServer)]
-        [
-            GenerateHandler(Name = "DebugAdapterInitialize"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler(Name = "DebugAdapterInitialize")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record InitializeRequestArguments : IRequest<InitializeResponse>, IInitializeRequestArguments
         {
             /// <summary>
             /// The ID of the(frontend) client using this adapter.
             /// </summary>
 
-            [Optional, JsonProperty("clientID")]
+            [Optional]
+            [JsonProperty("clientID")]
             public string? ClientId { get; set; }
 
             /// <summary>
@@ -102,8 +101,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public bool SupportsInvalidatedEvent { get; set; }
         }
 
-        public record InitializeResponse : Capabilities
-        {
-        }
+        public record InitializeResponse : Capabilities;
     }
 }

@@ -12,13 +12,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// Title of the command, like `save`.
         /// </summary>
-        public string Title { get; init; }
+        public string Title { get; init; } = null!;
 
         /// <summary>
         /// The identifier of the actual command handler.
         /// </summary>
         [JsonProperty("command")]
-        public string Name { get; init; }
+        public string Name { get; init; } = null!;
 
         /// <summary>
         /// Arguments that the command handler should be
@@ -30,9 +30,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         private string DebuggerDisplay =>
             $"{Title}{( string.IsNullOrWhiteSpace(Name) ? "" : $" {Name}" )}{( Arguments == null ? "" : string.Join(", ", Arguments.Select(z => z.ToString().Trim('"'))) )}";
 
-        public override string ToString() => DebuggerDisplay;
+        public override string ToString()
+        {
+            return DebuggerDisplay;
+        }
 
-        public Command WithArguments(params object[] args) => this with { Arguments = JArray.FromObject(args) };
-        public static Command Create(string name, params object[] args) => new() { Name = name, Arguments = JArray.FromObject(args) };
+        public Command WithArguments(params object[] args)
+        {
+            return this with { Arguments = JArray.FromObject(args) };
+        }
+
+        public static Command Create(string name, params object[] args)
+        {
+            return new() { Name = name, Arguments = JArray.FromObject(args) };
+        }
     }
 }

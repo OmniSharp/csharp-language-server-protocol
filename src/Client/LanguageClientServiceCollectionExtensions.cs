@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
             container.RegisterInstance(options.ClientCapabilities);
             container.RegisterMany<LspClientReceiver>(
-                reuse: Reuse.Singleton,
+                Reuse.Singleton,
                 nonPublicServiceTypes: true,
                 ifAlreadyRegistered: IfAlreadyRegistered.Keep
             );
@@ -41,14 +41,24 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 #pragma warning restore 4014
             }
 
-            container.RegisterMany<TextDocumentLanguageClient>(serviceTypeCondition: type => type.Name.Contains(nameof(TextDocumentLanguageClient)), reuse: Reuse.Singleton);
-            container.RegisterMany<ClientLanguageClient>(serviceTypeCondition: type => type.Name.Contains(nameof(ClientLanguageClient)), reuse: Reuse.Singleton);
-            container.RegisterMany<GeneralLanguageClient>(serviceTypeCondition: type => type.Name.Contains(nameof(GeneralLanguageClient)), reuse: Reuse.Singleton);
-            container.RegisterMany<WindowLanguageClient>(serviceTypeCondition: type => type.Name.Contains(nameof(WindowLanguageClient)), reuse: Reuse.Singleton);
-            container.RegisterMany<WorkspaceLanguageClient>(serviceTypeCondition: type => type.Name.Contains(nameof(WorkspaceLanguageClient)), reuse: Reuse.Singleton);
+            container.RegisterMany<TextDocumentLanguageClient>(
+                serviceTypeCondition: type => type.Name.Contains(nameof(TextDocumentLanguageClient)), reuse: Reuse.Singleton
+            );
+            container.RegisterMany<ClientLanguageClient>(
+                serviceTypeCondition: type => type.Name.Contains(nameof(ClientLanguageClient)), reuse: Reuse.Singleton
+            );
+            container.RegisterMany<GeneralLanguageClient>(
+                serviceTypeCondition: type => type.Name.Contains(nameof(GeneralLanguageClient)), reuse: Reuse.Singleton
+            );
+            container.RegisterMany<WindowLanguageClient>(
+                serviceTypeCondition: type => type.Name.Contains(nameof(WindowLanguageClient)), reuse: Reuse.Singleton
+            );
+            container.RegisterMany<WorkspaceLanguageClient>(
+                serviceTypeCondition: type => type.Name.Contains(nameof(WorkspaceLanguageClient)), reuse: Reuse.Singleton
+            );
             container.RegisterMany<DefaultLanguageClientFacade>(
-                serviceTypeCondition: type => type.IsClass || !type.Name.Contains("Proxy") && typeof(DefaultLanguageClientFacade).GetInterfaces()
-                   .Except(typeof(DefaultLanguageClientFacade).BaseType!.GetInterfaces()).Any(z => type == z),
+                serviceTypeCondition: type => type.IsClass || ( !type.Name.Contains("Proxy") && typeof(DefaultLanguageClientFacade).GetInterfaces()
+                   .Except(typeof(DefaultLanguageClientFacade).BaseType!.GetInterfaces()).Any(z => type == z) ),
                 reuse: Reuse.Singleton
             );
             container.RegisterInstance<IOptionsFactory<LanguageClientOptions>>(new ValueOptionsFactory<LanguageClientOptions>(options));
@@ -60,7 +70,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             );
 
             container.RegisterInstance(
-                options.ClientInfo ?? new ClientInfo {
+                options.ClientInfo ?? new ClientInfo
+                {
                     Name = Assembly.GetEntryAssembly()?.GetName().ToString() ?? string.Empty,
                     Version = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
                                      ?.InformationalVersion ??
@@ -69,9 +80,11 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 }
             );
 
-            var providedConfiguration = options.Services.FirstOrDefault(z => z.ServiceType == typeof(IConfiguration) && z.ImplementationInstance is IConfiguration);
+            var providedConfiguration =
+                options.Services.FirstOrDefault(z => z.ServiceType == typeof(IConfiguration) && z.ImplementationInstance is IConfiguration);
             container.RegisterDelegate<IConfiguration>(
-                _ => {
+                _ =>
+                {
                     var builder = options.ConfigurationBuilder;
                     var outerConfiguration = outerServiceProvider?.GetService<IConfiguration>();
                     if (outerConfiguration != null)
@@ -103,10 +116,14 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             return container;
         }
 
-        public static IServiceCollection AddLanguageClient(this IServiceCollection services, Action<LanguageClientOptions>? configureOptions = null) =>
-            AddLanguageClient(services, Options.DefaultName, configureOptions);
+        public static IServiceCollection AddLanguageClient(this IServiceCollection services, Action<LanguageClientOptions>? configureOptions = null)
+        {
+            return AddLanguageClient(services, Options.DefaultName, configureOptions);
+        }
 
-        public static IServiceCollection AddLanguageClient(this IServiceCollection services, string name, Action<LanguageClientOptions>? configureOptions = null)
+        public static IServiceCollection AddLanguageClient(
+            this IServiceCollection services, string name, Action<LanguageClientOptions>? configureOptions = null
+        )
         {
             // If we get called multiple times we're going to remove the default server
             // and force consumers to use the resolver.

@@ -8,7 +8,6 @@ using NSubstitute;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Testing;
 using OmniSharp.Extensions.JsonRpc.Testing;
-using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -27,7 +26,8 @@ namespace Dap.Tests.Integration
             var (client, _) = await Initialize(options => { }, options => { options.AddHandler(fake); });
 
             await client.Attach(
-                new CustomAttachRequestArguments {
+                new CustomAttachRequestArguments
+                {
                     ComputerName = "computer",
                     RunspaceId = "1234",
                     ProcessId = "4321"
@@ -49,7 +49,8 @@ namespace Dap.Tests.Integration
             var (client, _) = await Initialize(options => { }, options => { options.AddHandler(fake); });
 
             await client.Attach(
-                new CustomAttachRequestArguments {
+                new CustomAttachRequestArguments
+                {
                     ComputerName = "computer",
                     RunspaceId = "1234",
                     ProcessId = "4321"
@@ -71,8 +72,10 @@ namespace Dap.Tests.Integration
             var (client, _) = await Initialize(options => { }, options => { options.AddHandler(fake); });
 
             await client.Attach(
-                new AttachRequestArguments {
-                    ExtensionData = new Dictionary<string, object> {
+                new AttachRequestArguments
+                {
+                    ExtensionData = new Dictionary<string, object>
+                    {
                         ["ComputerName"] = "computer",
                         ["RunspaceId"] = "1234",
                         ["ProcessId"] = "4321"
@@ -95,7 +98,8 @@ namespace Dap.Tests.Integration
             var (client, _) = await Initialize(options => { }, options => { options.AddHandler(fake); });
 
             await client.Launch(
-                new CustomLaunchRequestArguments {
+                new CustomLaunchRequestArguments
+                {
                     Script = "build.ps1"
                 }
             );
@@ -113,7 +117,8 @@ namespace Dap.Tests.Integration
             var (client, _) = await Initialize(options => { }, options => { options.AddHandler(fake); });
 
             await client.Launch(
-                new CustomLaunchRequestArguments {
+                new CustomLaunchRequestArguments
+                {
                     Script = "build.ps1"
                 }
             );
@@ -131,8 +136,10 @@ namespace Dap.Tests.Integration
             var (client, _) = await Initialize(options => { }, options => { options.AddHandler(fake); });
 
             await client.Launch(
-                new CustomLaunchRequestArguments {
-                    ExtensionData = new Dictionary<string, object> {
+                new CustomLaunchRequestArguments
+                {
+                    ExtensionData = new Dictionary<string, object>
+                    {
                         ["Script"] = "build.ps1"
                     }
                 }
@@ -151,7 +158,8 @@ namespace Dap.Tests.Integration
             var (client, _) = await Initialize(options => { }, options => { options.OnAttach(fake); });
 
             await client.Attach(
-                new CustomAttachRequestArguments {
+                new CustomAttachRequestArguments
+                {
                     ComputerName = "computer",
                     RunspaceId = "1234",
                     ProcessId = "4321"
@@ -173,7 +181,8 @@ namespace Dap.Tests.Integration
             var (client, _) = await Initialize(options => { }, options => { options.OnAttach(fake); });
 
             await client.Attach(
-                new CustomAttachRequestArguments {
+                new CustomAttachRequestArguments
+                {
                     ComputerName = "computer",
                     RunspaceId = "1234",
                     ProcessId = "4321"
@@ -195,8 +204,10 @@ namespace Dap.Tests.Integration
             var (client, _) = await Initialize(options => { }, options => { options.OnAttach(fake); });
 
             await client.Attach(
-                new AttachRequestArguments {
-                    ExtensionData = new Dictionary<string, object> {
+                new AttachRequestArguments
+                {
+                    ExtensionData = new Dictionary<string, object>
+                    {
                         ["ComputerName"] = "computer",
                         ["RunspaceId"] = "1234",
                         ["ProcessId"] = "4321"
@@ -219,7 +230,8 @@ namespace Dap.Tests.Integration
             var (client, _) = await Initialize(options => { }, options => { options.OnLaunch(fake); });
 
             await client.Launch(
-                new CustomLaunchRequestArguments {
+                new CustomLaunchRequestArguments
+                {
                     Script = "build.ps1"
                 }
             );
@@ -237,7 +249,8 @@ namespace Dap.Tests.Integration
             var (client, _) = await Initialize(options => { }, options => { options.OnLaunch(fake); });
 
             await client.Launch(
-                new CustomLaunchRequestArguments {
+                new CustomLaunchRequestArguments
+                {
                     Script = "build.ps1"
                 }
             );
@@ -255,8 +268,10 @@ namespace Dap.Tests.Integration
             var (client, _) = await Initialize(options => { }, options => { options.OnLaunch(fake); });
 
             await client.Launch(
-                new CustomLaunchRequestArguments {
-                    ExtensionData = new Dictionary<string, object> {
+                new CustomLaunchRequestArguments
+                {
+                    ExtensionData = new Dictionary<string, object>
+                    {
                         ["Script"] = "build.ps1"
                     }
                 }
@@ -270,11 +285,11 @@ namespace Dap.Tests.Integration
 
         public record CustomAttachRequestArguments : AttachRequestArguments
         {
-            public string ComputerName { get; init; }
+            public string ComputerName { get; init; } = null!;
 
-            public string ProcessId { get; init; }
+            public string ProcessId { get; init; } = null!;
 
-            public string RunspaceId { get; init; }
+            public string RunspaceId { get; init; } = null!;
         }
 
         public record CustomLaunchRequestArguments : LaunchRequestArguments
@@ -282,7 +297,7 @@ namespace Dap.Tests.Integration
             /// <summary>
             /// Gets or sets the absolute path to the script to debug.
             /// </summary>
-            public string Script { get; init; }
+            public string Script { get; init; } = null!;
         }
     }
 }

@@ -16,50 +16,46 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         [Parallel]
         [Method(TextDocumentNames.Rename, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(RenameRegistrationOptions)), Capability(typeof(RenameCapability))]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(RenameRegistrationOptions))]
+        [Capability(typeof(RenameCapability))]
         public partial record RenameParams : ITextDocumentIdentifierParams, IRequest<WorkspaceEdit?>, IWorkDoneProgressParams
         {
             /// <summary>
             /// The document to format.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; init; }
+            public TextDocumentIdentifier TextDocument { get; init; } = null!;
 
             /// <summary>
             /// The position at which this request was sent.
             /// </summary>
-            public Position Position { get; init; }
+            public Position Position { get; init; } = null!;
 
             /// <summary>
             /// The new name of the symbol. If the given name is not valid the
             /// request must return a [ResponseError](#ResponseError) with an
             /// appropriate message set.
             /// </summary>
-            public string NewName { get; init; }
+            public string NewName { get; init; } = null!;
         }
 
         [Parallel]
         [Method(TextDocumentNames.PrepareRename, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(RenameRegistrationOptions)), Capability(typeof(RenameCapability))]
-        public partial record PrepareRenameParams : TextDocumentPositionParams, IRequest<RangeOrPlaceholderRange?>
-        {
-        }
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(RenameRegistrationOptions))]
+        [Capability(typeof(RenameCapability))]
+        public partial record PrepareRenameParams : TextDocumentPositionParams, IRequest<RangeOrPlaceholderRange?>;
 
         [JsonConverter(typeof(RangeOrPlaceholderRangeConverter))]
         public record RangeOrPlaceholderRange
         {
-            private RenameDefaultBehavior? _renameDefaultBehavior;
-            private Range? _range;
-            private PlaceholderRange? _placeholderRange;
+            private readonly RenameDefaultBehavior? _renameDefaultBehavior;
+            private readonly Range? _range;
+            private readonly PlaceholderRange? _placeholderRange;
 
             public RangeOrPlaceholderRange(Range value)
             {
@@ -81,7 +77,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public PlaceholderRange? PlaceholderRange
             {
                 get => _placeholderRange;
-                init {
+                init
+                {
                     _placeholderRange = value;
                     _renameDefaultBehavior = default;
                     _range = null;
@@ -93,7 +90,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public Range? Range
             {
                 get => _range;
-                init {
+                init
+                {
                     _placeholderRange = default;
                     _renameDefaultBehavior = default;
                     _range = value;
@@ -105,7 +103,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public RenameDefaultBehavior? DefaultBehavior
             {
                 get => _renameDefaultBehavior;
-                init {
+                init
+                {
                     _placeholderRange = default;
                     _renameDefaultBehavior = value;
                     _range = default;
@@ -114,7 +113,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public object? RawValue
             {
-                get {
+                get
+                {
                     if (IsPlaceholderRange) return PlaceholderRange;
                     if (IsRange) return Range;
                     if (IsDefaultBehavior) return DefaultBehavior;
@@ -122,15 +122,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 }
             }
 
-            public static implicit operator RangeOrPlaceholderRange(PlaceholderRange value) => new RangeOrPlaceholderRange(value);
+            public static implicit operator RangeOrPlaceholderRange(PlaceholderRange value)
+            {
+                return new RangeOrPlaceholderRange(value);
+            }
 
-            public static implicit operator RangeOrPlaceholderRange(Range value) => new RangeOrPlaceholderRange(value);
+            public static implicit operator RangeOrPlaceholderRange(Range value)
+            {
+                return new RangeOrPlaceholderRange(value);
+            }
         }
 
         public record PlaceholderRange
         {
-            public Range Range { get; init; }
-            public string Placeholder { get; init; }
+            public Range Range { get; init; } = null!;
+            public string Placeholder { get; init; } = null!;
         }
 
         public record RenameDefaultBehavior

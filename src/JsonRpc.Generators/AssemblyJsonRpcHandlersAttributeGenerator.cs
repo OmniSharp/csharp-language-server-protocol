@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -19,7 +17,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             var syntaxProvider = context
                                 .SyntaxProvider
                                 .CreateSyntaxProvider(
-                                     predicate: (syntaxNode, token) =>
+                                     (syntaxNode, _) =>
                                      {
                                          if (syntaxNode.Parent is TypeDeclarationSyntax) return false;
                                          if (syntaxNode is TypeDeclarationSyntax { Arity: 0, BaseList: { } bl } typeDeclarationSyntax
@@ -58,7 +56,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
                                          return false;
                                      },
-                                     transform: (syntaxContext, token) => AttributeArgument(
+                                     (syntaxContext, _) => AttributeArgument(
                                          TypeOfExpression(
                                              ParseName(syntaxContext.SemanticModel.GetDeclaredSymbol(syntaxContext.Node)!.ToDisplayString())
                                          )
@@ -71,16 +69,21 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
         private void GenerateAssemblyJsonRpcHandlers(SourceProductionContext context, ImmutableArray<AttributeArgumentSyntax> types)
         {
-            var namespaces = new HashSet<string>() { "OmniSharp.Extensions.JsonRpc" };
+            var namespaces = new HashSet<string> { "OmniSharp.Extensions.JsonRpc" };
             if (types.Any())
             {
                 var cu = CompilationUnit()
-                        .WithUsings(List(namespaces.OrderBy(z => z).Select(z => UsingDirective(ParseName(z)))));
+                   .WithUsings(List(namespaces.OrderBy(z => z).Select(z => UsingDirective(ParseName(z)))));
                 while (types.Length > 0)
                 {
                     var innerTypes = types.Take(10).ToArray();
                     types = types.Skip(10).ToImmutableArray();
-                    cu = cu.AddAttributeLists(AttributeList(target: AttributeTargetSpecifier(Token(SyntaxKind.AssemblyKeyword)), SingletonSeparatedList(Attribute(IdentifierName("AssemblyJsonRpcHandlers"), AttributeArgumentList(SeparatedList(innerTypes))))));
+                    cu = cu.AddAttributeLists(
+                        AttributeList(
+                            AttributeTargetSpecifier(Token(SyntaxKind.AssemblyKeyword)),
+                            SingletonSeparatedList(Attribute(IdentifierName("AssemblyJsonRpcHandlers"), AttributeArgumentList(SeparatedList(innerTypes))))
+                        )
+                    );
                 }
 
                 context.AddSource("AssemblyJsonRpcHandlers.cs", cu.NormalizeWhitespace().GetText(Encoding.UTF8));

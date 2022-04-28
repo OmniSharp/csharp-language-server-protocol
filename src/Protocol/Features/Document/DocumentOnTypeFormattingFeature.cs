@@ -15,34 +15,33 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         [Parallel]
         [Method(TextDocumentNames.OnTypeFormatting, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(DocumentOnTypeFormattingRegistrationOptions)), Capability(typeof(DocumentOnTypeFormattingCapability))]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(DocumentOnTypeFormattingRegistrationOptions))]
+        [Capability(typeof(DocumentOnTypeFormattingCapability))]
         public partial record DocumentOnTypeFormattingParams : ITextDocumentIdentifierParams, IRequest<TextEditContainer?>
         {
             /// <summary>
             /// The document to format.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; init; }
+            public TextDocumentIdentifier TextDocument { get; init; } = null!;
 
             /// <summary>
             /// The position at which this request was sent.
             /// </summary>
-            public Position Position { get; init; }
+            public Position Position { get; init; } = null!;
 
             /// <summary>
             /// The character that has been typed.
             /// </summary>
             [JsonProperty("ch")]
-            public string Character { get; init; }
+            public string Character { get; init; } = null!;
 
             /// <summary>
             /// The format options.
             /// </summary>
-            public FormattingOptions Options { get; init; }
+            public FormattingOptions Options { get; init; } = null!;
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.DocumentOnTypeFormattingProvider))]

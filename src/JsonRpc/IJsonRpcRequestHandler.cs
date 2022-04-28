@@ -6,7 +6,7 @@ namespace OmniSharp.Extensions.JsonRpc
     ///
     /// Client --> -->
     /// |
-    /// Server <-- <--
+    /// Server (-- (--
     ///
     /// </summary>
     /// <typeparam name="TRequest"></typeparam>
@@ -20,7 +20,7 @@ namespace OmniSharp.Extensions.JsonRpc
     ///
     /// Client --> -->
     /// |
-    /// Server <-- <--
+    /// Server (-- (--
     ///
     /// </summary>
     /// <typeparam name="TRequest"></typeparam>

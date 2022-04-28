@@ -9,17 +9,11 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.Restart, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
-        public record RestartArguments : IRequest<RestartResponse>
-        {
-        }
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
+        public record RestartArguments : IRequest<RestartResponse>;
 
-        public record RestartResponse
-        {
-        }
+        public record RestartResponse;
     }
 }

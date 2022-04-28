@@ -9,11 +9,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.Pause, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record PauseArguments : IRequest<PauseResponse>
         {
             /// <summary>
@@ -22,8 +20,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public long ThreadId { get; init; }
         }
 
-        public record PauseResponse
-        {
-        }
+        public record PauseResponse;
     }
 }

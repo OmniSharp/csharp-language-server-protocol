@@ -39,7 +39,7 @@ namespace Test
     {
         private static readonly Lazy<IReadOnlyList<ThreadEventReason>> _defaults = new Lazy<IReadOnlyList<ThreadEventReason>>(() =>
         {
-            return typeof(ThreadEventReason).GetProperties(BindingFlags.Static | BindingFlags.Public).Where(z => z.Name != nameof(Defaults)).Select(z => z.GetValue(null)).Cast<ThreadEventReason>().ToArray();
+            return new ThreadEventReason[]{Started, Exited};
         });
         public static IEnumerable<ThreadEventReason> Defaults => _defaults.Value;
         private readonly string _value;

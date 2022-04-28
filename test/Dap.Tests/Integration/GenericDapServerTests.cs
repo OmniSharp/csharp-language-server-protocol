@@ -5,7 +5,6 @@ using NSubstitute;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Testing;
 using OmniSharp.Extensions.JsonRpc.Testing;
-using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 

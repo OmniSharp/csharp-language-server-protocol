@@ -15,16 +15,24 @@ using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Lsp.Tests.Integration
+namespace Lsp.Integration.Tests
 {
     public class FileOperationTests : LanguageProtocolTestBase
     {
         private readonly Action<DidCreateFileParams> _didCreateFileHandler = Substitute.For<Action<DidCreateFileParams>>();
-        private readonly Func<WillCreateFileParams, Task<WorkspaceEdit?>> _willCreateFileHandler = Substitute.For<Func<WillCreateFileParams, Task<WorkspaceEdit?>>>();
+
+        private readonly Func<WillCreateFileParams, Task<WorkspaceEdit?>> _willCreateFileHandler =
+            Substitute.For<Func<WillCreateFileParams, Task<WorkspaceEdit?>>>();
+
         private readonly Action<DidRenameFileParams> _didRenameFileHandler = Substitute.For<Action<DidRenameFileParams>>();
-        private readonly Func<WillRenameFileParams, Task<WorkspaceEdit?>> _willRenameFileHandler = Substitute.For<Func<WillRenameFileParams, Task<WorkspaceEdit?>>>();
+
+        private readonly Func<WillRenameFileParams, Task<WorkspaceEdit?>> _willRenameFileHandler =
+            Substitute.For<Func<WillRenameFileParams, Task<WorkspaceEdit?>>>();
+
         private readonly Action<DidDeleteFileParams> _didDeleteFileHandler = Substitute.For<Action<DidDeleteFileParams>>();
-        private readonly Func<WillDeleteFileParams, Task<WorkspaceEdit?>> _willDeleteFileHandler = Substitute.For<Func<WillDeleteFileParams, Task<WorkspaceEdit?>>>();
+
+        private readonly Func<WillDeleteFileParams, Task<WorkspaceEdit?>> _willDeleteFileHandler =
+            Substitute.For<Func<WillDeleteFileParams, Task<WorkspaceEdit?>>>();
 
         public FileOperationTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper, LogEventLevel.Verbose))
         {
@@ -36,13 +44,15 @@ namespace Lsp.Tests.Integration
             var (client, server) = await Initialize(Configure, Configure);
 
             await client.RequestWillCreateFile(
-                new WillCreateFileParams() {
-                    Files = Container<FileCreate>.From(new FileCreate() { Uri = new Uri("file://asdf") })
+                new WillCreateFileParams
+                {
+                    Files = Container<FileCreate>.From(new FileCreate { Uri = new Uri("file://asdf") })
                 }
             );
             client.DidCreateFile(
-                new DidCreateFileParams() {
-                    Files = Container<FileCreate>.From(new FileCreate() { Uri = new Uri("file://asdf") })
+                new DidCreateFileParams
+                {
+                    Files = Container<FileCreate>.From(new FileCreate { Uri = new Uri("file://asdf") })
                 }
             );
 
@@ -82,13 +92,15 @@ namespace Lsp.Tests.Integration
             var (client, server) = await Initialize(Configure, Configure);
 
             await client.RequestWillRenameFile(
-                new WillRenameFileParams() {
-                    Files = Container<FileRename>.From(new FileRename() { Uri = new Uri("file://asdf") })
+                new WillRenameFileParams
+                {
+                    Files = Container<FileRename>.From(new FileRename { Uri = new Uri("file://asdf") })
                 }
             );
             client.DidRenameFile(
-                new DidRenameFileParams() {
-                    Files = Container<FileRename>.From(new FileRename() { Uri = new Uri("file://asdf") })
+                new DidRenameFileParams
+                {
+                    Files = Container<FileRename>.From(new FileRename { Uri = new Uri("file://asdf") })
                 }
             );
 
@@ -128,13 +140,15 @@ namespace Lsp.Tests.Integration
             var (client, server) = await Initialize(Configure, Configure);
 
             await client.RequestWillDeleteFile(
-                new WillDeleteFileParams() {
-                    Files = Container<FileDelete>.From(new FileDelete() { Uri = new Uri("file://asdf") })
+                new WillDeleteFileParams
+                {
+                    Files = Container<FileDelete>.From(new FileDelete { Uri = new Uri("file://asdf") })
                 }
             );
             client.DidDeleteFile(
-                new DidDeleteFileParams() {
-                    Files = Container<FileDelete>.From(new FileDelete() { Uri = new Uri("file://asdf") })
+                new DidDeleteFileParams
+                {
+                    Files = Container<FileDelete>.From(new FileDelete { Uri = new Uri("file://asdf") })
                 }
             );
 
@@ -171,7 +185,8 @@ namespace Lsp.Tests.Integration
         private void Configure(LanguageClientOptions options)
         {
             options.WithCapability(
-                new FileOperationsWorkspaceClientCapabilities() {
+                new FileOperationsWorkspaceClientCapabilities
+                {
                     DidCreate = true,
                     DidRename = true,
                     DidDelete = true,
@@ -185,11 +200,14 @@ namespace Lsp.Tests.Integration
         private void Configure(LanguageServerOptions options)
         {
             var filters = Container<FileOperationFilter>.From(
-                new FileOperationFilter() {
-                    Scheme = "file", Pattern = new FileOperationPattern() {
+                new FileOperationFilter
+                {
+                    Scheme = "file", Pattern = new FileOperationPattern
+                    {
                         Glob = "**/*.cs",
                         Matches = FileOperationPatternKind.File,
-                        Options = new FileOperationPatternOptions() {
+                        Options = new FileOperationPatternOptions
+                        {
                             IgnoreCase = true
                         }
                     }

@@ -1,6 +1,6 @@
 ﻿using OmniSharp.Extensions.LanguageServer.Server;
 
-namespace Lsp.Tests.Integration.Fixtures
+namespace Lsp.Integration.Tests.Fixtures
 {
     public sealed class DefaultServer : IConfigureLanguageServerOptions
     {

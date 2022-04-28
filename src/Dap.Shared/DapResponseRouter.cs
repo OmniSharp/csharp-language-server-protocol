@@ -28,31 +28,48 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
             Serializer = serializer;
         }
 
-        public void SendNotification(string method) =>
+        public void SendNotification(string method)
+        {
             OutputHandler.Send(
-                new OutgoingNotification {
+                new OutgoingNotification
+                {
                     Method = method
                 }
             );
+        }
 
-        public void SendNotification<T>(string method, T @params) =>
+        public void SendNotification<T>(string method, T @params)
+        {
             OutputHandler.Send(
-                new OutgoingNotification {
+                new OutgoingNotification
+                {
                     Method = method,
                     Params = @params
                 }
             );
+        }
 
-        public void SendNotification(IRequest @params) => SendNotification(GetMethodName(@params.GetType()), @params);
+        public void SendNotification(IRequest @params)
+        {
+            SendNotification(GetMethodName(@params.GetType()), @params);
+        }
 
-        public Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> @params, CancellationToken cancellationToken) =>
-            SendRequest(GetMethodName(@params.GetType()), @params).Returning<TResponse>(cancellationToken);
+        public Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> @params, CancellationToken cancellationToken)
+        {
+            return SendRequest(GetMethodName(@params.GetType()), @params).Returning<TResponse>(cancellationToken);
+        }
 
-        public IResponseRouterReturns SendRequest(string method) => new ResponseRouterReturnsImpl(this, method, new object());
+        public IResponseRouterReturns SendRequest(string method)
+        {
+            return new ResponseRouterReturnsImpl(this, method, new object());
+        }
 
-        public IResponseRouterReturns SendRequest<T>(string method, T @params) => new ResponseRouterReturnsImpl(this, method, @params);
+        public IResponseRouterReturns SendRequest<T>(string method, T @params)
+        {
+            return new ResponseRouterReturnsImpl(this, method, @params);
+        }
 
-        public bool TryGetRequest(long id, [NotNullWhen(true)] out string method, [NotNullWhen(true)] out TaskCompletionSource<JToken> pendingTask)
+        public bool TryGetRequest(long id, [NotNullWhen(true)] out string? method, [NotNullWhen(true)] out TaskCompletionSource<JToken>? pendingTask)
         {
             var result = Requests.TryGetValue(id, out var source);
             method = source.method;
@@ -99,7 +116,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
                 cancellationToken.ThrowIfCancellationRequested();
 
                 _router.OutputHandler.Send(
-                    new OutgoingRequest {
+                    new OutgoingRequest
+                    {
                         Method = _method,
                         Params = _params,
                         Id = nextId
@@ -108,7 +126,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
                 if (_method != RequestNames.Cancel)
                 {
                     cancellationToken.Register(
-                        () => {
+                        () =>
+                        {
                             if (tcs.Task.IsCompleted) return;
 #pragma warning disable VSTHRD110
                             _router.SendRequest(RequestNames.Cancel, new { requestId = nextId }).Returning<CancelArguments>(CancellationToken.None);
@@ -122,7 +141,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
                     var result = await tcs.Task.ConfigureAwait(false);
                     if (typeof(TResponse) == typeof(Unit))
                     {
-                        return (TResponse) (object) Unit.Value;
+                        return (TResponse)(object)Unit.Value;
                     }
 
                     return result.ToObject<TResponse>(_router.Serializer.JsonSerializer);
@@ -133,7 +152,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
                 }
             }
 
-            public async Task ReturningVoid(CancellationToken cancellationToken) => await Returning<Unit>(cancellationToken).ConfigureAwait(false);
+            public async Task ReturningVoid(CancellationToken cancellationToken)
+            {
+                await Returning<Unit>(cancellationToken).ConfigureAwait(false);
+            }
         }
     }
 }

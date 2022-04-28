@@ -9,11 +9,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.Goto, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record GotoArguments : IRequest<GotoResponse>
         {
             /// <summary>
@@ -27,8 +25,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public long TargetId { get; init; }
         }
 
-        public record GotoResponse
-        {
-        }
+        public record GotoResponse;
     }
 }

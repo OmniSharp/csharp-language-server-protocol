@@ -10,11 +10,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.StepInTargets, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record StepInTargetsArguments : IRequest<StepInTargetsResponse>
         {
             /// <summary>
@@ -47,7 +45,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// The name of the stepIn target (shown in the UI).
             /// </summary>
-            public string Label { get; init; }
+            public string Label { get; init; } = null!;
         }
     }
 }

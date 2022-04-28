@@ -12,19 +12,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         [Parallel]
         [Method(TextDocumentNames.TypeDefinition, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(TypeDefinitionRegistrationOptions)), Capability(typeof(TypeDefinitionCapability))]
-        public partial record TypeDefinitionParams : TextDocumentPositionParams, IWorkDoneProgressParams, IPartialItemsRequest<LocationOrLocationLinks, LocationOrLocationLink>
-        {
-        }
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(TypeDefinitionRegistrationOptions))]
+        [Capability(typeof(TypeDefinitionCapability))]
+        public partial record TypeDefinitionParams : TextDocumentPositionParams, IWorkDoneProgressParams,
+                                                     IPartialItemsRequest<LocationOrLocationLinks, LocationOrLocationLink>;
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.TypeDefinitionProvider))]
         [RegistrationName(TextDocumentNames.TypeDefinition)]
-        public partial class TypeDefinitionRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions, IStaticRegistrationOptions { }
+        public partial class TypeDefinitionRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions, IStaticRegistrationOptions
+        {
+        }
     }
 
     namespace Client.Capabilities

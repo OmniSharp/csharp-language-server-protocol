@@ -1,27 +1,25 @@
 using System;
 using System.Linq;
-using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Lsp.Integration.Tests.Fixtures;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Client;
-using Serilog.Events;
-using Xunit;
-using Xunit.Abstractions;
-using Lsp.Tests.Integration.Fixtures;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
+using Serilog.Events;
 using TestingUtils;
+using Xunit;
+using Xunit.Abstractions;
 
-namespace Lsp.Tests.Integration
+namespace Lsp.Integration.Tests
 {
     public class ExtensionTests : LanguageProtocolTestBase
     {
@@ -41,23 +39,26 @@ namespace Lsp.Tests.Integration
                .Invoke(Arg.Any<UnitTest>(), Arg.Any<UnitTestCapability>(), Arg.Any<CancellationToken>())
                .Returns(Task.CompletedTask);
             var (client, server) = await Initialize(
-                options => {
+                options =>
+                {
                     options.UseAssemblyAttributeScanning = false;
                     options
                        .WithAssemblies(typeof(UnitTestCapability).Assembly)
                        .WithCapability(
-                            new UnitTestCapability() {
+                            new UnitTestCapability
+                            {
                                 DynamicRegistration = true,
                                 Property = "Abcd"
                             }
                         );
-                }, options => {
+                }, options =>
+                {
                     options.UseAssemblyAttributeScanning = false;
                     options
-                       .WithAssemblies(typeof(UnitTestCapability).Assembly)
-                       .OnDiscoverUnitTests(onDiscoverHandler, (_, _) => new UnitTestRegistrationOptions())
+                       .WithAssemblies(typeof(UnitTestCapability).Assembly).OnDiscoverUnitTests(onDiscoverHandler, (_, _) => new UnitTestRegistrationOptions())
                        .OnRunUnitTest(
-                            onRunUnitHandler, (_, _) => new UnitTestRegistrationOptions() {
+                            onRunUnitHandler, (_, _) => new UnitTestRegistrationOptions
+                            {
                                 SupportsDebugging = true,
                                 WorkDoneProgress = true
                             }
@@ -86,14 +87,17 @@ namespace Lsp.Tests.Integration
             }
 
             await client.RequestDiscoverUnitTests(
-                new DiscoverUnitTestsParams() {
+                new DiscoverUnitTestsParams
+                {
                     PartialResultToken = new ProgressToken(1),
                     WorkDoneToken = new ProgressToken(1),
                 }, CancellationToken
             );
             await client.RunUnitTest(new UnitTest(), CancellationToken);
 
-            onDiscoverHandler.Received(1).Invoke(Arg.Any<DiscoverUnitTestsParams>(), Arg.Is<UnitTestCapability>(x => x.Property == "Abcd"), Arg.Any<CancellationToken>());
+            onDiscoverHandler.Received(1).Invoke(
+                Arg.Any<DiscoverUnitTestsParams>(), Arg.Is<UnitTestCapability>(x => x.Property == "Abcd"), Arg.Any<CancellationToken>()
+            );
             onRunUnitHandler.Received(1).Invoke(Arg.Any<UnitTest>(), Arg.Is<UnitTestCapability>(x => x.Property == "Abcd"), Arg.Any<CancellationToken>());
         }
 
@@ -109,11 +113,13 @@ namespace Lsp.Tests.Integration
                .Invoke(Arg.Any<UnitTest>(), Arg.Any<UnitTestCapability>(), Arg.Any<CancellationToken>())
                .Returns(Task.CompletedTask);
             var (client, server) = await Initialize(
-                options => {
+                options =>
+                {
                     options.UseAssemblyAttributeScanning = false;
-                    options.ClientCapabilities.Workspace!.ExtensionData["unitTests"] = JToken.FromObject(new { property = "Abcd", dynamicRegistration = true }); },
-                options => {
-
+                    options.ClientCapabilities.Workspace!.ExtensionData["unitTests"] = JToken.FromObject(new { property = "Abcd", dynamicRegistration = true });
+                },
+                options =>
+                {
                     options.UseAssemblyAttributeScanning = false;
                     options.OnDiscoverUnitTests(onDiscoverHandler, (_, _) => new UnitTestRegistrationOptions());
                     options.OnRunUnitTest(onRunUnitHandler, (_, _) => new UnitTestRegistrationOptions());
@@ -138,7 +144,9 @@ namespace Lsp.Tests.Integration
             await client.RequestDiscoverUnitTests(new DiscoverUnitTestsParams(), CancellationToken);
             await client.RunUnitTest(new UnitTest(), CancellationToken);
 
-            onDiscoverHandler.Received(1).Invoke(Arg.Any<DiscoverUnitTestsParams>(), Arg.Is<UnitTestCapability>(x => x.Property == "Abcd"), Arg.Any<CancellationToken>());
+            onDiscoverHandler.Received(1).Invoke(
+                Arg.Any<DiscoverUnitTestsParams>(), Arg.Is<UnitTestCapability>(x => x.Property == "Abcd"), Arg.Any<CancellationToken>()
+            );
             onRunUnitHandler.Received(1).Invoke(Arg.Any<UnitTest>(), Arg.Is<UnitTestCapability>(x => x.Property == "Abcd"), Arg.Any<CancellationToken>());
         }
 
@@ -148,18 +156,21 @@ namespace Lsp.Tests.Integration
             var onDiscoverHandler = Substitute.For<Func<DiscoverUnitTestsParams, UnitTestCapability, CancellationToken, Task<Container<UnitTest>>>>();
             var onRunUnitHandler = Substitute.For<Func<UnitTest, UnitTestCapability, CancellationToken, Task>>();
             var (_, server) = await Initialize(
-                options => {
+                options =>
+                {
                     options.UseAssemblyAttributeScanning = false;
                     options.WithCapability(
-                        new UnitTestCapability() {
+                        new UnitTestCapability
+                        {
                             DynamicRegistration = false,
                             Property = "Abcd"
                         }
                     );
-                }, options => {
+                }, options =>
+                {
                     options.UseAssemblyAttributeScanning = false;
-                    options.OnDiscoverUnitTests(onDiscoverHandler, (_, _) => new UnitTestRegistrationOptions() { SupportsDebugging = true });
-                    options.OnRunUnitTest(onRunUnitHandler, (_, _) => new UnitTestRegistrationOptions() { SupportsDebugging = true });
+                    options.OnDiscoverUnitTests(onDiscoverHandler, (_, _) => new UnitTestRegistrationOptions { SupportsDebugging = true });
+                    options.OnRunUnitTest(onRunUnitHandler, (_, _) => new UnitTestRegistrationOptions { SupportsDebugging = true });
                 }
             );
 
@@ -184,14 +195,18 @@ namespace Lsp.Tests.Integration
         public async Task Should_Convert_Registration_Options_Into_Static_Options_As_Required()
         {
             var (client, _) = await Initialize(
-                options => {
+                options =>
+                {
                     options.UseAssemblyAttributeScanning = false;
                     options.DisableDynamicRegistration();
                     options.WithCapability(
-                        new CodeActionCapability() {
+                        new CodeActionCapability
+                        {
                             DynamicRegistration = false,
-                            CodeActionLiteralSupport = new CodeActionLiteralSupportOptions() {
-                                CodeActionKind = new CodeActionKindCapabilityOptions() {
+                            CodeActionLiteralSupport = new CodeActionLiteralSupportOptions
+                            {
+                                CodeActionKind = new CodeActionKindCapabilityOptions
+                                {
                                     ValueSet = new Container<CodeActionKind>(
                                         CodeActionKind.Empty,
                                         CodeActionKind.Refactor,
@@ -207,11 +222,13 @@ namespace Lsp.Tests.Integration
                         }
                     );
                 },
-                options => {
+                options =>
+                {
                     options.UseAssemblyAttributeScanning = false;
                     options.OnCodeAction(
                         (@params, capability, token) => Task.FromResult(new CommandOrCodeActionContainer()),
-                        (_, _) => new CodeActionRegistrationOptions() {
+                        (_, _) => new CodeActionRegistrationOptions
+                        {
                             CodeActionKinds = new Container<CodeActionKind>(
                                 CodeActionKind.RefactorExtract,
                                 CodeActionKind.RefactorInline,

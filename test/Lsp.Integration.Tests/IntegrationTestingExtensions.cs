@@ -1,4 +1,4 @@
-﻿namespace Lsp.Tests.Integration
+﻿namespace Lsp.Integration.Tests
 {
     public static class IntegrationTestingExtensions
     {

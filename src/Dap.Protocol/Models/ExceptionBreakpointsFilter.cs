@@ -11,12 +11,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// The internal ID of the filter. This value is passed to the setExceptionBreakpoints request.
         /// </summary>
-        public string Filter { get; init; }
+        public string Filter { get; init; } = null!;
 
         /// <summary>
         /// The name of the filter. This will be shown in the UI.
         /// </summary>
-        public string Label { get; init; }
+        public string Label { get; init; } = null!;
 
         /// <summary>
         /// Initial value of the filter. If not specified a value 'false' is assumed.

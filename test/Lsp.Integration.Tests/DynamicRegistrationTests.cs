@@ -4,25 +4,21 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
-using ImTools;
-using Lsp.Tests.Integration.Fixtures;
+using Lsp.Integration.Tests.Fixtures;
 using NSubstitute;
-using NSubstitute.ReceivedExtensions;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
-using OmniSharp.Extensions.LanguageServer.Protocol.Document;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server;
 using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Lsp.Tests.Integration
+namespace Lsp.Integration.Tests
 {
     public static class DynamicRegistration
     {
@@ -61,7 +57,8 @@ namespace Lsp.Tests.Integration
                     x => x
                        .OnCompletion(
                             (@params, token) => Task.FromResult(new CompletionList()),
-                            (_, _) => new CompletionRegistrationOptions {
+                            (_, _) => new CompletionRegistrationOptions
+                            {
                                 DocumentSelector = DocumentSelector.ForLanguage("vb")
                             }
                         )
@@ -110,7 +107,8 @@ namespace Lsp.Tests.Integration
                 var disposable = server.Register(
                     x => x.OnCompletion(
                         (@params, token) => Task.FromResult(new CompletionList()),
-                        (_, _) => new CompletionRegistrationOptions {
+                        (_, _) => new CompletionRegistrationOptions
+                        {
                             DocumentSelector = DocumentSelector.ForLanguage("vb")
                         }
                     )
@@ -146,10 +144,13 @@ namespace Lsp.Tests.Integration
                 var tokens = Substitute.For<SemanticTokensHandlerBase>();
                 tokens.CreateRegistrationOptions(Arg.Any<SemanticTokensCapability>(), Arg.Any<ClientCapabilities>())
                       .Returns(new SemanticTokensRegistrationOptions());
-                var (client, server) = await Initialize(new ConfigureClient().Configure, options => {
-                    new ConfigureServer().Configure(options);
-                    options.AddHandler(tokens);
-                });
+                var (client, server) = await Initialize(
+                    new ConfigureClient().Configure, options =>
+                    {
+                        new ConfigureServer().Configure(options);
+                        options.AddHandler(tokens);
+                    }
+                );
 
                 await TestHelper.DelayUntil(
                     () => client.RegistrationManager.CurrentRegistrations,
@@ -162,7 +163,10 @@ namespace Lsp.Tests.Integration
                 client.RegistrationManager.CurrentRegistrations.Should().ContainSingle(x => x.Method == TextDocumentNames.SemanticTokensRegistration);
             }
 
-            private bool SelectorMatches(Registration registration, Func<DocumentFilter, bool> documentFilter) => SelectorMatches(registration.RegisterOptions!, documentFilter);
+            private bool SelectorMatches(Registration registration, Func<DocumentFilter, bool> documentFilter)
+            {
+                return SelectorMatches(registration.RegisterOptions!, documentFilter);
+            }
 
             private bool SelectorMatches(object options, Func<DocumentFilter, bool> documentFilter)
             {
@@ -193,9 +197,11 @@ namespace Lsp.Tests.Integration
             {
                 var (client, _) = await Initialize(
                     new ConfigureClient().Configure,
-                    options => {
+                    options =>
+                    {
                         new ConfigureServer().Configure(options);
-                        var semanticRegistrationOptions = new SemanticTokensRegistrationOptions {
+                        var semanticRegistrationOptions = new SemanticTokensRegistrationOptions
+                        {
                             Id = Guid.NewGuid().ToString(),
                             Legend = new SemanticTokensLegend(),
                             Full = new SemanticTokensCapabilityRequestFull { Delta = true },
@@ -206,8 +212,10 @@ namespace Lsp.Tests.Integration
                         // Our server only statically registers when it detects a server that does not support dynamic capabilities
                         // This forces it to do that.
                         options.OnInitialized(
-                            (server, request, response, token) => {
-                                response.Capabilities.SemanticTokensProvider = new SemanticTokensRegistrationOptions.StaticOptions { Id = semanticRegistrationOptions.Id };
+                            (server, request, response, token) =>
+                            {
+                                response.Capabilities.SemanticTokensProvider = new SemanticTokensRegistrationOptions.StaticOptions
+                                    { Id = semanticRegistrationOptions.Id };
                                 return Task.CompletedTask;
                             }
                         );
@@ -227,35 +235,42 @@ namespace Lsp.Tests.Integration
             public async Task Should_Register_Static_When_Dynamic_Is_Disabled()
             {
                 var (client, server) = await Initialize(
-                    options => {
+                    options =>
+                    {
                         new ConfigureClient().Configure(options);
                         options.DisableDynamicRegistration();
                     }, new ConfigureServer().Configure
                 );
 
                 client.ServerSettings.Capabilities.CompletionProvider.Should().BeEquivalentTo(
-                    new CompletionRegistrationOptions.StaticOptions {
+                    new CompletionRegistrationOptions.StaticOptions
+                    {
                         ResolveProvider = true,
                         TriggerCharacters = new Container<string>("a", "b"),
                         AllCommitCharacters = new Container<string>("1", "2"),
                     }, x => x.Excluding(z => z.WorkDoneProgress)
                 );
                 server.ClientSettings.Capabilities!.TextDocument!.Completion.Value.Should().BeEquivalentTo(
-                    new CompletionCapability {
-                        CompletionItem = new CompletionItemCapabilityOptions {
+                    new CompletionCapability
+                    {
+                        CompletionItem = new CompletionItemCapabilityOptions
+                        {
                             DeprecatedSupport = true,
                             DocumentationFormat = new[] { MarkupKind.Markdown },
                             PreselectSupport = true,
                             SnippetSupport = true,
-                            TagSupport = new CompletionItemTagSupportCapabilityOptions {
-                                ValueSet = new[] {
+                            TagSupport = new CompletionItemTagSupportCapabilityOptions
+                            {
+                                ValueSet = new[]
+                                {
                                     CompletionItemTag.Deprecated
                                 }
                             },
                             CommitCharactersSupport = true
                         },
                         ContextSupport = true,
-                        CompletionItemKind = new CompletionItemKindCapabilityOptions {
+                        CompletionItemKind = new CompletionItemKindCapabilityOptions
+                        {
                             ValueSet = new Container<CompletionItemKind>(
                                 Enum.GetValues(typeof(CompletionItemKind))
                                     .Cast<CompletionItemKind>()
@@ -264,21 +279,26 @@ namespace Lsp.Tests.Integration
                     }, x => x.ConfigureForSupports().Excluding(z => z.DynamicRegistration)
                 );
                 client.ClientSettings.Capabilities!.TextDocument!.Completion.Value.Should().BeEquivalentTo(
-                    new CompletionCapability {
-                        CompletionItem = new CompletionItemCapabilityOptions {
+                    new CompletionCapability
+                    {
+                        CompletionItem = new CompletionItemCapabilityOptions
+                        {
                             DeprecatedSupport = true,
                             DocumentationFormat = new[] { MarkupKind.Markdown },
                             PreselectSupport = true,
                             SnippetSupport = true,
-                            TagSupport = new CompletionItemTagSupportCapabilityOptions {
-                                ValueSet = new[] {
+                            TagSupport = new CompletionItemTagSupportCapabilityOptions
+                            {
+                                ValueSet = new[]
+                                {
                                     CompletionItemTag.Deprecated
                                 }
                             },
                             CommitCharactersSupport = true
                         },
                         ContextSupport = true,
-                        CompletionItemKind = new CompletionItemKindCapabilityOptions {
+                        CompletionItemKind = new CompletionItemKindCapabilityOptions
+                        {
                             ValueSet = new Container<CompletionItemKind>(
                                 Enum.GetValues(typeof(CompletionItemKind))
                                     .Cast<CompletionItemKind>()
@@ -298,21 +318,26 @@ namespace Lsp.Tests.Integration
             {
                 options.EnableDynamicRegistration();
                 options.WithCapability(
-                    new CompletionCapability {
-                        CompletionItem = new CompletionItemCapabilityOptions {
+                    new CompletionCapability
+                    {
+                        CompletionItem = new CompletionItemCapabilityOptions
+                        {
                             DeprecatedSupport = true,
                             DocumentationFormat = new[] { MarkupKind.Markdown },
                             PreselectSupport = true,
                             SnippetSupport = true,
-                            TagSupport = new CompletionItemTagSupportCapabilityOptions {
-                                ValueSet = new[] {
+                            TagSupport = new CompletionItemTagSupportCapabilityOptions
+                            {
+                                ValueSet = new[]
+                                {
                                     CompletionItemTag.Deprecated
                                 }
                             },
                             CommitCharactersSupport = true
                         },
                         ContextSupport = true,
-                        CompletionItemKind = new CompletionItemKindCapabilityOptions {
+                        CompletionItemKind = new CompletionItemKindCapabilityOptions
+                        {
                             ValueSet = new Container<CompletionItemKind>(
                                 Enum.GetValues(typeof(CompletionItemKind))
                                     .Cast<CompletionItemKind>()
@@ -322,7 +347,8 @@ namespace Lsp.Tests.Integration
                 );
 
                 options.WithCapability(
-                    new SemanticTokensCapability {
+                    new SemanticTokensCapability
+                    {
                         TokenModifiers = SemanticTokenModifier.Defaults.ToArray(),
                         TokenTypes = SemanticTokenType.Defaults.ToArray()
                     }
@@ -336,7 +362,8 @@ namespace Lsp.Tests.Integration
             {
                 options.OnCompletion(
                     (@params, token) => Task.FromResult(new CompletionList()),
-                    (_, _) => new CompletionRegistrationOptions {
+                    (_, _) => new CompletionRegistrationOptions
+                    {
                         DocumentSelector = DocumentSelector.ForLanguage("csharp"),
                         ResolveProvider = true,
                         TriggerCharacters = new Container<string>("a", "b"),

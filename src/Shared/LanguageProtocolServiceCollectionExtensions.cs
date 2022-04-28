@@ -1,13 +1,11 @@
 using System;
 using System.Linq;
-using System.Reactive.Concurrency;
 using System.Reflection;
 using DryIoc;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
-using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 
@@ -15,7 +13,8 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 {
     internal static class LanguageProtocolServiceCollectionExtensions
     {
-        internal static IContainer AddLanguageProtocolInternals<T>(this IContainer container, LanguageProtocolRpcOptionsBase<T> options) where T : IJsonRpcHandlerRegistry<T>
+        internal static IContainer AddLanguageProtocolInternals<T>(this IContainer container, LanguageProtocolRpcOptionsBase<T> options)
+            where T : IJsonRpcHandlerRegistry<T>
         {
             options.RequestProcessIdentifier ??= options.SupportsContentModified
                 ? new RequestProcessIdentifier(RequestProcessType.Parallel)
@@ -29,7 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             options.Services.AddLogging(builder => options.LoggingBuilderAction?.Invoke(builder));
 
             container = container.AddJsonRpcServerCore(options);
-            container.RegisterInstanceMany(new LspHandlerTypeDescriptorProvider(options.Assemblies, options.UseAssemblyAttributeScanning), nonPublicServiceTypes: true);
+            container.RegisterInstanceMany(new LspHandlerTypeDescriptorProvider(options.Assemblies, options.UseAssemblyAttributeScanning), true);
 
             container.RegisterInstanceMany(options.Serializer);
             container.RegisterInstance(options.RequestProcessIdentifier);
@@ -38,11 +37,14 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             container.RegisterMany<SupportedCapabilities>(Reuse.Singleton);
             container.RegisterMany<OutputHandlerInitialized>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
             container.Register<TextDocumentIdentifiers>(Reuse.Singleton);
-            container.RegisterInitializer<TextDocumentIdentifiers>((identifiers, context) => { identifiers.Add(context.GetServices<ITextDocumentIdentifier>().ToArray()); });
+            container.RegisterInitializer<TextDocumentIdentifiers>(
+                (identifiers, context) => { identifiers.Add(context.GetServices<ITextDocumentIdentifier>().ToArray()); }
+            );
             container.RegisterMany<LspRequestRouter>(Reuse.Singleton);
             container.RegisterMany<SharedHandlerCollection>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
             container.RegisterInitializer<SharedHandlerCollection>(
-                (manager, context) => {
+                (manager, context) =>
+                {
                     var descriptions = context.Resolve<IJsonRpcHandlerCollection>();
                     descriptions.Populate(context, manager);
                 }
@@ -59,7 +61,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                            .SelectMany(z => z.GetCustomAttributes<RegistrationOptionsConverterAttribute>())
                            .Select(z => z.ConverterType)
                            .Where(z => typeof(IRegistrationOptionsConverter).IsAssignableFrom(z)),
-                    reuse: Reuse.Singleton
+                    Reuse.Singleton
                 );
             }
             else
@@ -69,7 +71,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                            .SelectMany(z => z.GetTypes())
                            .Where(z => z.IsClass && !z.IsAbstract)
                            .Where(z => typeof(IRegistrationOptionsConverter).IsAssignableFrom(z)),
-                    reuse: Reuse.Singleton
+                    Reuse.Singleton
                 );
             }
 

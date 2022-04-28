@@ -20,14 +20,14 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         {
             var _attributes = "GenerateHandler,GenerateRequestMethods,GenerateHandlerMethods";
             var syntaxProvider = context.SyntaxProvider.CreateSyntaxProvider(
-                                             predicate: (syntaxNode, token) =>
+                                             (syntaxNode, _) =>
                                                  syntaxNode is TypeDeclarationSyntax tds
                                                      and (ClassDeclarationSyntax or RecordDeclarationSyntax or InterfaceDeclarationSyntax)
-                                              && tds.AttributeLists.ContainsAttribute(_attributes), transform: (syntaxContext, token) => syntaxContext
+                                              && tds.AttributeLists.ContainsAttribute(_attributes), (syntaxContext, _) => syntaxContext
                                          )
                                         .Combine(context.CompilationProvider)
                                         .Select(
-                                             (tuple, token) =>
+                                             (tuple, _) =>
                                              {
                                                  var (syntaxContext, compilaiton) = tuple;
                                                  var additionalUsings = new HashSet<string>
@@ -64,10 +64,15 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                          );
 
             context.RegisterSourceOutput(syntaxProvider, GenerateHandlerMethods);
-            context.RegisterSourceOutput(syntaxProvider.Where(z => z.actionItem is {}).SelectMany((z, _) => z.actionItem!.AssemblyJsonRpcHandlersAttributeArguments).Collect(), GenerateAssemblyJsonRpcHandlers);
+            context.RegisterSourceOutput(
+                syntaxProvider.Where(z => z.actionItem is { }).SelectMany((z, _) => z.actionItem!.AssemblyJsonRpcHandlersAttributeArguments).Collect(),
+                GenerateAssemblyJsonRpcHandlers
+            );
         }
 
-        private void GenerateHandlerMethods(SourceProductionContext context, (GeneratorData? actionItem, Diagnostic? diagnostic, HashSet<string> additionalUsings) valueTuple)
+        private void GenerateHandlerMethods(
+            SourceProductionContext context, (GeneratorData? actionItem, Diagnostic? diagnostic, HashSet<string> additionalUsings) valueTuple
+        )
         {
             var (actionItem, diagnostic, additionalUsings) = valueTuple;
             //                context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.Message, null, $"candidate: {candidateClass.Identifier.ToFullString()}"));
@@ -108,7 +113,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
             if (!members.Any()) return;
 
-            var namespacesMapping = new Dictionary<string, string[]>()
+            var namespacesMapping = new Dictionary<string, string[]>
             {
                 ["OmniSharp.Extensions.DebugAdapter"] = new[]
                 {
@@ -157,18 +162,18 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
         private void GenerateAssemblyJsonRpcHandlers(SourceProductionContext context, ImmutableArray<AttributeArgumentSyntax> handlers)
         {
-            var namespaces = new HashSet<string>() { "OmniSharp.Extensions.JsonRpc" };
+            var namespaces = new HashSet<string> { "OmniSharp.Extensions.JsonRpc" };
             if (handlers.Any())
             {
                 var cu = CompilationUnit()
-                        .WithUsings(List(namespaces.OrderBy(z => z).Select(z => UsingDirective(ParseName(z)))));
+                   .WithUsings(List(namespaces.OrderBy(z => z).Select(z => UsingDirective(ParseName(z)))));
                 while (handlers.Length > 0)
                 {
                     var innerTypes = handlers.Take(10).ToArray();
                     handlers = handlers.Skip(10).ToImmutableArray();
                     cu = cu.AddAttributeLists(
                         AttributeList(
-                            target: AttributeTargetSpecifier(Token(SyntaxKind.AssemblyKeyword)),
+                            AttributeTargetSpecifier(Token(SyntaxKind.AssemblyKeyword)),
                             SingletonSeparatedList(Attribute(IdentifierName("AssemblyJsonRpcHandlers"), AttributeArgumentList(SeparatedList(innerTypes))))
                         )
                     );

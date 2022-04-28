@@ -21,25 +21,29 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         [Serial]
         [Method(GeneralNames.Progress, Direction.Bidirectional)]
-        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol"), GenerateHandlerMethods,
-         GenerateRequestMethods(typeof(IGeneralLanguageClient), typeof(ILanguageClient), typeof(IGeneralLanguageServer), typeof(ILanguageServer))]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(IGeneralLanguageClient), typeof(ILanguageClient), typeof(IGeneralLanguageServer), typeof(ILanguageServer))]
         public record ProgressParams : IRequest
         {
-            public static ProgressParams Create<T>(ProgressToken token, T value, JsonSerializer jsonSerializer) =>
-                new ProgressParams {
+            public static ProgressParams Create<T>(ProgressToken token, T value, JsonSerializer jsonSerializer)
+            {
+                return new ProgressParams
+                {
                     Token = token,
                     Value = JToken.FromObject(value, jsonSerializer)
                 };
+            }
 
             /// <summary>
             /// The progress token provided by the client or server.
             /// </summary>
-            public ProgressToken Token { get; init; }
+            public ProgressToken Token { get; init; } = null!;
 
             /// <summary>
             /// The progress data.
             /// </summary>
-            public JToken Value { get; init; }
+            public JToken Value { get; init; } = null!;
         }
 
         [JsonConverter(typeof(ProgressTokenConverter))]
@@ -66,7 +70,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public long Long
             {
                 get => _long ?? 0;
-                set {
+                set
+                {
                     String = null;
                     _long = value;
                 }
@@ -77,26 +82,45 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public string? String
             {
                 get => _string;
-                set {
+                set
+                {
                     _string = value;
                     _long = null;
                 }
             }
 
-            public static implicit operator ProgressToken(long value) => new ProgressToken(value);
+            public static implicit operator ProgressToken(long value)
+            {
+                return new ProgressToken(value);
+            }
 
-            public static implicit operator ProgressToken(string value) => new ProgressToken(value);
+            public static implicit operator ProgressToken(string value)
+            {
+                return new ProgressToken(value);
+            }
 
-            public ProgressParams Create<T>(T value, JsonSerializer jsonSerializer) => ProgressParams.Create(this, value, jsonSerializer);
+            public ProgressParams Create<T>(T value, JsonSerializer jsonSerializer)
+            {
+                return ProgressParams.Create(this, value, jsonSerializer);
+            }
 
-            public bool Equals(long other) => IsLong && Long == other;
+            public bool Equals(long other)
+            {
+                return IsLong && Long == other;
+            }
 
-            public bool Equals(string other) => IsString && String == other;
+            public bool Equals(string other)
+            {
+                return IsString && String == other;
+            }
 
             private string DebuggerDisplay => IsString ? String! : IsLong ? Long.ToString() : "";
 
             /// <inheritdoc />
-            public override string ToString() => DebuggerDisplay;
+            public override string ToString()
+            {
+                return DebuggerDisplay;
+            }
         }
     }
 
@@ -125,7 +149,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             return requestRouter.ProgressManager.MonitorUntil(@params, factory, cancellationToken);
         }
 
-        private static readonly PropertyInfo PartialResultTokenProperty = typeof(IPartialResultParams).GetProperty(nameof(IPartialResultParams.PartialResultToken))!;
+        private static readonly PropertyInfo PartialResultTokenProperty =
+            typeof(IPartialResultParams).GetProperty(nameof(IPartialResultParams.PartialResultToken))!;
 
         internal static ProgressToken SetPartialResultToken(this IPartialResultParams @params, ProgressToken? progressToken = null)
         {

@@ -5,11 +5,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The text document.
         /// </summary>
-        public TextDocumentIdentifier TextDocument { get; init; }
+        public TextDocumentIdentifier TextDocument { get; init; } = null!;
 
         /// <summary>
         /// The position inside the text document.
         /// </summary>
-        public Position Position { get; init; }
+        public Position Position { get; init; } = null!;
     }
 }

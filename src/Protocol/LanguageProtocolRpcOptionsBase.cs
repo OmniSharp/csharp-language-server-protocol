@@ -6,7 +6,6 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
-using ISerializer = OmniSharp.Extensions.JsonRpc.ISerializer;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {

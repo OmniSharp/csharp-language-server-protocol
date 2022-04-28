@@ -8,7 +8,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Lsp.Tests.Integration.Fixtures
+namespace Lsp.Integration.Tests.Fixtures
 {
     public abstract class LanguageProtocolFixtureTest<TConfigureFixture, TConfigureClient, TConfigureServer>
         : IClassFixture<LanguageProtocolFixture<TConfigureFixture, TConfigureClient, TConfigureServer>>
@@ -18,7 +18,9 @@ namespace Lsp.Tests.Integration.Fixtures
     {
         protected LanguageProtocolFixture<TConfigureFixture, TConfigureClient, TConfigureServer> Fixture { get; }
 
-        protected LanguageProtocolFixtureTest(ITestOutputHelper testOutputHelper, LanguageProtocolFixture<TConfigureFixture, TConfigureClient, TConfigureServer> fixture)
+        protected LanguageProtocolFixtureTest(
+            ITestOutputHelper testOutputHelper, LanguageProtocolFixture<TConfigureFixture, TConfigureClient, TConfigureServer> fixture
+        )
         {
             Fixture = fixture;
             Client = fixture.Client;
@@ -38,7 +40,15 @@ namespace Lsp.Tests.Integration.Fixtures
         protected ISettler ClientEvents { get; }
         protected ISettler ServerEvents { get; }
         protected ISettler Events { get; }
-        protected Task SettleNext() => Events.SettleNext();
-        protected IObservable<Unit> Settle() => Events.Settle();
+
+        protected Task SettleNext()
+        {
+            return Events.SettleNext();
+        }
+
+        protected IObservable<Unit> Settle()
+        {
+            return Events.Settle();
+        }
     }
 }

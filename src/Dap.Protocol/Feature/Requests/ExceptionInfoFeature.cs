@@ -11,11 +11,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.ExceptionInfo, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record ExceptionInfoArguments : IRequest<ExceptionInfoResponse>
         {
             /// <summary>
@@ -29,7 +27,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// ID of the exception that was thrown.
             /// </summary>
-            public string ExceptionId { get; init; }
+            public string ExceptionId { get; init; } = null!;
 
             /// <summary>
             /// Descriptive text for the exception provided by the debug adapter.

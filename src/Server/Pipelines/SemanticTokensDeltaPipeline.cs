@@ -3,12 +3,11 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
 {
-    class SemanticTokensDeltaPipeline<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse?>
+    internal class SemanticTokensDeltaPipeline<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse?>
         where TRequest : notnull
     {
         public async Task<TResponse?> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse?> next)
@@ -33,9 +32,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
                     {
                         result = result with { Full = result.Full with { ResultId = semanticTokensDeltaParams.PreviousResultId } };
                     }
-                    else if (result  is { IsDelta: true, Delta: { ResultId: null or { Length: 0 } } })
+                    else if (result is { IsDelta: true, Delta: { ResultId: null or { Length: 0 } } })
                     {
-                        result = result with { Delta = result.Delta with {ResultId = semanticTokensDeltaParams.PreviousResultId} };
+                        result = result with { Delta = result.Delta with { ResultId = semanticTokensDeltaParams.PreviousResultId } };
                     }
                 }
 

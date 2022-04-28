@@ -8,11 +8,16 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog;
 
+// ReSharper disable UnusedParameter.Local
+
 namespace SampleServer
 {
     internal class Program
     {
-        private static void Main(string[] args) => MainAsync(args).Wait();
+        private static void Main(string[] args)
+        {
+            MainAsync(args).Wait();
+        }
 
         private static async Task MainAsync(string[] args)
         {
@@ -51,9 +56,11 @@ namespace SampleServer
                        .WithHandler<SemanticTokensHandler>()
                        .WithServices(x => x.AddLogging(b => b.SetMinimumLevel(LogLevel.Trace)))
                        .WithServices(
-                            services => {
+                            services =>
+                            {
                                 services.AddSingleton(
-                                    provider => {
+                                    provider =>
+                                    {
                                         var loggerFactory = provider.GetService<ILoggerFactory>();
                                         var logger = loggerFactory.CreateLogger<Foo>();
 
@@ -63,20 +70,24 @@ namespace SampleServer
                                     }
                                 );
                                 services.AddSingleton(
-                                    new ConfigurationItem {
+                                    new ConfigurationItem
+                                    {
                                         Section = "typescript",
                                     }
                                 ).AddSingleton(
-                                    new ConfigurationItem {
+                                    new ConfigurationItem
+                                    {
                                         Section = "terminal",
                                     }
                                 );
                             }
                         )
                        .OnInitialize(
-                            async (server, request, token) => {
+                            async (server, request, token) =>
+                            {
                                 var manager = server.WorkDoneManager.For(
-                                    request, new WorkDoneProgressBegin {
+                                    request, new WorkDoneProgressBegin
+                                    {
                                         Title = "Server is starting...",
                                         Percentage = 10,
                                     }
@@ -86,7 +97,8 @@ namespace SampleServer
                                 await Task.Delay(2000).ConfigureAwait(false);
 
                                 manager.OnNext(
-                                    new WorkDoneProgressReport {
+                                    new WorkDoneProgressReport
+                                    {
                                         Percentage = 20,
                                         Message = "loading in progress"
                                     }
@@ -94,9 +106,11 @@ namespace SampleServer
                             }
                         )
                        .OnInitialized(
-                            async (server, request, response, token) => {
+                            async (server, request, response, token) =>
+                            {
                                 workDone.OnNext(
-                                    new WorkDoneProgressReport {
+                                    new WorkDoneProgressReport
+                                    {
                                         Percentage = 40,
                                         Message = "loading almost done",
                                     }
@@ -105,7 +119,8 @@ namespace SampleServer
                                 await Task.Delay(2000).ConfigureAwait(false);
 
                                 workDone.OnNext(
-                                    new WorkDoneProgressReport {
+                                    new WorkDoneProgressReport
+                                    {
                                         Message = "loading done",
                                         Percentage = 100,
                                     }
@@ -114,8 +129,10 @@ namespace SampleServer
                             }
                         )
                        .OnStarted(
-                            async (languageServer, token) => {
-                                using var manager = await languageServer.WorkDoneManager.Create(new WorkDoneProgressBegin { Title = "Doing some work..." }).ConfigureAwait(false);
+                            async (languageServer, token) =>
+                            {
+                                using var manager = await languageServer.WorkDoneManager.Create(new WorkDoneProgressBegin { Title = "Doing some work..." })
+                                                                        .ConfigureAwait(false);
 
                                 manager.OnNext(new WorkDoneProgressReport { Message = "doing things..." });
                                 await Task.Delay(10000).ConfigureAwait(false);
@@ -125,9 +142,11 @@ namespace SampleServer
 
                                 var logger = languageServer.Services.GetService<ILogger<Foo>>();
                                 var configuration = await languageServer.Configuration.GetConfiguration(
-                                    new ConfigurationItem {
+                                    new ConfigurationItem
+                                    {
                                         Section = "typescript",
-                                    }, new ConfigurationItem {
+                                    }, new ConfigurationItem
+                                    {
                                         Section = "terminal",
                                     }
                                 ).ConfigureAwait(false);
@@ -138,7 +157,7 @@ namespace SampleServer
                                     baseConfig.Add(config.Key, config.Value);
                                 }
 
-                                logger.LogInformation("Base Config: {Config}", baseConfig);
+                                logger.LogInformation("Base Config: {@Config}", baseConfig);
 
                                 var scopedConfig = new JObject();
                                 foreach (var config in configuration.AsEnumerable())
@@ -146,7 +165,7 @@ namespace SampleServer
                                     scopedConfig.Add(config.Key, config.Value);
                                 }
 
-                                logger.LogInformation("Scoped Config: {Config}", scopedConfig);
+                                logger.LogInformation("Scoped Config: {@Config}", scopedConfig);
                             }
                         )
             ).ConfigureAwait(false);
@@ -165,6 +184,9 @@ namespace SampleServer
             _logger = logger;
         }
 
-        public void SayFoo() => _logger.LogInformation("Fooooo!");
+        public void SayFoo()
+        {
+            _logger.LogInformation("Fooooo!");
+        }
     }
 }

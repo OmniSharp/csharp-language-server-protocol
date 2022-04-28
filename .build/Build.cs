@@ -6,7 +6,6 @@ using Nuke.Common.IO;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Tools.MSBuild;
-using Rocket.Surgery.Nuke;
 using Rocket.Surgery.Nuke.DotNetCore;
 
 [PublicAPI]
@@ -37,7 +36,10 @@ public partial class Solution : NukeBuild,
     /// - Microsoft VisualStudio     https://nuke.build/visualstudio
     /// - Microsoft VSCode           https://nuke.build/vscode
     /// </summary>
-    public static int Main() => Execute<Solution>(x => x.Default);
+    public static int Main()
+    {
+        return Execute<Solution>(x => x.Default);
+    }
 
     [OptionalGitRepository] public GitRepository? GitRepository { get; }
 

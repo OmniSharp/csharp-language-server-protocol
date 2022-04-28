@@ -10,11 +10,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(EventNames.LoadedSource, Direction.ServerToClient)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record LoadedSourceEvent : IRequest
         {
             /// <summary>
@@ -25,7 +23,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// The new, changed, or removed source.
             /// </summary>
-            public Source Source { get; init; }
+            public Source Source { get; init; } = null!;
         }
 
         [StringEnum]

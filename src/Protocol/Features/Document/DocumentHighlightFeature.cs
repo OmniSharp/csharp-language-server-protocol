@@ -14,15 +14,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         [Parallel]
         [Method(TextDocumentNames.DocumentHighlight, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(DocumentHighlightRegistrationOptions)), Capability(typeof(DocumentHighlightCapability))]
-        public partial record DocumentHighlightParams : TextDocumentPositionParams, IWorkDoneProgressParams, IPartialItemsRequest<DocumentHighlightContainer?, DocumentHighlight>
-        {
-        }
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(DocumentHighlightRegistrationOptions))]
+        [Capability(typeof(DocumentHighlightCapability))]
+        public partial record DocumentHighlightParams : TextDocumentPositionParams, IWorkDoneProgressParams,
+                                                        IPartialItemsRequest<DocumentHighlightContainer?, DocumentHighlight>;
 
         /// <summary>
         /// A document highlight is a range inside a text document which deserves
@@ -36,7 +34,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// The range this highlight applies to.
             /// </summary>
-            public Range Range { get; init; }
+            public Range Range { get; init; } = null!;
 
             /// <summary>
             /// The highlight kind, default is DocumentHighlightKind.Text.

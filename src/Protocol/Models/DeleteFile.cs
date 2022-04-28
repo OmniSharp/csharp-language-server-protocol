@@ -15,7 +15,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The file to delete.
         /// </summary>
-        public DocumentUri Uri { get; init; }
+        public DocumentUri Uri { get; init; } = null!;
 
         /// <summary>
         /// Delete Options.

@@ -18,7 +18,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         private readonly ILanguageProtocolSettings _languageProtocolSettings;
 
         public LanguageProtocolProxy(
-            IResponseRouter requestRouter, IResolverContext resolverContext, IProgressManager progressManager, ILanguageProtocolSettings languageProtocolSettings
+            IResponseRouter requestRouter, IResolverContext resolverContext, IProgressManager progressManager,
+            ILanguageProtocolSettings languageProtocolSettings
         )
         {
             ProgressManager = progressManager;
@@ -32,20 +33,44 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         public InitializeResult ServerSettings => _languageProtocolSettings.ServerSettings;
 
-        public void SendNotification(string method) => _responseRouter.SendNotification(method);
+        public void SendNotification(string method)
+        {
+            _responseRouter.SendNotification(method);
+        }
 
-        public void SendNotification<T>(string method, T @params) => _responseRouter.SendNotification(method, @params);
+        public void SendNotification<T>(string method, T @params)
+        {
+            _responseRouter.SendNotification(method, @params);
+        }
 
-        public void SendNotification(IRequest request) => _responseRouter.SendNotification(request);
+        public void SendNotification(IRequest request)
+        {
+            _responseRouter.SendNotification(request);
+        }
 
-        public IResponseRouterReturns SendRequest<T>(string method, T @params) => _responseRouter.SendRequest(method, @params);
+        public IResponseRouterReturns SendRequest<T>(string method, T @params)
+        {
+            return _responseRouter.SendRequest(method, @params);
+        }
 
-        public IResponseRouterReturns SendRequest(string method) => _responseRouter.SendRequest(method);
+        public IResponseRouterReturns SendRequest(string method)
+        {
+            return _responseRouter.SendRequest(method);
+        }
 
-        public Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken) => _responseRouter.SendRequest(request, cancellationToken);
+        public Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken)
+        {
+            return _responseRouter.SendRequest(request, cancellationToken);
+        }
 
-        bool IResponseRouter.TryGetRequest(long id, [NotNullWhen(true)] out string method, [NotNullWhen(true)]out TaskCompletionSource<JToken> pendingTask) =>
-            _responseRouter.TryGetRequest(id, out method, out pendingTask);
-        object IServiceProvider.GetService(Type serviceType) => ResolverContext.GetService(serviceType);
+        bool IResponseRouter.TryGetRequest(long id, [NotNullWhen(true)] out string? method, [NotNullWhen(true)] out TaskCompletionSource<JToken>? pendingTask)
+        {
+            return _responseRouter.TryGetRequest(id, out method, out pendingTask);
+        }
+
+        object IServiceProvider.GetService(Type serviceType)
+        {
+            return ResolverContext.GetService(serviceType);
+        }
     }
 }

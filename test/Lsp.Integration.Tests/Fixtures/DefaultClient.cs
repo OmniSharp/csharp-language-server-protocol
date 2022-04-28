@@ -1,10 +1,8 @@
 ﻿using System;
-using System.ComponentModel;
-using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace Lsp.Tests.Integration.Fixtures
+namespace Lsp.Integration.Tests.Fixtures
 {
     public sealed class DefaultClient : IConfigureLanguageClientOptions
     {

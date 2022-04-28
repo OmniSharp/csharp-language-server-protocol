@@ -1,9 +1,12 @@
 ﻿using OmniSharp.Extensions.JsonRpc.Testing;
 
-namespace Lsp.Tests.Integration.Fixtures
+namespace Lsp.Integration.Tests.Fixtures
 {
     public sealed class DefaultOptions : IConfigureLanguageProtocolFixture
     {
-        public JsonRpcTestOptions Configure(JsonRpcTestOptions options) => options;
+        public JsonRpcTestOptions Configure(JsonRpcTestOptions options)
+        {
+            return options;
+        }
     }
 }

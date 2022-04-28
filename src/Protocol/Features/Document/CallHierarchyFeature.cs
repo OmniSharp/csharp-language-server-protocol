@@ -30,16 +30,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// </summary>
         [Parallel]
         [Method(TextDocumentNames.PrepareCallHierarchy, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
-        ]
-        [RegistrationOptions(typeof(CallHierarchyRegistrationOptions)), Capability(typeof(CallHierarchyCapability))]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(CallHierarchyRegistrationOptions))]
+        [Capability(typeof(CallHierarchyCapability))]
         public partial record CallHierarchyPrepareParams : TextDocumentPositionParams, IWorkDoneProgressParams,
-                                                          IPartialItemsRequest<Container<CallHierarchyItem>?, CallHierarchyItem>
-        {
-        }
+                                                           IPartialItemsRequest<Container<CallHierarchyItem>?, CallHierarchyItem>;
 
         /// <summary>
         /// Represents programming constructs like functions or constructors in the context
@@ -54,7 +51,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// The name of this item.
             /// </summary>
-            public string Name { get; init; }
+            public string Name { get; init; } = null!;
 
             /// <summary>
             /// The kind of this item.
@@ -76,18 +73,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// The resource identifier of this item.
             /// </summary>
-            public DocumentUri Uri { get; init; }
+            public DocumentUri Uri { get; init; } = null!;
 
             /// <summary>
             /// The range enclosing this symbol not including leading/trailing whitespace but everything else, e.g. comments and code.
             /// </summary>
-            public Range Range { get; init; }
+            public Range Range { get; init; } = null!;
 
             /// <summary>
             /// The range that should be selected and revealed when this symbol is being picked, e.g. the name of a function.
             /// Must be contained by the [`range`](#CallHierarchyItem.range).
             /// </summary>
-            public Range SelectionRange { get; init; }
+            public Range SelectionRange { get; init; } = null!;
 
             /// <summary>
             /// A data entry field that is preserved between a call hierarchy prepare and
@@ -103,11 +100,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 $"{Range}";
 
             /// <inheritdoc />
-            public override string ToString() => DebuggerDisplay;
+            public override string ToString()
+            {
+                return DebuggerDisplay;
+            }
         }
+
         public abstract record CallHierarchyBaseCallParams : ICanBeResolved
         {
-            public CallHierarchyItem Item { get; init; }
+            public CallHierarchyItem Item { get; init; } = null!;
 
             JToken? ICanBeResolved.Data
             {
@@ -115,10 +116,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 init => Item.SetRawData(value);
             }
         }
+
         public abstract record CallHierarchyBaseCallParams<T> : ICanBeResolved
             where T : class?, IHandlerIdentity?
         {
-            public CallHierarchyItem<T> Item { get; init; }
+            public CallHierarchyItem<T> Item { get; init; } = null!;
 
             JToken? ICanBeResolved.Data
             {
@@ -134,16 +136,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// </summary>
         [Parallel]
         [Method(TextDocumentNames.CallHierarchyIncoming, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document", Name = "CallHierarchyIncoming"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
-        ]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document", Name = "CallHierarchyIncoming")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
         [Capability(typeof(CallHierarchyCapability))]
         public partial record CallHierarchyIncomingCallsParams : CallHierarchyBaseCallParams, IWorkDoneProgressParams,
-                                                                IPartialItemsRequest<Container<CallHierarchyIncomingCall>?, CallHierarchyIncomingCall>, IDoesNotParticipateInRegistration
-        {
-        }
+                                                                 IPartialItemsRequest<Container<CallHierarchyIncomingCall>?, CallHierarchyIncomingCall>,
+                                                                 IDoesNotParticipateInRegistration;
 
         /// <summary>
         /// The parameter of a `callHierarchy/incomingCalls` request.
@@ -151,29 +150,28 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// @since 3.16.0
         /// </summary>
         [Method(TextDocumentNames.CallHierarchyIncoming, Direction.ClientToServer)]
-        public partial record  CallHierarchyIncomingCallsParams<T> : CallHierarchyBaseCallParams<T>, IWorkDoneProgressParams,
-                                                                     IPartialItemsRequest<Container<CallHierarchyIncomingCall>?, CallHierarchyIncomingCall>, IDoesNotParticipateInRegistration
-            where T : class?, IHandlerIdentity?
-        {
-        }
+        public partial record CallHierarchyIncomingCallsParams<T> : CallHierarchyBaseCallParams<T>, IWorkDoneProgressParams,
+                                                                    IPartialItemsRequest<Container<CallHierarchyIncomingCall>?, CallHierarchyIncomingCall>,
+                                                                    IDoesNotParticipateInRegistration
+            where T : class?, IHandlerIdentity?;
 
         /// <summary>
         /// Represents an incoming call, e.g. a caller of a method or constructor.
         ///
         /// @since 3.16.0
         /// </summary>
-        public partial record  CallHierarchyIncomingCall
+        public partial record CallHierarchyIncomingCall
         {
             /// <summary>
             /// The item that makes the call.
             /// </summary>
-            public CallHierarchyItem From { get; init; }
+            public CallHierarchyItem From { get; init; } = null!;
 
             /// <summary>
             /// The range at which at which the calls appears. This is relative to the caller
             /// denoted by [`this.from`](#CallHierarchyIncomingCall.from).
             /// </summary>
-            public Container<Range> FromRanges { get; init; }
+            public Container<Range> FromRanges { get; init; } = null!;
         }
 
         /// <summary>
@@ -183,20 +181,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// </summary>
         [Parallel]
         [Method(TextDocumentNames.CallHierarchyOutgoing, Direction.ClientToServer)]
-        [
-            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document", Name = "CallHierarchyOutgoing"),
-            GenerateHandlerMethods,
-            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
-        ]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document", Name = "CallHierarchyOutgoing")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
         [Capability(typeof(CallHierarchyCapability))]
         public partial record CallHierarchyOutgoingCallsParams : CallHierarchyBaseCallParams, IWorkDoneProgressParams,
-                                                                IPartialItemsRequest<Container<CallHierarchyOutgoingCall>?, CallHierarchyOutgoingCall>, IDoesNotParticipateInRegistration
+                                                                 IPartialItemsRequest<Container<CallHierarchyOutgoingCall>?, CallHierarchyOutgoingCall>,
+                                                                 IDoesNotParticipateInRegistration
 
         {
             public static CallHierarchyOutgoingCallsParams<T> Create<T>(CallHierarchyOutgoingCallsParams item)
                 where T : class?, IHandlerIdentity?
             {
-                return new CallHierarchyOutgoingCallsParams<T>() {
+                return new CallHierarchyOutgoingCallsParams<T>
+                {
                     Item = item.Item,
                     PartialResultToken = item.PartialResultToken,
                     WorkDoneToken = item.PartialResultToken
@@ -211,20 +209,29 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// </summary>
         [Method(TextDocumentNames.CallHierarchyOutgoing, Direction.ClientToServer)]
         public partial record CallHierarchyOutgoingCallsParams<T> : CallHierarchyBaseCallParams<T>, IWorkDoneProgressParams,
-                                                                   IPartialItemsRequest<Container<CallHierarchyOutgoingCall>?, CallHierarchyOutgoingCall>, IDoesNotParticipateInRegistration
+                                                                    IPartialItemsRequest<Container<CallHierarchyOutgoingCall>?, CallHierarchyOutgoingCall>,
+                                                                    IDoesNotParticipateInRegistration
             where T : class?, IHandlerIdentity?
         {
             public static CallHierarchyOutgoingCallsParams Create(CallHierarchyOutgoingCallsParams<T> item)
             {
-                return new CallHierarchyOutgoingCallsParams() {
+                return new CallHierarchyOutgoingCallsParams
+                {
                     Item = item.Item,
                     PartialResultToken = item.PartialResultToken,
                     WorkDoneToken = item.PartialResultToken
                 };
             }
 
-            public static implicit operator CallHierarchyOutgoingCallsParams(CallHierarchyOutgoingCallsParams<T> item) => Create(item);
-            public static implicit operator CallHierarchyOutgoingCallsParams<T>(CallHierarchyOutgoingCallsParams item) => CallHierarchyOutgoingCallsParams.Create<T>(item);
+            public static implicit operator CallHierarchyOutgoingCallsParams(CallHierarchyOutgoingCallsParams<T> item)
+            {
+                return Create(item);
+            }
+
+            public static implicit operator CallHierarchyOutgoingCallsParams<T>(CallHierarchyOutgoingCallsParams item)
+            {
+                return CallHierarchyOutgoingCallsParams.Create<T>(item);
+            }
         }
 
         /// <summary>
@@ -237,14 +244,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// The item that is called.
             /// </summary>
-            public CallHierarchyItem To { get; init; }
+            public CallHierarchyItem To { get; init; } = null!;
 
             /// <summary>
             /// The range at which this item is called. This is the range relative to the caller, e.g the item
             /// passed to [`provideCallHierarchyOutgoingCalls`](#CallHierarchyItemProvider.provideCallHierarchyOutgoingCalls)
             /// and not [`this.to`](#CallHierarchyOutgoingCall.to).
             /// </summary>
-            public Container<Range> FromRanges { get; init; }
+            public Container<Range> FromRanges { get; init; } = null!;
         }
 
         /// <summary>
@@ -274,7 +281,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
     namespace Document
     {
-        public abstract class CallHierarchyHandlerBase : AbstractHandlers.Base<CallHierarchyRegistrationOptions, CallHierarchyCapability>, ICallHierarchyPrepareHandler,
+        public abstract class CallHierarchyHandlerBase : AbstractHandlers.Base<CallHierarchyRegistrationOptions, CallHierarchyCapability>,
+                                                         ICallHierarchyPrepareHandler,
                                                          ICallHierarchyIncomingHandler,
                                                          ICallHierarchyOutgoingHandler
         {
@@ -294,7 +302,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public abstract Task<Container<CallHierarchyIncomingCall>?> Handle(CallHierarchyIncomingCallsParams request, CancellationToken cancellationToken);
             public abstract Task<Container<CallHierarchyOutgoingCall>?> Handle(CallHierarchyOutgoingCallsParams request, CancellationToken cancellationToken);
         }
-        public abstract class PartialCallHierarchyHandlerBase : AbstractHandlers.PartialResults<CallHierarchyPrepareParams, Container<CallHierarchyItem>?, CallHierarchyItem,
+
+        public abstract class PartialCallHierarchyHandlerBase : AbstractHandlers.PartialResults<CallHierarchyPrepareParams, Container<CallHierarchyItem>?,
+                                                                    CallHierarchyItem,
                                                                     CallHierarchyRegistrationOptions, CallHierarchyCapability>,
                                                                 ICallHierarchyPrepareHandler, ICallHierarchyIncomingHandler, ICallHierarchyOutgoingHandler
         {
@@ -314,11 +324,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
             }
 
-            public Task<Container<CallHierarchyIncomingCall>?> Handle(CallHierarchyIncomingCallsParams request, CancellationToken cancellationToken) =>
-                _incoming.Handle(request, cancellationToken);
+            public Task<Container<CallHierarchyIncomingCall>?> Handle(CallHierarchyIncomingCallsParams request, CancellationToken cancellationToken)
+            {
+                return _incoming.Handle(request, cancellationToken);
+            }
 
-            public Task<Container<CallHierarchyOutgoingCall>?> Handle(CallHierarchyOutgoingCallsParams request, CancellationToken cancellationToken) =>
-                _outgoing.Handle(request, cancellationToken);
+            public Task<Container<CallHierarchyOutgoingCall>?> Handle(CallHierarchyOutgoingCallsParams request, CancellationToken cancellationToken)
+            {
+                return _outgoing.Handle(request, cancellationToken);
+            }
 
             protected abstract void Handle(
                 CallHierarchyIncomingCallsParams request, IObserver<IEnumerable<CallHierarchyIncomingCall>> results, CancellationToken cancellationToken
@@ -351,15 +365,24 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     CallHierarchyIncomingCallsParams request,
                     IObserver<IEnumerable<CallHierarchyIncomingCall>> results,
                     CancellationToken cancellationToken
-                ) => _self.Handle(request, results, cancellationToken);
+                )
+                {
+                    _self.Handle(request, results, cancellationToken);
+                }
 
-                protected internal override CallHierarchyRegistrationOptions CreateRegistrationOptions(CallHierarchyCapability capability, ClientCapabilities clientCapabilities) =>
-                    ( (IRegistration<CallHierarchyRegistrationOptions, CallHierarchyCapability>) _self ).GetRegistrationOptions(capability, clientCapabilities);
+                protected internal override CallHierarchyRegistrationOptions CreateRegistrationOptions(
+                    CallHierarchyCapability capability, ClientCapabilities clientCapabilities
+                )
+                {
+                    return ( (IRegistration<CallHierarchyRegistrationOptions, CallHierarchyCapability>)_self ).GetRegistrationOptions(
+                        capability, clientCapabilities
+                    );
+                }
             }
 
-            class PartialOutgoing :
-                AbstractHandlers.PartialResults<CallHierarchyOutgoingCallsParams, Container<CallHierarchyOutgoingCall>?, CallHierarchyOutgoingCall, CallHierarchyRegistrationOptions
-                  , CallHierarchyCapability>, ICallHierarchyOutgoingHandler
+            private class PartialOutgoing : AbstractHandlers.PartialResults<CallHierarchyOutgoingCallsParams, Container<CallHierarchyOutgoingCall>?,
+                                                CallHierarchyOutgoingCall, CallHierarchyRegistrationOptions
+                                              , CallHierarchyCapability>, ICallHierarchyOutgoingHandler
             {
                 private readonly PartialCallHierarchyHandlerBase _self;
                 private readonly Guid _id;
@@ -375,12 +398,22 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
                 protected override void Handle(
                     CallHierarchyOutgoingCallsParams request, IObserver<IEnumerable<CallHierarchyOutgoingCall>> results, CancellationToken cancellationToken
-                ) => _self.Handle(request, results, cancellationToken);
+                )
+                {
+                    _self.Handle(request, results, cancellationToken);
+                }
 
-                protected internal override CallHierarchyRegistrationOptions CreateRegistrationOptions(CallHierarchyCapability capability, ClientCapabilities clientCapabilities) =>
-                    ( (IRegistration<CallHierarchyRegistrationOptions, CallHierarchyCapability>) _self ).GetRegistrationOptions(capability, clientCapabilities);
+                protected internal override CallHierarchyRegistrationOptions CreateRegistrationOptions(
+                    CallHierarchyCapability capability, ClientCapabilities clientCapabilities
+                )
+                {
+                    return ( (IRegistration<CallHierarchyRegistrationOptions, CallHierarchyCapability>)_self ).GetRegistrationOptions(
+                        capability, clientCapabilities
+                    );
+                }
             }
         }
+
         public abstract class CallHierarchyHandlerBase<T> : CallHierarchyHandlerBase where T : class?, IHandlerIdentity?
         {
             protected CallHierarchyHandlerBase(Guid id) : base(id)
@@ -397,10 +430,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 return Container<CallHierarchyItem>.From(response?.Select(CallHierarchyItem.From)!);
             }
 
-            public sealed override Task<Container<CallHierarchyIncomingCall>?> Handle(CallHierarchyIncomingCallsParams request, CancellationToken cancellationToken)
+            public sealed override Task<Container<CallHierarchyIncomingCall>?> Handle(
+                CallHierarchyIncomingCallsParams request, CancellationToken cancellationToken
+            )
             {
                 return HandleIncomingCalls(
-                    new CallHierarchyIncomingCallsParams<T>() {
+                    new CallHierarchyIncomingCallsParams<T>
+                    {
                         Item = request.Item,
                         PartialResultToken = request.PartialResultToken,
                         WorkDoneToken = request.WorkDoneToken
@@ -409,10 +445,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 );
             }
 
-            public sealed override Task<Container<CallHierarchyOutgoingCall>?> Handle(CallHierarchyOutgoingCallsParams request, CancellationToken cancellationToken)
+            public sealed override Task<Container<CallHierarchyOutgoingCall>?> Handle(
+                CallHierarchyOutgoingCallsParams request, CancellationToken cancellationToken
+            )
             {
                 return HandleOutgoingCalls(
-                    new CallHierarchyOutgoingCallsParams<T>() {
+                    new CallHierarchyOutgoingCallsParams<T>
+                    {
                         Item = request.Item,
                         PartialResultToken = request.PartialResultToken,
                         WorkDoneToken = request.WorkDoneToken
@@ -422,38 +461,55 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }
 
             protected abstract Task<Container<CallHierarchyItem<T>>?> HandlePrepare(CallHierarchyPrepareParams request, CancellationToken cancellationToken);
-            protected abstract Task<Container<CallHierarchyIncomingCall>?> HandleIncomingCalls(CallHierarchyIncomingCallsParams<T> request, CancellationToken cancellationToken);
-            protected abstract Task<Container<CallHierarchyOutgoingCall>?> HandleOutgoingCalls(CallHierarchyOutgoingCallsParams<T> request, CancellationToken cancellationToken);
+
+            protected abstract Task<Container<CallHierarchyIncomingCall>?> HandleIncomingCalls(
+                CallHierarchyIncomingCallsParams<T> request, CancellationToken cancellationToken
+            );
+
+            protected abstract Task<Container<CallHierarchyOutgoingCall>?> HandleOutgoingCalls(
+                CallHierarchyOutgoingCallsParams<T> request, CancellationToken cancellationToken
+            );
         }
+
         public abstract class PartialCallHierarchyHandlerBase<T> : PartialCallHierarchyHandlerBase where T : class?, IHandlerIdentity?
         {
             protected PartialCallHierarchyHandlerBase(IProgressManager progressManager) : base(progressManager)
             {
             }
 
-            protected sealed override void Handle(CallHierarchyPrepareParams request, IObserver<IEnumerable<CallHierarchyItem>> results, CancellationToken cancellationToken) =>
+            protected sealed override void Handle(
+                CallHierarchyPrepareParams request, IObserver<IEnumerable<CallHierarchyItem>> results, CancellationToken cancellationToken
+            )
+            {
                 Handle(
                     request,
                     Observer.Create<IEnumerable<CallHierarchyItem<T>>>(
-                        x => results.OnNext(x.Select(z => (CallHierarchyItem) z)),
+                        x => results.OnNext(x.Select(z => (CallHierarchyItem)z)),
                         results.OnError,
                         results.OnCompleted
                     ), cancellationToken
                 );
+            }
 
-            protected abstract void Handle(CallHierarchyPrepareParams request, IObserver<IEnumerable<CallHierarchyItem<T>>> results, CancellationToken cancellationToken);
+            protected abstract void Handle(
+                CallHierarchyPrepareParams request, IObserver<IEnumerable<CallHierarchyItem<T>>> results, CancellationToken cancellationToken
+            );
 
             protected sealed override void Handle(
                 CallHierarchyIncomingCallsParams request, IObserver<IEnumerable<CallHierarchyIncomingCall>> results, CancellationToken cancellationToken
-            ) => Handle(
-                new CallHierarchyIncomingCallsParams<T>() {
-                    Item = request.Item,
-                    PartialResultToken = request.PartialResultToken,
-                    WorkDoneToken = request.WorkDoneToken
-                },
-                results,
-                cancellationToken
-            );
+            )
+            {
+                Handle(
+                    new CallHierarchyIncomingCallsParams<T>
+                    {
+                        Item = request.Item,
+                        PartialResultToken = request.PartialResultToken,
+                        WorkDoneToken = request.WorkDoneToken
+                    },
+                    results,
+                    cancellationToken
+                );
+            }
 
             protected abstract void Handle(
                 CallHierarchyIncomingCallsParams<T> request, IObserver<IEnumerable<CallHierarchyIncomingCall>> results, CancellationToken cancellationToken
@@ -461,20 +517,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             protected sealed override void Handle(
                 CallHierarchyOutgoingCallsParams request, IObserver<IEnumerable<CallHierarchyOutgoingCall>> results, CancellationToken cancellationToken
-            ) => Handle(
-                new CallHierarchyOutgoingCallsParams<T> {
-                    Item = request.Item,
-                    PartialResultToken = request.PartialResultToken,
-                    WorkDoneToken = request.WorkDoneToken
-                },
-                results,
-                cancellationToken
-            );
+            )
+            {
+                Handle(
+                    new CallHierarchyOutgoingCallsParams<T>
+                    {
+                        Item = request.Item,
+                        PartialResultToken = request.PartialResultToken,
+                        WorkDoneToken = request.WorkDoneToken
+                    },
+                    results,
+                    cancellationToken
+                );
+            }
 
             protected abstract void Handle(
                 CallHierarchyOutgoingCallsParams<T> request, IObserver<IEnumerable<CallHierarchyOutgoingCall>> results, CancellationToken cancellationToken
             );
         }
+
         public static partial class CallHierarchyExtensions
         {
             public static ILanguageServerRegistry OnCallHierarchy(
@@ -532,8 +593,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static ILanguageServerRegistry OnCallHierarchy<T>(
                 this ILanguageServerRegistry registry,
                 Func<CallHierarchyPrepareParams, CallHierarchyCapability, CancellationToken, Task<Container<CallHierarchyItem<T>>?>> handler,
-                Func<CallHierarchyIncomingCallsParams<T>, CallHierarchyCapability, CancellationToken, Task<Container<CallHierarchyIncomingCall>?>> incomingHandler,
-                Func<CallHierarchyOutgoingCallsParams<T>, CallHierarchyCapability, CancellationToken, Task<Container<CallHierarchyOutgoingCall>?>> outgoingHandler,
+                Func<CallHierarchyIncomingCallsParams<T>, CallHierarchyCapability, CancellationToken, Task<Container<CallHierarchyIncomingCall>?>>
+                    incomingHandler,
+                Func<CallHierarchyOutgoingCallsParams<T>, CallHierarchyCapability, CancellationToken, Task<Container<CallHierarchyOutgoingCall>?>>
+                    outgoingHandler,
                 RegistrationOptionsDelegate<CallHierarchyRegistrationOptions, CallHierarchyCapability>? registrationOptionsFactory
             ) where T : class?, IHandlerIdentity?
             {
@@ -655,8 +718,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static ILanguageServerRegistry OnCallHierarchy(
                 this ILanguageServerRegistry registry,
                 Action<CallHierarchyPrepareParams, IObserver<IEnumerable<CallHierarchyItem>>, CallHierarchyCapability, CancellationToken> handler,
-                Action<CallHierarchyIncomingCallsParams, IObserver<IEnumerable<CallHierarchyIncomingCall>>, CallHierarchyCapability, CancellationToken> incomingHandler,
-                Action<CallHierarchyOutgoingCallsParams, IObserver<IEnumerable<CallHierarchyOutgoingCall>>, CallHierarchyCapability, CancellationToken> outgoingHandler,
+                Action<CallHierarchyIncomingCallsParams, IObserver<IEnumerable<CallHierarchyIncomingCall>>, CallHierarchyCapability, CancellationToken>
+                    incomingHandler,
+                Action<CallHierarchyOutgoingCallsParams, IObserver<IEnumerable<CallHierarchyOutgoingCall>>, CallHierarchyCapability, CancellationToken>
+                    outgoingHandler,
                 RegistrationOptionsDelegate<CallHierarchyRegistrationOptions, CallHierarchyCapability>? registrationOptionsFactory
             )
             {
@@ -712,8 +777,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static ILanguageServerRegistry OnCallHierarchy<T>(
                 this ILanguageServerRegistry registry,
                 Action<CallHierarchyPrepareParams, IObserver<IEnumerable<CallHierarchyItem<T>>>, CallHierarchyCapability, CancellationToken> handler,
-                Action<CallHierarchyIncomingCallsParams<T>, IObserver<IEnumerable<CallHierarchyIncomingCall>>, CallHierarchyCapability, CancellationToken> incomingHandler,
-                Action<CallHierarchyOutgoingCallsParams<T>, IObserver<IEnumerable<CallHierarchyOutgoingCall>>, CallHierarchyCapability, CancellationToken> outgoingHandler,
+                Action<CallHierarchyIncomingCallsParams<T>, IObserver<IEnumerable<CallHierarchyIncomingCall>>, CallHierarchyCapability, CancellationToken>
+                    incomingHandler,
+                Action<CallHierarchyOutgoingCallsParams<T>, IObserver<IEnumerable<CallHierarchyOutgoingCall>>, CallHierarchyCapability, CancellationToken>
+                    outgoingHandler,
                 RegistrationOptionsDelegate<CallHierarchyRegistrationOptions, CallHierarchyCapability>? registrationOptionsFactory
             ) where T : class?, IHandlerIdentity?
             {
@@ -846,20 +913,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             private class DelegatingCallHierarchyHandler<T> : CallHierarchyHandlerBase<T> where T : class?, IHandlerIdentity?
             {
-                private readonly Func<CallHierarchyPrepareParams, CallHierarchyCapability, CancellationToken, Task<Container<CallHierarchyItem<T>>?>> _handlePrepare;
+                private readonly Func<CallHierarchyPrepareParams, CallHierarchyCapability, CancellationToken, Task<Container<CallHierarchyItem<T>>?>>
+                    _handlePrepare;
 
-                private readonly Func<CallHierarchyIncomingCallsParams<T>, CallHierarchyCapability, CancellationToken, Task<Container<CallHierarchyIncomingCall>?>>
+                private readonly Func<CallHierarchyIncomingCallsParams<T>, CallHierarchyCapability, CancellationToken,
+                        Task<Container<CallHierarchyIncomingCall>?>>
                     _handleIncomingCalls;
 
-                private readonly Func<CallHierarchyOutgoingCallsParams<T>, CallHierarchyCapability, CancellationToken, Task<Container<CallHierarchyOutgoingCall>?>>
+                private readonly Func<CallHierarchyOutgoingCallsParams<T>, CallHierarchyCapability, CancellationToken,
+                        Task<Container<CallHierarchyOutgoingCall>?>>
                     _handleOutgoingCalls;
 
                 private readonly RegistrationOptionsDelegate<CallHierarchyRegistrationOptions, CallHierarchyCapability> _registrationOptionsFactory;
 
                 public DelegatingCallHierarchyHandler(
                     Func<CallHierarchyPrepareParams, CallHierarchyCapability, CancellationToken, Task<Container<CallHierarchyItem<T>>?>> handlePrepare,
-                    Func<CallHierarchyIncomingCallsParams<T>, CallHierarchyCapability, CancellationToken, Task<Container<CallHierarchyIncomingCall>?>> handleIncomingCalls,
-                    Func<CallHierarchyOutgoingCallsParams<T>, CallHierarchyCapability, CancellationToken, Task<Container<CallHierarchyOutgoingCall>?>> handleOutgoingCalls,
+                    Func<CallHierarchyIncomingCallsParams<T>, CallHierarchyCapability, CancellationToken, Task<Container<CallHierarchyIncomingCall>?>>
+                        handleIncomingCalls,
+                    Func<CallHierarchyOutgoingCallsParams<T>, CallHierarchyCapability, CancellationToken, Task<Container<CallHierarchyOutgoingCall>?>>
+                        handleOutgoingCalls,
                     RegistrationOptionsDelegate<CallHierarchyRegistrationOptions, CallHierarchyCapability> registrationOptionsFactory
                 )
                 {
@@ -869,30 +941,44 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     _registrationOptionsFactory = registrationOptionsFactory;
                 }
 
-                protected override Task<Container<CallHierarchyItem<T>>?> HandlePrepare(CallHierarchyPrepareParams request, CancellationToken cancellationToken) =>
-                    _handlePrepare(request, Capability, cancellationToken);
+                protected override Task<Container<CallHierarchyItem<T>>?> HandlePrepare(CallHierarchyPrepareParams request, CancellationToken cancellationToken)
+                {
+                    return _handlePrepare(request, Capability, cancellationToken);
+                }
 
                 protected override Task<Container<CallHierarchyIncomingCall>?> HandleIncomingCalls(
                     CallHierarchyIncomingCallsParams<T> request, CancellationToken cancellationToken
-                ) =>
-                    _handleIncomingCalls(request, Capability, cancellationToken);
+                )
+                {
+                    return _handleIncomingCalls(request, Capability, cancellationToken);
+                }
 
                 protected override Task<Container<CallHierarchyOutgoingCall>?> HandleOutgoingCalls(
                     CallHierarchyOutgoingCallsParams<T> request, CancellationToken cancellationToken
-                ) =>
-                    _handleOutgoingCalls(request, Capability, cancellationToken);
+                )
+                {
+                    return _handleOutgoingCalls(request, Capability, cancellationToken);
+                }
 
-                protected internal override CallHierarchyRegistrationOptions CreateRegistrationOptions(CallHierarchyCapability capability, ClientCapabilities clientCapabilities) => _registrationOptionsFactory(capability, clientCapabilities);
+                protected internal override CallHierarchyRegistrationOptions CreateRegistrationOptions(
+                    CallHierarchyCapability capability, ClientCapabilities clientCapabilities
+                )
+                {
+                    return _registrationOptionsFactory(capability, clientCapabilities);
+                }
             }
 
             private class DelegatingPartialCallHierarchyHandler<T> : PartialCallHierarchyHandlerBase<T> where T : class?, IHandlerIdentity?
             {
-                private readonly Action<CallHierarchyPrepareParams, IObserver<IEnumerable<CallHierarchyItem<T>>>, CallHierarchyCapability, CancellationToken> _handleParams;
+                private readonly Action<CallHierarchyPrepareParams, IObserver<IEnumerable<CallHierarchyItem<T>>>, CallHierarchyCapability, CancellationToken>
+                    _handleParams;
 
-                private readonly Action<CallHierarchyIncomingCallsParams<T>, IObserver<IEnumerable<CallHierarchyIncomingCall>>, CallHierarchyCapability, CancellationToken>
+                private readonly Action<CallHierarchyIncomingCallsParams<T>, IObserver<IEnumerable<CallHierarchyIncomingCall>>, CallHierarchyCapability,
+                        CancellationToken>
                     _handleIncoming;
 
-                private readonly Action<CallHierarchyOutgoingCallsParams<T>, IObserver<IEnumerable<CallHierarchyOutgoingCall>>, CallHierarchyCapability, CancellationToken>
+                private readonly Action<CallHierarchyOutgoingCallsParams<T>, IObserver<IEnumerable<CallHierarchyOutgoingCall>>, CallHierarchyCapability,
+                        CancellationToken>
                     _handleOutgoing;
 
                 private readonly RegistrationOptionsDelegate<CallHierarchyRegistrationOptions, CallHierarchyCapability> _registrationOptionsFactory;
@@ -900,8 +986,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 public DelegatingPartialCallHierarchyHandler(
                     IProgressManager progressManager,
                     Action<CallHierarchyPrepareParams, IObserver<IEnumerable<CallHierarchyItem<T>>>, CallHierarchyCapability, CancellationToken> handleParams,
-                    Action<CallHierarchyIncomingCallsParams<T>, IObserver<IEnumerable<CallHierarchyIncomingCall>>, CallHierarchyCapability, CancellationToken> handleIncoming,
-                    Action<CallHierarchyOutgoingCallsParams<T>, IObserver<IEnumerable<CallHierarchyOutgoingCall>>, CallHierarchyCapability, CancellationToken> handleOutgoing,
+                    Action<CallHierarchyIncomingCallsParams<T>, IObserver<IEnumerable<CallHierarchyIncomingCall>>, CallHierarchyCapability, CancellationToken>
+                        handleIncoming,
+                    Action<CallHierarchyOutgoingCallsParams<T>, IObserver<IEnumerable<CallHierarchyOutgoingCall>>, CallHierarchyCapability, CancellationToken>
+                        handleOutgoing,
                     RegistrationOptionsDelegate<CallHierarchyRegistrationOptions, CallHierarchyCapability> registrationOptionsFactory
                 ) : base(progressManager)
                 {
@@ -911,18 +999,33 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     _registrationOptionsFactory = registrationOptionsFactory;
                 }
 
-                protected override void Handle(CallHierarchyPrepareParams request, IObserver<IEnumerable<CallHierarchyItem<T>>> results, CancellationToken cancellationToken) =>
+                protected override void Handle(
+                    CallHierarchyPrepareParams request, IObserver<IEnumerable<CallHierarchyItem<T>>> results, CancellationToken cancellationToken
+                )
+                {
                     _handleParams(request, results, Capability, cancellationToken);
+                }
 
                 protected override void Handle(
                     CallHierarchyIncomingCallsParams<T> request, IObserver<IEnumerable<CallHierarchyIncomingCall>> results, CancellationToken cancellationToken
-                ) => _handleIncoming(request, results, Capability, cancellationToken);
+                )
+                {
+                    _handleIncoming(request, results, Capability, cancellationToken);
+                }
 
                 protected override void Handle(
                     CallHierarchyOutgoingCallsParams<T> request, IObserver<IEnumerable<CallHierarchyOutgoingCall>> results, CancellationToken cancellationToken
-                ) => _handleOutgoing(request, results, Capability, cancellationToken);
+                )
+                {
+                    _handleOutgoing(request, results, Capability, cancellationToken);
+                }
 
-                protected internal override CallHierarchyRegistrationOptions CreateRegistrationOptions(CallHierarchyCapability capability, ClientCapabilities clientCapabilities) => _registrationOptionsFactory(capability, clientCapabilities);
+                protected internal override CallHierarchyRegistrationOptions CreateRegistrationOptions(
+                    CallHierarchyCapability capability, ClientCapabilities clientCapabilities
+                )
+                {
+                    return _registrationOptionsFactory(capability, clientCapabilities);
+                }
             }
         }
     }

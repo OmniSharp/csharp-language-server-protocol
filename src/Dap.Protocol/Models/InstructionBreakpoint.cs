@@ -8,7 +8,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// The instruction reference of the breakpoint.
         /// This should be a memory or instruction pointer reference from an EvaluateResponse, Variable, StackFrame, GotoTarget, or Breakpoint.
         /// </summary>
-        public string InstructionReference { get; init; }
+        public string InstructionReference { get; init; } = null!;
 
         /// <summary>
         /// An optional offset from the instruction reference.

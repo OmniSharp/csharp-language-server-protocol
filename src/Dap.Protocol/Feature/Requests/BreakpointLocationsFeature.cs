@@ -11,17 +11,15 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.BreakpointLocations, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
         public record BreakpointLocationsArguments : IRequest<BreakpointLocationsResponse>
         {
             /// <summary>
             /// The source location of the breakpoints; either 'source.path' or 'source.reference' must be specified.
             /// </summary>
-            public Source Source { get; init; }
+            public Source Source { get; init; } = null!;
 
             /// <summary>
             /// Start line of range to search possible breakpoint locations in. If only the line is specified, the request returns all possible locations in that line.
@@ -41,7 +39,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public int? EndLine { get; init; }
 
             /// <summary>
-            /// Optional end column of range to search possible breakpoint locations in. If no end column is given, then it is assumed to be in the last column of the end line.
+            /// Optional end column of range to search possible breakpoint locations in. If no end column is given, then it is assumed to be in the last column of the end
+            /// line.
             /// </summary>
             [Optional]
             public int? EndColumn { get; init; }
@@ -52,7 +51,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// Sorted set of possible breakpoint locations.
             /// </summary>
-            public Container<BreakpointLocation> Breakpoints { get; init; }
+            public Container<BreakpointLocation> Breakpoints { get; init; } = null!;
         }
     }
 

@@ -26,7 +26,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// The actual workspace folder change event.
             /// </summary>
-            public WorkspaceFoldersChangeEvent Event { get; init; }
+            public WorkspaceFoldersChangeEvent Event { get; init; } = null!;
         }
 
         /// <summary>
@@ -63,12 +63,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// The associated URI for this workspace folder.
             /// </summary>
-            public DocumentUri Uri { get; init; }
+            public DocumentUri Uri { get; init; } = null!;
 
             /// <summary>
             /// The name of the workspace folder. Defaults to the uri's basename.
             /// </summary>
-            public string Name { get; init; }
+            public string Name { get; init; } = null!;
 
             private string DebuggerDisplay => $"{Name} ({Uri})";
 

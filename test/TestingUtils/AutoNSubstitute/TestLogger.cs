@@ -2,13 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
-using Castle.DynamicProxy.Contributors;
 using Microsoft.Extensions.Logging;
 
 // ReSharper disable once CheckNamespace
 namespace NSubstitute
 {
-    class TestLogger : ILogger
+    internal class TestLogger : ILogger
     {
         private readonly IEnumerable<ILogger> _loggers;
 

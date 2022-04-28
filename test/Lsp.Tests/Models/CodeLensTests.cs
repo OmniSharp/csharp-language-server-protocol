@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using System.Reflection;
 using FluentAssertions;
-using FluentAssertions.Equivalency;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
@@ -28,14 +26,17 @@ namespace Lsp.Tests.Models
         [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new CodeLens {
-                Command = new Command {
+            var model = new CodeLens
+            {
+                Command = new Command
+                {
                     Arguments = new JArray { 1, "2", true },
                     Name = "abc",
                     Title = "Cool story bro"
                 },
                 Data = JObject.FromObject(
-                    new Dictionary<string, object> {
+                    new Dictionary<string, object>
+                    {
                         { "somethingCool", 1 }
                     }
                 ),

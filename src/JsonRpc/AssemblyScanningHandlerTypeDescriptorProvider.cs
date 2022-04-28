@@ -31,7 +31,8 @@ namespace OmniSharp.Extensions.JsonRpc
                        .FirstOrDefault(t => MethodAttribute.AllFrom(t).Any());
         }
 
-        private static readonly Type[] HandlerTypes = {
+        private static readonly Type[] HandlerTypes =
+        {
             typeof(IJsonRpcNotificationHandler<>),
             typeof(IJsonRpcRequestHandler<>),
             typeof(IJsonRpcRequestHandler<,>),
@@ -55,8 +56,8 @@ namespace OmniSharp.Extensions.JsonRpc
             {
                 if (IsValidInterface(type)) return type;
                 return type.GetTypeInfo()
-                            .ImplementedInterfaces
-                            .First(IsValidInterface);
+                           .ImplementedInterfaces
+                           .First(IsValidInterface);
             }
             catch (Exception e)
             {
@@ -64,15 +65,17 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
-        internal static Type? UnwrapGenericType(Type genericType, Type type, int arity = 0) =>
-            type.GetTypeInfo()
-                 .ImplementedInterfaces
-                 .FirstOrDefault(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == genericType)
-                ?.GetTypeInfo()
-                ?.GetGenericArguments()[arity];
+        internal static Type? UnwrapGenericType(Type genericType, Type type, int arity = 0)
+        {
+            return type.GetTypeInfo()
+                       .ImplementedInterfaces
+                       .FirstOrDefault(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == genericType)
+                      ?.GetTypeInfo()
+                      ?.GetGenericArguments()[arity];
+        }
     }
 
-    class AssemblyScanningHandlerTypeDescriptorProvider : IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?>
+    internal class AssemblyScanningHandlerTypeDescriptorProvider : IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?>
     {
         private readonly ConcurrentDictionary<Type, string> _methodNames = new();
 
@@ -91,44 +94,52 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
-        internal static IEnumerable<IHandlerTypeDescriptor> GetDescriptors(IEnumerable<Assembly> assemblies) => assemblies.SelectMany(
-                x => {
-                    try
-                    {
-                        return x.GetTypes();
-                    }
-                    catch
-                    {
-                        return Enumerable.Empty<Type>();
-                    }
-                }
-            )
-           .Where(z => z.IsInterface || z.IsClass && !z.IsAbstract)
-            // running on mono this call can cause issues when scanning of the entire assembly.
-           .Where(
-                z => {
-                    try
-                    {
-                        return typeof(IJsonRpcHandler).IsAssignableFrom(z);
-                    }
-                    catch
-                    {
-                        return false;
-                    }
-                }
-            )
-           .Where(z => MethodAttribute.From(z) != null)
-           .Where(z => !z.Name.EndsWith("Manager")) // Manager interfaces are generally specializations around the handlers
-           .Select(HandlerTypeDescriptorHelper.GetMethodType)
-           .Distinct()
-           .ToLookup(x => MethodAttribute.From(x)!.Method)
-           .SelectMany(
-                x => x
-                    .Distinct()
-                    .Select(z => new HandlerTypeDescriptor(z!) as IHandlerTypeDescriptor)
-            );
+        internal static IEnumerable<IHandlerTypeDescriptor> GetDescriptors(IEnumerable<Assembly> assemblies)
+        {
+            return assemblies.SelectMany(
+                                  x =>
+                                  {
+                                      try
+                                      {
+                                          return x.GetTypes();
+                                      }
+                                      catch
+                                      {
+                                          return Enumerable.Empty<Type>();
+                                      }
+                                  }
+                              )
+                             .Where(z => z.IsInterface || ( z.IsClass && !z.IsAbstract ))
+                              // running on mono this call can cause issues when scanning of the entire assembly.
+                             .Where(
+                                  z =>
+                                  {
+                                      try
+                                      {
+                                          return typeof(IJsonRpcHandler).IsAssignableFrom(z);
+                                      }
+                                      catch
+                                      {
+                                          return false;
+                                      }
+                                  }
+                              )
+                             .Where(z => MethodAttribute.From(z) != null)
+                             .Where(z => !z.Name.EndsWith("Manager")) // Manager interfaces are generally specializations around the handlers
+                             .Select(HandlerTypeDescriptorHelper.GetMethodType)
+                             .Distinct()
+                             .ToLookup(x => MethodAttribute.From(x)!.Method)
+                             .SelectMany(
+                                  x => x
+                                      .Distinct()
+                                      .Select(z => new HandlerTypeDescriptor(z!) as IHandlerTypeDescriptor)
+                              );
+        }
 
-        public IHandlerTypeDescriptor? GetHandlerTypeDescriptor<TA>() => GetHandlerTypeDescriptor(typeof(TA));
+        public IHandlerTypeDescriptor? GetHandlerTypeDescriptor<TA>()
+        {
+            return GetHandlerTypeDescriptor(typeof(TA));
+        }
 
         public IHandlerTypeDescriptor? GetHandlerTypeDescriptor(Type type)
         {
@@ -144,9 +155,15 @@ namespace OmniSharp.Extensions.JsonRpc
             return string.IsNullOrWhiteSpace(methodName) ? null : KnownHandlers[methodName].FirstOrDefault();
         }
 
-        public string? GetMethodName<T>() where T : IJsonRpcHandler => GetMethodName(typeof(T));
+        public string? GetMethodName<T>() where T : IJsonRpcHandler
+        {
+            return GetMethodName(typeof(T));
+        }
 
-        public bool IsMethodName(string name, params Type[] types) => types.Any(z => GetMethodName(z)?.Equals(name) == true);
+        public bool IsMethodName(string name, params Type[] types)
+        {
+            return types.Any(z => GetMethodName(z)?.Equals(name) == true);
+        }
 
         public string? GetMethodName(Type type)
         {
@@ -172,7 +189,7 @@ namespace OmniSharp.Extensions.JsonRpc
         }
     }
 
-    class AssemblyAttributeHandlerTypeDescriptorProvider : IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?>
+    internal class AssemblyAttributeHandlerTypeDescriptorProvider : IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?>
     {
         private readonly ConcurrentDictionary<Type, string> _methodNames = new();
 
@@ -191,19 +208,25 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
-        internal static IEnumerable<IHandlerTypeDescriptor> GetDescriptors(IEnumerable<Assembly> assemblies) => assemblies.SelectMany(x => x.GetCustomAttributes<AssemblyJsonRpcHandlersAttribute>())
-           .SelectMany(z => z.Types)
-           .Where(z => !z.Name.EndsWith("Manager")) // Manager interfaces are generally specializations around the handlers
-           .Select(HandlerTypeDescriptorHelper.GetMethodType)
-           .Distinct()
-           .ToLookup(x => MethodAttribute.From(x)!.Method)
-           .SelectMany(
-                x => x
-                    .Distinct()
-                    .Select(z => new HandlerTypeDescriptor(z!) as IHandlerTypeDescriptor)
-            );
+        internal static IEnumerable<IHandlerTypeDescriptor> GetDescriptors(IEnumerable<Assembly> assemblies)
+        {
+            return assemblies.SelectMany(x => x.GetCustomAttributes<AssemblyJsonRpcHandlersAttribute>())
+                             .SelectMany(z => z.Types)
+                             .Where(z => !z.Name.EndsWith("Manager")) // Manager interfaces are generally specializations around the handlers
+                             .Select(HandlerTypeDescriptorHelper.GetMethodType)
+                             .Distinct()
+                             .ToLookup(x => MethodAttribute.From(x)!.Method)
+                             .SelectMany(
+                                  x => x
+                                      .Distinct()
+                                      .Select(z => new HandlerTypeDescriptor(z!) as IHandlerTypeDescriptor)
+                              );
+        }
 
-        public IHandlerTypeDescriptor? GetHandlerTypeDescriptor<TA>() => GetHandlerTypeDescriptor(typeof(TA));
+        public IHandlerTypeDescriptor? GetHandlerTypeDescriptor<TA>()
+        {
+            return GetHandlerTypeDescriptor(typeof(TA));
+        }
 
         public IHandlerTypeDescriptor? GetHandlerTypeDescriptor(Type type)
         {
@@ -219,9 +242,15 @@ namespace OmniSharp.Extensions.JsonRpc
             return string.IsNullOrWhiteSpace(methodName) ? null : KnownHandlers[methodName].FirstOrDefault();
         }
 
-        public string? GetMethodName<T>() where T : IJsonRpcHandler => GetMethodName(typeof(T));
+        public string? GetMethodName<T>() where T : IJsonRpcHandler
+        {
+            return GetMethodName(typeof(T));
+        }
 
-        public bool IsMethodName(string name, params Type[] types) => types.Any(z => GetMethodName(z)?.Equals(name) == true);
+        public bool IsMethodName(string name, params Type[] types)
+        {
+            return types.Any(z => GetMethodName(z)?.Equals(name) == true);
+        }
 
         public string? GetMethodName(Type type)
         {

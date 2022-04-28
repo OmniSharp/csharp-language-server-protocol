@@ -10,14 +10,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         [Parallel]
         [Method(RequestNames.Threads, Direction.ClientToServer)]
-        [
-            GenerateHandler,
-            GenerateHandlerMethods,
-            GenerateRequestMethods
-        ]
-        public record ThreadsArguments : IRequest<ThreadsResponse>
-        {
-        }
+        [GenerateHandler]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods]
+        public record ThreadsArguments : IRequest<ThreadsResponse>;
 
         public record ThreadsResponse
         {
