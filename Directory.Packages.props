@@ -51,7 +51,7 @@
     <PackageVersion Include="System.Collections.Immutable" Version="5.0.0" />
     <PackageVersion Include="System.Threading.Channels" Version="4.7.1" />
     <PackageVersion Include="Microsoft.Reactive.Testing" Version="5.0.0" />
-    <PackageVersion Include="MediatR" Version="8.1.0" />
+    <PackageVersion Include="MediatR" Version="10.0.1" />
     <PackageVersion Include="Bogus" Version="34.0.2" />
     <PackageVersion Include="Snapper" Version="2.3.1" />
     <PackageVersion Include="Xunit.SkippableFact" Version="1.4.13" />
