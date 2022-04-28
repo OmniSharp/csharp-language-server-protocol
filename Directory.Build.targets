@@ -46,6 +46,6 @@
     <PackageReference Update="Nerdbank.Streams" Version="2.8.57" />
     <PackageReference Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.0.1" />
     <PackageReference Update="Microsoft.CodeAnalysis.Analyzers" Version="3.3.3" />
-    <PackageReference Update="DryIoc.Internal" Version="4.8.6" />
+    <PackageReference Update="DryIoc.Internal" Version="5.0.1" />
   </ItemGroup>
 </Project>
