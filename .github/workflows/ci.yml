@@ -87,7 +87,7 @@ jobs:
         run: |
           git fetch --prune
       - name: NuGet Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: '${{ github.workspace }}/.nuget/packages'
           key: "${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props') }}-${{ hashFiles('**/Directory.Packages.support.props') }}"
