@@ -24,11 +24,49 @@ on:
       - 'next'
     tags:
       - 'v*'
+    paths-ignore:
+      - '.codecov.yml'
+      - '.editorconfig'
+      - '.gitattributes'
+      - '.gitignore'
+      - '.gitmodules'
+      - '.lintstagedrc.js'
+      - '.prettierignore'
+      - '.prettierrc'
+      - 'LICENSE'
+      - 'nukeeper.settings.json'
+      - 'omnisharp.json'
+      - 'package-lock.json'
+      - 'package.json'
+      - 'Readme.md'
+      - '.github/dependabot.yml'
+      - '.github/labels.yml'
+      - '.github/release.yml'
+      - '.github/renovate.json'
   pull_request:
     branches:
       - 'master'
       - 'main'
       - 'next'
+    paths-ignore:
+      - '.codecov.yml'
+      - '.editorconfig'
+      - '.gitattributes'
+      - '.gitignore'
+      - '.gitmodules'
+      - '.lintstagedrc.js'
+      - '.prettierignore'
+      - '.prettierrc'
+      - 'LICENSE'
+      - 'nukeeper.settings.json'
+      - 'omnisharp.json'
+      - 'package-lock.json'
+      - 'package.json'
+      - 'Readme.md'
+      - '.github/dependabot.yml'
+      - '.github/labels.yml'
+      - '.github/release.yml'
+      - '.github/renovate.json'
 
 jobs:
   Build:
@@ -52,7 +90,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: '${{ github.workspace }}/.nuget/packages'
-          key: "${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Build.targets', '**/Directory.Build.props', '**/*.csproj') }}"
+          key: "${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props') }}-${{ hashFiles('**/Directory.Packages.support.props') }}"
           restore-keys: |
             ${{ runner.os }}-nuget-
       - name: 🔨 Use .NET Core 3.1 SDK
@@ -82,7 +120,6 @@ jobs:
         uses: codecov/codecov-action@v1
         with:
           name: 'actions-${{ matrix.os }}'
-          fail_ci_if_error: 'true'
       - name: 🏺 Publish logs
         if: always()
         uses: actions/upload-artifact@v2
@@ -107,6 +144,12 @@ jobs:
         with:
           name: 'nuget'
           path: 'artifacts/nuget/'
+      - name: 🏺 Publish Docs
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: 'docs'
+          path: 'artifacts/docs/'
   Publish:
     needs:
       - Build

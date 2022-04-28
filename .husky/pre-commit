@@ -3,5 +3,7 @@
 
 npx lint-staged -d -r
 dotnet nuke --generate-configuration GitHubActions_ci --host GitHubActions
+dotnet nuke --generate-configuration GitHubActions_ci-ignore --host GitHubActions
 git add .github/workflows/ci.yml
+git add .github/workflows/ci-ignore.yml
 git add .nuke/build.schema.json

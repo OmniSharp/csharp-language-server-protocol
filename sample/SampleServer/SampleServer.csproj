@@ -10,17 +10,17 @@
 
     <ItemGroup>
         <ProjectReference Include="../../src/Server/Server.csproj" />
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
-        <PackageReference Include="Serilog.Extensions.Logging" Version="3.1.0" />
-        <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
-        <PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
-        <PackageReference Include="System.IO.FileSystem.Primitives" Version="4.3.0" />
-        <PackageReference Include="System.IO" Version="4.3.0" />
-        <PackageReference Include="System.Runtime.Handles" Version="4.3.0" />
-        <PackageReference Include="System.Text.Encoding" Version="4.3.0" />
-        <PackageReference Include="System.Text.Encoding.Extensions" Version="4.3.0" />
-        <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
-        <PackageReference Include="Nerdbank.Streams" Version="2.6.81" />
+        <PackageReference Include="Microsoft.Extensions.Logging" VersionOverride="3.0.0" />
+        <PackageReference Include="Serilog.Extensions.Logging" VersionOverride="3.1.0" />
+        <PackageReference Include="Serilog.Sinks.File" VersionOverride="5.0.0" />
+        <PackageReference Include="Serilog.Sinks.Debug" VersionOverride="2.0.0" />
+        <PackageReference Include="System.IO.FileSystem.Primitives" VersionOverride="4.3.0" />
+        <PackageReference Include="System.IO" VersionOverride="4.3.0" />
+        <PackageReference Include="System.Runtime.Handles" VersionOverride="4.3.0" />
+        <PackageReference Include="System.Text.Encoding" VersionOverride="4.3.0" />
+        <PackageReference Include="System.Text.Encoding.Extensions" VersionOverride="4.3.0" />
+        <PackageReference Include="System.Threading.Tasks" VersionOverride="4.3.0" />
+        <PackageReference Include="Nerdbank.Streams" />
     </ItemGroup>
 
 </Project>

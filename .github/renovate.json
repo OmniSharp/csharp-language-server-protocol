@@ -1,0 +1,196 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+        "config:base",
+        ":automergePatch",
+        ":separateMajorReleases",
+        ":combinePatchMinorReleases",
+        ":enableVulnerabilityAlertsWithLabel(:old_key: security)",
+        ":dependencyDashboard"
+    ],
+    "prHourlyLimit": 10,
+    "prConcurrentLimit": 0,
+    "hostRules": [
+        {
+            "concurrentRequestLimit": 999
+        }
+    ],
+    "platformAutomerge": true,
+    "automergeType": "pr",
+    "automergeStrategy": "rebase",
+    "rebaseWhen": "auto",
+    "labels": [":package: dependencies"],
+    "rebaseLabel": ":trident: rebase",
+    "stopUpdatingLabel": ":vertical_traffic_light: stop updating",
+    "github-actions": {
+        "fileMatch": ["(^workflow-templates|\\.github\\/workflows)\\/[^/]+\\.ya?ml$", "(^|\\/)action\\.ya?ml$"],
+        "automerge": true,
+        "groupName": "github actions",
+        "labels": [":truck: private-dependencies"]
+    },
+    "packageRules": [
+        {
+            "matchManagers": ["nuget"],
+            "groupName": "build dependencies",
+            "matchPackagePatterns": ["^Nuke.Common", "^Microsoft\\.NET\\.Test\\.Sdk$", "^Rocket\\.Surgery\\.MSBuild$", "^Rocket\\.Surgery\\.Nuke$"],
+            "labels": [":truck: private-dependencies"],
+            "automerge": true
+        },
+        {
+            "matchPackagePatterns": ["^Roslynator"],
+            "groupName": "roslynator",
+            "labels": [":truck: private-dependencies"],
+            "automerge": true
+        },
+        {
+            "matchPackagePatterns": ["^FluentAssertions"],
+            "groupName": "fluentassertions",
+            "labels": [":truck: private-dependencies"],
+            "automerge": true
+        },
+        {
+            "matchPackagePatterns": ["^NSubstitute"],
+            "groupName": "nsubstitute",
+            "labels": [":truck: private-dependencies"],
+            "automerge": true
+        },
+        {
+            "matchPackagePatterns": ["^Moq"],
+            "groupName": "moq",
+            "labels": [":truck: private-dependencies"],
+            "automerge": true
+        },
+        {
+            "matchPackagePatterns": ["^FakeItEasy"],
+            "groupName": "fakeiteasy",
+            "labels": [":truck: private-dependencies"],
+            "automerge": true
+        },
+        {
+            "matchPackagePatterns": ["^coverlet"],
+            "groupName": "coverlet",
+            "labels": [":truck: private-dependencies"],
+            "automerge": true
+        },
+        {
+            "matchPackagePatterns": ["^Bogus"],
+            "groupName": "bogus",
+            "labels": [":truck: private-dependencies"],
+            "automerge": true
+        },
+        {
+            "matchPackagePatterns": ["^ReportGenerator", "^reportgenerator", "^dotnet-reportgenerator"],
+            "groupName": "reportgenerator",
+            "labels": [":truck: private-dependencies"],
+            "automerge": true
+        },
+        {
+            "matchPackagePatterns": ["^JetBrains", "^jetbrains"],
+            "groupName": "jetbrains",
+            "labels": [":truck: private-dependencies"],
+            "automerge": true
+        },
+        {
+            "matchPackagePatterns": ["^GitVersion", "^gitversion"],
+            "groupName": "gitversion",
+            "labels": [":truck: private-dependencies"],
+            "automerge": true
+        },
+        {
+            "matchPackagePatterns": ["^xunit"],
+            "groupName": "xunit",
+            "labels": [":truck: private-dependencies"],
+            "automerge": true
+        },
+        {
+            "matchPackagePatterns": ["^bunit"],
+            "groupName": "bunit",
+            "labels": [":truck: private-dependencies"],
+            "automerge": true
+        },
+        {
+            "matchPackagePatterns": ["^FluentValidation"],
+            "groupName": "fluentvalidation",
+            "labels": [":package: dependencies"],
+            "automerge": false
+        },
+        {
+            "matchPackagePatterns": ["^NodaTime"],
+            "groupName": "nodatime",
+            "labels": [":package: dependencies"],
+            "automerge": false
+        },
+        {
+            "matchPackagePatterns": ["^DryIoc"],
+            "groupName": "dryioc",
+            "labels": [":package: dependencies"],
+            "automerge": false
+        },
+        {
+            "matchPackagePatterns": ["^FluentAssertions"],
+            "groupName": "fluentassertions",
+            "labels": [":truck: private-dependencies"],
+            "automerge": true
+        },
+        {
+            "matchPackagePatterns": ["^Verify"],
+            "groupName": "verify",
+            "labels": [":truck: private-dependencies"],
+            "automerge": true
+        },
+        {
+            "matchManagers": ["nuget"],
+            "matchPackagePatterns": ["^System\\.Collections\\.Immutable", "^System\\.Interactive", "^System\\.Reactive", "^Humanizer"],
+            "labels": [":package: dependencies"],
+            "automerge": true
+        },
+        {
+            "matchSourceUrlPrefixes": ["https://github.com/RocketSurgeonsGuild"],
+            "labels": [":package: dependencies"],
+            "groupName": "Rocket Surgery Other"
+        },
+        {
+            "matchSourceUrlPrefixes": ["https://github.com/RocketSurgeonsGuild/Conventions"],
+            "labels": [":package: dependencies"],
+            "groupName": "Rocket Surgery Conventions"
+        },
+        {
+            "matchSourceUrlPrefixes": ["https://github.com/RocketSurgeonsGuild/Testing"],
+            "labels": [":truck: private-dependencies"],
+            "groupName": "Rocket Surgery Testing"
+        },
+        {
+            "matchSourceUrlPrefixes": ["https://github.com/RocketSurgeonsGuild/Extensions"],
+            "labels": [":package: dependencies"],
+            "groupName": "Rocket Surgery Extensions"
+        },
+        {
+            "description": "dotnet monorepo",
+            "groupName": "dotnet monorepo",
+            "enabled": false,
+            "matchSourceUrlPrefixes": [
+                "https://github.com/dotnet/aspnetcore",
+                "https://github.com/dotnet/efcore",
+                "https://github.com/dotnet/extensions",
+                "https://github.com/dotnet/runtime"
+            ]
+        },
+        {
+            "description": "dotnet monorepo [minor/patch]",
+            "groupName": "dotnet monorepo [minor/patch]",
+            "enabled": true,
+            "matchUpdateTypes": ["minor", "patch"],
+            "matchSourceUrlPrefixes": [
+                "https://github.com/dotnet/aspnetcore",
+                "https://github.com/dotnet/efcore",
+                "https://github.com/dotnet/extensions",
+                "https://github.com/dotnet/runtime"
+            ]
+        },
+        {
+            "description": "dotnet msbuild",
+            "groupName": "dotnet msbuild",
+            "matchSourceUrlPrefixes": ["https://github.com/dotnet/msbuild"]
+        }
+    ]
+}

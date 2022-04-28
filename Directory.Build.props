@@ -14,14 +14,21 @@
         <PackageTags>lsp;language server;language server protocol;language client;language server client</PackageTags>
         <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\lsp.snk</AssemblyOriginatorKeyFile>
         <!-- See: https://docs.microsoft.com/en-us/dotnet/fundamentals/code-analysis/overview -->
+        <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+        <LangVersion>preview</LangVersion>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <NukeTelemetryVersion>1</NukeTelemetryVersion>
+        <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+        <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
     <PropertyGroup>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+        <AllowedOutputExtensionsInPackageBuildOutputFolder
+        >$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
         <AllowedReferenceRelatedFileExtensions>$(AllowedReferenceRelatedFileExtensions);.pdb</AllowedReferenceRelatedFileExtensions>
     </PropertyGroup>
     <PropertyGroup>
@@ -29,11 +36,11 @@
     </PropertyGroup>
     <ItemGroup>
         <None
-                Include="$(MSBuildThisFileDirectory)/.nuke/temp/packageicon.png"
-                Condition="Exists('$(MSBuildThisFileDirectory)/.nuke/temp/packageicon.png')"
-                Pack="true"
-                PackagePath="/images/"
-                Visible="false"
+            Include="$(MSBuildThisFileDirectory)/.nuke/temp/packageicon.png"
+            Condition="Exists('$(MSBuildThisFileDirectory)/.nuke/temp/packageicon.png')"
+            Pack="true"
+            PackagePath="/images/"
+            Visible="false"
         />
         <None Include="$(MSBuildThisFileDirectory)/LICENSE" Pack="true" PackagePath="/" Visible="false" />
     </ItemGroup>

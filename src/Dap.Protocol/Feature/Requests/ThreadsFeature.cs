@@ -2,6 +2,7 @@ using MediatR;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
+using Thread = OmniSharp.Extensions.DebugAdapter.Protocol.Models.Thread;
 
 // ReSharper disable once CheckNamespace
 namespace OmniSharp.Extensions.DebugAdapter.Protocol

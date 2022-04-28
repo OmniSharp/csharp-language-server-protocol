@@ -22,7 +22,6 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 using Arg = NSubstitute.Arg;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using Request = OmniSharp.Extensions.JsonRpc.Server.Request;
 #pragma warning disable CS0162
 
