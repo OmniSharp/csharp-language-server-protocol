@@ -16,7 +16,7 @@ using Serilog.Events;
 using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
+
 
 namespace Lsp.Integration.Tests
 {

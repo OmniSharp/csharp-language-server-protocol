@@ -1,0 +1,38 @@
+name: Publish Nuget Packages
+
+on:
+  workflow_call:
+    # inputs:
+    secrets:
+      RSG_NUGET_API_KEY:
+        required: true
+      RSG_AZURE_DEVOPS:
+        required: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+
+      - uses: nuget/setup-nuget@v1
+        with:
+          nuget-version: '5.x'
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: nuget
+
+      - name: nuget.org
+        # continue-on-error: true
+        if: startsWith(github.ref, 'refs/tags/') # this is the best approximation for a tag
+        env:
+          ApiKey: ${{ secrets.RSG_NUGET_API_KEY }}
+        shell: pwsh
+        run: |
+          dotnet nuget push **/*.nupkg  --skip-duplicate -s nuget.org --api-key $ENV:ApiKey
+          dotnet nuget push **/*.snupkg --skip-duplicate -s nuget.org --api-key $ENV:ApiKey

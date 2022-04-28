@@ -137,7 +137,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
+
 
 #nullable enable
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
@@ -183,7 +183,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 #nullable enable
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
@@ -257,7 +256,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 #nullable enable
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
@@ -322,7 +320,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
 #nullable enable

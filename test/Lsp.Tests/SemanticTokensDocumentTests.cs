@@ -11,7 +11,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Xunit;
 using Xunit.Abstractions;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
+
 
 #pragma warning disable 618
 

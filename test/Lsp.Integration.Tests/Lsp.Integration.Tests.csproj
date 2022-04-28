@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net6.0;netcoreapp3.1</TargetFrameworks>
+        <TargetFrameworks>net6.0;netcoreapp3.1;net6.0</TargetFrameworks>
         <WarningsAsErrors>true</WarningsAsErrors>
         <PlatformTarget>AnyCPU</PlatformTarget>
     </PropertyGroup>
@@ -19,6 +19,12 @@
         <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
         <PackageReference Include="Microsoft.Extensions.Options" />
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
-        <ProjectReference Include="..\..\src\JsonRpc.Generators\JsonRpc.Generators.csproj" IncludeAssets="analyzers" ExcludeAssets="compile;runtime;native" PrivateAssets="contentfiles;build;buildMultitargeting;buildTransitive" OutputItemType="Analyzer" />
+        <ProjectReference
+            Include="..\..\src\JsonRpc.Generators\JsonRpc.Generators.csproj"
+            IncludeAssets="analyzers"
+            ExcludeAssets="compile;runtime;native"
+            PrivateAssets="contentfiles;build;buildMultitargeting;buildTransitive"
+            OutputItemType="Analyzer"
+        />
     </ItemGroup>
 </Project>

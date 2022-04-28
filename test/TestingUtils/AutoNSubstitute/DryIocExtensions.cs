@@ -35,7 +35,7 @@ namespace NSubstitute
                             var loggerType = typeof(Logger<>).MakeGenericType(
                                 request.ServiceType.GetGenericArguments()[0]
                             );
-                            instance = new DelegateFactory(_ => creator(request, loggerType), Reuse.Singleton);
+                            instance = DelegateFactory.Of(_ => creator(request, loggerType), Reuse.Singleton);
                             dictionary.TryAdd(serviceType, instance);
                         }
 
@@ -66,7 +66,7 @@ namespace NSubstitute
 
                         if (!dictionary.TryGetValue(serviceType, out var instance))
                         {
-                            instance = new DelegateFactory(_ => creator(request), Reuse.Singleton);
+                            instance = DelegateFactory.Of(_ => creator(request), Reuse.Singleton);
                             dictionary.TryAdd(serviceType, instance);
                         }
 

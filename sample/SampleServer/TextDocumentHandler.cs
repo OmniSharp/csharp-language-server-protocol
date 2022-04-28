@@ -13,6 +13,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
+
 
 #pragma warning disable CS0618
 

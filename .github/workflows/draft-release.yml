@@ -1,16 +1,20 @@
 name: Create Milestone and Draft Release
+
 on:
   push:
     branches:
       - master
     paths-ignore:
       - '**/*.md'
+  schedule:
+    - cron: '0 0 * * 4'
+
 jobs:
   create_milestone_and_draft_release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.4.0
+        uses: actions/checkout@v3.0.1
         with:
           fetch-depth: 0
 
@@ -18,18 +22,13 @@ jobs:
         run: git fetch --prune
 
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v0.9.11
+        uses: gittools/actions/gitversion/setup@v0.9.13
         with:
           versionSpec: '5.x'
 
-      - name: Install GitReleaseManager
-        uses: gittools/actions/gitreleasemanager/setup@v0.9.11
-        with:
-          versionSpec: '0.12.x'
-
       - name: Use GitVersion
         id: gitversion
-        uses: gittools/actions/gitversion/execute@v0.9.11
+        uses: gittools/actions/gitversion/execute@v0.9.13
 
       - name: Create Milestone
         uses: WyriHaximus/github-action-create-milestone@v1
@@ -39,34 +38,19 @@ jobs:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         continue-on-error: true
 
-      - name: Get Repo and Owner
-        shell: pwsh
-        id: repository
-        run: |
-          $parts = $ENV:GITHUB_REPOSITORY.Split('/')
-          echo "::set-output name=owner::$($parts[0])"
-          echo "::set-output name=repository::$($parts[1])"
-
       - name: sync milestones
-        uses: RocketSurgeonsGuild/actions/sync-milestone@v0.2.4
+        uses: RocketSurgeonsGuild/actions/sync-milestone@v0.3.0
         with:
           default-label: 'mysterious'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create Draft Release
-        shell: pwsh
-        run: |
-          dotnet gitreleasemanager create `
-            -o "${{ steps.repository.outputs.owner }}" `
-            -r "${{ steps.repository.outputs.repository }}" `
-            --token "${{ secrets.OMNISHARP_BOT_TOKEN }}" `
-            -m "v${{ steps.gitversion.outputs.majorMinorPatch }}"
-
-      - name: Export Changelog
-        shell: pwsh
-        run: |
-          dotnet gitreleasemanager export `
-            -o "${{ steps.repository.outputs.owner }}" `
-            -r "${{ steps.repository.outputs.repository }}" `
-            --token "${{ secrets.GITHUB_TOKEN }}" `
-            -f CHANGELOG.md
+      - uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          generateReleaseNotes: true
+          draft: true
+          omitNameDuringUpdate: true
+          name: 'v${{ steps.gitversion.outputs.majorMinorPatch }}'
+          tag: 'v${{ steps.gitversion.outputs.majorMinorPatch }}'
+          token: ${{ secrets.OMNISHARP_BOT_TOKEN }}
+          commit: ${{ github.base_ref }}

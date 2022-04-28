@@ -1,30 +1,32 @@
 name: Close Milestone
+
 on:
   release:
     types:
       - released
+
 jobs:
   close_milestone:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.4.0
+        uses: actions/checkout@v3.0.1
         with:
           fetch-depth: 0
 
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v0.9.11
+        uses: gittools/actions/gitversion/setup@v0.9.13
         with:
           versionSpec: '5.x'
 
       - name: Install GitReleaseManager
-        uses: gittools/actions/gitreleasemanager/setup@v0.9.11
+        uses: gittools/actions/gitreleasemanager/setup@v0.9.13
         with:
           versionSpec: '0.11.x'
 
       - name: Use GitVersion
         id: gitversion
-        uses: gittools/actions/gitversion/execute@v0.9.11
+        uses: gittools/actions/gitversion/execute@v0.9.13
 
       # Ensure the milestone exists
       - name: Create Milestone
@@ -37,7 +39,7 @@ jobs:
 
       # move any issues to that milestone in the event the release is renamed
       - name: sync milestones
-        uses: RocketSurgeonsGuild/actions/sync-milestone@v0.2.4
+        uses: RocketSurgeonsGuild/actions/sync-milestone@v0.3.0
         with:
           default-label: 'mysterious'
           github-token: ${{ secrets.OMNISHARP_BOT_TOKEN }}

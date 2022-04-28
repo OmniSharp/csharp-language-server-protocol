@@ -4,34 +4,80 @@ on:
   pull_request_target:
     types:
       - labeled
+      - opened
+      - reopened
+      - closed
+      - synchronize
 
 jobs:
   comment:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
+    if: |
+      (github.event.action == 'labeled' || github.event.action == 'opened' || github.event.action == 'reopened')
     steps:
       - name: Dump GitHub context
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
+
       - name: Dump job context
         env:
           JOB_CONTEXT: ${{ toJson(job) }}
         run: echo "$JOB_CONTEXT"
+
       - name: Dump steps context
         env:
           STEPS_CONTEXT: ${{ toJson(steps) }}
         run: echo "$STEPS_CONTEXT"
+
       - name: Dump runner context
         env:
           RUNNER_CONTEXT: ${{ toJson(runner) }}
         run: echo "$RUNNER_CONTEXT"
-      - uses: actions/checkout@v2.4.0
-        with:
-          ref: master
-      - name: Dependabot Commenter
+
+      - name: GitHub Automerge
         if: |
-          (github.event.label.name == 'merge') && (github.event.pull_request.user.login == 'dependabot[bot]' || github.event.pull_request.user.login == 'dependabot-preview[bot]')
-        uses: peaceiris/actions-label-commenter@v1.10.0
+          contains(github.event.pull_request.labels.*.name, ':shipit: merge')
+          || contains(github.event.pull_request.labels.*.name, 'javascript')
+          || contains(github.event.pull_request.labels.*.name, 'github-actions')
+        uses: alexwilson/enable-github-automerge-action@1.0.0
+        continue-on-error: true
         with:
-          github_token: ${{ secrets.OMNISHARP_BOT_TOKEN }}
-          config_file: .github/label-commenter-dependabot.yml
+          github-token: '${{ secrets.OMNISHARP_BOT_TOKEN }}'
+          merge-method: 'SQUASH'
+
+  labeler:
+    runs-on: ubuntu-latest
+    if: |
+      (github.event.action == 'closed' || github.event.action == 'opened' || github.event.action == 'reopened')
+    steps:
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+
+      - name: Dump job context
+        env:
+          JOB_CONTEXT: ${{ toJson(job) }}
+        run: echo "$JOB_CONTEXT"
+
+      - name: Dump steps context
+        env:
+          STEPS_CONTEXT: ${{ toJson(steps) }}
+        run: echo "$STEPS_CONTEXT"
+
+      - name: Dump runner context
+        env:
+          RUNNER_CONTEXT: ${{ toJson(runner) }}
+        run: echo "$RUNNER_CONTEXT"
+
+      - name: GitHub Remove Labels
+        if: |
+          github.event.action == 'closed'
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          labels: |
+            :shipit: merge
+            github-actions
+            javascript
+            .NET
