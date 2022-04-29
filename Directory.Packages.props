@@ -22,7 +22,7 @@
     </ItemGroup>
   <ItemGroup>
     <PackageVersion Include="GitVersion.Tool" Version="5.10.1" />
-    <PackageVersion Include="JetBrains.ReSharper.CommandLineTools" Version="2022.1.0" />
+    <PackageVersion Include="JetBrains.ReSharper.CommandLineTools" Version="2022.1.1" />
     <PackageVersion Include="ReportGenerator" Version="5.1.5" />
     <PackageVersion Include="Rocket.Surgery.Nuke" Version="0.17.9" />
   </ItemGroup>
