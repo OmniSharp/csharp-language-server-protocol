@@ -11,8 +11,14 @@ on:
   schedule:
     - cron: '0 0 * * 4'
 
+permissions:
+  contents: read
+
 jobs:
   sync_labels:
+    permissions:
+      contents: read  # for actions/checkout to fetch code
+      issues: write  # for crazy-max/ghaction-github-labeler to create, rename, update and delete label
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
