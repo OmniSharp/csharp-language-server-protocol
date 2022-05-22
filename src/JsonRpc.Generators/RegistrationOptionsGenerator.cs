@@ -312,7 +312,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             catch (Exception e)
             {
                 context.ReportDiagnostic(
-                    Diagnostic.Create(GeneratorDiagnostics.Exception, registrationOptions.GetLocation(), e.Message, e.StackTrace ?? string.Empty)
+                    Diagnostic.Create(GeneratorDiagnostics.Exception, registrationOptions.GetLocation(), e.Message, e.StackTrace?.Replace("\n", " ") ?? string.Empty, e.ToString())
                 );
                 Debug.WriteLine(e);
                 Debug.WriteLine(e.StackTrace);

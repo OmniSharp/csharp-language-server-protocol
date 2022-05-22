@@ -18,6 +18,7 @@ internal class PartialItemWithInitialValueRequestProgressObservable<TItem, TResu
     private readonly CompositeDisposable _disposable;
     private readonly Task<TResult> _task;
     private bool _receivedInitialValue;
+    private bool _receivedPartialData;
 
     public PartialItemWithInitialValueRequestProgressObservable(
         ISerializer serializer,
@@ -36,10 +37,10 @@ internal class PartialItemWithInitialValueRequestProgressObservable<TItem, TResu
                                {
                                    requestResult
                                       .Do(
-                                           _ =>
+                                           result =>
                                            {
-                                               if (_receivedInitialValue) return;
-                                               _dataSubject.OnNext(_);
+                                               if (_receivedPartialData) return;
+                                               _dataSubject.OnNext(result);
                                            },
                                            _dataSubject.OnError,
                                            _dataSubject.OnCompleted
@@ -82,6 +83,7 @@ internal class PartialItemWithInitialValueRequestProgressObservable<TItem, TResu
     public void OnNext(JToken value)
     {
         if (_dataSubject.IsDisposed) return;
+        _receivedPartialData = true;
         if (!_receivedInitialValue)
         {
             _receivedInitialValue = true;
@@ -89,7 +91,7 @@ internal class PartialItemWithInitialValueRequestProgressObservable<TItem, TResu
         }
         else
         {
-            _dataSubject.OnNext(value.ToObject<TItem>(_serializer.JsonSerializer));
+            _dataSubject.OnNext(value.ToObject<TItem>(_serializer.JsonSerializer)!);
         }
     }
 

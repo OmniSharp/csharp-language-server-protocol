@@ -250,7 +250,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             return new SyntaxSymbol(type ?? ResolveTypeName(localSymbol), localSymbol);
         }
 
-        public static SyntaxSymbol? GetPartialItem(TypeDeclarationSyntax syntax, INamedTypeSymbol symbol, SyntaxSymbol requestType)
+        public static (SyntaxSymbol? partialItem, bool inheritsFromSelf) GetPartialItem(
+            TypeDeclarationSyntax syntax, INamedTypeSymbol symbol, SyntaxSymbol requestType, Compilation compilation
+        )
         {
             var handlerInterface = symbol.AllInterfaces.Concat(requestType.Symbol.AllInterfaces)
                                          .FirstOrDefault(
@@ -258,14 +260,17 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                   { Name: "IPartialItemWithInitialValue", TypeArguments.Length: 2 }
                                           );
             var localSymbol = handlerInterface?.TypeArguments[0] as INamedTypeSymbol;
-            if (localSymbol == null) return null;
+            if (localSymbol == null) return ( null, false );
             var type = syntax.BaseList?.Types
                              .Select(z => z.Type is GenericNameSyntax genericNameSyntax ? genericNameSyntax : null)
                              .Where(z => z != null)
                              .Where(z => z is { Identifier.Text: "IPartialItemRequest" or "IPartialItemWithInitialValueRequest", Arity: 2 })
                              .Select(z => z!.TypeArgumentList.Arguments[1])
                              .FirstOrDefault();
-            return new SyntaxSymbol(type ?? ResolveTypeName(localSymbol), localSymbol);
+            return (
+                new SyntaxSymbol(type ?? ResolveTypeName(localSymbol), localSymbol),
+                handlerInterface!.TypeArguments.Length == 2 && compilation.HasImplicitConversion(handlerInterface!.TypeArguments[1], handlerInterface.TypeArguments[0])
+            );
         }
 
         public static NameSyntax ResolveTypeName(ITypeSymbol symbol)
@@ -351,11 +356,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             );
 
         public static ArgumentListSyntax GetRegistrationHandlerArgumentList(
-            TypeSyntax registrationOptionsName, TypeSyntax registrationType, ArgumentSyntax handlerArgument, ArgumentSyntax? initialArgument, TypeSyntax? capabilityType, bool includeId
+            TypeSyntax registrationOptionsName, TypeSyntax registrationType, ArgumentSyntax handlerArgument, ArgumentSyntax? initialArgument,
+            TypeSyntax? capabilityType, bool includeId
         ) =>
             ArgumentList(
                 SeparatedList(
-                    (includeId
+                    ( includeId
                         ? new[]
                         {
                             Argument(IdentifierName("id")),
@@ -368,7 +374,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                             initialArgument!,
                             handlerArgument,
                             Argument(GetRegistrationOptionsAdapter(registrationOptionsName, registrationType, capabilityType))
-                        })
+                        } )
                    .Where(z => z is not null)
                 )
             );
@@ -877,7 +883,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     )
             );
 
-        public static ArrowExpressionClauseSyntax GetPartialInvokeExpression(TypeSyntax responseType, TypeSyntax? partialItemType)
+        public static ArrowExpressionClauseSyntax GetPartialInvokeExpression(
+            TypeSyntax responseType, TypeSyntax? partialItemType, bool partialItemTypeInheritsFromSelf
+        )
         {
             var realResponseType = responseType is NullableTypeSyntax nts ? nts.ElementType : responseType;
             var factoryArgument = Argument(
@@ -889,13 +897,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             );
             var arguments = new[]
             {
-                Argument(
-                    IdentifierName(@"request")
-                ),
+                Argument(IdentifierName(@"request")),
                 factoryArgument,
                 Argument(IdentifierName("cancellationToken"))
             };
-            if (partialItemType is { })
+            if (partialItemType is { } && !partialItemTypeInheritsFromSelf)
             {
                 var realPartialItemType = partialItemType is NullableTypeSyntax nts2 ? nts2.ElementType : partialItemType;
                 arguments = new[]

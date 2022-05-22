@@ -19,13 +19,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
     internal class PartialItemsWithInitialValueRequestProgressObservable<TItem, TResult> : IRequestProgressObservable<IEnumerable<TItem>, TResult>,
                                                                                            IObserver<JToken>,
                                                                                            IDisposable
-        where TResult : IEnumerable<TItem>?
+        where TResult : IEnumerable<TItem>
     {
         private readonly ISerializer _serializer;
-        private readonly ReplaySubject<IEnumerable<TItem>> _dataSubject;
+        private readonly ReplaySubject<IEnumerable<TItem>?> _dataSubject;
         private readonly CompositeDisposable _disposable;
         private readonly Task<TResult> _task;
         private bool _receivedInitialValue;
+        private bool _receivedPartialData;
 
         public PartialItemsWithInitialValueRequestProgressObservable(
             ISerializer serializer,
@@ -37,35 +38,27 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         )
         {
             _serializer = serializer;
-            _dataSubject = new ReplaySubject<IEnumerable<TItem>>(int.MaxValue, Scheduler.Immediate);
+            _dataSubject = new ReplaySubject<IEnumerable<TItem>?>(int.MaxValue, Scheduler.Immediate);
             _disposable = new CompositeDisposable { _dataSubject };
             _task = Observable.Create<TResult>(
                                    observer => new CompositeDisposable
                                    {
                                        _dataSubject
-                                          .Aggregate(
-                                               default(TResult), (acc, items) =>
-                                               {
-                                                   if (acc is null && items is TResult r) return r;
-                                                   return factory(acc, items);
-                                               }
-                                           )
+                                          .Aggregate(default(TResult), (acc, items) => acc is null && items is TResult r ? r : factory(acc, items))
                                           .ForkJoin(
                                                requestResult
                                                   .Do(
                                                        result =>
                                                        {
-                                                           if (result is not null)
-                                                           {
-                                                               _dataSubject.OnNext(result);
-                                                           }
+                                                           if (_receivedPartialData) return;
+                                                           _dataSubject.OnNext(result);
                                                        },
                                                        _dataSubject.OnError,
                                                        _dataSubject.OnCompleted
                                                    ),
-                                               (items, result) => (items?.Count() ?? 0) > (result?.Count() ?? 0) ? items : result
+                                               (items, result) => _receivedPartialData ? items : result
                                            )
-                                          .Subscribe(observer),
+                                          .Subscribe(observer!),
                                        Disposable.Create(onCompleteAction)
                                    }
                                )
@@ -102,6 +95,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         public void OnNext(JToken value)
         {
             if (_dataSubject.IsDisposed) return;
+            _receivedPartialData = true;
             if (!_receivedInitialValue)
             {
                 _receivedInitialValue = true;
@@ -109,7 +103,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
             }
             else
             {
-                _dataSubject.OnNext(value.ToObject<TItem[]>(_serializer.JsonSerializer));
+                _dataSubject.OnNext(value.ToObject<TItem[]>(_serializer.JsonSerializer)!);
             }
         }
 
@@ -122,7 +116,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 //        public IDisposable Subscribe(IObserver<IEnumerable<TItem>> observer) => _disposable.IsDisposed ? Disposable.Empty : _dataSubject.Subscribe(observer);
         public IDisposable Subscribe(IObserver<IEnumerable<TItem>> observer)
         {
-            return _dataSubject.Subscribe(observer);
+            return _dataSubject.Subscribe(observer!);
         }
 
 #pragma warning disable VSTHRD003

@@ -20,8 +20,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             Base<TRegistrationOptions, TCapability>,
             IJsonRpcRequestHandler<TParams, TResponse?>
             where TItem : class?
-            where TParams : IPartialItemWithInitialValueRequest<TResponse?, TItem>
-            where TResponse : class?
+            where TParams : IPartialItemWithInitialValueRequest<TResponse?, TItem?>
+            where TResponse : TItem?
             where TRegistrationOptions : class, new()
             where TCapability : ICapability
         {
@@ -68,8 +68,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             Base<TRegistrationOptions>,
             IJsonRpcRequestHandler<TParams, TResponse?>
             where TItem : class?
-            where TParams : IPartialItemWithInitialValueRequest<TResponse?, TItem>
-            where TResponse : class?
+            where TParams : IPartialItemWithInitialValueRequest<TResponse?, TItem?>
+            where TResponse : TItem?
             where TRegistrationOptions : class, new()
         {
             private readonly IProgressManager _progressManager;
@@ -115,8 +115,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             BaseCapability<TCapability>,
             IJsonRpcRequestHandler<TParams, TResponse?>
             where TItem : class?
-            where TParams : IPartialItemWithInitialValueRequest<TResponse?, TItem>
-            where TResponse : class?
+            where TParams : IPartialItemWithInitialValueRequest<TResponse?, TItem?>
+            where TResponse : TItem?
             where TCapability : ICapability
         {
             private readonly IProgressManager _progressManager;

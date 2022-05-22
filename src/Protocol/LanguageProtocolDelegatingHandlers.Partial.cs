@@ -65,10 +65,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 {
                     _handler(request, observer, Capability, cancellationToken);
                     await observer;
-                    return _factory(default);
+                    return default;
                 }
 
-                var subject = new AsyncSubject<TItem?>();
+                using var subject = new Subject<TItem?>();
                 var task = subject
                           .Select(_factory)
                           .ToTask(cancellationToken, _progressManager.Scheduler)
@@ -128,10 +128,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 {
                     _handler(request, observer, cancellationToken);
                     await observer;
-                    return _factory(default);
+                    return default;
                 }
 
-                var subject = new AsyncSubject<TItem?>();
+                using var subject = new Subject<TItem?>();
                 var task = subject
                           .Select(_factory)
                           .ToTask(cancellationToken, _progressManager.Scheduler)
@@ -184,10 +184,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 {
                     _handler(request, Capability, observer, cancellationToken);
                     await observer;
-                    return _factory(default);
+                    return default;
                 }
 
-                var subject = new AsyncSubject<TItem?>();
+                using var subject = new Subject<TItem?>();
                 var task = subject
                           .Select(_factory)
                           .ToTask(cancellationToken, _progressManager.Scheduler)
@@ -232,10 +232,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 {
                     _handler(request, observer, cancellationToken);
                     await observer;
-                    return _factory(default);
+                    return default;
                 }
 
-                var subject = new AsyncSubject<TItem?>();
+                using var subject = new Subject<TItem?>();
                 var task = subject
                           .Select(_factory)
                           .ToTask(cancellationToken, _progressManager.Scheduler)
@@ -293,10 +293,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 {
                     _handler(request, observer, Capability, cancellationToken);
                     await observer;
-                    return _factory(Enumerable.Empty<TItem>());
+                    return default;
                 }
 
-                var subject = new Subject<IEnumerable<TItem>>();
+                using var subject = new Subject<IEnumerable<TItem>>();
                 var task = subject
                           .Aggregate(
                                new List<TItem>(), (acc, items) => {
@@ -360,10 +360,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 {
                     _handler(request, observer, cancellationToken);
                     await observer;
-                    return _factory(Enumerable.Empty<TItem>());
+                    return default;
                 }
 
-                var subject = new Subject<IEnumerable<TItem>>();
+                using var subject = new Subject<IEnumerable<TItem>>();
                 var task = subject
                           .Aggregate(
                                new List<TItem>(), (acc, items) => {
@@ -422,10 +422,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 {
                     _handler(request, observer, Capability, cancellationToken);
                     await observer;
-                    return _factory(Enumerable.Empty<TItem>());
+                    return default;
                 }
 
-                var subject = new Subject<IEnumerable<TItem>>();
+                using var subject = new Subject<IEnumerable<TItem>>();
                 var task = subject
                           .Aggregate(
                                new List<TItem>(), (acc, items) => {
@@ -481,10 +481,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 {
                     _handler(request, observer, cancellationToken);
                     await observer;
-                    return _factory(Enumerable.Empty<TItem>());
+                    return default;
                 }
 
-                var subject = new Subject<IEnumerable<TItem>>();
+                using var subject = new Subject<IEnumerable<TItem>>();
                 var task = subject
                           .Aggregate(
                                new List<TItem>(), (acc, items) => {

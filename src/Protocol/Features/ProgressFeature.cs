@@ -132,7 +132,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             Func<TItem, TResponse> factory,
             Func<TResponse, TItem> reverseFactory,
             CancellationToken cancellationToken = default
-        )
+        ) where TResponse : TItem
         {
             @params.SetPartialResultToken(new ProgressToken(Guid.NewGuid().ToString()));
 

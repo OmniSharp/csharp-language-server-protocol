@@ -10,6 +10,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     }
 
     public interface IPartialItemWithInitialValueRequest<out TResponse, T> : IRequest<TResponse>, IPartialItemWithInitialValue<T, TResponse>
+        where TResponse : T
     {
     }
 }

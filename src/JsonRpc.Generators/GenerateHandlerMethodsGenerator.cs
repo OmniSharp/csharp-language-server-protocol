@@ -60,7 +60,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                  {
                                                      diagnostic = Diagnostic.Create(
                                                          GeneratorDiagnostics.Exception, syntaxContext.Node.GetLocation(), e.Message,
-                                                         e.StackTrace ?? string.Empty
+                                                         e.StackTrace?.Replace("\n", " ") ?? string.Empty, e.ToString()
                                                      );
                                                      Debug.WriteLine(e);
                                                      Debug.WriteLine(e.StackTrace);
@@ -106,7 +106,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                         context.ReportDiagnostic(
                             Diagnostic.Create(
                                 GeneratorDiagnostics.Exception, candidateClass.GetLocation(),
-                                $"Strategy {strategy.GetType().FullName} failed!" + " - " + e.Message, e.StackTrace ?? string.Empty
+                                $"Strategy {strategy.GetType().FullName} failed!" + " - " + e.Message, e.StackTrace?.Replace("\n", " ") ?? string.Empty
                             )
                         );
                         Debug.WriteLine($"Strategy {strategy.GetType().FullName} failed!");

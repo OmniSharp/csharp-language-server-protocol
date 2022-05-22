@@ -8,7 +8,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
     {
         public static DiagnosticDescriptor Exception { get; } = new DiagnosticDescriptor(
             "JRPC0001", "Exception",
-            "{0} - {1}", "JRPC", DiagnosticSeverity.Error, true
+            "{0} - {1} {2}", "JRPC", DiagnosticSeverity.Error, true
         );
 
         public static DiagnosticDescriptor NoHandlerRegistryProvided { get; } = new DiagnosticDescriptor(

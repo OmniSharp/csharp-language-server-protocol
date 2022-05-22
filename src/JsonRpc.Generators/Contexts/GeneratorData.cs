@@ -43,6 +43,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
             if (IsRequest(candidateClass))
             {
                 var responseType = GetResponseType(candidateClass, symbol);
+                var (partialItem, inheritsFromSelf)  = GetPartialItem(candidateClass, symbol, requestType, compilation);
                 return new RequestItem(
                     candidateClass,
                     symbol,
@@ -54,9 +55,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                     responseType.Syntax.GetSyntaxName() == "Unit",
                     GetCapability(candidateClass, symbol, lspAttributes),
                     GetRegistrationOptions(candidateClass, symbol, lspAttributes),
-                    GetPartialItem(candidateClass, symbol, requestType),
+                    partialItem,
                     GetPartialItems(candidateClass, symbol, requestType),
                     symbol.AllInterfaces.Concat(requestType.Symbol.AllInterfaces).Any(z => z.Name.EndsWith("WithInitialValue", StringComparison.Ordinal)),
+                    inheritsFromSelf,
                     additionalUsings,
                     new List<AttributeArgumentSyntax>(),
                     model, compilation

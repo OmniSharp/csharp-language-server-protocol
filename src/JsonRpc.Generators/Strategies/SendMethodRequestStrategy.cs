@@ -62,7 +62,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                              )
                             .WithParameterList(parameterList)
                             .WithExpressionBody(
-                                 Helpers.GetPartialInvokeExpression(request.Response.Syntax, request.PartialHasInitialValue ? null : request.PartialItem.Syntax)
+                                 Helpers.GetPartialInvokeExpression(
+                                     request.Response.Syntax,
+                                     request.PartialHasInitialValue ? null : request.PartialItem.Syntax,
+                                     request.PartialItemInheritsFromSelf
+                                 )
                              )
                             .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
                 yield break;
@@ -97,7 +101,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                  )
                              )
                             .WithParameterList(parameterList)
-                            .WithExpressionBody(Helpers.GetPartialInvokeExpression(request.Response.Syntax, default))
+                            .WithExpressionBody(Helpers.GetPartialInvokeExpression(request.Response.Syntax, default, false))
                             .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
                 yield break;
             }

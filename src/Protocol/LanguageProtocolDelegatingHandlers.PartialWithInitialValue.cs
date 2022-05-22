@@ -15,9 +15,9 @@ public static partial class LanguageProtocolDelegatingHandlers
         AbstractHandlers.Base<TRegistrationOptions, TCapability>,
         IJsonRpcRequestHandler<TParams, TResponse?>,
         ICanBeIdentifiedHandler
-        where TParams : IPartialItemWithInitialValueRequest<TResponse?, TItem>
+        where TParams : IPartialItemWithInitialValueRequest<TResponse?, TItem?>
         where TItem : class?
-        where TResponse : class?
+        where TResponse : TItem?
         where TRegistrationOptions : class, new()
         where TCapability : ICapability
     {
@@ -88,9 +88,9 @@ public static partial class LanguageProtocolDelegatingHandlers
         AbstractHandlers.Base<TRegistrationOptions>,
         IJsonRpcRequestHandler<TParams, TResponse?>,
         ICanBeIdentifiedHandler
-        where TParams : IPartialItemWithInitialValueRequest<TResponse, TItem>
+        where TParams : IPartialItemWithInitialValueRequest<TResponse?, TItem?>
         where TItem : class?
-        where TResponse : class?
+        where TResponse : TItem?
         where TRegistrationOptions : class, new()
     {
         private readonly Action<TParams, IObserver<TItem>, CancellationToken> _handler;
@@ -157,9 +157,9 @@ public static partial class LanguageProtocolDelegatingHandlers
         AbstractHandlers.BaseCapability<TCapability>,
         IJsonRpcRequestHandler<TParams, TResponse?>,
         ICanBeIdentifiedHandler
-        where TParams : IPartialItemWithInitialValueRequest<TResponse, TItem>
+        where TParams : IPartialItemWithInitialValueRequest<TResponse?, TItem?>
         where TItem : class?
-        where TResponse : class?
+        where TResponse : TItem?
         where TCapability : ICapability
     {
         private readonly Action<TParams, TCapability, IObserver<TItem>, CancellationToken> _handler;
@@ -220,9 +220,9 @@ public static partial class LanguageProtocolDelegatingHandlers
     public sealed class PartialResultWithInitialValue<TParams, TResponse, TItem> :
         IJsonRpcRequestHandler<TParams, TResponse?>,
         ICanBeIdentifiedHandler
-        where TParams : IPartialItemWithInitialValueRequest<TResponse, TItem>
+        where TParams : IPartialItemWithInitialValueRequest<TResponse?, TItem?>
         where TItem : class?
-        where TResponse : class?
+        where TResponse : TItem?
     {
         private readonly Action<TParams, IObserver<TItem>, CancellationToken> _handler;
         private readonly IProgressManager _progressManager;

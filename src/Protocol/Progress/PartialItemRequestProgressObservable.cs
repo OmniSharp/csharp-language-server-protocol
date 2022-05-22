@@ -39,10 +39,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
                                    {
                                        requestResult
                                           .Do(
-                                               _ =>
+                                               result =>
                                                {
                                                    if (_receivedPartialData) return;
-                                                   _dataSubject.OnNext(reverseFactory(_));
+                                                   _dataSubject.OnNext(reverseFactory(result));
                                                },
                                                _dataSubject.OnError,
                                                _dataSubject.OnCompleted
@@ -86,7 +86,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         {
             if (_dataSubject.IsDisposed) return;
             _receivedPartialData = true;
-            _dataSubject.OnNext(value.ToObject<TItem>(_serializer.JsonSerializer));
+            _dataSubject.OnNext(value.ToObject<TItem>(_serializer.JsonSerializer)!);
         }
 
         public void Dispose()
