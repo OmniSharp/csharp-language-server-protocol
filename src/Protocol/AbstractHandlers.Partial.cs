@@ -14,101 +14,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    public static class AbstractHandlers
+    public static partial class AbstractHandlers
     {
-        public abstract class Base<TRegistrationOptions, TCapability> :
-            IRegistration<TRegistrationOptions, TCapability>,
-            ICapability<TCapability>
-            where TRegistrationOptions : class, new()
-            where TCapability : ICapability
-        {
-            protected TRegistrationOptions RegistrationOptions { get; private set; } = default!;
-            protected TCapability Capability { get; private set; } = default!;
-            protected ClientCapabilities ClientCapabilities { get; private set; } = default!;
-            protected internal abstract TRegistrationOptions CreateRegistrationOptions(TCapability capability, ClientCapabilities clientCapabilities);
-
-            TRegistrationOptions IRegistration<TRegistrationOptions, TCapability>.GetRegistrationOptions(TCapability capability, ClientCapabilities clientCapabilities)
-            {
-                // ReSharper disable twice ConditionIsAlwaysTrueOrFalse
-                if (RegistrationOptions is not null && Capability is not null) return RegistrationOptions;
-                Capability = capability;
-                ClientCapabilities = clientCapabilities;
-                return RegistrationOptions = CreateRegistrationOptions(capability, clientCapabilities);
-            }
-
-            void ICapability<TCapability>.SetCapability(TCapability capability, ClientCapabilities clientCapabilities)
-            {
-                ClientCapabilities = clientCapabilities;
-                Capability = capability;
-            }
-        }
-
-        public abstract class BaseCapability<TCapability> :
-            ICapability<TCapability>
-            where TCapability : ICapability
-        {
-            protected TCapability Capability { get; private set; } = default!;
-            protected ClientCapabilities ClientCapabilities { get; private set; } = default!;
-
-            void ICapability<TCapability>.SetCapability(TCapability capability, ClientCapabilities clientCapabilities)
-            {
-                ClientCapabilities = clientCapabilities;
-                Capability = capability;
-            }
-        }
-
-        public abstract class Base<TRegistrationOptions> :
-            IRegistration<TRegistrationOptions>
-            where TRegistrationOptions : class, new()
-        {
-            protected TRegistrationOptions RegistrationOptions { get; private set; } = default!;
-            protected ClientCapabilities ClientCapabilities { get; private set; } = default!;
-            protected abstract TRegistrationOptions CreateRegistrationOptions(ClientCapabilities clientCapabilities);
-
-            TRegistrationOptions IRegistration<TRegistrationOptions>.GetRegistrationOptions(ClientCapabilities clientCapabilities)
-            {
-                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-                if (RegistrationOptions is not null) return RegistrationOptions;
-                ClientCapabilities = clientCapabilities;
-                return RegistrationOptions = CreateRegistrationOptions(clientCapabilities);
-            }
-        }
-
-        public abstract class Request<TParams, TResult> :
-            IJsonRpcRequestHandler<TParams, TResult>
-            where TParams : IRequest<TResult>
-        {
-            public abstract Task<TResult> Handle(TParams request, CancellationToken cancellationToken);
-        }
-
-        public abstract class Request<TParams, TResult, TRegistrationOptions> :
-            Base<TRegistrationOptions>,
-            IJsonRpcRequestHandler<TParams, TResult>
-            where TParams : IRequest<TResult>
-            where TRegistrationOptions : class, new()
-        {
-            public abstract Task<TResult> Handle(TParams request, CancellationToken cancellationToken);
-        }
-
-        public abstract class Request<TParams, TResult, TRegistrationOptions, TCapability> :
-            Base<TRegistrationOptions, TCapability>,
-            IJsonRpcRequestHandler<TParams, TResult>
-            where TParams : IRequest<TResult>
-            where TRegistrationOptions : class, new()
-            where TCapability : ICapability
-        {
-            public abstract Task<TResult> Handle(TParams request, CancellationToken cancellationToken);
-        }
-
-        public abstract class RequestCapability<TParams, TResult, TCapability> :
-            BaseCapability<TCapability>,
-            IJsonRpcRequestHandler<TParams, TResult>
-            where TParams : IRequest<TResult>
-            where TCapability : ICapability
-        {
-            public abstract Task<TResult> Handle(TParams request, CancellationToken cancellationToken);
-        }
-
         public abstract class PartialResult<TParams, TResponse, TItem, TRegistrationOptions, TCapability> :
             Base<TRegistrationOptions, TCapability>,
             IJsonRpcRequestHandler<TParams, TResponse?>
@@ -137,10 +44,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 {
                     Handle(request, observer, cancellationToken);
                     await observer;
-                    return _factory(default(TItem));
+                    return default;
                 }
 
-                var subject = new AsyncSubject<TItem?>();
+                using var subject = new AsyncSubject<TItem?>();
                 var task = subject
                           .Select(_factory)
                           .ToTask(cancellationToken, _progressManager.Scheduler)
@@ -181,10 +88,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 {
                     Handle(request, observer, cancellationToken);
                     await observer;
-                    return _factory(default);
+                    return default;
                 }
 
-                var subject = new AsyncSubject<TItem?>();
+                using var subject = new AsyncSubject<TItem?>();
                 var task = subject
                           .Select(_factory)
                           .ToTask(cancellationToken, _progressManager.Scheduler)
@@ -225,10 +132,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 {
                     Handle(request, observer, cancellationToken);
                     await observer;
-                    return _factory(default);
+                    return default;
                 }
 
-                var subject = new AsyncSubject<TItem>();
+                using var subject = new AsyncSubject<TItem>();
                 var task = subject
                           .Select(_factory)
                           .ToTask(cancellationToken, _progressManager.Scheduler)
@@ -266,13 +173,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 {
                     Handle(request, observer, cancellationToken);
                     await observer;
-                    return _factory(Enumerable.Empty<TItem>());
+                    return default;
                 }
 
-                var subject = new Subject<IEnumerable<TItem>>();
+                using var subject = new Subject<IEnumerable<TItem>>();
                 var task = subject
                           .Aggregate(
-                               new List<TItem>(), (acc, items) => {
+                               new List<TItem>(), (acc, items) =>
+                               {
                                    acc.AddRange(items);
                                    return acc;
                                }
@@ -310,13 +218,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 {
                     Handle(request, observer, cancellationToken);
                     await observer;
-                    return _factory(Enumerable.Empty<TItem>());
+                    return default;
                 }
 
-                var subject = new Subject<IEnumerable<TItem>>();
+                using var subject = new Subject<IEnumerable<TItem>>();
                 var task = subject
                           .Aggregate(
-                               new List<TItem>(), (acc, items) => {
+                               new List<TItem>(), (acc, items) =>
+                               {
                                    acc.AddRange(items);
                                    return acc;
                                }
@@ -354,13 +263,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 {
                     Handle(request, observer, cancellationToken);
                     await observer;
-                    return _factory(Enumerable.Empty<TItem>());
+                    return default;
                 }
 
-                var subject = new Subject<IEnumerable<TItem>>();
+                using var subject = new Subject<IEnumerable<TItem>>();
                 var task = subject
                           .Aggregate(
-                               new List<TItem>(), (acc, items) => {
+                               new List<TItem>(), (acc, items) =>
+                               {
                                    acc.AddRange(items);
                                    return acc;
                                }
@@ -375,38 +285,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             protected abstract void Handle(TParams request, IObserver<IEnumerable<TItem>> results, CancellationToken cancellationToken);
         }
 
-        public abstract class Notification<TParams> : IJsonRpcRequestHandler<TParams>
-            where TParams : IRequest
-        {
-            public abstract Task<Unit> Handle(TParams request, CancellationToken cancellationToken);
-        }
-
-        public abstract class Notification<TParams, TRegistrationOptions, TCapability> :
-            Base<TRegistrationOptions, TCapability>,
-            IJsonRpcRequestHandler<TParams>
-            where TParams : IRequest
-            where TRegistrationOptions : class, new()
-            where TCapability : ICapability
-        {
-            public abstract Task<Unit> Handle(TParams request, CancellationToken cancellationToken);
-        }
-
-        public abstract class Notification<TParams, TRegistrationOptions> :
-            Base<TRegistrationOptions>,
-            IJsonRpcRequestHandler<TParams>
-            where TParams : IRequest
-            where TRegistrationOptions : class, new()
-        {
-            public abstract Task<Unit> Handle(TParams request, CancellationToken cancellationToken);
-        }
-
-        public abstract class NotificationCapability<TParams, TCapability> :
-            BaseCapability<TCapability>,
-            IJsonRpcRequestHandler<TParams>
-            where TParams : IRequest
-            where TCapability : ICapability
-        {
-            public abstract Task<Unit> Handle(TParams request, CancellationToken cancellationToken);
-        }
     }
 }

@@ -51,8 +51,25 @@
         public const int RequestCancelled = -32800;
 
         /// <summary>
-        /// Request was cancelled.
+        /// Content was modified
         /// </summary>
         public const int ContentModified = -32801;
+
+        /// <summary>
+        /// A request failed but it was syntactically correct, e.g the
+        /// method name was known and the parameters were valid. The error
+        /// message should contain human readable information about why
+        /// the request failed.
+        /// @since 3.17.0
+        /// </summary>
+        public const int RequestFailed = -32803;
+
+        /// <summary>
+        /// The server cancelled the request. This error code should
+        /// only be used for requests that explicitly support being
+        /// server cancellable.
+        /// @since 3.17.0
+        /// </summary>
+        public const int ServerCancelled = -32802;
     }
 }

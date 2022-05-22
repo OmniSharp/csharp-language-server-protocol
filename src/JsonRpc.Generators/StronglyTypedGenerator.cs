@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static OmniSharp.Extensions.JsonRpc.Generators.Helpers;
 
@@ -28,13 +29,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             var attributes = context.CompilationProvider
                                     .Select(
                                          (compilation, _) => new AttributeData(
-                                             compilation.GetTypeByMetadataName(
-                                                 "OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateTypedDataAttribute"
-                                             )!,
-                                             compilation.GetTypeByMetadataName(
-                                                 "OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateContainerAttribute"
-                                             )!
-                                         )
+                                                 compilation.GetTypeByMetadataName(
+                                                     "OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateTypedDataAttribute"
+                                                 )!,
+                                                 compilation.GetTypeByMetadataName(
+                                                     "OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateContainerAttribute"
+                                                 )!
+                                             )
                                      );
 
             var createContainersSyntaxProvider = context.SyntaxProvider.CreateSyntaxProvider(
@@ -152,7 +153,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             INamedTypeSymbol? generateTypedDataAttributeSymbol,
             INamedTypeSymbol? generateContainerAttributeSymbol,
             bool includeHandlerIdentity
-        )
+            )
         {
             var attribute = typeSymbol?.GetAttributes()
                                        .FirstOrDefault(z => SymbolEqualityComparer.Default.Equals(z.AttributeClass, generateTypedDataAttributeSymbol));
@@ -221,62 +222,67 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             if (container is { })
             {
                 var containerName = container is { ConstructorArguments: { Length: > 0 } arguments } ? arguments[0].Value as string : null;
+                
                 var typedContainer = CreateContainerClass(typedClass, containerName)
                    .WithHandlerIdentityConstraint(includeHandlerIdentity);
 
                 var typedArgumentList = TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("T")));
-                typedContainer = typedContainer
-                   .AddMembers(
-                        ConversionOperatorDeclaration(Token(SyntaxKind.ImplicitKeyword), IdentifierName(typedContainer.Identifier))
-                           .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword)))
-                           .WithParameterList(
-                                ParameterList(
-                                    SingletonSeparatedList(
-                                        Parameter(Identifier("container"))
-                                           .WithType(GenericName(typedContainer.Identifier).WithTypeArgumentList(typedArgumentList))
+
+                if (!(container is { NamedArguments: { Length: > 0 } namedArguments } && namedArguments.FirstOrDefault(z => z.Key == "GenerateImplicitConversion") is { Value.Value: false }))
+                {
+                    typedContainer = typedContainer
+                       .AddMembers(
+                            ConversionOperatorDeclaration(Token(SyntaxKind.ImplicitKeyword), IdentifierName(typedContainer.Identifier))
+                               .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword)))
+                               .WithParameterList(
+                                    ParameterList(
+                                        SingletonSeparatedList(
+                                            Parameter(Identifier("container"))
+                                               .WithType(GenericName(typedContainer.Identifier).WithTypeArgumentList(typedArgumentList))
+                                        )
                                     )
                                 )
-                            )
-                           .WithExpressionBody(
-                                ArrowExpressionClause(
-                                    ObjectCreationExpression(IdentifierName(typedContainer.Identifier))
-                                       .WithArgumentList(
-                                            ArgumentList(
-                                                SingletonSeparatedList(
-                                                    Argument(
-                                                        InvocationExpression(
-                                                                MemberAccessExpression(
-                                                                    SyntaxKind.SimpleMemberAccessExpression,
-                                                                    IdentifierName("container"),
-                                                                    IdentifierName("Select")
+                               .WithExpressionBody(
+                                    ArrowExpressionClause(
+                                        ObjectCreationExpression(IdentifierName(typedContainer.Identifier))
+                                           .WithArgumentList(
+                                                ArgumentList(
+                                                    SingletonSeparatedList(
+                                                        Argument(
+                                                            InvocationExpression(
+                                                                    MemberAccessExpression(
+                                                                        SyntaxKind.SimpleMemberAccessExpression,
+                                                                        IdentifierName("container"),
+                                                                        IdentifierName("Select")
+                                                                    )
                                                                 )
-                                                            )
-                                                           .WithArgumentList(
-                                                                ArgumentList(
-                                                                    SingletonSeparatedList(
-                                                                        Argument(
-                                                                            SimpleLambdaExpression(Parameter(Identifier("value")))
-                                                                               .WithExpressionBody(
-                                                                                    CastExpression(
-                                                                                        IdentifierName(candidate.Identifier),
-                                                                                        IdentifierName("value")
+                                                               .WithArgumentList(
+                                                                    ArgumentList(
+                                                                        SingletonSeparatedList(
+                                                                            Argument(
+                                                                                SimpleLambdaExpression(Parameter(Identifier("value")))
+                                                                                   .WithExpressionBody(
+                                                                                        CastExpression(
+                                                                                            IdentifierName(candidate.Identifier),
+                                                                                            IdentifierName("value")
+                                                                                        )
                                                                                     )
-                                                                                )
+                                                                            )
                                                                         )
                                                                     )
                                                                 )
-                                                            )
+                                                        )
                                                     )
                                                 )
                                             )
-                                        )
+                                    )
                                 )
-                            )
-                           .MakeMethodNullable(IdentifierName("container"))
-                           .WithSemicolonToken(
-                                Token(SyntaxKind.SemicolonToken)
-                            )
-                    );
+                               .MakeMethodNullable(IdentifierName("container"))
+                               .WithSemicolonToken(
+                                    Token(SyntaxKind.SemicolonToken)
+                                )
+                        );
+                }
 
                 compilationMembers.Add(typedContainer);
             }

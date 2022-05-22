@@ -4,6 +4,7 @@ using Xunit;
 
 namespace Generation.Tests
 {
+    [UsesVerify]
     public class GeneratedRegistrationOptionsTests
     {
         [Fact]
@@ -20,44 +21,7 @@ namespace Test
     public partial class WorkspaceSymbolRegistrationOptions { }
 }
 ";
-            var expected = @"
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
-
-#nullable enable
-namespace Test
-{
-    [RegistrationOptionsKey(nameof(ServerCapabilities.WorkspaceSymbolProvider))]
-    [RegistrationOptionsConverterAttribute(typeof(WorkspaceSymbolRegistrationOptionsConverter))]
-    public partial class WorkspaceSymbolRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions, OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions
-    {
-        [Optional]
-        public bool WorkDoneProgress { get; set; }
-
-        class WorkspaceSymbolRegistrationOptionsConverter : RegistrationOptionsConverterBase<WorkspaceSymbolRegistrationOptions, StaticOptions>
-        {
-            public WorkspaceSymbolRegistrationOptionsConverter()
-            {
-            }
-
-            public override StaticOptions Convert(WorkspaceSymbolRegistrationOptions source)
-            {
-                return new StaticOptions{WorkDoneProgress = source.WorkDoneProgress};
-            }
-        }
-
-        [RegistrationOptionsKey(nameof(ServerCapabilities.WorkspaceSymbolProvider))]
-        public partial class StaticOptions : OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions
-        {
-            [Optional]
-            public bool WorkDoneProgress { get; set; }
-        }
-    }
-}
-#nullable restore";
-            await GenerationHelpers.AssertGeneratedAsExpected<RegistrationOptionsGenerator>(source, expected);
+            await Verify(await GenerationHelpers.Generate<RegistrationOptionsGenerator>(source));
         }
 
         [Fact]
@@ -76,45 +40,7 @@ namespace Test
 }
 ";
 
-            var expected = @"
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
-using OmniSharp.Extensions.LanguageServer.Protocol.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
-
-#nullable enable
-namespace Test
-{
-    [RegistrationOptionsKey(nameof(ServerCapabilities.WorkspaceSymbolProvider))]
-    [RegistrationOptionsConverterAttribute(typeof(WorkspaceSymbolRegistrationOptionsConverter))]
-    public partial class WorkspaceSymbolRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions
-    {
-        [Optional]
-        public bool WorkDoneProgress { get; set; }
-
-        class WorkspaceSymbolRegistrationOptionsConverter : RegistrationOptionsConverterBase<WorkspaceSymbolRegistrationOptions, StaticOptions>
-        {
-            public WorkspaceSymbolRegistrationOptionsConverter()
-            {
-            }
-
-            public override StaticOptions Convert(WorkspaceSymbolRegistrationOptions source)
-            {
-                return new StaticOptions{WorkDoneProgress = source.WorkDoneProgress};
-            }
-        }
-
-        [RegistrationOptionsKey(nameof(ServerCapabilities.WorkspaceSymbolProvider))]
-        public partial class StaticOptions : IWorkDoneProgressOptions
-        {
-            [Optional]
-            public bool WorkDoneProgress { get; set; }
-        }
-    }
-}
-#nullable restore";
-            await GenerationHelpers.AssertGeneratedAsExpected<RegistrationOptionsGenerator>(source, expected);
+            await Verify(await GenerationHelpers.Generate<RegistrationOptionsGenerator>(source));
         }
 
         [Fact]
@@ -142,7 +68,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 #nullable enable
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 {
-    [GenerateRegistrationOptions(nameof(ServerCapabilities.CodeActionProvider), SupportsDocumentSelector = true, SupportsWorkDoneProgress = true]
+    [GenerateRegistrationOptions(nameof(ServerCapabilities.CodeActionProvider), SupportsTextDocumentSelector = true, SupportsWorkDoneProgress = true]
     public partial class CodeActionRegistrationOptions
     {
         /// <summary>
@@ -165,76 +91,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
     }
 }
 #nullable restore";
-
-            var expected = @"
-using System;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.JsonRpc.Generation;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client;
-using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
-
-#nullable enable
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
-{
-    [RegistrationOptionsKey(nameof(ServerCapabilities.CodeActionProvider))]
-    [RegistrationOptionsConverterAttribute(typeof(CodeActionRegistrationOptionsConverter))]
-    public partial class CodeActionRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions, OmniSharp.Extensions.LanguageServer.Protocol.Models.ITextDocumentRegistrationOptions, OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions
-    {
-        public DocumentSelector? DocumentSelector { get; set; }
-
-        [Optional]
-        public bool WorkDoneProgress { get; set; }
-
-        class CodeActionRegistrationOptionsConverter : RegistrationOptionsConverterBase<CodeActionRegistrationOptions, StaticOptions>
-        {
-            public CodeActionRegistrationOptionsConverter()
-            {
-            }
-
-            public override StaticOptions Convert(CodeActionRegistrationOptions source)
-            {
-                return new StaticOptions{CodeActionKinds = source.CodeActionKinds, ResolveProvider = source.ResolveProvider, WorkDoneProgress = source.WorkDoneProgress};
-            }
-        }
-
-        [RegistrationOptionsKey(nameof(ServerCapabilities.CodeActionProvider))]
-        public partial class StaticOptions : OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions
-        {
-            /// <summary>
-            /// CodeActionKinds that this server may return.
-            ///
-            /// The list of kinds may be generic, such as `CodeActionKind.Refactor`, or the server
-            /// may list out every specific kind they provide.
-            /// </summary>
-            [Optional]
-            public Container<CodeActionKind>? CodeActionKinds { get; set; } = new Container<CodeActionKind>();
-            /// <summary>
-            /// The server provides support to resolve additional
-            /// information for a code action.
-            ///
-            /// @since 3.16.0
-            /// </summary>
-            [Optional]
-            public bool ResolveProvider { get; set; }
-
-            [Optional]
-            public bool WorkDoneProgress { get; set; }
-        }
-    }
-}
-#nullable restore";
-            await GenerationHelpers.AssertGeneratedAsExpected<RegistrationOptionsGenerator>(source, expected);
+            await Verify(await GenerationHelpers.Generate<RegistrationOptionsGenerator>(source));
         }
 
         [Fact]
@@ -304,62 +161,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 }
 #nullable restore";
 
-            var expected = @"
-using System;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.JsonRpc.Generation;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client;
-using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
-
-#nullable enable
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
-{
-    [RegistrationOptionsKey(nameof(ServerCapabilities.CodeActionProvider))]
-    public partial class CodeActionRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions
-    {
-        public DocumentSelector? DocumentSelector { get; set; }
-
-        [Optional]
-        public bool WorkDoneProgress { get; set; }
-
-        [RegistrationOptionsKey(nameof(ServerCapabilities.CodeActionProvider))]
-        public partial class StaticOptions : IWorkDoneProgressOptions
-        {
-            /// <summary>
-            /// CodeActionKinds that this server may return.
-            ///
-            /// The list of kinds may be generic, such as `CodeActionKind.Refactor`, or the server
-            /// may list out every specific kind they provide.
-            /// </summary>
-            [Optional]
-            public Container<CodeActionKind>? CodeActionKinds { get; set; } = new Container<CodeActionKind>();
-            /// <summary>
-            /// The server provides support to resolve additional
-            /// information for a code action.
-            ///
-            /// @since 3.16.0
-            /// </summary>
-            [Optional]
-            public bool ResolveProvider { get; set; }
-
-            [Optional]
-            public bool WorkDoneProgress { get; set; }
-        }
-    }
-}
-#nullable restore";
-            await GenerationHelpers.AssertGeneratedAsExpected<RegistrationOptionsGenerator>(source, expected);
+            await Verify(await GenerationHelpers.Generate<RegistrationOptionsGenerator>(source));
         }
     }
 }

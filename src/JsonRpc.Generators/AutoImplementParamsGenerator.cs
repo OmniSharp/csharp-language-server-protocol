@@ -16,7 +16,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
             var _attributes = "Method,RegistrationOptions";
-            var _interfaces = "IPartialItemsRequest,IPartialItemRequest,IWorkDoneProgressParams,IHandlerIdentity";
+            var _interfaces = "IPartialItemsRequest,IPartialItemsWithInitialValueRequest,IPartialItemRequest,IPartialItemWithInitialValueRequest,IWorkDoneProgressParams,IHandlerIdentity";
 
             var syntaxProvider = context.SyntaxProvider.CreateSyntaxProvider(
                 (syntaxNode, _) =>
@@ -102,7 +102,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                             .WithAccessorList(GetInitAccessor);
             }
 
-            if (syntax.BaseList?.Types.Any(z => z.Type.GetSyntaxName() is "IPartialItemsRequest" or "IPartialItemRequest") == true
+            if (syntax.BaseList?.Types.Any(z => z.Type.GetSyntaxName() is "IPartialItemsRequest" or "IPartialItemRequest" or "IPartialItemsWithInitialValueRequest" or "IPartialItemWithInitialValueRequest") == true
              && symbol.GetMembers("PartialResultToken").IsEmpty)
             {
                 yield return PropertyDeclaration(NullableType(IdentifierName("ProgressToken")), Identifier("PartialResultToken"))

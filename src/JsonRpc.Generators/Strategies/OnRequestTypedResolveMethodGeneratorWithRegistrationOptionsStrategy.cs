@@ -42,6 +42,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                 responseType = GenericName(Identifier("CodeActionContainer"))
                    .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("T"))));
             }
+
             responseType = request.Response.Syntax is NullableTypeSyntax ? NullableType(responseType) : responseType;
 
             var method = MethodDeclaration(extensionMethodContext.Item, item.JsonRpcAttributes.HandlerMethodName)
@@ -66,17 +67,20 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             var methodFactory = MakeFactory(
                 extensionMethodContext.GetRegistryParameterList(),
                 registrationOptions.Syntax,
-                item.Capability?.Syntax
+                item.Capability?.Syntax,
+                request.PartialHasInitialValue
             );
             var factory = methodFactory(method);
 
             yield return factory(
                 CreateAsyncFunc(responseType, false, requestType),
-                CreateAsyncFunc(resolveType, false, resolveType)
+                CreateAsyncFunc(resolveType, false, resolveType),
+                null
             );
             yield return factory(
                 CreateAsyncFunc(responseType, true, requestType),
-                CreateAsyncFunc(resolveType, true, resolveType)
+                CreateAsyncFunc(resolveType, true, resolveType),
+                null
             );
 
             {
@@ -84,7 +88,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                 {
                     yield return factory(
                         CreateAsyncFunc(responseType, true, requestType, capability.Syntax),
-                        CreateAsyncFunc(resolveType, true, resolveType, capability.Syntax)
+                        CreateAsyncFunc(resolveType, true, resolveType, capability.Syntax),
+                        null
                     );
                 }
             }
@@ -101,6 +106,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                 request,
                                 requestType,
                                 resolveType,
+                                responseType,
                                 registrationOptions.Syntax,
                                 item.Capability?.Syntax
                             )
@@ -109,18 +115,21 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 
                 yield return factory(
                     CreatePartialAction(requestType, enumerableType, false),
-                    CreateAsyncFunc(resolveType, false, resolveType)
+                    CreateAsyncFunc(resolveType, false, resolveType),
+                    CreateAsyncFunc(responseType, false, requestType)
                 );
                 yield return factory(
                     CreatePartialAction(requestType, enumerableType, true),
-                    CreateAsyncFunc(resolveType, true, resolveType)
+                    CreateAsyncFunc(resolveType, true, resolveType),
+                    CreateAsyncFunc(responseType, true, requestType)
                 );
 
                 if (request.Capability is { } capability)
                 {
                     yield return factory(
                         CreatePartialAction(requestType, enumerableType, true, capability.Syntax),
-                        CreateAsyncFunc(resolveType, true, resolveType, capability.Syntax)
+                        CreateAsyncFunc(resolveType, true, resolveType, capability.Syntax),
+                        CreateAsyncFunc(responseType, true, requestType)
                     );
                 }
             }
@@ -135,6 +144,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                 request,
                                 requestType,
                                 resolveType,
+                                responseType,
                                 registrationOptions.Syntax,
                                 item.Capability?.Syntax
                             )
@@ -143,53 +153,67 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 
                 yield return factory(
                     CreatePartialAction(requestType, resolveType, false),
-                    CreateAsyncFunc(resolveType, false, resolveType)
+                    CreateAsyncFunc(resolveType, false, resolveType),
+                    CreateAsyncFunc(responseType, false, requestType)
                 );
                 yield return factory(
                     CreatePartialAction(requestType, resolveType, true),
-                    CreateAsyncFunc(resolveType, true, resolveType)
+                    CreateAsyncFunc(resolveType, true, resolveType),
+                    CreateAsyncFunc(responseType, true, requestType)
                 );
 
                 if (request.Capability is { } capability)
                 {
                     yield return factory(
                         CreatePartialAction(requestType, resolveType, true, capability.Syntax),
-                        CreateAsyncFunc(resolveType, true, resolveType, capability.Syntax)
+                        CreateAsyncFunc(resolveType, true, resolveType, capability.Syntax),
+                        CreateAsyncFunc(responseType, true, requestType)
                     );
                 }
             }
         }
 
-        private static Func<MethodDeclarationSyntax, Func<TypeSyntax, TypeSyntax?, MethodDeclarationSyntax>> MakeFactory(
-            ParameterListSyntax preParameterList, TypeSyntax registrationOptions, TypeSyntax? capabilityName
+        private static Func<MethodDeclarationSyntax, Func<TypeSyntax, TypeSyntax?, TypeSyntax?, MethodDeclarationSyntax>> MakeFactory(
+            ParameterListSyntax preParameterList, TypeSyntax registrationOptions, TypeSyntax? capabilityName, bool partialHasInitialValue
         )
         {
-            return method => (syntax, resolveSyntax) => GenerateMethod(method, syntax, resolveSyntax);
+            return method => (syntax, resolveSyntax, initialValueSyntax) => GenerateMethod(method, syntax, resolveSyntax, initialValueSyntax);
 
-            MethodDeclarationSyntax MethodFactory(MethodDeclarationSyntax method, TypeSyntax syntax, TypeSyntax? resolveSyntax, ParameterSyntax registrationParameter)
+            MethodDeclarationSyntax MethodFactory(
+                MethodDeclarationSyntax method, TypeSyntax syntax, TypeSyntax? resolveSyntax, TypeSyntax? initialHandlerSyntax, ParameterSyntax registrationParameter
+            )
             {
                 return method
-                      .WithParameterList(
-                           preParameterList
-                              .AddParameters(Parameter(Identifier("handler")).WithType(syntax))
-                              .AddParameters(
-                                   resolveSyntax is { }
-                                       ? new[] {
-                                           Parameter(Identifier("resolveHandler"))
-                                              .WithType(resolveSyntax)
-                                       }
-                                       : new ParameterSyntax[] { }
-                               )
-                              .AddParameters(registrationParameter)
-                       );
+                   .WithParameterList(
+                        preParameterList
+                           .AddParameters(
+                                partialHasInitialValue && initialHandlerSyntax is {}
+                                    ? new[] {
+                                        Parameter(Identifier("initialHandler"))
+                                           .WithType(initialHandlerSyntax)
+                                    }
+                                    : Array.Empty<ParameterSyntax>()
+                            )
+                           .AddParameters(Parameter(Identifier("handler")).WithType(syntax))
+                           .AddParameters(
+                                resolveSyntax is { }
+                                    ? new[]
+                                    {
+                                        Parameter(Identifier("resolveHandler"))
+                                           .WithType(resolveSyntax)
+                                    }
+                                    : new ParameterSyntax[] { }
+                            )
+                           .AddParameters(registrationParameter)
+                    );
             }
 
-            MethodDeclarationSyntax GenerateMethod(MethodDeclarationSyntax method, TypeSyntax syntax, TypeSyntax? resolveSyntax)
+            MethodDeclarationSyntax GenerateMethod(MethodDeclarationSyntax method, TypeSyntax syntax, TypeSyntax? resolveSyntax, TypeSyntax? initialHandlerSyntax)
             {
                 if (capabilityName is { })
                 {
                     return MethodFactory(
-                        method, syntax, resolveSyntax,
+                        method, syntax, resolveSyntax, initialHandlerSyntax,
                         Parameter(Identifier("registrationOptions"))
                            .WithType(
                                 GenericName(Identifier("RegistrationOptionsDelegate")).WithTypeArgumentList(
@@ -200,7 +224,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                 }
 
                 return MethodFactory(
-                    method, syntax, resolveSyntax,
+                    method, syntax, resolveSyntax, initialHandlerSyntax,
                     Parameter(Identifier("registrationOptions"))
                        .WithType(
                             GenericName(Identifier("RegistrationOptionsDelegate"))
@@ -229,29 +253,32 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                 typeArgs = typeArgs.Add(capabilityName);
             }
 
-            return Block(ReturnStatement(
-                             AddHandler(
-                                 Argument(
-                                     CreateHandlerArgument($"Delegating{request.JsonRpcAttributes.HandlerName}Handler", IdentifierName("T"))
-                                        .WithArgumentList(
-                                             HandlerArgumentList(
-                                                 IdentifierName("registrationOptions"),
-                                                 registrationOptions,
-                                                 capabilityName,
-                                                 TypeArgumentList(SeparatedList(handlerAdapterArgs)),
-                                                 TypeArgumentList(SeparatedList(resolveAdapterArgs)),
-                                                 TypeArgumentList(SeparatedList(typeArgs.ToArray()))
-                                             )
-                                         )
-                                 )
-                             )
-                         ));
+            return Block(
+                ReturnStatement(
+                    AddHandler(
+                        Argument(
+                            CreateHandlerArgument($"Delegating{request.JsonRpcAttributes.HandlerName}Handler", IdentifierName("T"))
+                               .WithArgumentList(
+                                    HandlerArgumentList(
+                                        IdentifierName("registrationOptions"),
+                                        registrationOptions,
+                                        capabilityName,
+                                        TypeArgumentList(SeparatedList(handlerAdapterArgs)),
+                                        TypeArgumentList(SeparatedList(resolveAdapterArgs)),
+                                        TypeArgumentList(SeparatedList(typeArgs.ToArray()))
+                                    )
+                                )
+                        )
+                    )
+                )
+            );
         }
 
         private static BlockSyntax GetPartialHandlerExpression(
             RequestItem request,
             TypeSyntax requestSyntax,
             TypeSyntax resolveSyntax,
+            TypeSyntax responseSyntax,
             TypeSyntax registrationOptions,
             TypeSyntax? capabilityName
         )
@@ -259,33 +286,46 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             var typeArgs = ImmutableArray.Create(registrationOptions);
             var handlerAdapterArgs = ImmutableArray.Create(requestSyntax, resolveSyntax);
             var resolveAdapterArgs = ImmutableArray.Create(resolveSyntax, resolveSyntax);
+            var initialValueAdapterArgs = ImmutableArray.Create(requestSyntax, responseSyntax);
             if (capabilityName is { })
             {
                 typeArgs = typeArgs.Add(capabilityName);
             }
 
-            return Block(ReturnStatement(
-                             AddHandler(
-                                 Argument(
-                                     SimpleLambdaExpression(
-                                         Parameter(
-                                             Identifier("_")
-                                         ),
-                                     CreateHandlerArgument($"Delegating{request.JsonRpcAttributes.HandlerName}PartialHandler", IdentifierName("T"))
-                                        .WithArgumentList(
-                                             PartialHandlerArgumentList(
-                                                 IdentifierName("registrationOptions"),
-                                                 registrationOptions,
-                                                 capabilityName,
-                                                 TypeArgumentList(SeparatedList(handlerAdapterArgs)),
-                                                 TypeArgumentList(SeparatedList(resolveAdapterArgs)),
-                                                 TypeArgumentList(SeparatedList(typeArgs.ToArray()))
-                                             )
-                                         )
+            return Block(
+                ReturnStatement(
+                    AddHandler(
+                        Argument(
+                            SimpleLambdaExpression(
+                                Parameter(Identifier("_")),
+                                CreateHandlerArgument($"Delegating{request.JsonRpcAttributes.HandlerName}PartialHandler", IdentifierName("T"))
+                                   .WithArgumentList(
+                                        PartialHandlerArgumentList(
+                                            IdentifierName("registrationOptions"),
+                                            registrationOptions,
+                                            capabilityName,
+                                            TypeArgumentList(SeparatedList(handlerAdapterArgs)),
+                                            TypeArgumentList(SeparatedList(resolveAdapterArgs)),
+                                            TypeArgumentList(SeparatedList(typeArgs.ToArray()))
+                                        ).AddArguments(
+                                            request.PartialHasInitialValue
+                                                ? new[]
+                                                {
+                                                    GetHandlerAdapterArgument(
+                                                        TypeArgumentList(SeparatedList(initialValueAdapterArgs)),
+                                                        InitialHandlerArgument,
+                                                        capabilityName,
+                                                        false
+                                                    )
+                                                }
+                                                : Array.Empty<ArgumentSyntax>()
+                                        )
                                     )
-                                 )
-                             )
-                         ));
+                            )
+                        )
+                    )
+                )
+            );
         }
 
         public static ArgumentListSyntax HandlerArgumentList(
@@ -298,7 +338,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
         ) =>
             ArgumentList(
                 SeparatedList(
-                    new[] {
+                    new[]
+                    {
                         Argument(GetRegistrationOptionsAdapter(registrationOptionsName, registrationType, capabilityName)),
                         GetHandlerAdapterArgument(
                             handlerAdapterArgs,
@@ -326,7 +367,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
         ) =>
             ArgumentList(
                 SeparatedList(
-                    new[] {
+                    new[]
+                    {
                         Argument(
                             InvocationExpression(
                                 MemberAccessExpression(

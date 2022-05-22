@@ -41,6 +41,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             "Type {0} must be made readonly.", "JsonRPC", DiagnosticSeverity.Error, true
         );
 
+        public static DiagnosticDescriptor MustBeARequestOrNotification { get; } = new DiagnosticDescriptor(
+            "JRPC1006", "Type must implement a request or notification interface",
+            "Type {0} must implement a request or notification interface.", "JsonRPC", DiagnosticSeverity.Error, true
+        );
+
         public static DiagnosticDescriptor MustInheritFromCanBeResolved { get; } = new DiagnosticDescriptor(
             "LSP1001", "The target class must implement ICanBeResolved",
             "The target class must implement ICanBeResolved", "LSP", DiagnosticSeverity.Error, true

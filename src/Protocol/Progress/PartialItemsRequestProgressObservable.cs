@@ -54,11 +54,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
                                           .ForkJoin(
                                                requestResult
                                                   .Do(
-                                                       result => _dataSubject.OnNext(result ?? Enumerable.Empty<TItem>()),
+                                                       result =>
+                                                       {
+                                                           if (result is not null)
+                                                           {
+                                                               _dataSubject.OnNext(result);
+                                                           }
+                                                       },
                                                        _dataSubject.OnError,
                                                        _dataSubject.OnCompleted
                                                    ),
-                                               (items, result) => items?.Count() > result?.Count() ? items : result
+                                               (items, result) => (items?.Count() ?? 0) > (result?.Count() ?? 0) ? items : result
                                            )
                                           .Subscribe(observer),
                                        Disposable.Create(onCompleteAction)

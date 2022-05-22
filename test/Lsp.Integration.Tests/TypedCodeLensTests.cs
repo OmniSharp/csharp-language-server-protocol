@@ -64,7 +64,7 @@ namespace Lsp.Integration.Tests
                         l => { return Task.FromResult(l with { Command = l.Command with { Name = "resolved-a" } }); },
                         (_, _) => new CodeLensRegistrationOptions
                         {
-                            DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
+                            DocumentSelector = TextDocumentSelector.ForPattern("**/*.cs")
                         }
                     );
 
@@ -91,7 +91,7 @@ namespace Lsp.Integration.Tests
                         l => { return Task.FromResult(l with { Command = l.Command with { Name = "resolved-b" } }); },
                         (_, _) => new CodeLensRegistrationOptions
                         {
-                            DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
+                            DocumentSelector = TextDocumentSelector.ForPattern("**/*.cs")
                         }
                     );
 
@@ -114,7 +114,7 @@ namespace Lsp.Integration.Tests
                         l => { return Task.FromResult(l with { Command = l.Command with { Name = "resolved-c" } }); },
                         (_, _) => new CodeLensRegistrationOptions
                         {
-                            DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
+                            DocumentSelector = TextDocumentSelector.ForPattern("**/*.cs")
                         }
                     );
 
@@ -137,7 +137,7 @@ namespace Lsp.Integration.Tests
                         l => { return Task.FromResult(l with { Command = l.Command with { Name = "resolved-d" } }); },
                         (_, _) => new CodeLensRegistrationOptions
                         {
-                            DocumentSelector = DocumentSelector.ForLanguage("vb")
+                            DocumentSelector = TextDocumentSelector.ForLanguage("vb")
                         }
                     );
                 }

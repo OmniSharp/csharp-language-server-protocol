@@ -108,10 +108,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 }
             }
         }
-    }
-
-    namespace Models
-    {
+        
         [Parallel]
         [Method(WorkspaceNames.CodeLensRefresh, Direction.ServerToClient)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace")]

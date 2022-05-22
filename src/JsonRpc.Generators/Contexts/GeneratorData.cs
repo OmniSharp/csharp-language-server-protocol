@@ -56,6 +56,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                     GetRegistrationOptions(candidateClass, symbol, lspAttributes),
                     GetPartialItem(candidateClass, symbol, requestType),
                     GetPartialItems(candidateClass, symbol, requestType),
+                    symbol.AllInterfaces.Concat(requestType.Symbol.AllInterfaces).Any(z => z.Name.EndsWith("WithInitialValue", StringComparison.Ordinal)),
                     additionalUsings,
                     new List<AttributeArgumentSyntax>(),
                     model, compilation

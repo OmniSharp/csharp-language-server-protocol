@@ -55,7 +55,7 @@ namespace Lsp.Integration.Tests
             obj.OnMoniker(
                 _request, (_, _) => new MonikerRegistrationOptions
                 {
-                    DocumentSelector = DocumentSelector.ForLanguage("csharp"),
+                    DocumentSelector = TextDocumentSelector.ForLanguage("csharp"),
                 }
             );
         }

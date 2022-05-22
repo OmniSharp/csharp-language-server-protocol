@@ -2,7 +2,7 @@
 {
     public interface ITextDocumentClientCapabilities : ICapabilitiesBase
     {
-        Supports<SynchronizationCapability?> Synchronization { get; set; }
+        Supports<TextSynchronizationCapability?> Synchronization { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/completion`
@@ -146,5 +146,33 @@
         /// @since 3.16.0
         /// </summary>
         Supports<MonikerCapability?> Moniker { get; set; }
+
+        /// <summary>
+        /// Capabilities specific to the various type hierarchy requests.
+        ///
+        /// @since 3.17.0
+        /// </summary>
+        Supports<TypeHierarchyCapability?> TypeHierarchy { get; set; }
+
+        /// <summary>
+        /// Capabilities specific to the `textDocument/inlineValue` request.
+        ///
+        /// @since 3.17.0
+        /// </summary>
+        Supports<InlineValueWorkspaceClientCapabilities?> InlineValue { get; set; }
+
+        /// <summary>
+        /// Capability specific to the `textDocument/inlayHint` request.
+        ///
+        /// @since 3.17.0
+        /// </summary>
+        Supports<InlayHintWorkspaceClientCapabilities?> InlayHint { get; set; }
+
+        /// <summary>
+        /// Capability specific to the diagnostic pull model.
+        ///
+        /// @since 3.17.0
+        /// </summary>
+        Supports<DiagnosticWorkspaceClientCapabilities?> Diagnostic { get; set; }
     }
 }

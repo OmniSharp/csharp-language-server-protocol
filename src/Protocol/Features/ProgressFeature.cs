@@ -130,12 +130,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             this ILanguageProtocolProxy requestRouter,
             IPartialItemRequest<TResponse, TItem> @params,
             Func<TItem, TResponse> factory,
+            Func<TResponse, TItem> reverseFactory,
             CancellationToken cancellationToken = default
         )
         {
             @params.SetPartialResultToken(new ProgressToken(Guid.NewGuid().ToString()));
 
-            return requestRouter.ProgressManager.MonitorUntil(@params, factory, cancellationToken);
+            return requestRouter.ProgressManager.MonitorUntil(@params, factory, reverseFactory, cancellationToken);
         }
 
         public static IRequestProgressObservable<IEnumerable<TItem>, TResponse> RequestProgress<TResponse, TItem>(

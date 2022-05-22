@@ -48,7 +48,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
         [RegistrationOptions(typeof(RenameRegistrationOptions))]
         [Capability(typeof(RenameCapability))]
-        public partial record PrepareRenameParams : TextDocumentPositionParams, IRequest<RangeOrPlaceholderRange?>;
+        public partial record PrepareRenameParams : TextDocumentPositionParams, IWorkDoneProgressParams, IRequest<RangeOrPlaceholderRange?>;
 
         [JsonConverter(typeof(RangeOrPlaceholderRangeConverter))]
         public record RangeOrPlaceholderRange

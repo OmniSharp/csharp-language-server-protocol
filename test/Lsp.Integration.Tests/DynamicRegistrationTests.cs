@@ -59,7 +59,7 @@ namespace Lsp.Integration.Tests
                             (@params, token) => Task.FromResult(new CompletionList()),
                             (_, _) => new CompletionRegistrationOptions
                             {
-                                DocumentSelector = DocumentSelector.ForLanguage("vb")
+                                DocumentSelector = TextDocumentSelector.ForLanguage("vb")
                             }
                         )
                 );
@@ -109,7 +109,7 @@ namespace Lsp.Integration.Tests
                         (@params, token) => Task.FromResult(new CompletionList()),
                         (_, _) => new CompletionRegistrationOptions
                         {
-                            DocumentSelector = DocumentSelector.ForLanguage("vb")
+                            DocumentSelector = TextDocumentSelector.ForLanguage("vb")
                         }
                     )
                 );
@@ -163,18 +163,18 @@ namespace Lsp.Integration.Tests
                 client.RegistrationManager.CurrentRegistrations.Should().ContainSingle(x => x.Method == TextDocumentNames.SemanticTokensRegistration);
             }
 
-            private bool SelectorMatches(Registration registration, Func<DocumentFilter, bool> documentFilter)
+            private bool SelectorMatches(Registration registration, Func<TextDocumentFilter, bool> documentFilter)
             {
                 return SelectorMatches(registration.RegisterOptions!, documentFilter);
             }
 
-            private bool SelectorMatches(object options, Func<DocumentFilter, bool> documentFilter)
+            private bool SelectorMatches(object options, Func<TextDocumentFilter, bool> documentFilter)
             {
                 if (options is Registration registration)
                     return SelectorMatches(registration.RegisterOptions!, documentFilter);
                 if (options is ITextDocumentRegistrationOptions tdro)
                     return tdro.DocumentSelector?.Any(documentFilter) == true;
-                if (options is DocumentSelector selector)
+                if (options is TextDocumentSelector selector)
                     return selector.Any(documentFilter);
                 return false;
             }
@@ -206,7 +206,7 @@ namespace Lsp.Integration.Tests
                             Legend = new SemanticTokensLegend(),
                             Full = new SemanticTokensCapabilityRequestFull { Delta = true },
                             Range = new SemanticTokensCapabilityRequestRange(),
-                            DocumentSelector = DocumentSelector.ForLanguage("csharp")
+                            DocumentSelector = TextDocumentSelector.ForLanguage("csharp")
                         };
 
                         // Our server only statically registers when it detects a server that does not support dynamic capabilities
@@ -364,7 +364,7 @@ namespace Lsp.Integration.Tests
                     (@params, token) => Task.FromResult(new CompletionList()),
                     (_, _) => new CompletionRegistrationOptions
                     {
-                        DocumentSelector = DocumentSelector.ForLanguage("csharp"),
+                        DocumentSelector = TextDocumentSelector.ForLanguage("csharp"),
                         ResolveProvider = true,
                         TriggerCharacters = new Container<string>("a", "b"),
                         AllCommitCharacters = new Container<string>("1", "2"),

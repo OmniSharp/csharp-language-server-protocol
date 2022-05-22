@@ -14,12 +14,12 @@ namespace Lsp.Tests.Models
         public void SimpleTest(string expected)
         {
             var model = new CodeLensRegistrationOptions {
-                DocumentSelector = new DocumentSelector(
-                    new DocumentFilter {
+                DocumentSelector = new TextDocumentSelector(
+                    new TextDocumentFilter {
                         Language = "csharp",
                         Pattern = "pattern",
                         Scheme = "scheme"
-                    }, new DocumentFilter {
+                    }, new TextDocumentFilter {
                         Language = "vb",
                         Pattern = "pattern",
                         Scheme = "scheme"

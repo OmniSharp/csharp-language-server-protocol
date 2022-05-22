@@ -21,24 +21,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 
         IRequestProgressObservable<TItem, TResult> MonitorUntil<TItem, TResult>(
             IPartialItemRequest<TResult, TItem> request,
-            Func<TItem, TResult, TResult> factory,
+            Func<TResult, TItem, TResult> factory,
             Func<TResult, TItem> reverseFactory,
             CancellationToken cancellationToken
         );
 
-        [Obsolete("Method may not work correctly when subscribing to the result, use overload with the reverse factory parameter")]
         IRequestProgressObservable<TItem, TResult> MonitorUntil<TItem, TResult>(
-            IPartialItemRequest<TResult, TItem> request,
-            Func<TItem, TResult> factory,
+            IPartialItemWithInitialValueRequest<TResult, TItem> request,
+            Func<TResult, TItem, TResult> factory,
             CancellationToken cancellationToken
-        );
-
-        [Obsolete("Method may not work correctly when subscribing to the result, use overload with the reverse factory parameter")]
-        IRequestProgressObservable<TItem, TResult> MonitorUntil<TItem, TResult>(
-            IPartialItemRequest<TResult, TItem> request,
-            Func<TItem, TResult, TResult> factory,
-            CancellationToken cancellationToken
-        );
+        ) where TResult : TItem;
 
         IRequestProgressObservable<IEnumerable<TItem>, TResponse> MonitorUntil<TResponse, TItem>(
             IPartialItemsRequest<TResponse, TItem> request,
@@ -50,12 +42,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
             IPartialItemsRequest<Container<TItem>, TItem> request,
             CancellationToken cancellationToken
         );
+        
+        IRequestProgressObservable<IEnumerable<TItem>, TResponse> MonitorUntil<TResponse, TItem>(
+            IPartialItemsWithInitialValueRequest<TResponse, TItem> request,
+            Func<TResponse, IEnumerable<TItem>, TResponse> factory,
+            CancellationToken cancellationToken
+        ) where TResponse : IEnumerable<TItem>?;
 
         IProgressObserver<T> For<T>(ProgressToken token, CancellationToken cancellationToken);
         IProgressObserver<TItem> For<TResponse, TItem>(IPartialItemRequest<TResponse, TItem> request, CancellationToken cancellationToken);
+        IProgressObserverWithInitialValue<TInitial, TItem> For<TInitial, TItem>(IPartialItemWithInitialValueRequest<TInitial, TItem> request, CancellationToken cancellationToken);
 
         IProgressObserver<IEnumerable<TItem>> For<TResponse, TItem>(IPartialItemsRequest<TResponse, TItem> request, CancellationToken cancellationToken)
             where TResponse : IEnumerable<TItem>?;
+        IProgressObserverWithInitialValue<TInitial, IEnumerable<TItem>> For<TInitial, TItem>(IPartialItemsWithInitialValueRequest<TInitial, TItem> request, CancellationToken cancellationToken)
+            where TInitial : IEnumerable<TItem>?;
         IScheduler Scheduler { get; }
     }
 }

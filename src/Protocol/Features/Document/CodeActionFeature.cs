@@ -72,6 +72,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             [Optional]
             public Container<CodeActionKind>? Only { get; init; }
+
+            /// <summary>
+            /// The reason why code actions were requested.
+            ///
+            /// @since 3.17.0
+            /// </summary>
+            [Optional]
+            public CodeActionTriggerKind? TriggerKind { get; init; }
         }
 
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
@@ -414,6 +422,35 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// Base kind for an organize imports source action: `source.organizeImports`
             /// </summary>
             public static CodeActionKind SourceOrganizeImports { get; } = new CodeActionKind("source.organizeImports");
+
+            /// <summary>
+            /// Base kind for a 'fix all' source action: `source.fixAll`.
+            ///
+            /// 'Fix all' actions automatically fix errors that have a clear fix that
+            /// do not require user input. They should not suppress errors or perform
+            /// unsafe fixes such as generating new types or classes.
+            ///
+            /// @since 3.17.0
+            /// </summary>
+            public static CodeActionKind SourceFixAll { get; } = new CodeActionKind("source.fixAll");
+        }
+
+
+        [JsonConverter(typeof(NumberEnumConverter))]
+        public enum CodeActionTriggerKind
+        {
+            /// <summary>
+            /// Code actions were explicitly requested by the user or by an extension.
+            /// </summary>
+            Invoked = 1,
+
+            /// <summary>
+            /// Code actions were requested automatically.
+            ///
+            /// This typically happens when current selection in a file changes, but can
+            /// also be triggered when file content changes.
+            /// </summary>
+            Automatic = 2
         }
     }
 

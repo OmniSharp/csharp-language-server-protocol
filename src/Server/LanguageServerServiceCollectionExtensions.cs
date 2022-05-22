@@ -43,6 +43,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             }
 
             container.RegisterMany<TextDocumentLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(TextDocumentLanguageServer)), reuse: Reuse.Singleton);
+            container.RegisterMany<NotebookDocumentLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(NotebookDocumentLanguageServer)), reuse: Reuse.Singleton);
             container.RegisterMany<ClientLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(ClientLanguageServer)), reuse: Reuse.Singleton);
             container.RegisterMany<GeneralLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(GeneralLanguageServer)), reuse: Reuse.Singleton);
             container.RegisterMany<WindowLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(WindowLanguageServer)), reuse: Reuse.Singleton);
@@ -105,6 +106,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             );
 
             container.RegisterMany<TextDocumentMatcher>(Reuse.Singleton);
+            container.RegisterMany<NotebookDocumentMatcher>(Reuse.Singleton);
             container.RegisterMany<ExecuteCommandMatcher>(Reuse.Singleton);
             container.RegisterMany<ResolveCommandMatcher>(Reuse.Singleton);
             container.RegisterMany(new[] { typeof(ResolveCommandPipeline<,>) });

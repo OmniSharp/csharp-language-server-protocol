@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>netcoreapp3.1;net6.0</TargetFrameworks>
+        <TargetFrameworks>net6.0</TargetFrameworks>
         <WarningsAsErrors>true</WarningsAsErrors>
         <PlatformTarget>AnyCPU</PlatformTarget>
     </PropertyGroup>
@@ -12,5 +12,11 @@
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
         <ProjectReference Include="..\TestingUtils\TestingUtils.csproj" />
         <EmbeddedResource Include="..\..\src\Protocol\**\*Feature.cs" Visible="false" />
+      <PackageReference Include="Verify.SourceGenerators" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Update="snapshots\JsonRpcGenerationTests.Supports_Generating_Requests_And_Infers_Direction.verified.txt">
+        <ParentFile>JsonRpcGenerationTests</ParentFile>
+      </None>
     </ItemGroup>
 </Project>

@@ -1,0 +1,2213 @@
+﻿{
+  RegistrationOptionsGenerator: [    
+//HintName: Test0.cs
+using System.Diagnostics;
+using MediatR;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+
+// ReSharper disable once CheckNamespace
+namespace OmniSharp.Extensions.LanguageServer.Protocol
+{
+    namespace Models
+    {
+        /// <summary>
+        /// The parameters of a Workspace Symbol Request.
+        /// </summary>
+        [Parallel]
+        [Method(WorkspaceNames.WorkspaceSymbol, Direction.ClientToServer)]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace", Name = "SymbolInformation"), GenerateHandlerMethods,
+         GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(WorkspaceSymbolRegistrationOptions)), Capability(typeof(WorkspaceSymbolCapability))]
+        public partial record SymbolInformationParams : IPartialItemsRequest<Container<SymbolInformation>?, SymbolInformation>, IWorkDoneProgressParams
+        {
+            /// <summary>
+            /// A non-empty query string
+            /// </summary>
+            public string Query { get; init; }
+        }
+        
+        /// <summary>
+        /// The parameters of a Workspace Symbol Request.
+        /// </summary>
+        [Parallel]
+        [Method(WorkspaceNames.WorkspaceSymbol, Direction.ClientToServer)]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace", Name = "WorkspaceSymbols"), GenerateHandlerMethods,
+         GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(WorkspaceSymbolRegistrationOptions)), Capability(typeof(WorkspaceSymbolCapability))]
+        public partial record WorkspaceSymbolParams : IPartialItemsRequest<Container<WorkspaceSymbol>?, WorkspaceSymbol>, IWorkDoneProgressParams
+        {
+            /// <summary>
+            /// A non-empty query string
+            /// </summary>
+            public string Query { get; init; }
+        }
+
+        [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+        public partial record SymbolInformation
+        {
+            /// <summary>
+            /// The name of this symbol.
+            /// </summary>
+            public string Name { get; init; }
+
+            /// <summary>
+            /// The kind of this symbol.
+            /// </summary>
+            public SymbolKind Kind { get; init; }
+
+            /// <summary>
+            /// Tags for this completion item.
+            ///
+            /// @since 3.16.0
+            /// </summary>
+            [Optional]
+            public Container<SymbolTag>? Tags { get; init; }
+
+            /// <summary>
+            /// Indicates if this item is deprecated.
+            /// </summary>
+            [Optional]
+            public bool Deprecated { get; init; }
+
+            /// <summary>
+            /// The location of this symbol.
+            /// </summary>
+            public Location Location { get; init; }
+
+            /// <summary>
+            /// The name of the symbol containing this symbol.
+            /// </summary>
+            [Optional]
+            public string? ContainerName { get; init; }
+
+            private string DebuggerDisplay => $"[{Kind}@{Location}] {Name}";
+
+            /// <inheritdoc />
+            public override string ToString() => DebuggerDisplay;
+        }
+
+        /// <summary>
+        /// A special workspace symbol that supports locations without a range
+        ///
+        /// @since 3.17.0 - proposed state
+        /// </summary>
+        [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+        [Parallel]
+        [Method(WorkspaceNames.WorkspaceSymbolResolve, Direction.ClientToServer)]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace", Name = "WorkspaceSymbolResolve")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
+        [Capability(typeof(WorkspaceSymbolCapability))]
+        public partial record WorkspaceSymbol : IRequest<WorkspaceSymbol>
+        {
+            /// <summary>
+            /// The name of this symbol.
+            /// </summary>
+            public string Name { get; set; }
+
+            /// <summary>
+            /// The kind of this symbol.
+            /// </summary>
+            public SymbolKind Kind { get; set; }
+
+            /// <summary>
+            /// Tags for this completion item.
+            /// </summary>
+            [Optional]
+            public Container<SymbolTag>? Tags { get; set; }
+
+            /// <summary>
+            /// The location of this symbol.
+            ///
+            /// See also `SymbolInformation.location`.
+            /// </summary>
+            public LocationOrFileLocation Location { get; set; }
+
+            /// <summary>
+            /// The name of the symbol containing this symbol. This information is for
+            /// user interface purposes (e.g. to render a qualifier in the user interface
+            /// if necessary). It can't be used to re-infer a hierarchy for the document
+            /// symbols.
+            /// </summary>
+            [Optional]
+            public string? ContainerName { get; set; }
+
+            private string DebuggerDisplay => $"[{Kind}@{Location}] {Name}";
+
+            /// <inheritdoc />
+            public override string ToString() => DebuggerDisplay;
+        }
+
+        [GenerateRegistrationOptions(nameof(ServerCapabilities.WorkspaceSymbolProvider))]
+        [RegistrationOptionsConverter(typeof(WorkspaceSymbolRegistrationOptionsConverter))]
+        [RegistrationName(WorkspaceNames.WorkspaceSymbol)]
+        public partial class WorkspaceSymbolRegistrationOptions : IWorkDoneProgressOptions
+        {
+            /// <summary>
+            /// The server provides support to resolve additional
+            /// information for a workspace symbol.
+            /// </summary>
+            [Optional]
+            public bool ResolveProvider { get; set; }
+
+            private class WorkspaceSymbolRegistrationOptionsConverter : RegistrationOptionsConverterBase<WorkspaceSymbolRegistrationOptions, StaticOptions>
+            {
+                private readonly IHandlersManager _handlersManager;
+
+                public WorkspaceSymbolRegistrationOptionsConverter(IHandlersManager handlersManager)
+                {
+                    _handlersManager = handlersManager;
+                }
+
+                public override StaticOptions Convert(WorkspaceSymbolRegistrationOptions source)
+                {
+                    return new()
+                    {
+                        ResolveProvider = source.ResolveProvider || _handlersManager.Descriptors.Any(z => z.HandlerType == typeof(IWorkspaceSymbolResolveHandler)),
+                        WorkDoneProgress = source.WorkDoneProgress,
+                    };
+                }
+            }
+        }
+    }
+
+    namespace Client.Capabilities
+    {
+        [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(WorkspaceClientCapabilities.Symbol))]
+        public partial class WorkspaceSymbolCapability : DynamicCapability //
+        {
+            /// <summary>
+            /// Specific capabilities for the `SymbolKind` in the `workspace/symbol` request.
+            /// </summary>
+            [Optional]
+            public SymbolKindCapabilityOptions? SymbolKind { get; set; }
+
+            /// <summary>
+            /// The client supports tags on `SymbolInformation` and `WorkspaceSymbol`. Tags are supported on
+            /// `DocumentSymbol` if `hierarchicalDocumentSymbolSupport` is set to true.
+            /// Clients supporting tags have to handle unknown tags gracefully.
+            ///
+            /// @since 3.16.0
+            /// </summary>
+            [Optional]
+            public Supports<TagSupportCapabilityOptions?> TagSupport { get; set; }
+
+
+            /// <summary>
+            /// The client support partial workspace symbols. The client will send the
+            /// request `workspaceSymbol/resolve` to the server to resolve additional
+            /// properties.
+            ///
+            /// @since 3.17.0 - proposedState
+            /// </summary>
+            [Optional]
+            public ResolveSupportCapabilityOptions? ResolveSupport { get; set; }
+        }
+
+        /// <summary>
+        /// The client supports tags on `SymbolInformation`.Tags are supported on
+        /// `DocumentSymbol` if `hierarchicalDocumentSymbolSupport` is set tot true.
+        /// Clients supporting tags have to handle unknown tags gracefully.
+        ///
+        /// @since 3.16.0
+        /// </summary>
+        public class TagSupportCapabilityOptions
+        {
+            /// <summary>
+            /// The tags supported by the client.
+            /// </summary>
+            public Container<SymbolTag> ValueSet { get; set; } = null!;
+        }
+
+        /// <summary>
+        /// Specific capabilities for the `SymbolKind`.
+        /// </summary>
+        public class SymbolKindCapabilityOptions
+        {
+            /// <summary>
+            /// The symbol kind values the client supports. When this
+            /// property exists the client also guarantees that it will
+            /// handle values outside its set gracefully and falls back
+            /// to a default value when unknown.
+            ///
+            /// If this property is not present the client only supports
+            /// the symbol kinds from `File` to `Array` as defined in
+            /// the initial version of the protocol.
+            /// </summary>
+            [Optional]
+            public Container<SymbolKind>? ValueSet { get; set; }
+        }
+
+        /// <summary>
+        /// The client support partial workspace symbols. The client will send the
+        /// request `workspaceSymbol/resolve` to the server to resolve additional
+        /// properties.
+        ///
+        /// @since 3.17.0 - proposedState
+        /// </summary>
+        public partial class ResolveSupportCapabilityOptions
+        {
+            /// <summary>
+            /// The properties that a client can resolve lazily. Usually
+            /// `location.range`
+            /// </summary>
+            public Container<string> Properties { get; set; } = new();
+        }
+    }
+}
+    
+//HintName: OmniSharp.Extensions.JsonRpc.Generators/OmniSharp.Extensions.JsonRpc.Generators.RegistrationOptionsGenerator/WorkspaceSymbolRegistrationOptions.cs
+using System.Diagnostics;
+using MediatR;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+
+#nullable enable
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
+{
+    [RegistrationOptionsKey(nameof(ServerCapabilities.WorkspaceSymbolProvider))]
+    public partial class WorkspaceSymbolRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions
+    {
+        [Optional]
+        public bool WorkDoneProgress { get; set; }
+
+        [RegistrationOptionsKey(nameof(ServerCapabilities.WorkspaceSymbolProvider))]
+        public partial class StaticOptions : IWorkDoneProgressOptions
+        {
+            /// <summary>
+            /// The server provides support to resolve additional
+            /// information for a workspace symbol.
+            /// </summary>
+            [Optional]
+            public bool ResolveProvider { get; set; }
+
+            [Optional]
+            public bool WorkDoneProgress { get; set; }
+        }
+    }
+}
+#nullable restore
+
+  ],
+  StronglyTypedGenerator: [    
+//HintName: Test0.cs
+using System.Diagnostics;
+using MediatR;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+
+// ReSharper disable once CheckNamespace
+namespace OmniSharp.Extensions.LanguageServer.Protocol
+{
+    namespace Models
+    {
+        /// <summary>
+        /// The parameters of a Workspace Symbol Request.
+        /// </summary>
+        [Parallel]
+        [Method(WorkspaceNames.WorkspaceSymbol, Direction.ClientToServer)]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace", Name = "SymbolInformation"), GenerateHandlerMethods,
+         GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(WorkspaceSymbolRegistrationOptions)), Capability(typeof(WorkspaceSymbolCapability))]
+        public partial record SymbolInformationParams : IPartialItemsRequest<Container<SymbolInformation>?, SymbolInformation>, IWorkDoneProgressParams
+        {
+            /// <summary>
+            /// A non-empty query string
+            /// </summary>
+            public string Query { get; init; }
+        }
+        
+        /// <summary>
+        /// The parameters of a Workspace Symbol Request.
+        /// </summary>
+        [Parallel]
+        [Method(WorkspaceNames.WorkspaceSymbol, Direction.ClientToServer)]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace", Name = "WorkspaceSymbols"), GenerateHandlerMethods,
+         GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(WorkspaceSymbolRegistrationOptions)), Capability(typeof(WorkspaceSymbolCapability))]
+        public partial record WorkspaceSymbolParams : IPartialItemsRequest<Container<WorkspaceSymbol>?, WorkspaceSymbol>, IWorkDoneProgressParams
+        {
+            /// <summary>
+            /// A non-empty query string
+            /// </summary>
+            public string Query { get; init; }
+        }
+
+        [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+        public partial record SymbolInformation
+        {
+            /// <summary>
+            /// The name of this symbol.
+            /// </summary>
+            public string Name { get; init; }
+
+            /// <summary>
+            /// The kind of this symbol.
+            /// </summary>
+            public SymbolKind Kind { get; init; }
+
+            /// <summary>
+            /// Tags for this completion item.
+            ///
+            /// @since 3.16.0
+            /// </summary>
+            [Optional]
+            public Container<SymbolTag>? Tags { get; init; }
+
+            /// <summary>
+            /// Indicates if this item is deprecated.
+            /// </summary>
+            [Optional]
+            public bool Deprecated { get; init; }
+
+            /// <summary>
+            /// The location of this symbol.
+            /// </summary>
+            public Location Location { get; init; }
+
+            /// <summary>
+            /// The name of the symbol containing this symbol.
+            /// </summary>
+            [Optional]
+            public string? ContainerName { get; init; }
+
+            private string DebuggerDisplay => $"[{Kind}@{Location}] {Name}";
+
+            /// <inheritdoc />
+            public override string ToString() => DebuggerDisplay;
+        }
+
+        /// <summary>
+        /// A special workspace symbol that supports locations without a range
+        ///
+        /// @since 3.17.0 - proposed state
+        /// </summary>
+        [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+        [Parallel]
+        [Method(WorkspaceNames.WorkspaceSymbolResolve, Direction.ClientToServer)]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace", Name = "WorkspaceSymbolResolve")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
+        [Capability(typeof(WorkspaceSymbolCapability))]
+        public partial record WorkspaceSymbol : IRequest<WorkspaceSymbol>
+        {
+            /// <summary>
+            /// The name of this symbol.
+            /// </summary>
+            public string Name { get; set; }
+
+            /// <summary>
+            /// The kind of this symbol.
+            /// </summary>
+            public SymbolKind Kind { get; set; }
+
+            /// <summary>
+            /// Tags for this completion item.
+            /// </summary>
+            [Optional]
+            public Container<SymbolTag>? Tags { get; set; }
+
+            /// <summary>
+            /// The location of this symbol.
+            ///
+            /// See also `SymbolInformation.location`.
+            /// </summary>
+            public LocationOrFileLocation Location { get; set; }
+
+            /// <summary>
+            /// The name of the symbol containing this symbol. This information is for
+            /// user interface purposes (e.g. to render a qualifier in the user interface
+            /// if necessary). It can't be used to re-infer a hierarchy for the document
+            /// symbols.
+            /// </summary>
+            [Optional]
+            public string? ContainerName { get; set; }
+
+            private string DebuggerDisplay => $"[{Kind}@{Location}] {Name}";
+
+            /// <inheritdoc />
+            public override string ToString() => DebuggerDisplay;
+        }
+
+        [GenerateRegistrationOptions(nameof(ServerCapabilities.WorkspaceSymbolProvider))]
+        [RegistrationOptionsConverter(typeof(WorkspaceSymbolRegistrationOptionsConverter))]
+        [RegistrationName(WorkspaceNames.WorkspaceSymbol)]
+        public partial class WorkspaceSymbolRegistrationOptions : IWorkDoneProgressOptions
+        {
+            /// <summary>
+            /// The server provides support to resolve additional
+            /// information for a workspace symbol.
+            /// </summary>
+            [Optional]
+            public bool ResolveProvider { get; set; }
+
+            private class WorkspaceSymbolRegistrationOptionsConverter : RegistrationOptionsConverterBase<WorkspaceSymbolRegistrationOptions, StaticOptions>
+            {
+                private readonly IHandlersManager _handlersManager;
+
+                public WorkspaceSymbolRegistrationOptionsConverter(IHandlersManager handlersManager)
+                {
+                    _handlersManager = handlersManager;
+                }
+
+                public override StaticOptions Convert(WorkspaceSymbolRegistrationOptions source)
+                {
+                    return new()
+                    {
+                        ResolveProvider = source.ResolveProvider || _handlersManager.Descriptors.Any(z => z.HandlerType == typeof(IWorkspaceSymbolResolveHandler)),
+                        WorkDoneProgress = source.WorkDoneProgress,
+                    };
+                }
+            }
+        }
+    }
+
+    namespace Client.Capabilities
+    {
+        [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(WorkspaceClientCapabilities.Symbol))]
+        public partial class WorkspaceSymbolCapability : DynamicCapability //
+        {
+            /// <summary>
+            /// Specific capabilities for the `SymbolKind` in the `workspace/symbol` request.
+            /// </summary>
+            [Optional]
+            public SymbolKindCapabilityOptions? SymbolKind { get; set; }
+
+            /// <summary>
+            /// The client supports tags on `SymbolInformation` and `WorkspaceSymbol`. Tags are supported on
+            /// `DocumentSymbol` if `hierarchicalDocumentSymbolSupport` is set to true.
+            /// Clients supporting tags have to handle unknown tags gracefully.
+            ///
+            /// @since 3.16.0
+            /// </summary>
+            [Optional]
+            public Supports<TagSupportCapabilityOptions?> TagSupport { get; set; }
+
+
+            /// <summary>
+            /// The client support partial workspace symbols. The client will send the
+            /// request `workspaceSymbol/resolve` to the server to resolve additional
+            /// properties.
+            ///
+            /// @since 3.17.0 - proposedState
+            /// </summary>
+            [Optional]
+            public ResolveSupportCapabilityOptions? ResolveSupport { get; set; }
+        }
+
+        /// <summary>
+        /// The client supports tags on `SymbolInformation`.Tags are supported on
+        /// `DocumentSymbol` if `hierarchicalDocumentSymbolSupport` is set tot true.
+        /// Clients supporting tags have to handle unknown tags gracefully.
+        ///
+        /// @since 3.16.0
+        /// </summary>
+        public class TagSupportCapabilityOptions
+        {
+            /// <summary>
+            /// The tags supported by the client.
+            /// </summary>
+            public Container<SymbolTag> ValueSet { get; set; } = null!;
+        }
+
+        /// <summary>
+        /// Specific capabilities for the `SymbolKind`.
+        /// </summary>
+        public class SymbolKindCapabilityOptions
+        {
+            /// <summary>
+            /// The symbol kind values the client supports. When this
+            /// property exists the client also guarantees that it will
+            /// handle values outside its set gracefully and falls back
+            /// to a default value when unknown.
+            ///
+            /// If this property is not present the client only supports
+            /// the symbol kinds from `File` to `Array` as defined in
+            /// the initial version of the protocol.
+            /// </summary>
+            [Optional]
+            public Container<SymbolKind>? ValueSet { get; set; }
+        }
+
+        /// <summary>
+        /// The client support partial workspace symbols. The client will send the
+        /// request `workspaceSymbol/resolve` to the server to resolve additional
+        /// properties.
+        ///
+        /// @since 3.17.0 - proposedState
+        /// </summary>
+        public partial class ResolveSupportCapabilityOptions
+        {
+            /// <summary>
+            /// The properties that a client can resolve lazily. Usually
+            /// `location.range`
+            /// </summary>
+            public Container<string> Properties { get; set; } = new();
+        }
+    }
+}
+  ],
+  GenerateHandlerMethodsGenerator: [    
+//HintName: Test0.cs
+using System.Diagnostics;
+using MediatR;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+
+// ReSharper disable once CheckNamespace
+namespace OmniSharp.Extensions.LanguageServer.Protocol
+{
+    namespace Models
+    {
+        /// <summary>
+        /// The parameters of a Workspace Symbol Request.
+        /// </summary>
+        [Parallel]
+        [Method(WorkspaceNames.WorkspaceSymbol, Direction.ClientToServer)]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace", Name = "SymbolInformation"), GenerateHandlerMethods,
+         GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(WorkspaceSymbolRegistrationOptions)), Capability(typeof(WorkspaceSymbolCapability))]
+        public partial record SymbolInformationParams : IPartialItemsRequest<Container<SymbolInformation>?, SymbolInformation>, IWorkDoneProgressParams
+        {
+            /// <summary>
+            /// A non-empty query string
+            /// </summary>
+            public string Query { get; init; }
+        }
+        
+        /// <summary>
+        /// The parameters of a Workspace Symbol Request.
+        /// </summary>
+        [Parallel]
+        [Method(WorkspaceNames.WorkspaceSymbol, Direction.ClientToServer)]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace", Name = "WorkspaceSymbols"), GenerateHandlerMethods,
+         GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(WorkspaceSymbolRegistrationOptions)), Capability(typeof(WorkspaceSymbolCapability))]
+        public partial record WorkspaceSymbolParams : IPartialItemsRequest<Container<WorkspaceSymbol>?, WorkspaceSymbol>, IWorkDoneProgressParams
+        {
+            /// <summary>
+            /// A non-empty query string
+            /// </summary>
+            public string Query { get; init; }
+        }
+
+        [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+        public partial record SymbolInformation
+        {
+            /// <summary>
+            /// The name of this symbol.
+            /// </summary>
+            public string Name { get; init; }
+
+            /// <summary>
+            /// The kind of this symbol.
+            /// </summary>
+            public SymbolKind Kind { get; init; }
+
+            /// <summary>
+            /// Tags for this completion item.
+            ///
+            /// @since 3.16.0
+            /// </summary>
+            [Optional]
+            public Container<SymbolTag>? Tags { get; init; }
+
+            /// <summary>
+            /// Indicates if this item is deprecated.
+            /// </summary>
+            [Optional]
+            public bool Deprecated { get; init; }
+
+            /// <summary>
+            /// The location of this symbol.
+            /// </summary>
+            public Location Location { get; init; }
+
+            /// <summary>
+            /// The name of the symbol containing this symbol.
+            /// </summary>
+            [Optional]
+            public string? ContainerName { get; init; }
+
+            private string DebuggerDisplay => $"[{Kind}@{Location}] {Name}";
+
+            /// <inheritdoc />
+            public override string ToString() => DebuggerDisplay;
+        }
+
+        /// <summary>
+        /// A special workspace symbol that supports locations without a range
+        ///
+        /// @since 3.17.0 - proposed state
+        /// </summary>
+        [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+        [Parallel]
+        [Method(WorkspaceNames.WorkspaceSymbolResolve, Direction.ClientToServer)]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace", Name = "WorkspaceSymbolResolve")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
+        [Capability(typeof(WorkspaceSymbolCapability))]
+        public partial record WorkspaceSymbol : IRequest<WorkspaceSymbol>
+        {
+            /// <summary>
+            /// The name of this symbol.
+            /// </summary>
+            public string Name { get; set; }
+
+            /// <summary>
+            /// The kind of this symbol.
+            /// </summary>
+            public SymbolKind Kind { get; set; }
+
+            /// <summary>
+            /// Tags for this completion item.
+            /// </summary>
+            [Optional]
+            public Container<SymbolTag>? Tags { get; set; }
+
+            /// <summary>
+            /// The location of this symbol.
+            ///
+            /// See also `SymbolInformation.location`.
+            /// </summary>
+            public LocationOrFileLocation Location { get; set; }
+
+            /// <summary>
+            /// The name of the symbol containing this symbol. This information is for
+            /// user interface purposes (e.g. to render a qualifier in the user interface
+            /// if necessary). It can't be used to re-infer a hierarchy for the document
+            /// symbols.
+            /// </summary>
+            [Optional]
+            public string? ContainerName { get; set; }
+
+            private string DebuggerDisplay => $"[{Kind}@{Location}] {Name}";
+
+            /// <inheritdoc />
+            public override string ToString() => DebuggerDisplay;
+        }
+
+        [GenerateRegistrationOptions(nameof(ServerCapabilities.WorkspaceSymbolProvider))]
+        [RegistrationOptionsConverter(typeof(WorkspaceSymbolRegistrationOptionsConverter))]
+        [RegistrationName(WorkspaceNames.WorkspaceSymbol)]
+        public partial class WorkspaceSymbolRegistrationOptions : IWorkDoneProgressOptions
+        {
+            /// <summary>
+            /// The server provides support to resolve additional
+            /// information for a workspace symbol.
+            /// </summary>
+            [Optional]
+            public bool ResolveProvider { get; set; }
+
+            private class WorkspaceSymbolRegistrationOptionsConverter : RegistrationOptionsConverterBase<WorkspaceSymbolRegistrationOptions, StaticOptions>
+            {
+                private readonly IHandlersManager _handlersManager;
+
+                public WorkspaceSymbolRegistrationOptionsConverter(IHandlersManager handlersManager)
+                {
+                    _handlersManager = handlersManager;
+                }
+
+                public override StaticOptions Convert(WorkspaceSymbolRegistrationOptions source)
+                {
+                    return new()
+                    {
+                        ResolveProvider = source.ResolveProvider || _handlersManager.Descriptors.Any(z => z.HandlerType == typeof(IWorkspaceSymbolResolveHandler)),
+                        WorkDoneProgress = source.WorkDoneProgress,
+                    };
+                }
+            }
+        }
+    }
+
+    namespace Client.Capabilities
+    {
+        [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(WorkspaceClientCapabilities.Symbol))]
+        public partial class WorkspaceSymbolCapability : DynamicCapability //
+        {
+            /// <summary>
+            /// Specific capabilities for the `SymbolKind` in the `workspace/symbol` request.
+            /// </summary>
+            [Optional]
+            public SymbolKindCapabilityOptions? SymbolKind { get; set; }
+
+            /// <summary>
+            /// The client supports tags on `SymbolInformation` and `WorkspaceSymbol`. Tags are supported on
+            /// `DocumentSymbol` if `hierarchicalDocumentSymbolSupport` is set to true.
+            /// Clients supporting tags have to handle unknown tags gracefully.
+            ///
+            /// @since 3.16.0
+            /// </summary>
+            [Optional]
+            public Supports<TagSupportCapabilityOptions?> TagSupport { get; set; }
+
+
+            /// <summary>
+            /// The client support partial workspace symbols. The client will send the
+            /// request `workspaceSymbol/resolve` to the server to resolve additional
+            /// properties.
+            ///
+            /// @since 3.17.0 - proposedState
+            /// </summary>
+            [Optional]
+            public ResolveSupportCapabilityOptions? ResolveSupport { get; set; }
+        }
+
+        /// <summary>
+        /// The client supports tags on `SymbolInformation`.Tags are supported on
+        /// `DocumentSymbol` if `hierarchicalDocumentSymbolSupport` is set tot true.
+        /// Clients supporting tags have to handle unknown tags gracefully.
+        ///
+        /// @since 3.16.0
+        /// </summary>
+        public class TagSupportCapabilityOptions
+        {
+            /// <summary>
+            /// The tags supported by the client.
+            /// </summary>
+            public Container<SymbolTag> ValueSet { get; set; } = null!;
+        }
+
+        /// <summary>
+        /// Specific capabilities for the `SymbolKind`.
+        /// </summary>
+        public class SymbolKindCapabilityOptions
+        {
+            /// <summary>
+            /// The symbol kind values the client supports. When this
+            /// property exists the client also guarantees that it will
+            /// handle values outside its set gracefully and falls back
+            /// to a default value when unknown.
+            ///
+            /// If this property is not present the client only supports
+            /// the symbol kinds from `File` to `Array` as defined in
+            /// the initial version of the protocol.
+            /// </summary>
+            [Optional]
+            public Container<SymbolKind>? ValueSet { get; set; }
+        }
+
+        /// <summary>
+        /// The client support partial workspace symbols. The client will send the
+        /// request `workspaceSymbol/resolve` to the server to resolve additional
+        /// properties.
+        ///
+        /// @since 3.17.0 - proposedState
+        /// </summary>
+        public partial class ResolveSupportCapabilityOptions
+        {
+            /// <summary>
+            /// The properties that a client can resolve lazily. Usually
+            /// `location.range`
+            /// </summary>
+            public Container<string> Properties { get; set; } = new();
+        }
+    }
+}
+    
+//HintName: OmniSharp.Extensions.JsonRpc.Generators/OmniSharp.Extensions.JsonRpc.Generators.GenerateHandlerMethodsGenerator/SymbolInformationParams.cs
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
+
+#nullable enable
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
+{
+    [Parallel, Method(WorkspaceNames.WorkspaceSymbol, Direction.ClientToServer)]
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public partial interface ISymbolInformationHandler : IJsonRpcRequestHandler<SymbolInformationParams, Container<SymbolInformation>?>, IRegistration<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>
+    {
+    }
+
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    abstract public partial class SymbolInformationHandlerBase : AbstractHandlers.Request<SymbolInformationParams, Container<SymbolInformation>?, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>, ISymbolInformationHandler
+    {
+    }
+
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    abstract public partial class SymbolInformationPartialHandlerBase : AbstractHandlers.PartialResults<SymbolInformationParams, Container<SymbolInformation>?, SymbolInformation, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>, ISymbolInformationHandler
+    {
+        protected SymbolInformationPartialHandlerBase(System.Guid id, IProgressManager progressManager) : base(progressManager, Container<SymbolInformation>.From)
+        {
+        }
+    }
+}
+#nullable restore
+
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
+{
+#nullable enable
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute, System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public static partial class SymbolInformationExtensions
+    {
+        public static ILanguageServerRegistry OnSymbolInformation(this ILanguageServerRegistry registry, Func<SymbolInformationParams, Task<Container<SymbolInformation>?>> handler, RegistrationOptionsDelegate<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability> registrationOptions)
+        {
+            return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, new LanguageProtocolDelegatingHandlers.Request<SymbolInformationParams, Container<SymbolInformation>?, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(HandlerAdapter<WorkspaceSymbolCapability>.Adapt<SymbolInformationParams, Container<SymbolInformation>?>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions)));
+        }
+
+        public static ILanguageServerRegistry OnSymbolInformation(this ILanguageServerRegistry registry, Func<SymbolInformationParams, CancellationToken, Task<Container<SymbolInformation>?>> handler, RegistrationOptionsDelegate<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability> registrationOptions)
+        {
+            return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, new LanguageProtocolDelegatingHandlers.Request<SymbolInformationParams, Container<SymbolInformation>?, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(HandlerAdapter<WorkspaceSymbolCapability>.Adapt<SymbolInformationParams, Container<SymbolInformation>?>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions)));
+        }
+
+        public static ILanguageServerRegistry OnSymbolInformation(this ILanguageServerRegistry registry, Func<SymbolInformationParams, WorkspaceSymbolCapability, CancellationToken, Task<Container<SymbolInformation>?>> handler, RegistrationOptionsDelegate<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability> registrationOptions)
+        {
+            return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, new LanguageProtocolDelegatingHandlers.Request<SymbolInformationParams, Container<SymbolInformation>?, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(HandlerAdapter<WorkspaceSymbolCapability>.Adapt<SymbolInformationParams, Container<SymbolInformation>?>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions)));
+        }
+
+        public static ILanguageServerRegistry ObserveSymbolInformation(this ILanguageServerRegistry registry, Action<SymbolInformationParams, IObserver<IEnumerable<SymbolInformation>>> handler, RegistrationOptionsDelegate<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability> registrationOptions)
+        {
+            return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, _ => new LanguageProtocolDelegatingHandlers.PartialResults<SymbolInformationParams, Container<SymbolInformation>?, SymbolInformation, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(PartialAdapter<WorkspaceSymbolCapability>.Adapt<SymbolInformationParams, SymbolInformation>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<SymbolInformation>.From));
+        }
+
+        public static ILanguageServerRegistry ObserveSymbolInformation(this ILanguageServerRegistry registry, Action<SymbolInformationParams, IObserver<IEnumerable<SymbolInformation>>, CancellationToken> handler, RegistrationOptionsDelegate<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability> registrationOptions)
+        {
+            return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, _ => new LanguageProtocolDelegatingHandlers.PartialResults<SymbolInformationParams, Container<SymbolInformation>?, SymbolInformation, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(PartialAdapter<WorkspaceSymbolCapability>.Adapt<SymbolInformationParams, SymbolInformation>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<SymbolInformation>.From));
+        }
+
+        public static ILanguageServerRegistry ObserveSymbolInformation(this ILanguageServerRegistry registry, Action<SymbolInformationParams, IObserver<IEnumerable<SymbolInformation>>, WorkspaceSymbolCapability, CancellationToken> handler, RegistrationOptionsDelegate<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability> registrationOptions)
+        {
+            return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, _ => new LanguageProtocolDelegatingHandlers.PartialResults<SymbolInformationParams, Container<SymbolInformation>?, SymbolInformation, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(PartialAdapter<WorkspaceSymbolCapability>.Adapt<SymbolInformationParams, SymbolInformation>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<SymbolInformation>.From));
+        }
+
+        public static IRequestProgressObservable<IEnumerable<SymbolInformation>, Container<SymbolInformation>?> RequestSymbolInformation(this ITextDocumentLanguageClient mediator, SymbolInformationParams request, CancellationToken cancellationToken = default) => mediator.ProgressManager.MonitorUntil(request, Container<SymbolInformation>.From, cancellationToken);
+        public static IRequestProgressObservable<IEnumerable<SymbolInformation>, Container<SymbolInformation>?> RequestSymbolInformation(this ILanguageClient mediator, SymbolInformationParams request, CancellationToken cancellationToken = default) => mediator.ProgressManager.MonitorUntil(request, Container<SymbolInformation>.From, cancellationToken);
+    }
+#nullable restore
+}
+    
+//HintName: OmniSharp.Extensions.JsonRpc.Generators/OmniSharp.Extensions.JsonRpc.Generators.GenerateHandlerMethodsGenerator/WorkspaceSymbolParams.cs
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
+
+#nullable enable
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
+{
+    [Parallel, Method(WorkspaceNames.WorkspaceSymbol, Direction.ClientToServer)]
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public partial interface IWorkspaceSymbolsHandler : IJsonRpcRequestHandler<WorkspaceSymbolParams, Container<WorkspaceSymbol>?>, IRegistration<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>
+    {
+    }
+
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    abstract public partial class WorkspaceSymbolsHandlerBase : AbstractHandlers.Request<WorkspaceSymbolParams, Container<WorkspaceSymbol>?, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>, IWorkspaceSymbolsHandler
+    {
+    }
+
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    abstract public partial class WorkspaceSymbolsPartialHandlerBase : AbstractHandlers.PartialResults<WorkspaceSymbolParams, Container<WorkspaceSymbol>?, WorkspaceSymbol, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>, IWorkspaceSymbolsHandler
+    {
+        protected WorkspaceSymbolsPartialHandlerBase(System.Guid id, IProgressManager progressManager) : base(progressManager, Container<WorkspaceSymbol>.From)
+        {
+        }
+    }
+}
+#nullable restore
+
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
+{
+#nullable enable
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute, System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public static partial class WorkspaceSymbolsExtensions
+    {
+        public static ILanguageServerRegistry OnWorkspaceSymbols(this ILanguageServerRegistry registry, Func<WorkspaceSymbolParams, Task<Container<WorkspaceSymbol>?>> handler, RegistrationOptionsDelegate<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability> registrationOptions)
+        {
+            return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, new LanguageProtocolDelegatingHandlers.Request<WorkspaceSymbolParams, Container<WorkspaceSymbol>?, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(HandlerAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolParams, Container<WorkspaceSymbol>?>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions)));
+        }
+
+        public static ILanguageServerRegistry OnWorkspaceSymbols(this ILanguageServerRegistry registry, Func<WorkspaceSymbolParams, CancellationToken, Task<Container<WorkspaceSymbol>?>> handler, RegistrationOptionsDelegate<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability> registrationOptions)
+        {
+            return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, new LanguageProtocolDelegatingHandlers.Request<WorkspaceSymbolParams, Container<WorkspaceSymbol>?, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(HandlerAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolParams, Container<WorkspaceSymbol>?>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions)));
+        }
+
+        public static ILanguageServerRegistry OnWorkspaceSymbols(this ILanguageServerRegistry registry, Func<WorkspaceSymbolParams, WorkspaceSymbolCapability, CancellationToken, Task<Container<WorkspaceSymbol>?>> handler, RegistrationOptionsDelegate<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability> registrationOptions)
+        {
+            return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, new LanguageProtocolDelegatingHandlers.Request<WorkspaceSymbolParams, Container<WorkspaceSymbol>?, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(HandlerAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolParams, Container<WorkspaceSymbol>?>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions)));
+        }
+
+        public static ILanguageServerRegistry ObserveWorkspaceSymbols(this ILanguageServerRegistry registry, Action<WorkspaceSymbolParams, IObserver<IEnumerable<WorkspaceSymbol>>> handler, RegistrationOptionsDelegate<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability> registrationOptions)
+        {
+            return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, _ => new LanguageProtocolDelegatingHandlers.PartialResults<WorkspaceSymbolParams, Container<WorkspaceSymbol>?, WorkspaceSymbol, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(PartialAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolParams, WorkspaceSymbol>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<WorkspaceSymbol>.From));
+        }
+
+        public static ILanguageServerRegistry ObserveWorkspaceSymbols(this ILanguageServerRegistry registry, Action<WorkspaceSymbolParams, IObserver<IEnumerable<WorkspaceSymbol>>, CancellationToken> handler, RegistrationOptionsDelegate<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability> registrationOptions)
+        {
+            return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, _ => new LanguageProtocolDelegatingHandlers.PartialResults<WorkspaceSymbolParams, Container<WorkspaceSymbol>?, WorkspaceSymbol, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(PartialAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolParams, WorkspaceSymbol>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<WorkspaceSymbol>.From));
+        }
+
+        public static ILanguageServerRegistry ObserveWorkspaceSymbols(this ILanguageServerRegistry registry, Action<WorkspaceSymbolParams, IObserver<IEnumerable<WorkspaceSymbol>>, WorkspaceSymbolCapability, CancellationToken> handler, RegistrationOptionsDelegate<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability> registrationOptions)
+        {
+            return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, _ => new LanguageProtocolDelegatingHandlers.PartialResults<WorkspaceSymbolParams, Container<WorkspaceSymbol>?, WorkspaceSymbol, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(PartialAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolParams, WorkspaceSymbol>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<WorkspaceSymbol>.From));
+        }
+
+        public static IRequestProgressObservable<IEnumerable<WorkspaceSymbol>, Container<WorkspaceSymbol>?> RequestWorkspaceSymbols(this ITextDocumentLanguageClient mediator, WorkspaceSymbolParams request, CancellationToken cancellationToken = default) => mediator.ProgressManager.MonitorUntil(request, Container<WorkspaceSymbol>.From, cancellationToken);
+        public static IRequestProgressObservable<IEnumerable<WorkspaceSymbol>, Container<WorkspaceSymbol>?> RequestWorkspaceSymbols(this ILanguageClient mediator, WorkspaceSymbolParams request, CancellationToken cancellationToken = default) => mediator.ProgressManager.MonitorUntil(request, Container<WorkspaceSymbol>.From, cancellationToken);
+    }
+#nullable restore
+}
+    
+//HintName: OmniSharp.Extensions.JsonRpc.Generators/OmniSharp.Extensions.JsonRpc.Generators.GenerateHandlerMethodsGenerator/WorkspaceSymbol.cs
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
+
+#nullable enable
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
+{
+    [Parallel, Method(WorkspaceNames.WorkspaceSymbolResolve, Direction.ClientToServer)]
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public partial interface IWorkspaceSymbolResolveHandler : IJsonRpcRequestHandler<WorkspaceSymbol, WorkspaceSymbol>, ICapability<WorkspaceSymbolCapability>
+    {
+    }
+
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    abstract public partial class WorkspaceSymbolResolveHandlerBase : AbstractHandlers.RequestCapability<WorkspaceSymbol, WorkspaceSymbol, WorkspaceSymbolCapability>, IWorkspaceSymbolResolveHandler
+    {
+    }
+}
+#nullable restore
+
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
+{
+#nullable enable
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute, System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public static partial class WorkspaceSymbolResolveExtensions
+    {
+        public static ILanguageServerRegistry OnWorkspaceSymbolResolve(this ILanguageServerRegistry registry, Func<WorkspaceSymbol, Task<WorkspaceSymbol>> handler) => registry.AddHandler(WorkspaceNames.WorkspaceSymbolResolve, RequestHandler.For(handler));
+        public static ILanguageServerRegistry OnWorkspaceSymbolResolve(this ILanguageServerRegistry registry, Func<WorkspaceSymbol, CancellationToken, Task<WorkspaceSymbol>> handler) => registry.AddHandler(WorkspaceNames.WorkspaceSymbolResolve, RequestHandler.For(handler));
+        public static ILanguageServerRegistry OnWorkspaceSymbolResolve(this ILanguageServerRegistry registry, Func<WorkspaceSymbol, WorkspaceSymbolCapability, CancellationToken, Task<WorkspaceSymbol>> handler) => registry.AddHandler(WorkspaceNames.WorkspaceSymbolResolve, new LanguageProtocolDelegatingHandlers.RequestCapability<WorkspaceSymbol, WorkspaceSymbol, WorkspaceSymbolCapability>(HandlerAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbol, WorkspaceSymbol>(handler)));
+        public static Task<WorkspaceSymbol> ResolveWorkspaceSymbol(this IWorkspaceLanguageClient mediator, WorkspaceSymbol request, CancellationToken cancellationToken = default) => mediator.SendRequest(request, cancellationToken);
+        public static Task<WorkspaceSymbol> ResolveWorkspaceSymbol(this ILanguageClient mediator, WorkspaceSymbol request, CancellationToken cancellationToken = default) => mediator.SendRequest(request, cancellationToken);
+    }
+#nullable restore
+}
+  ],
+  AutoImplementParamsGenerator: [    
+//HintName: Test0.cs
+using System.Diagnostics;
+using MediatR;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+
+// ReSharper disable once CheckNamespace
+namespace OmniSharp.Extensions.LanguageServer.Protocol
+{
+    namespace Models
+    {
+        /// <summary>
+        /// The parameters of a Workspace Symbol Request.
+        /// </summary>
+        [Parallel]
+        [Method(WorkspaceNames.WorkspaceSymbol, Direction.ClientToServer)]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace", Name = "SymbolInformation"), GenerateHandlerMethods,
+         GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(WorkspaceSymbolRegistrationOptions)), Capability(typeof(WorkspaceSymbolCapability))]
+        public partial record SymbolInformationParams : IPartialItemsRequest<Container<SymbolInformation>?, SymbolInformation>, IWorkDoneProgressParams
+        {
+            /// <summary>
+            /// A non-empty query string
+            /// </summary>
+            public string Query { get; init; }
+        }
+        
+        /// <summary>
+        /// The parameters of a Workspace Symbol Request.
+        /// </summary>
+        [Parallel]
+        [Method(WorkspaceNames.WorkspaceSymbol, Direction.ClientToServer)]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace", Name = "WorkspaceSymbols"), GenerateHandlerMethods,
+         GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(WorkspaceSymbolRegistrationOptions)), Capability(typeof(WorkspaceSymbolCapability))]
+        public partial record WorkspaceSymbolParams : IPartialItemsRequest<Container<WorkspaceSymbol>?, WorkspaceSymbol>, IWorkDoneProgressParams
+        {
+            /// <summary>
+            /// A non-empty query string
+            /// </summary>
+            public string Query { get; init; }
+        }
+
+        [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+        public partial record SymbolInformation
+        {
+            /// <summary>
+            /// The name of this symbol.
+            /// </summary>
+            public string Name { get; init; }
+
+            /// <summary>
+            /// The kind of this symbol.
+            /// </summary>
+            public SymbolKind Kind { get; init; }
+
+            /// <summary>
+            /// Tags for this completion item.
+            ///
+            /// @since 3.16.0
+            /// </summary>
+            [Optional]
+            public Container<SymbolTag>? Tags { get; init; }
+
+            /// <summary>
+            /// Indicates if this item is deprecated.
+            /// </summary>
+            [Optional]
+            public bool Deprecated { get; init; }
+
+            /// <summary>
+            /// The location of this symbol.
+            /// </summary>
+            public Location Location { get; init; }
+
+            /// <summary>
+            /// The name of the symbol containing this symbol.
+            /// </summary>
+            [Optional]
+            public string? ContainerName { get; init; }
+
+            private string DebuggerDisplay => $"[{Kind}@{Location}] {Name}";
+
+            /// <inheritdoc />
+            public override string ToString() => DebuggerDisplay;
+        }
+
+        /// <summary>
+        /// A special workspace symbol that supports locations without a range
+        ///
+        /// @since 3.17.0 - proposed state
+        /// </summary>
+        [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+        [Parallel]
+        [Method(WorkspaceNames.WorkspaceSymbolResolve, Direction.ClientToServer)]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace", Name = "WorkspaceSymbolResolve")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
+        [Capability(typeof(WorkspaceSymbolCapability))]
+        public partial record WorkspaceSymbol : IRequest<WorkspaceSymbol>
+        {
+            /// <summary>
+            /// The name of this symbol.
+            /// </summary>
+            public string Name { get; set; }
+
+            /// <summary>
+            /// The kind of this symbol.
+            /// </summary>
+            public SymbolKind Kind { get; set; }
+
+            /// <summary>
+            /// Tags for this completion item.
+            /// </summary>
+            [Optional]
+            public Container<SymbolTag>? Tags { get; set; }
+
+            /// <summary>
+            /// The location of this symbol.
+            ///
+            /// See also `SymbolInformation.location`.
+            /// </summary>
+            public LocationOrFileLocation Location { get; set; }
+
+            /// <summary>
+            /// The name of the symbol containing this symbol. This information is for
+            /// user interface purposes (e.g. to render a qualifier in the user interface
+            /// if necessary). It can't be used to re-infer a hierarchy for the document
+            /// symbols.
+            /// </summary>
+            [Optional]
+            public string? ContainerName { get; set; }
+
+            private string DebuggerDisplay => $"[{Kind}@{Location}] {Name}";
+
+            /// <inheritdoc />
+            public override string ToString() => DebuggerDisplay;
+        }
+
+        [GenerateRegistrationOptions(nameof(ServerCapabilities.WorkspaceSymbolProvider))]
+        [RegistrationOptionsConverter(typeof(WorkspaceSymbolRegistrationOptionsConverter))]
+        [RegistrationName(WorkspaceNames.WorkspaceSymbol)]
+        public partial class WorkspaceSymbolRegistrationOptions : IWorkDoneProgressOptions
+        {
+            /// <summary>
+            /// The server provides support to resolve additional
+            /// information for a workspace symbol.
+            /// </summary>
+            [Optional]
+            public bool ResolveProvider { get; set; }
+
+            private class WorkspaceSymbolRegistrationOptionsConverter : RegistrationOptionsConverterBase<WorkspaceSymbolRegistrationOptions, StaticOptions>
+            {
+                private readonly IHandlersManager _handlersManager;
+
+                public WorkspaceSymbolRegistrationOptionsConverter(IHandlersManager handlersManager)
+                {
+                    _handlersManager = handlersManager;
+                }
+
+                public override StaticOptions Convert(WorkspaceSymbolRegistrationOptions source)
+                {
+                    return new()
+                    {
+                        ResolveProvider = source.ResolveProvider || _handlersManager.Descriptors.Any(z => z.HandlerType == typeof(IWorkspaceSymbolResolveHandler)),
+                        WorkDoneProgress = source.WorkDoneProgress,
+                    };
+                }
+            }
+        }
+    }
+
+    namespace Client.Capabilities
+    {
+        [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(WorkspaceClientCapabilities.Symbol))]
+        public partial class WorkspaceSymbolCapability : DynamicCapability //
+        {
+            /// <summary>
+            /// Specific capabilities for the `SymbolKind` in the `workspace/symbol` request.
+            /// </summary>
+            [Optional]
+            public SymbolKindCapabilityOptions? SymbolKind { get; set; }
+
+            /// <summary>
+            /// The client supports tags on `SymbolInformation` and `WorkspaceSymbol`. Tags are supported on
+            /// `DocumentSymbol` if `hierarchicalDocumentSymbolSupport` is set to true.
+            /// Clients supporting tags have to handle unknown tags gracefully.
+            ///
+            /// @since 3.16.0
+            /// </summary>
+            [Optional]
+            public Supports<TagSupportCapabilityOptions?> TagSupport { get; set; }
+
+
+            /// <summary>
+            /// The client support partial workspace symbols. The client will send the
+            /// request `workspaceSymbol/resolve` to the server to resolve additional
+            /// properties.
+            ///
+            /// @since 3.17.0 - proposedState
+            /// </summary>
+            [Optional]
+            public ResolveSupportCapabilityOptions? ResolveSupport { get; set; }
+        }
+
+        /// <summary>
+        /// The client supports tags on `SymbolInformation`.Tags are supported on
+        /// `DocumentSymbol` if `hierarchicalDocumentSymbolSupport` is set tot true.
+        /// Clients supporting tags have to handle unknown tags gracefully.
+        ///
+        /// @since 3.16.0
+        /// </summary>
+        public class TagSupportCapabilityOptions
+        {
+            /// <summary>
+            /// The tags supported by the client.
+            /// </summary>
+            public Container<SymbolTag> ValueSet { get; set; } = null!;
+        }
+
+        /// <summary>
+        /// Specific capabilities for the `SymbolKind`.
+        /// </summary>
+        public class SymbolKindCapabilityOptions
+        {
+            /// <summary>
+            /// The symbol kind values the client supports. When this
+            /// property exists the client also guarantees that it will
+            /// handle values outside its set gracefully and falls back
+            /// to a default value when unknown.
+            ///
+            /// If this property is not present the client only supports
+            /// the symbol kinds from `File` to `Array` as defined in
+            /// the initial version of the protocol.
+            /// </summary>
+            [Optional]
+            public Container<SymbolKind>? ValueSet { get; set; }
+        }
+
+        /// <summary>
+        /// The client support partial workspace symbols. The client will send the
+        /// request `workspaceSymbol/resolve` to the server to resolve additional
+        /// properties.
+        ///
+        /// @since 3.17.0 - proposedState
+        /// </summary>
+        public partial class ResolveSupportCapabilityOptions
+        {
+            /// <summary>
+            /// The properties that a client can resolve lazily. Usually
+            /// `location.range`
+            /// </summary>
+            public Container<string> Properties { get; set; } = new();
+        }
+    }
+}
+    
+//HintName: OmniSharp.Extensions.JsonRpc.Generators/OmniSharp.Extensions.JsonRpc.Generators.AutoImplementParamsGenerator/Test0_SymbolInformationParams.cs
+#nullable enable
+using System.Diagnostics;
+using MediatR;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+using Newtonsoft.Json;
+using System.ComponentModel;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
+{
+    public partial record SymbolInformationParams
+    {
+        [Optional]
+        public ProgressToken? WorkDoneToken { get; init; }
+
+        [Optional]
+        public ProgressToken? PartialResultToken { get; init; }
+    }
+}
+#nullable restore
+
+    
+//HintName: OmniSharp.Extensions.JsonRpc.Generators/OmniSharp.Extensions.JsonRpc.Generators.AutoImplementParamsGenerator/Test0_WorkspaceSymbolParams.cs
+#nullable enable
+using System.Diagnostics;
+using MediatR;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+using Newtonsoft.Json;
+using System.ComponentModel;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
+{
+    public partial record WorkspaceSymbolParams
+    {
+        [Optional]
+        public ProgressToken? WorkDoneToken { get; init; }
+
+        [Optional]
+        public ProgressToken? PartialResultToken { get; init; }
+    }
+}
+#nullable restore
+
+  ],
+  AssemblyCapabilityKeyAttributeGenerator: [    
+//HintName: Test0.cs
+using System.Diagnostics;
+using MediatR;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+
+// ReSharper disable once CheckNamespace
+namespace OmniSharp.Extensions.LanguageServer.Protocol
+{
+    namespace Models
+    {
+        /// <summary>
+        /// The parameters of a Workspace Symbol Request.
+        /// </summary>
+        [Parallel]
+        [Method(WorkspaceNames.WorkspaceSymbol, Direction.ClientToServer)]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace", Name = "SymbolInformation"), GenerateHandlerMethods,
+         GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(WorkspaceSymbolRegistrationOptions)), Capability(typeof(WorkspaceSymbolCapability))]
+        public partial record SymbolInformationParams : IPartialItemsRequest<Container<SymbolInformation>?, SymbolInformation>, IWorkDoneProgressParams
+        {
+            /// <summary>
+            /// A non-empty query string
+            /// </summary>
+            public string Query { get; init; }
+        }
+        
+        /// <summary>
+        /// The parameters of a Workspace Symbol Request.
+        /// </summary>
+        [Parallel]
+        [Method(WorkspaceNames.WorkspaceSymbol, Direction.ClientToServer)]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace", Name = "WorkspaceSymbols"), GenerateHandlerMethods,
+         GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(WorkspaceSymbolRegistrationOptions)), Capability(typeof(WorkspaceSymbolCapability))]
+        public partial record WorkspaceSymbolParams : IPartialItemsRequest<Container<WorkspaceSymbol>?, WorkspaceSymbol>, IWorkDoneProgressParams
+        {
+            /// <summary>
+            /// A non-empty query string
+            /// </summary>
+            public string Query { get; init; }
+        }
+
+        [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+        public partial record SymbolInformation
+        {
+            /// <summary>
+            /// The name of this symbol.
+            /// </summary>
+            public string Name { get; init; }
+
+            /// <summary>
+            /// The kind of this symbol.
+            /// </summary>
+            public SymbolKind Kind { get; init; }
+
+            /// <summary>
+            /// Tags for this completion item.
+            ///
+            /// @since 3.16.0
+            /// </summary>
+            [Optional]
+            public Container<SymbolTag>? Tags { get; init; }
+
+            /// <summary>
+            /// Indicates if this item is deprecated.
+            /// </summary>
+            [Optional]
+            public bool Deprecated { get; init; }
+
+            /// <summary>
+            /// The location of this symbol.
+            /// </summary>
+            public Location Location { get; init; }
+
+            /// <summary>
+            /// The name of the symbol containing this symbol.
+            /// </summary>
+            [Optional]
+            public string? ContainerName { get; init; }
+
+            private string DebuggerDisplay => $"[{Kind}@{Location}] {Name}";
+
+            /// <inheritdoc />
+            public override string ToString() => DebuggerDisplay;
+        }
+
+        /// <summary>
+        /// A special workspace symbol that supports locations without a range
+        ///
+        /// @since 3.17.0 - proposed state
+        /// </summary>
+        [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+        [Parallel]
+        [Method(WorkspaceNames.WorkspaceSymbolResolve, Direction.ClientToServer)]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace", Name = "WorkspaceSymbolResolve")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
+        [Capability(typeof(WorkspaceSymbolCapability))]
+        public partial record WorkspaceSymbol : IRequest<WorkspaceSymbol>
+        {
+            /// <summary>
+            /// The name of this symbol.
+            /// </summary>
+            public string Name { get; set; }
+
+            /// <summary>
+            /// The kind of this symbol.
+            /// </summary>
+            public SymbolKind Kind { get; set; }
+
+            /// <summary>
+            /// Tags for this completion item.
+            /// </summary>
+            [Optional]
+            public Container<SymbolTag>? Tags { get; set; }
+
+            /// <summary>
+            /// The location of this symbol.
+            ///
+            /// See also `SymbolInformation.location`.
+            /// </summary>
+            public LocationOrFileLocation Location { get; set; }
+
+            /// <summary>
+            /// The name of the symbol containing this symbol. This information is for
+            /// user interface purposes (e.g. to render a qualifier in the user interface
+            /// if necessary). It can't be used to re-infer a hierarchy for the document
+            /// symbols.
+            /// </summary>
+            [Optional]
+            public string? ContainerName { get; set; }
+
+            private string DebuggerDisplay => $"[{Kind}@{Location}] {Name}";
+
+            /// <inheritdoc />
+            public override string ToString() => DebuggerDisplay;
+        }
+
+        [GenerateRegistrationOptions(nameof(ServerCapabilities.WorkspaceSymbolProvider))]
+        [RegistrationOptionsConverter(typeof(WorkspaceSymbolRegistrationOptionsConverter))]
+        [RegistrationName(WorkspaceNames.WorkspaceSymbol)]
+        public partial class WorkspaceSymbolRegistrationOptions : IWorkDoneProgressOptions
+        {
+            /// <summary>
+            /// The server provides support to resolve additional
+            /// information for a workspace symbol.
+            /// </summary>
+            [Optional]
+            public bool ResolveProvider { get; set; }
+
+            private class WorkspaceSymbolRegistrationOptionsConverter : RegistrationOptionsConverterBase<WorkspaceSymbolRegistrationOptions, StaticOptions>
+            {
+                private readonly IHandlersManager _handlersManager;
+
+                public WorkspaceSymbolRegistrationOptionsConverter(IHandlersManager handlersManager)
+                {
+                    _handlersManager = handlersManager;
+                }
+
+                public override StaticOptions Convert(WorkspaceSymbolRegistrationOptions source)
+                {
+                    return new()
+                    {
+                        ResolveProvider = source.ResolveProvider || _handlersManager.Descriptors.Any(z => z.HandlerType == typeof(IWorkspaceSymbolResolveHandler)),
+                        WorkDoneProgress = source.WorkDoneProgress,
+                    };
+                }
+            }
+        }
+    }
+
+    namespace Client.Capabilities
+    {
+        [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(WorkspaceClientCapabilities.Symbol))]
+        public partial class WorkspaceSymbolCapability : DynamicCapability //
+        {
+            /// <summary>
+            /// Specific capabilities for the `SymbolKind` in the `workspace/symbol` request.
+            /// </summary>
+            [Optional]
+            public SymbolKindCapabilityOptions? SymbolKind { get; set; }
+
+            /// <summary>
+            /// The client supports tags on `SymbolInformation` and `WorkspaceSymbol`. Tags are supported on
+            /// `DocumentSymbol` if `hierarchicalDocumentSymbolSupport` is set to true.
+            /// Clients supporting tags have to handle unknown tags gracefully.
+            ///
+            /// @since 3.16.0
+            /// </summary>
+            [Optional]
+            public Supports<TagSupportCapabilityOptions?> TagSupport { get; set; }
+
+
+            /// <summary>
+            /// The client support partial workspace symbols. The client will send the
+            /// request `workspaceSymbol/resolve` to the server to resolve additional
+            /// properties.
+            ///
+            /// @since 3.17.0 - proposedState
+            /// </summary>
+            [Optional]
+            public ResolveSupportCapabilityOptions? ResolveSupport { get; set; }
+        }
+
+        /// <summary>
+        /// The client supports tags on `SymbolInformation`.Tags are supported on
+        /// `DocumentSymbol` if `hierarchicalDocumentSymbolSupport` is set tot true.
+        /// Clients supporting tags have to handle unknown tags gracefully.
+        ///
+        /// @since 3.16.0
+        /// </summary>
+        public class TagSupportCapabilityOptions
+        {
+            /// <summary>
+            /// The tags supported by the client.
+            /// </summary>
+            public Container<SymbolTag> ValueSet { get; set; } = null!;
+        }
+
+        /// <summary>
+        /// Specific capabilities for the `SymbolKind`.
+        /// </summary>
+        public class SymbolKindCapabilityOptions
+        {
+            /// <summary>
+            /// The symbol kind values the client supports. When this
+            /// property exists the client also guarantees that it will
+            /// handle values outside its set gracefully and falls back
+            /// to a default value when unknown.
+            ///
+            /// If this property is not present the client only supports
+            /// the symbol kinds from `File` to `Array` as defined in
+            /// the initial version of the protocol.
+            /// </summary>
+            [Optional]
+            public Container<SymbolKind>? ValueSet { get; set; }
+        }
+
+        /// <summary>
+        /// The client support partial workspace symbols. The client will send the
+        /// request `workspaceSymbol/resolve` to the server to resolve additional
+        /// properties.
+        ///
+        /// @since 3.17.0 - proposedState
+        /// </summary>
+        public partial class ResolveSupportCapabilityOptions
+        {
+            /// <summary>
+            /// The properties that a client can resolve lazily. Usually
+            /// `location.range`
+            /// </summary>
+            public Container<string> Properties { get; set; } = new();
+        }
+    }
+}
+    
+//HintName: OmniSharp.Extensions.JsonRpc.Generators/OmniSharp.Extensions.JsonRpc.Generators.AssemblyCapabilityKeyAttributeGenerator/AssemblyCapabilityKeys.cs
+using MediatR;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+using System.Diagnostics;
+
+[assembly: AssemblyCapabilityKey(typeof(OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.WorkspaceSymbolCapability), nameof(ClientCapabilities.TextDocument), nameof(WorkspaceClientCapabilities.Symbol))]
+  ],
+  AssemblyJsonRpcHandlersAttributeGenerator: [    
+//HintName: Test0.cs
+using System.Diagnostics;
+using MediatR;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+
+// ReSharper disable once CheckNamespace
+namespace OmniSharp.Extensions.LanguageServer.Protocol
+{
+    namespace Models
+    {
+        /// <summary>
+        /// The parameters of a Workspace Symbol Request.
+        /// </summary>
+        [Parallel]
+        [Method(WorkspaceNames.WorkspaceSymbol, Direction.ClientToServer)]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace", Name = "SymbolInformation"), GenerateHandlerMethods,
+         GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(WorkspaceSymbolRegistrationOptions)), Capability(typeof(WorkspaceSymbolCapability))]
+        public partial record SymbolInformationParams : IPartialItemsRequest<Container<SymbolInformation>?, SymbolInformation>, IWorkDoneProgressParams
+        {
+            /// <summary>
+            /// A non-empty query string
+            /// </summary>
+            public string Query { get; init; }
+        }
+        
+        /// <summary>
+        /// The parameters of a Workspace Symbol Request.
+        /// </summary>
+        [Parallel]
+        [Method(WorkspaceNames.WorkspaceSymbol, Direction.ClientToServer)]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace", Name = "WorkspaceSymbols"), GenerateHandlerMethods,
+         GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(WorkspaceSymbolRegistrationOptions)), Capability(typeof(WorkspaceSymbolCapability))]
+        public partial record WorkspaceSymbolParams : IPartialItemsRequest<Container<WorkspaceSymbol>?, WorkspaceSymbol>, IWorkDoneProgressParams
+        {
+            /// <summary>
+            /// A non-empty query string
+            /// </summary>
+            public string Query { get; init; }
+        }
+
+        [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+        public partial record SymbolInformation
+        {
+            /// <summary>
+            /// The name of this symbol.
+            /// </summary>
+            public string Name { get; init; }
+
+            /// <summary>
+            /// The kind of this symbol.
+            /// </summary>
+            public SymbolKind Kind { get; init; }
+
+            /// <summary>
+            /// Tags for this completion item.
+            ///
+            /// @since 3.16.0
+            /// </summary>
+            [Optional]
+            public Container<SymbolTag>? Tags { get; init; }
+
+            /// <summary>
+            /// Indicates if this item is deprecated.
+            /// </summary>
+            [Optional]
+            public bool Deprecated { get; init; }
+
+            /// <summary>
+            /// The location of this symbol.
+            /// </summary>
+            public Location Location { get; init; }
+
+            /// <summary>
+            /// The name of the symbol containing this symbol.
+            /// </summary>
+            [Optional]
+            public string? ContainerName { get; init; }
+
+            private string DebuggerDisplay => $"[{Kind}@{Location}] {Name}";
+
+            /// <inheritdoc />
+            public override string ToString() => DebuggerDisplay;
+        }
+
+        /// <summary>
+        /// A special workspace symbol that supports locations without a range
+        ///
+        /// @since 3.17.0 - proposed state
+        /// </summary>
+        [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+        [Parallel]
+        [Method(WorkspaceNames.WorkspaceSymbolResolve, Direction.ClientToServer)]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace", Name = "WorkspaceSymbolResolve")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
+        [Capability(typeof(WorkspaceSymbolCapability))]
+        public partial record WorkspaceSymbol : IRequest<WorkspaceSymbol>
+        {
+            /// <summary>
+            /// The name of this symbol.
+            /// </summary>
+            public string Name { get; set; }
+
+            /// <summary>
+            /// The kind of this symbol.
+            /// </summary>
+            public SymbolKind Kind { get; set; }
+
+            /// <summary>
+            /// Tags for this completion item.
+            /// </summary>
+            [Optional]
+            public Container<SymbolTag>? Tags { get; set; }
+
+            /// <summary>
+            /// The location of this symbol.
+            ///
+            /// See also `SymbolInformation.location`.
+            /// </summary>
+            public LocationOrFileLocation Location { get; set; }
+
+            /// <summary>
+            /// The name of the symbol containing this symbol. This information is for
+            /// user interface purposes (e.g. to render a qualifier in the user interface
+            /// if necessary). It can't be used to re-infer a hierarchy for the document
+            /// symbols.
+            /// </summary>
+            [Optional]
+            public string? ContainerName { get; set; }
+
+            private string DebuggerDisplay => $"[{Kind}@{Location}] {Name}";
+
+            /// <inheritdoc />
+            public override string ToString() => DebuggerDisplay;
+        }
+
+        [GenerateRegistrationOptions(nameof(ServerCapabilities.WorkspaceSymbolProvider))]
+        [RegistrationOptionsConverter(typeof(WorkspaceSymbolRegistrationOptionsConverter))]
+        [RegistrationName(WorkspaceNames.WorkspaceSymbol)]
+        public partial class WorkspaceSymbolRegistrationOptions : IWorkDoneProgressOptions
+        {
+            /// <summary>
+            /// The server provides support to resolve additional
+            /// information for a workspace symbol.
+            /// </summary>
+            [Optional]
+            public bool ResolveProvider { get; set; }
+
+            private class WorkspaceSymbolRegistrationOptionsConverter : RegistrationOptionsConverterBase<WorkspaceSymbolRegistrationOptions, StaticOptions>
+            {
+                private readonly IHandlersManager _handlersManager;
+
+                public WorkspaceSymbolRegistrationOptionsConverter(IHandlersManager handlersManager)
+                {
+                    _handlersManager = handlersManager;
+                }
+
+                public override StaticOptions Convert(WorkspaceSymbolRegistrationOptions source)
+                {
+                    return new()
+                    {
+                        ResolveProvider = source.ResolveProvider || _handlersManager.Descriptors.Any(z => z.HandlerType == typeof(IWorkspaceSymbolResolveHandler)),
+                        WorkDoneProgress = source.WorkDoneProgress,
+                    };
+                }
+            }
+        }
+    }
+
+    namespace Client.Capabilities
+    {
+        [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(WorkspaceClientCapabilities.Symbol))]
+        public partial class WorkspaceSymbolCapability : DynamicCapability //
+        {
+            /// <summary>
+            /// Specific capabilities for the `SymbolKind` in the `workspace/symbol` request.
+            /// </summary>
+            [Optional]
+            public SymbolKindCapabilityOptions? SymbolKind { get; set; }
+
+            /// <summary>
+            /// The client supports tags on `SymbolInformation` and `WorkspaceSymbol`. Tags are supported on
+            /// `DocumentSymbol` if `hierarchicalDocumentSymbolSupport` is set to true.
+            /// Clients supporting tags have to handle unknown tags gracefully.
+            ///
+            /// @since 3.16.0
+            /// </summary>
+            [Optional]
+            public Supports<TagSupportCapabilityOptions?> TagSupport { get; set; }
+
+
+            /// <summary>
+            /// The client support partial workspace symbols. The client will send the
+            /// request `workspaceSymbol/resolve` to the server to resolve additional
+            /// properties.
+            ///
+            /// @since 3.17.0 - proposedState
+            /// </summary>
+            [Optional]
+            public ResolveSupportCapabilityOptions? ResolveSupport { get; set; }
+        }
+
+        /// <summary>
+        /// The client supports tags on `SymbolInformation`.Tags are supported on
+        /// `DocumentSymbol` if `hierarchicalDocumentSymbolSupport` is set tot true.
+        /// Clients supporting tags have to handle unknown tags gracefully.
+        ///
+        /// @since 3.16.0
+        /// </summary>
+        public class TagSupportCapabilityOptions
+        {
+            /// <summary>
+            /// The tags supported by the client.
+            /// </summary>
+            public Container<SymbolTag> ValueSet { get; set; } = null!;
+        }
+
+        /// <summary>
+        /// Specific capabilities for the `SymbolKind`.
+        /// </summary>
+        public class SymbolKindCapabilityOptions
+        {
+            /// <summary>
+            /// The symbol kind values the client supports. When this
+            /// property exists the client also guarantees that it will
+            /// handle values outside its set gracefully and falls back
+            /// to a default value when unknown.
+            ///
+            /// If this property is not present the client only supports
+            /// the symbol kinds from `File` to `Array` as defined in
+            /// the initial version of the protocol.
+            /// </summary>
+            [Optional]
+            public Container<SymbolKind>? ValueSet { get; set; }
+        }
+
+        /// <summary>
+        /// The client support partial workspace symbols. The client will send the
+        /// request `workspaceSymbol/resolve` to the server to resolve additional
+        /// properties.
+        ///
+        /// @since 3.17.0 - proposedState
+        /// </summary>
+        public partial class ResolveSupportCapabilityOptions
+        {
+            /// <summary>
+            /// The properties that a client can resolve lazily. Usually
+            /// `location.range`
+            /// </summary>
+            public Container<string> Properties { get; set; } = new();
+        }
+    }
+}
+  ],
+  EnumLikeStringGenerator: [    
+//HintName: Test0.cs
+using System.Diagnostics;
+using MediatR;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+
+// ReSharper disable once CheckNamespace
+namespace OmniSharp.Extensions.LanguageServer.Protocol
+{
+    namespace Models
+    {
+        /// <summary>
+        /// The parameters of a Workspace Symbol Request.
+        /// </summary>
+        [Parallel]
+        [Method(WorkspaceNames.WorkspaceSymbol, Direction.ClientToServer)]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace", Name = "SymbolInformation"), GenerateHandlerMethods,
+         GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(WorkspaceSymbolRegistrationOptions)), Capability(typeof(WorkspaceSymbolCapability))]
+        public partial record SymbolInformationParams : IPartialItemsRequest<Container<SymbolInformation>?, SymbolInformation>, IWorkDoneProgressParams
+        {
+            /// <summary>
+            /// A non-empty query string
+            /// </summary>
+            public string Query { get; init; }
+        }
+        
+        /// <summary>
+        /// The parameters of a Workspace Symbol Request.
+        /// </summary>
+        [Parallel]
+        [Method(WorkspaceNames.WorkspaceSymbol, Direction.ClientToServer)]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace", Name = "WorkspaceSymbols"), GenerateHandlerMethods,
+         GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(WorkspaceSymbolRegistrationOptions)), Capability(typeof(WorkspaceSymbolCapability))]
+        public partial record WorkspaceSymbolParams : IPartialItemsRequest<Container<WorkspaceSymbol>?, WorkspaceSymbol>, IWorkDoneProgressParams
+        {
+            /// <summary>
+            /// A non-empty query string
+            /// </summary>
+            public string Query { get; init; }
+        }
+
+        [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+        public partial record SymbolInformation
+        {
+            /// <summary>
+            /// The name of this symbol.
+            /// </summary>
+            public string Name { get; init; }
+
+            /// <summary>
+            /// The kind of this symbol.
+            /// </summary>
+            public SymbolKind Kind { get; init; }
+
+            /// <summary>
+            /// Tags for this completion item.
+            ///
+            /// @since 3.16.0
+            /// </summary>
+            [Optional]
+            public Container<SymbolTag>? Tags { get; init; }
+
+            /// <summary>
+            /// Indicates if this item is deprecated.
+            /// </summary>
+            [Optional]
+            public bool Deprecated { get; init; }
+
+            /// <summary>
+            /// The location of this symbol.
+            /// </summary>
+            public Location Location { get; init; }
+
+            /// <summary>
+            /// The name of the symbol containing this symbol.
+            /// </summary>
+            [Optional]
+            public string? ContainerName { get; init; }
+
+            private string DebuggerDisplay => $"[{Kind}@{Location}] {Name}";
+
+            /// <inheritdoc />
+            public override string ToString() => DebuggerDisplay;
+        }
+
+        /// <summary>
+        /// A special workspace symbol that supports locations without a range
+        ///
+        /// @since 3.17.0 - proposed state
+        /// </summary>
+        [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+        [Parallel]
+        [Method(WorkspaceNames.WorkspaceSymbolResolve, Direction.ClientToServer)]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace", Name = "WorkspaceSymbolResolve")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
+        [Capability(typeof(WorkspaceSymbolCapability))]
+        public partial record WorkspaceSymbol : IRequest<WorkspaceSymbol>
+        {
+            /// <summary>
+            /// The name of this symbol.
+            /// </summary>
+            public string Name { get; set; }
+
+            /// <summary>
+            /// The kind of this symbol.
+            /// </summary>
+            public SymbolKind Kind { get; set; }
+
+            /// <summary>
+            /// Tags for this completion item.
+            /// </summary>
+            [Optional]
+            public Container<SymbolTag>? Tags { get; set; }
+
+            /// <summary>
+            /// The location of this symbol.
+            ///
+            /// See also `SymbolInformation.location`.
+            /// </summary>
+            public LocationOrFileLocation Location { get; set; }
+
+            /// <summary>
+            /// The name of the symbol containing this symbol. This information is for
+            /// user interface purposes (e.g. to render a qualifier in the user interface
+            /// if necessary). It can't be used to re-infer a hierarchy for the document
+            /// symbols.
+            /// </summary>
+            [Optional]
+            public string? ContainerName { get; set; }
+
+            private string DebuggerDisplay => $"[{Kind}@{Location}] {Name}";
+
+            /// <inheritdoc />
+            public override string ToString() => DebuggerDisplay;
+        }
+
+        [GenerateRegistrationOptions(nameof(ServerCapabilities.WorkspaceSymbolProvider))]
+        [RegistrationOptionsConverter(typeof(WorkspaceSymbolRegistrationOptionsConverter))]
+        [RegistrationName(WorkspaceNames.WorkspaceSymbol)]
+        public partial class WorkspaceSymbolRegistrationOptions : IWorkDoneProgressOptions
+        {
+            /// <summary>
+            /// The server provides support to resolve additional
+            /// information for a workspace symbol.
+            /// </summary>
+            [Optional]
+            public bool ResolveProvider { get; set; }
+
+            private class WorkspaceSymbolRegistrationOptionsConverter : RegistrationOptionsConverterBase<WorkspaceSymbolRegistrationOptions, StaticOptions>
+            {
+                private readonly IHandlersManager _handlersManager;
+
+                public WorkspaceSymbolRegistrationOptionsConverter(IHandlersManager handlersManager)
+                {
+                    _handlersManager = handlersManager;
+                }
+
+                public override StaticOptions Convert(WorkspaceSymbolRegistrationOptions source)
+                {
+                    return new()
+                    {
+                        ResolveProvider = source.ResolveProvider || _handlersManager.Descriptors.Any(z => z.HandlerType == typeof(IWorkspaceSymbolResolveHandler)),
+                        WorkDoneProgress = source.WorkDoneProgress,
+                    };
+                }
+            }
+        }
+    }
+
+    namespace Client.Capabilities
+    {
+        [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(WorkspaceClientCapabilities.Symbol))]
+        public partial class WorkspaceSymbolCapability : DynamicCapability //
+        {
+            /// <summary>
+            /// Specific capabilities for the `SymbolKind` in the `workspace/symbol` request.
+            /// </summary>
+            [Optional]
+            public SymbolKindCapabilityOptions? SymbolKind { get; set; }
+
+            /// <summary>
+            /// The client supports tags on `SymbolInformation` and `WorkspaceSymbol`. Tags are supported on
+            /// `DocumentSymbol` if `hierarchicalDocumentSymbolSupport` is set to true.
+            /// Clients supporting tags have to handle unknown tags gracefully.
+            ///
+            /// @since 3.16.0
+            /// </summary>
+            [Optional]
+            public Supports<TagSupportCapabilityOptions?> TagSupport { get; set; }
+
+
+            /// <summary>
+            /// The client support partial workspace symbols. The client will send the
+            /// request `workspaceSymbol/resolve` to the server to resolve additional
+            /// properties.
+            ///
+            /// @since 3.17.0 - proposedState
+            /// </summary>
+            [Optional]
+            public ResolveSupportCapabilityOptions? ResolveSupport { get; set; }
+        }
+
+        /// <summary>
+        /// The client supports tags on `SymbolInformation`.Tags are supported on
+        /// `DocumentSymbol` if `hierarchicalDocumentSymbolSupport` is set tot true.
+        /// Clients supporting tags have to handle unknown tags gracefully.
+        ///
+        /// @since 3.16.0
+        /// </summary>
+        public class TagSupportCapabilityOptions
+        {
+            /// <summary>
+            /// The tags supported by the client.
+            /// </summary>
+            public Container<SymbolTag> ValueSet { get; set; } = null!;
+        }
+
+        /// <summary>
+        /// Specific capabilities for the `SymbolKind`.
+        /// </summary>
+        public class SymbolKindCapabilityOptions
+        {
+            /// <summary>
+            /// The symbol kind values the client supports. When this
+            /// property exists the client also guarantees that it will
+            /// handle values outside its set gracefully and falls back
+            /// to a default value when unknown.
+            ///
+            /// If this property is not present the client only supports
+            /// the symbol kinds from `File` to `Array` as defined in
+            /// the initial version of the protocol.
+            /// </summary>
+            [Optional]
+            public Container<SymbolKind>? ValueSet { get; set; }
+        }
+
+        /// <summary>
+        /// The client support partial workspace symbols. The client will send the
+        /// request `workspaceSymbol/resolve` to the server to resolve additional
+        /// properties.
+        ///
+        /// @since 3.17.0 - proposedState
+        /// </summary>
+        public partial class ResolveSupportCapabilityOptions
+        {
+            /// <summary>
+            /// The properties that a client can resolve lazily. Usually
+            /// `location.range`
+            /// </summary>
+            public Container<string> Properties { get; set; } = new();
+        }
+    }
+}
+  ]
+}

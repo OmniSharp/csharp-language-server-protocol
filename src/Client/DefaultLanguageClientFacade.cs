@@ -13,6 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
     internal class DefaultLanguageClientFacade : LanguageProtocolProxy, ILanguageClientFacade, IOnLanguageClientStarted
     {
         private readonly Lazy<ITextDocumentLanguageClient> _textDocument;
+        private readonly Lazy<INotebookDocumentLanguageClient> _notebookDocument;
         private readonly Lazy<IClientLanguageClient> _client;
         private readonly Lazy<IGeneralLanguageClient> _general;
         private readonly Lazy<IWindowLanguageClient> _window;
@@ -28,6 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             IProgressManager progressManager,
             ILanguageProtocolSettings languageProtocolSettings,
             Lazy<ITextDocumentLanguageClient> textDocument,
+            Lazy<INotebookDocumentLanguageClient> notebookDocument,
             Lazy<IClientLanguageClient> client,
             Lazy<IGeneralLanguageClient> general,
             Lazy<IWindowLanguageClient> window,
@@ -38,6 +40,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         ) : base(requestRouter, resolverContext, progressManager, languageProtocolSettings)
         {
             _textDocument = textDocument;
+            _notebookDocument = notebookDocument;
             _client = client;
             _general = general;
             _window = window;
@@ -48,6 +51,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         }
 
         public ITextDocumentLanguageClient TextDocument => _textDocument.Value;
+        public INotebookDocumentLanguageClient NotebookDocument => _notebookDocument.Value;
         public IClientLanguageClient Client => _client.Value;
         public IGeneralLanguageClient General => _general.Value;
         public IWindowLanguageClient Window => _window.Value;

@@ -10,7 +10,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         IObservable<IEnumerable<Registration>> Registrations { get; }
         IEnumerable<Registration> CurrentRegistrations { get; }
         IEnumerable<Registration> GetRegistrationsForMethod(string method);
-        IEnumerable<Registration> GetRegistrationsMatchingSelector(DocumentSelector documentSelector);
+        IEnumerable<Registration> GetRegistrationsMatchingSelector(TextDocumentSelector textDocumentSelector);
         void RegisterCapabilities(ServerCapabilities serverCapabilities);
     }
 }

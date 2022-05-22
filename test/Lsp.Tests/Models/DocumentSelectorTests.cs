@@ -13,12 +13,12 @@ namespace Lsp.Tests.Models
         [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new DocumentSelector(
-                new DocumentFilter {
+            var model = new TextDocumentSelector(
+                new TextDocumentFilter {
                     Language = "csharp",
-                }, new DocumentFilter {
+                }, new TextDocumentFilter {
                     Pattern = "**/*.vb"
-                }, new DocumentFilter {
+                }, new TextDocumentFilter {
                     Scheme = "visualbasic"
                 }
             );
@@ -26,7 +26,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<DocumentSelector>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<TextDocumentSelector>(expected);
             deresult.Should().BeEquivalentTo(model, x => x.UsingStructuralRecordEquality());
         }
     }

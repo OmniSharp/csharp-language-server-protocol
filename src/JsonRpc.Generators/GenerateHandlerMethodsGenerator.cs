@@ -48,6 +48,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                      actionItem = GeneratorData.Create(
                                                          compilaiton, (TypeDeclarationSyntax)syntaxContext.Node, syntaxContext.SemanticModel, additionalUsings
                                                      );
+                                                     if (actionItem is null)
+                                                     {
+                                                         diagnostic = Diagnostic.Create(
+                                                             GeneratorDiagnostics.MustBeARequestOrNotification, syntaxContext.Node.GetLocation(),
+                                                             ( (TypeDeclarationSyntax)syntaxContext.Node ).Identifier.Text
+                                                         );
+                                                     }
                                                  }
                                                  catch (Exception e)
                                                  {
@@ -81,7 +88,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
             if (actionItem is null)
             {
-                context.ReportDiagnostic(diagnostic!);
+                if (diagnostic is { }) context.ReportDiagnostic(diagnostic);
                 return;
             }
 

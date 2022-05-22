@@ -95,7 +95,7 @@ namespace SampleServer
         {
             return new SemanticTokensRegistrationOptions
             {
-                DocumentSelector = DocumentSelector.ForLanguage("csharp"),
+                DocumentSelector = TextDocumentSelector.ForLanguage("csharp"),
                 Legend = new SemanticTokensLegend
                 {
                     TokenModifiers = capability.TokenModifiers,

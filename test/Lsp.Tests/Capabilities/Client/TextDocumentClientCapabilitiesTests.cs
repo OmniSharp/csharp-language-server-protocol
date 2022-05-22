@@ -38,7 +38,7 @@ namespace Lsp.Tests.Capabilities.Client
                         SnippetSupport = true
                     }
                 },
-                Synchronization = new SynchronizationCapability {
+                Synchronization = new TextSynchronizationCapability {
                     DynamicRegistration = true,
                     WillSave = true,
                     DidSave = true,

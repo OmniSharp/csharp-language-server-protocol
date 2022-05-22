@@ -25,8 +25,8 @@ namespace SampleServer
         private readonly ILogger<TextDocumentHandler> _logger;
         private readonly ILanguageServerConfiguration _configuration;
 
-        private readonly DocumentSelector _documentSelector = new DocumentSelector(
-            new DocumentFilter {
+        private readonly TextDocumentSelector _textDocumentSelector = new TextDocumentSelector(
+            new TextDocumentFilter {
                 Pattern = "**/*.cs"
             }
         );
@@ -69,8 +69,8 @@ namespace SampleServer
 
         public override Task<Unit> Handle(DidSaveTextDocumentParams notification, CancellationToken token) => Unit.Task;
 
-        protected override TextDocumentSyncRegistrationOptions CreateRegistrationOptions(SynchronizationCapability capability, ClientCapabilities clientCapabilities) => new TextDocumentSyncRegistrationOptions() {
-            DocumentSelector = _documentSelector,
+        protected override TextDocumentSyncRegistrationOptions CreateRegistrationOptions(TextSynchronizationCapability capability, ClientCapabilities clientCapabilities) => new TextDocumentSyncRegistrationOptions() {
+            DocumentSelector = _textDocumentSelector,
             Change = Change,
             Save = new SaveOptions() { IncludeText = true }
         };
@@ -129,7 +129,7 @@ namespace SampleServer
         }
 
         public DocumentSymbolRegistrationOptions GetRegistrationOptions(DocumentSymbolCapability capability, ClientCapabilities clientCapabilities) => new DocumentSymbolRegistrationOptions {
-            DocumentSelector = DocumentSelector.ForLanguage("csharp")
+            DocumentSelector = TextDocumentSelector.ForLanguage("csharp")
         };
     }
 

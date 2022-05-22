@@ -17,6 +17,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
         SyntaxSymbol? RegistrationOptions,
         SyntaxSymbol? PartialItem,
         SyntaxSymbol? PartialItems,
+        bool PartialHasInitialValue,
         HashSet<string> AdditionalUsings,
         List<AttributeArgumentSyntax> AssemblyJsonRpcHandlersAttributeArguments,
         SemanticModel Model,

@@ -3,7 +3,7 @@ using System.Diagnostics;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    public record VersionedTextDocumentIdentifier : TextDocumentIdentifier
+    public partial record VersionedTextDocumentIdentifier : TextDocumentIdentifier
     {
         /// <summary>
         /// The version number of this document.
