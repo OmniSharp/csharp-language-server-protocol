@@ -34,7 +34,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
     }
 }";
 
-            await Verify(Generate<GenerateHandlerMethodsGenerator>(source));
+            await Verify(GenerateAll(source));
         }
 
         [Fact]
@@ -78,7 +78,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
     }
 }";
 
-            await Verify(Generate<GenerateHandlerMethodsGenerator>(source));
+            await Verify(GenerateAll(source));
         }
 
         [Fact]
@@ -108,6 +108,7 @@ namespace Test
             var a = () => AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, "");
             await a.Should().ThrowAsync<EmptyException>().WithMessage("*Could not infer the request router(s)*");
             await a.Should().ThrowAsync<EmptyException>("cache").WithMessage("*Could not infer the request router(s)*");
+            await Verify(GenerateAll(source));
         }
 
         [Fact]
@@ -127,7 +128,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events.Test
     public interface ICapabilitiesHandler : IJsonRpcNotificationHandler<CapabilitiesEvent> { }
 }";
 
-            await Verify(Generate<GenerateHandlerMethodsGenerator>(source));
+            await Verify(GenerateAll(source));
         }
 
 
@@ -155,7 +156,7 @@ namespace Test
     }
 }";
 
-            await Verify(Generate<GenerateHandlerMethodsGenerator>(source));
+            await Verify(GenerateAll(source));
         }
 
         [Fact]
@@ -183,7 +184,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
     { }
 }";
 
-            await Verify(Generate<GenerateHandlerMethodsGenerator>(source));
+            await Verify(GenerateAll(source));
         }
 
         [Fact]
@@ -213,7 +214,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
     }
 }";
 
-            await Verify(Generate<GenerateHandlerMethodsGenerator>(source));
+            await Verify(GenerateAll(source));
         }
 
         [Fact]
@@ -239,7 +240,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
     public interface IDefinitionHandler : IJsonRpcRequestHandler<DefinitionParams, LocationOrLocationLinks>, IRegistration<DefinitionRegistrationOptions, DefinitionCapability> { }
 }";
 
-            await Verify(GenerationHelpers.Generate<GenerateHandlerMethodsGenerator>(source));
+            await Verify(GenerationHelpers.GenerateAll(source));
         }
 
 
@@ -266,7 +267,7 @@ namespace Test
     public interface IDefinitionHandler : IJsonRpcRequestHandler<DefinitionParams, LocationOrLocationLinks>, IRegistration<DefinitionRegistrationOptions, DefinitionCapability> { }
 }";
 
-            await Verify(GenerationHelpers.Generate<GenerateHandlerMethodsGenerator>(source));
+            await Verify(GenerationHelpers.GenerateAll(source));
         }
 
         [Fact]
@@ -297,7 +298,7 @@ namespace Test
     [Serial, Method(GeneralNames.Initialize, Direction.ClientToServer), GenerateHandlerMethods(typeof(ILanguageServerRegistry), MethodName = ""OnLanguageProtocolInitialize""), GenerateRequestMethods(typeof(ITextDocumentLanguageClient), MethodName = ""RequestLanguageProtocolInitialize"")]
     public interface ILanguageProtocolInitializeHandler : IJsonRpcRequestHandler<InitializeParams, InitializeResult> {}
 }";
-            await Verify(Generate<GenerateHandlerMethodsGenerator>(source));
+            await Verify(GenerateAll(source));
         }
 
         [Fact]
@@ -319,7 +320,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
     [GenerateHandler(AllowDerivedRequests = true), GenerateHandlerMethods, GenerateRequestMethods]
     public class AttachRequestArguments: IRequest<AttachResponse> { }
 }";
-            await Verify(Generate<GenerateHandlerMethodsGenerator>(source));
+            await Verify(GenerateAll(source));
         }
 
         [Fact]
@@ -341,7 +342,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
     [GenerateHandler(AllowDerivedRequests = true), GenerateHandlerMethods, GenerateRequestMethods]
     public class LaunchRequestArguments: IRequest<LaunchResponse?> { }
 }";
-            await Verify(Generate<GenerateHandlerMethodsGenerator>(source));
+            await Verify(GenerateAll(source));
         }
 
         [Fact]
@@ -363,7 +364,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
     [GenerateHandler(AllowDerivedRequests = true), GenerateHandlerMethods, GenerateRequestMethods]
     public class AttachRequestArguments: IRequest<AttachResponse?> { }
 }";
-            await Verify(Generate<GenerateHandlerMethodsGenerator>(source));
+            await Verify(GenerateAll(source));
         }
 
         [Fact]
@@ -385,7 +386,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
     [GenerateHandler(AllowDerivedRequests = true), GenerateHandlerMethods, GenerateRequestMethods]
     public class AttachRequestArguments: IRequest<AttachResponse> { }
 }";
-            await Verify(Generate<GenerateHandlerMethodsGenerator>(source));
+            await Verify(GenerateAll(source));
         }
 
         [Fact]
@@ -417,7 +418,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Bogus
     {
     }
 }";
-            await Verify(Generate<GenerateHandlerMethodsGenerator>(source));
+            await Verify(GenerateAll(source));
         }
     }
 }

@@ -63,7 +63,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             public Range StoppedLocation { get; set; }
         }
-        
+
         [Parallel]
         [Method(WorkspaceNames.InlineValueRefresh, Direction.ServerToClient)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace")]
@@ -94,22 +94,30 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 )
                 {
                     var result = JObject.Load(reader);
-                    if (result["text"] is { Type: JTokenType.String })
+                    if (result.ContainsKey("text"))
                     {
-                        return result.ToObject<InlineValueText>();
+                        return new InlineValueText()
+                        {
+                            Range = result["range"]!.ToObject<Range?>()!,
+                            Text = result["text"]!.Value<string>()!
+                        };
                     }
 
-                    if (result["variableName"] is { Type: JTokenType.String })
+                    if (result.ContainsKey("variableName") || result.ContainsKey("caseSensitiveLookup"))
                     {
-                        return result.ToObject<InlineValueVariableLookup>();
+                        return new InlineValueVariableLookup()
+                        {
+                            Range = result["range"].ToObject<Range>()!,
+                            VariableName = result["variableName"]!.Value<string>()!,
+                            CaseSensitiveLookup = result["caseSensitiveLookup"]?.Value<bool?>() ?? false,
+                        };
                     }
 
-                    if (result["expression"] is { Type: JTokenType.String })
+                    return new InlineValueEvaluatableExpression()
                     {
-                        return result.ToObject<InlineValueEvaluatableExpression>();
-                    }
-
-                    return null!;
+                        Range = result["range"].ToObject<Range>()!,
+                        Expression = result["expression"]?.Value<string>()
+                    };
                 }
             }
         }
@@ -119,7 +127,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.17.0
         /// </summary>
-        [JsonConverter(typeof(Converter))]
         public partial record InlineValueText : InlineValueBase
         {
             /// <summary>
@@ -138,7 +145,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.17.0
         /// </summary>
-        [JsonConverter(typeof(Converter))]
         public partial record InlineValueVariableLookup : InlineValueBase
         {
             /// <summary>
@@ -163,7 +169,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.17.0
         /// </summary>
-        [JsonConverter(typeof(Converter))]
         public partial record InlineValueEvaluatableExpression : InlineValueBase
         {
             /// <summary>

@@ -21,7 +21,7 @@ namespace Test
     public partial class WorkspaceSymbolRegistrationOptions { }
 }
 ";
-            await Verify(await GenerationHelpers.Generate<RegistrationOptionsGenerator>(source));
+            await Verify(await GenerationHelpers.GenerateAll(source));
         }
 
         [Fact]
@@ -40,7 +40,7 @@ namespace Test
 }
 ";
 
-            await Verify(await GenerationHelpers.Generate<RegistrationOptionsGenerator>(source));
+            await Verify(await GenerationHelpers.GenerateAll(source));
         }
 
         [Fact]
@@ -91,7 +91,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
     }
 }
 #nullable restore";
-            await Verify(await GenerationHelpers.Generate<RegistrationOptionsGenerator>(source));
+            await Verify(await GenerationHelpers.GenerateAll(source));
         }
 
         [Fact]
@@ -161,7 +161,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 }
 #nullable restore";
 
-            await Verify(await GenerationHelpers.Generate<RegistrationOptionsGenerator>(source));
+            await Verify(await GenerationHelpers.GenerateAll(source));
         }
     }
 }

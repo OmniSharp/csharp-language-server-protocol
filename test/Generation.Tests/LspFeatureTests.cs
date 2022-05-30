@@ -12,17 +12,7 @@ namespace Generation.Tests
         public async Task Supports_Params_Type_As_Source()
         {
             var source = FeatureFixture.ReadSource("Workspace.WorkspaceSymbolsFeature.cs");
-            await Verify(
-                new
-                {
-                    RegistrationOptionsGenerator = await GenerationHelpers.GenerateAsync<RegistrationOptionsGenerator>(source),
-                    StronglyTypedGenerator = await GenerationHelpers.GenerateAsync<StronglyTypedGenerator>(source),
-                    GenerateHandlerMethodsGenerator = await GenerationHelpers.GenerateAsync<GenerateHandlerMethodsGenerator>(source),
-                    AutoImplementParamsGenerator = await GenerationHelpers.GenerateAsync<AutoImplementParamsGenerator>(source),
-                    AssemblyCapabilityKeyAttributeGenerator = await GenerationHelpers.GenerateAsync<AssemblyCapabilityKeyAttributeGenerator>(source),
-                    AssemblyJsonRpcHandlersAttributeGenerator = await GenerationHelpers.GenerateAsync<AssemblyJsonRpcHandlersAttributeGenerator>(source),
-                    EnumLikeStringGenerator = await GenerationHelpers.GenerateAsync<EnumLikeStringGenerator>(source),
-                });
+            await Verify(GenerationHelpers.GenerateAll(source));
         }
 
         [Fact]
@@ -82,17 +72,7 @@ namespace Lsp.Tests.Integration.Fixtures
 }
 #nullable restore";
 
-            await Verify(
-                new
-                {
-                    RegistrationOptionsGenerator = await GenerationHelpers.GenerateAsync<RegistrationOptionsGenerator>(source),
-                    StronglyTypedGenerator = await GenerationHelpers.GenerateAsync<StronglyTypedGenerator>(source),
-                    GenerateHandlerMethodsGenerator = await GenerationHelpers.GenerateAsync<GenerateHandlerMethodsGenerator>(source),
-                    AutoImplementParamsGenerator = await GenerationHelpers.GenerateAsync<AutoImplementParamsGenerator>(source),
-                    AssemblyCapabilityKeyAttributeGenerator = await GenerationHelpers.GenerateAsync<AssemblyCapabilityKeyAttributeGenerator>(source),
-                    AssemblyJsonRpcHandlersAttributeGenerator = await GenerationHelpers.GenerateAsync<AssemblyJsonRpcHandlersAttributeGenerator>(source),
-                    EnumLikeStringGenerator = await GenerationHelpers.GenerateAsync<EnumLikeStringGenerator>(source),
-                });
+            await Verify(GenerationHelpers.GenerateAll(source));
         }
 
         [Fact]
@@ -142,17 +122,7 @@ namespace Lsp.Tests.Integration.Fixtures
 }
 #nullable restore";
 
-            await Verify(
-                new
-                {
-                    RegistrationOptionsGenerator = await GenerationHelpers.GenerateAsync<RegistrationOptionsGenerator>(source),
-                    StronglyTypedGenerator = await GenerationHelpers.GenerateAsync<StronglyTypedGenerator>(source),
-                    GenerateHandlerMethodsGenerator = await GenerationHelpers.GenerateAsync<GenerateHandlerMethodsGenerator>(source),
-                    AutoImplementParamsGenerator = await GenerationHelpers.GenerateAsync<AutoImplementParamsGenerator>(source),
-                    AssemblyCapabilityKeyAttributeGenerator = await GenerationHelpers.GenerateAsync<AssemblyCapabilityKeyAttributeGenerator>(source),
-                    AssemblyJsonRpcHandlersAttributeGenerator = await GenerationHelpers.GenerateAsync<AssemblyJsonRpcHandlersAttributeGenerator>(source),
-                    EnumLikeStringGenerator = await GenerationHelpers.GenerateAsync<EnumLikeStringGenerator>(source),
-                });
+            await Verify(GenerationHelpers.GenerateAll(source));
         }
     }
 }

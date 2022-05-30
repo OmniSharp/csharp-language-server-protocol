@@ -106,7 +106,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }
         }
 
-        public abstract record TypeHierarchyBaseCallParams : ICanBeResolved
+        public abstract record TypeHierarchyBaseParams : ICanBeResolved
         {
             public TypeHierarchyItem Item { get; init; } = null!;
 
@@ -117,7 +117,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }
         }
 
-        public abstract record TypeHierarchyBaseCallParams<T> : ICanBeResolved
+        public abstract record TypeHierarchyBaseParams<T> : ICanBeResolved
             where T : class?, IHandlerIdentity?
         {
             public TypeHierarchyItem<T> Item { get; init; } = null!;
@@ -130,7 +130,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         /// <summary>
-        /// The parameter of a `TypeHierarchy/supertypesCalls` request.
+        /// The parameter of a `TypeHierarchy/supertypes` request.
         ///
         /// @since 3.16.0
         /// </summary>
@@ -140,42 +140,23 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateHandlerMethods]
         [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
         [Capability(typeof(TypeHierarchyCapability))]
-        public partial record TypeHierarchySupertypesCallsParams : TypeHierarchyBaseCallParams, IWorkDoneProgressParams,
-                                                                 IPartialItemsRequest<Container<TypeHierarchySupertypesCall>?, TypeHierarchySupertypesCall>,
+        public partial record TypeHierarchySupertypesParams : TypeHierarchyBaseParams, IWorkDoneProgressParams,
+                                                                 IPartialItemsRequest<Container<TypeHierarchyItem>?, TypeHierarchyItem>,
                                                                  IDoesNotParticipateInRegistration;
 
         /// <summary>
-        /// The parameter of a `TypeHierarchy/supertypesCalls` request.
+        /// The parameter of a `TypeHierarchy/supertypes` request.
         ///
         /// @since 3.16.0
         /// </summary>
         [Method(TextDocumentNames.TypeHierarchySupertypes, Direction.ClientToServer)]
-        public partial record TypeHierarchySupertypesCallsParams<T> : TypeHierarchyBaseCallParams<T>, IWorkDoneProgressParams,
-                                                                    IPartialItemsRequest<Container<TypeHierarchySupertypesCall>?, TypeHierarchySupertypesCall>,
+        public partial record TypeHierarchySupertypesParams<T> : TypeHierarchyBaseParams<T>, IWorkDoneProgressParams,
+                                                                    IPartialItemsRequest<Container<TypeHierarchyItem>?, TypeHierarchyItem>,
                                                                     IDoesNotParticipateInRegistration
             where T : class?, IHandlerIdentity?;
 
         /// <summary>
-        /// Represents an supertypes call, e.g. a caller of a method or constructor.
-        ///
-        /// @since 3.16.0
-        /// </summary>
-        public partial record TypeHierarchySupertypesCall
-        {
-            /// <summary>
-            /// The item that makes the call.
-            /// </summary>
-            public TypeHierarchyItem From { get; init; } = null!;
-
-            /// <summary>
-            /// The range at which at which the calls appears. This is relative to the caller
-            /// denoted by [`this.from`](#TypeHierarchySupertypesCall.from).
-            /// </summary>
-            public Container<Range> FromRanges { get; init; } = null!;
-        }
-
-        /// <summary>
-        /// The parameter of a `TypeHierarchy/subtypesCalls` request.
+        /// The parameter of a `TypeHierarchy/subtypes` request.
         ///
         /// @since 3.16.0
         /// </summary>
@@ -185,15 +166,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateHandlerMethods]
         [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
         [Capability(typeof(TypeHierarchyCapability))]
-        public partial record TypeHierarchySubtypesCallsParams : TypeHierarchyBaseCallParams, IWorkDoneProgressParams,
-                                                                 IPartialItemsRequest<Container<TypeHierarchySubtypesCall>?, TypeHierarchySubtypesCall>,
+        public partial record TypeHierarchySubtypesParams : TypeHierarchyBaseParams, IWorkDoneProgressParams,
+                                                                 IPartialItemsRequest<Container<TypeHierarchyItem>?, TypeHierarchyItem>,
                                                                  IDoesNotParticipateInRegistration
 
         {
-            public static TypeHierarchySubtypesCallsParams<T> Create<T>(TypeHierarchySubtypesCallsParams item)
+            public static TypeHierarchySubtypesParams<T> Create<T>(TypeHierarchySubtypesParams item)
                 where T : class?, IHandlerIdentity?
             {
-                return new TypeHierarchySubtypesCallsParams<T>
+                return new TypeHierarchySubtypesParams<T>
                 {
                     Item = item.Item,
                     PartialResultToken = item.PartialResultToken,
@@ -203,19 +184,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         /// <summary>
-        /// The parameter of a `TypeHierarchy/subtypesCalls` request.
+        /// The parameter of a `TypeHierarchy/subtypes` request.
         ///
         /// @since 3.16.0
         /// </summary>
         [Method(TextDocumentNames.TypeHierarchySubtypes, Direction.ClientToServer)]
-        public partial record TypeHierarchySubtypesCallsParams<T> : TypeHierarchyBaseCallParams<T>, IWorkDoneProgressParams,
-                                                                    IPartialItemsRequest<Container<TypeHierarchySubtypesCall>?, TypeHierarchySubtypesCall>,
+        public partial record TypeHierarchySubtypesParams<T> : TypeHierarchyBaseParams<T>, IWorkDoneProgressParams,
+                                                                    IPartialItemsRequest<Container<TypeHierarchyItem>?, TypeHierarchyItem>,
                                                                     IDoesNotParticipateInRegistration
             where T : class?, IHandlerIdentity?
         {
-            public static TypeHierarchySubtypesCallsParams Create(TypeHierarchySubtypesCallsParams<T> item)
+            public static TypeHierarchySubtypesParams Create(TypeHierarchySubtypesParams<T> item)
             {
-                return new TypeHierarchySubtypesCallsParams
+                return new TypeHierarchySubtypesParams
                 {
                     Item = item.Item,
                     PartialResultToken = item.PartialResultToken,
@@ -223,39 +204,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 };
             }
 
-            public static implicit operator TypeHierarchySubtypesCallsParams(TypeHierarchySubtypesCallsParams<T> item)
+            public static implicit operator TypeHierarchySubtypesParams(TypeHierarchySubtypesParams<T> item)
             {
                 return Create(item);
             }
 
-            public static implicit operator TypeHierarchySubtypesCallsParams<T>(TypeHierarchySubtypesCallsParams item)
+            public static implicit operator TypeHierarchySubtypesParams<T>(TypeHierarchySubtypesParams item)
             {
-                return TypeHierarchySubtypesCallsParams.Create<T>(item);
+                return TypeHierarchySubtypesParams.Create<T>(item);
             }
         }
 
         /// <summary>
-        /// Represents an subtypes call, e.g. calling a getter from a method or a method from a constructor etc.
-        ///
-        /// @since 3.16.0
-        /// </summary>
-        public partial record TypeHierarchySubtypesCall
-        {
-            /// <summary>
-            /// The item that is called.
-            /// </summary>
-            public TypeHierarchyItem To { get; init; } = null!;
-
-            /// <summary>
-            /// The range at which this item is called. This is the range relative to the caller, e.g the item
-            /// passed to [`provideTypeHierarchySubtypesCalls`](#TypeHierarchyItemProvider.provideTypeHierarchySubtypesCalls)
-            /// and not [`this.to`](#TypeHierarchySubtypesCall.to).
-            /// </summary>
-            public Container<Range> FromRanges { get; init; } = null!;
-        }
-
-        /// <summary>
-        /// Call hierarchy options used during static or dynamic registration.
+        /// Type hierarchy options used during static or dynamic registration.
         ///
         /// @since 3.16.0
         /// </summary>
@@ -269,7 +230,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     namespace Client.Capabilities
     {
         /// <summary>
-        /// Capabilities specific to the `textDocument/TypeHierarchy`.
+        /// Capabilities specific to the `textDocument/typeHierarchy`.
         ///
         /// @since 3.16.0
         /// </summary>
@@ -299,8 +260,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }
 
             public abstract Task<Container<TypeHierarchyItem>?> Handle(TypeHierarchyPrepareParams request, CancellationToken cancellationToken);
-            public abstract Task<Container<TypeHierarchySupertypesCall>?> Handle(TypeHierarchySupertypesCallsParams request, CancellationToken cancellationToken);
-            public abstract Task<Container<TypeHierarchySubtypesCall>?> Handle(TypeHierarchySubtypesCallsParams request, CancellationToken cancellationToken);
+            public abstract Task<Container<TypeHierarchyItem>?> Handle(TypeHierarchySupertypesParams request, CancellationToken cancellationToken);
+            public abstract Task<Container<TypeHierarchyItem>?> Handle(TypeHierarchySubtypesParams request, CancellationToken cancellationToken);
         }
 
         public abstract class PartialTypeHierarchyHandlerBase : AbstractHandlers.PartialResults<TypeHierarchyPrepareParams, Container<TypeHierarchyItem>?,
@@ -324,28 +285,28 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
             }
 
-            public Task<Container<TypeHierarchySupertypesCall>?> Handle(TypeHierarchySupertypesCallsParams request, CancellationToken cancellationToken)
+            public Task<Container<TypeHierarchyItem>?> Handle(TypeHierarchySupertypesParams request, CancellationToken cancellationToken)
             {
                 return _supertypes.Handle(request, cancellationToken);
             }
 
-            public Task<Container<TypeHierarchySubtypesCall>?> Handle(TypeHierarchySubtypesCallsParams request, CancellationToken cancellationToken)
+            public Task<Container<TypeHierarchyItem>?> Handle(TypeHierarchySubtypesParams request, CancellationToken cancellationToken)
             {
                 return _subtypes.Handle(request, cancellationToken);
             }
 
             protected abstract void Handle(
-                TypeHierarchySupertypesCallsParams request, IObserver<IEnumerable<TypeHierarchySupertypesCall>> results, CancellationToken cancellationToken
+                TypeHierarchySupertypesParams request, IObserver<IEnumerable<TypeHierarchyItem>> results, CancellationToken cancellationToken
             );
 
             protected abstract void Handle(
-                TypeHierarchySubtypesCallsParams request, IObserver<IEnumerable<TypeHierarchySubtypesCall>> results, CancellationToken cancellationToken
+                TypeHierarchySubtypesParams request, IObserver<IEnumerable<TypeHierarchyItem>> results, CancellationToken cancellationToken
             );
 
             private class PartialSupertypes : AbstractHandlers.PartialResults<
-                                                TypeHierarchySupertypesCallsParams,
-                                                Container<TypeHierarchySupertypesCall>?,
-                                                TypeHierarchySupertypesCall,
+                                                TypeHierarchySupertypesParams,
+                                                Container<TypeHierarchyItem>?,
+                                                TypeHierarchyItem,
                                                 TypeHierarchyRegistrationOptions,
                                                 TypeHierarchyCapability
                                             >, ITypeHierarchySupertypesHandler
@@ -355,15 +316,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 Guid ICanBeIdentifiedHandler.Id => _id;
 
                 public PartialSupertypes(Guid id, IProgressManager progressManager, PartialTypeHierarchyHandlerBase self) :
-                    base(progressManager, Container<TypeHierarchySupertypesCall>.From)
+                    base(progressManager, Container<TypeHierarchyItem>.From)
                 {
                     _id = id;
                     _self = self;
                 }
 
                 protected override void Handle(
-                    TypeHierarchySupertypesCallsParams request,
-                    IObserver<IEnumerable<TypeHierarchySupertypesCall>> results,
+                    TypeHierarchySupertypesParams request,
+                    IObserver<IEnumerable<TypeHierarchyItem>> results,
                     CancellationToken cancellationToken
                 )
                 {
@@ -380,8 +341,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 }
             }
 
-            private class PartialSubtypes : AbstractHandlers.PartialResults<TypeHierarchySubtypesCallsParams, Container<TypeHierarchySubtypesCall>?,
-                                                TypeHierarchySubtypesCall, TypeHierarchyRegistrationOptions
+            private class PartialSubtypes : AbstractHandlers.PartialResults<TypeHierarchySubtypesParams, Container<TypeHierarchyItem>?,
+                                                TypeHierarchyItem, TypeHierarchyRegistrationOptions
                                               , TypeHierarchyCapability>, ITypeHierarchySubtypesHandler
             {
                 private readonly PartialTypeHierarchyHandlerBase _self;
@@ -389,7 +350,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 Guid ICanBeIdentifiedHandler.Id => _id;
 
                 public PartialSubtypes(Guid id, IProgressManager progressManager, PartialTypeHierarchyHandlerBase self) :
-                    base(progressManager, Container<TypeHierarchySubtypesCall>.From)
+                    base(progressManager, Container<TypeHierarchyItem>.From)
 
                 {
                     _id = id;
@@ -397,7 +358,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 }
 
                 protected override void Handle(
-                    TypeHierarchySubtypesCallsParams request, IObserver<IEnumerable<TypeHierarchySubtypesCall>> results, CancellationToken cancellationToken
+                    TypeHierarchySubtypesParams request, IObserver<IEnumerable<TypeHierarchyItem>> results, CancellationToken cancellationToken
                 )
                 {
                     _self.Handle(request, results, cancellationToken);
@@ -430,12 +391,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 return Container<TypeHierarchyItem>.From(response?.Select(TypeHierarchyItem.From)!);
             }
 
-            public sealed override Task<Container<TypeHierarchySupertypesCall>?> Handle(
-                TypeHierarchySupertypesCallsParams request, CancellationToken cancellationToken
+            public sealed override Task<Container<TypeHierarchyItem>?> Handle(
+                TypeHierarchySupertypesParams request, CancellationToken cancellationToken
             )
             {
-                return HandleSupertypesCalls(
-                    new TypeHierarchySupertypesCallsParams<T>
+                return HandleSupertypes(
+                    new TypeHierarchySupertypesParams<T>
                     {
                         Item = request.Item,
                         PartialResultToken = request.PartialResultToken,
@@ -445,12 +406,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 );
             }
 
-            public sealed override Task<Container<TypeHierarchySubtypesCall>?> Handle(
-                TypeHierarchySubtypesCallsParams request, CancellationToken cancellationToken
+            public sealed override Task<Container<TypeHierarchyItem>?> Handle(
+                TypeHierarchySubtypesParams request, CancellationToken cancellationToken
             )
             {
-                return HandleSubtypesCalls(
-                    new TypeHierarchySubtypesCallsParams<T>
+                return HandleSubtypes(
+                    new TypeHierarchySubtypesParams<T>
                     {
                         Item = request.Item,
                         PartialResultToken = request.PartialResultToken,
@@ -462,12 +423,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             protected abstract Task<Container<TypeHierarchyItem<T>>?> HandlePrepare(TypeHierarchyPrepareParams request, CancellationToken cancellationToken);
 
-            protected abstract Task<Container<TypeHierarchySupertypesCall>?> HandleSupertypesCalls(
-                TypeHierarchySupertypesCallsParams<T> request, CancellationToken cancellationToken
+            protected abstract Task<Container<TypeHierarchyItem>?> HandleSupertypes(
+                TypeHierarchySupertypesParams<T> request, CancellationToken cancellationToken
             );
 
-            protected abstract Task<Container<TypeHierarchySubtypesCall>?> HandleSubtypesCalls(
-                TypeHierarchySubtypesCallsParams<T> request, CancellationToken cancellationToken
+            protected abstract Task<Container<TypeHierarchyItem>?> HandleSubtypes(
+                TypeHierarchySubtypesParams<T> request, CancellationToken cancellationToken
             );
         }
 
@@ -496,11 +457,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             );
 
             protected sealed override void Handle(
-                TypeHierarchySupertypesCallsParams request, IObserver<IEnumerable<TypeHierarchySupertypesCall>> results, CancellationToken cancellationToken
+                TypeHierarchySupertypesParams request, IObserver<IEnumerable<TypeHierarchyItem>> results, CancellationToken cancellationToken
             )
             {
                 Handle(
-                    new TypeHierarchySupertypesCallsParams<T>
+                    new TypeHierarchySupertypesParams<T>
                     {
                         Item = request.Item,
                         PartialResultToken = request.PartialResultToken,
@@ -512,15 +473,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }
 
             protected abstract void Handle(
-                TypeHierarchySupertypesCallsParams<T> request, IObserver<IEnumerable<TypeHierarchySupertypesCall>> results, CancellationToken cancellationToken
+                TypeHierarchySupertypesParams<T> request, IObserver<IEnumerable<TypeHierarchyItem>> results, CancellationToken cancellationToken
             );
 
             protected sealed override void Handle(
-                TypeHierarchySubtypesCallsParams request, IObserver<IEnumerable<TypeHierarchySubtypesCall>> results, CancellationToken cancellationToken
+                TypeHierarchySubtypesParams request, IObserver<IEnumerable<TypeHierarchyItem>> results, CancellationToken cancellationToken
             )
             {
                 Handle(
-                    new TypeHierarchySubtypesCallsParams<T>
+                    new TypeHierarchySubtypesParams<T>
                     {
                         Item = request.Item,
                         PartialResultToken = request.PartialResultToken,
@@ -532,7 +493,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }
 
             protected abstract void Handle(
-                TypeHierarchySubtypesCallsParams<T> request, IObserver<IEnumerable<TypeHierarchySubtypesCall>> results, CancellationToken cancellationToken
+                TypeHierarchySubtypesParams<T> request, IObserver<IEnumerable<TypeHierarchyItem>> results, CancellationToken cancellationToken
             );
         }
 
@@ -541,8 +502,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static ILanguageServerRegistry OnTypeHierarchy(
                 this ILanguageServerRegistry registry,
                 Func<TypeHierarchyPrepareParams, TypeHierarchyCapability, CancellationToken, Task<Container<TypeHierarchyItem>?>> handler,
-                Func<TypeHierarchySupertypesCallsParams, TypeHierarchyCapability, CancellationToken, Task<Container<TypeHierarchySupertypesCall>?>> supertypesHandler,
-                Func<TypeHierarchySubtypesCallsParams, TypeHierarchyCapability, CancellationToken, Task<Container<TypeHierarchySubtypesCall>?>> subtypesHandler,
+                Func<TypeHierarchySupertypesParams, TypeHierarchyCapability, CancellationToken, Task<Container<TypeHierarchyItem>?>> supertypesHandler,
+                Func<TypeHierarchySubtypesParams, TypeHierarchyCapability, CancellationToken, Task<Container<TypeHierarchyItem>?>> subtypesHandler,
                 RegistrationOptionsDelegate<TypeHierarchyRegistrationOptions, TypeHierarchyCapability>? registrationOptionsFactory
             )
             {
@@ -564,8 +525,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                       .AddHandler(
                            TextDocumentNames.TypeHierarchySupertypes,
                            new LanguageProtocolDelegatingHandlers.Request<
-                               TypeHierarchySupertypesCallsParams,
-                               Container<TypeHierarchySupertypesCall>?,
+                               TypeHierarchySupertypesParams,
+                               Container<TypeHierarchyItem>?,
                                TypeHierarchyRegistrationOptions,
                                TypeHierarchyCapability
                            >(
@@ -577,8 +538,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                       .AddHandler(
                            TextDocumentNames.TypeHierarchySubtypes,
                            new LanguageProtocolDelegatingHandlers.Request<
-                               TypeHierarchySubtypesCallsParams,
-                               Container<TypeHierarchySubtypesCall>?,
+                               TypeHierarchySubtypesParams,
+                               Container<TypeHierarchyItem>?,
                                TypeHierarchyRegistrationOptions,
                                TypeHierarchyCapability
                            >(
@@ -593,9 +554,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static ILanguageServerRegistry OnTypeHierarchy<T>(
                 this ILanguageServerRegistry registry,
                 Func<TypeHierarchyPrepareParams, TypeHierarchyCapability, CancellationToken, Task<Container<TypeHierarchyItem<T>>?>> handler,
-                Func<TypeHierarchySupertypesCallsParams<T>, TypeHierarchyCapability, CancellationToken, Task<Container<TypeHierarchySupertypesCall>?>>
+                Func<TypeHierarchySupertypesParams<T>, TypeHierarchyCapability, CancellationToken, Task<Container<TypeHierarchyItem>?>>
                     supertypesHandler,
-                Func<TypeHierarchySubtypesCallsParams<T>, TypeHierarchyCapability, CancellationToken, Task<Container<TypeHierarchySubtypesCall>?>>
+                Func<TypeHierarchySubtypesParams<T>, TypeHierarchyCapability, CancellationToken, Task<Container<TypeHierarchyItem>?>>
                     subtypesHandler,
                 RegistrationOptionsDelegate<TypeHierarchyRegistrationOptions, TypeHierarchyCapability>? registrationOptionsFactory
             ) where T : class?, IHandlerIdentity?
@@ -613,8 +574,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static ILanguageServerRegistry OnTypeHierarchy(
                 this ILanguageServerRegistry registry,
                 Func<TypeHierarchyPrepareParams, TypeHierarchyCapability, Task<Container<TypeHierarchyItem>?>> handler,
-                Func<TypeHierarchySupertypesCallsParams, TypeHierarchyCapability, Task<Container<TypeHierarchySupertypesCall>?>> supertypesHandler,
-                Func<TypeHierarchySubtypesCallsParams, TypeHierarchyCapability, Task<Container<TypeHierarchySubtypesCall>?>> subtypesHandler,
+                Func<TypeHierarchySupertypesParams, TypeHierarchyCapability, Task<Container<TypeHierarchyItem>?>> supertypesHandler,
+                Func<TypeHierarchySubtypesParams, TypeHierarchyCapability, Task<Container<TypeHierarchyItem>?>> subtypesHandler,
                 RegistrationOptionsDelegate<TypeHierarchyRegistrationOptions, TypeHierarchyCapability>? registrationOptionsFactory
             )
             {
@@ -636,8 +597,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                       .AddHandler(
                            TextDocumentNames.TypeHierarchySupertypes,
                            new LanguageProtocolDelegatingHandlers.Request<
-                               TypeHierarchySupertypesCallsParams,
-                               Container<TypeHierarchySupertypesCall>?,
+                               TypeHierarchySupertypesParams,
+                               Container<TypeHierarchyItem>?,
                                TypeHierarchyRegistrationOptions,
                                TypeHierarchyCapability
                            >(
@@ -648,8 +609,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                        )
                       .AddHandler(
                            TextDocumentNames.TypeHierarchySubtypes,
-                           new LanguageProtocolDelegatingHandlers.Request<TypeHierarchySubtypesCallsParams,
-                               Container<TypeHierarchySubtypesCall>?,
+                           new LanguageProtocolDelegatingHandlers.Request<TypeHierarchySubtypesParams,
+                               Container<TypeHierarchyItem>?,
                                TypeHierarchyRegistrationOptions,
                                TypeHierarchyCapability
                            >(
@@ -664,8 +625,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static ILanguageServerRegistry OnTypeHierarchy<T>(
                 this ILanguageServerRegistry registry,
                 Func<TypeHierarchyPrepareParams, TypeHierarchyCapability, Task<Container<TypeHierarchyItem<T>>?>> handler,
-                Func<TypeHierarchySupertypesCallsParams<T>, TypeHierarchyCapability, Task<Container<TypeHierarchySupertypesCall>?>> supertypesHandler,
-                Func<TypeHierarchySubtypesCallsParams<T>, TypeHierarchyCapability, Task<Container<TypeHierarchySubtypesCall>?>> subtypesHandler,
+                Func<TypeHierarchySupertypesParams<T>, TypeHierarchyCapability, Task<Container<TypeHierarchyItem>?>> supertypesHandler,
+                Func<TypeHierarchySubtypesParams<T>, TypeHierarchyCapability, Task<Container<TypeHierarchyItem>?>> subtypesHandler,
                 RegistrationOptionsDelegate<TypeHierarchyRegistrationOptions, TypeHierarchyCapability>? registrationOptionsFactory
             ) where T : class?, IHandlerIdentity?
             {
@@ -682,8 +643,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static ILanguageServerRegistry OnTypeHierarchy<T>(
                 this ILanguageServerRegistry registry,
                 Func<TypeHierarchyPrepareParams, CancellationToken, Task<Container<TypeHierarchyItem<T>>?>> handler,
-                Func<TypeHierarchySupertypesCallsParams<T>, CancellationToken, Task<Container<TypeHierarchySupertypesCall>?>> supertypesHandler,
-                Func<TypeHierarchySubtypesCallsParams<T>, CancellationToken, Task<Container<TypeHierarchySubtypesCall>?>> subtypesHandler,
+                Func<TypeHierarchySupertypesParams<T>, CancellationToken, Task<Container<TypeHierarchyItem>?>> supertypesHandler,
+                Func<TypeHierarchySubtypesParams<T>, CancellationToken, Task<Container<TypeHierarchyItem>?>> subtypesHandler,
                 RegistrationOptionsDelegate<TypeHierarchyRegistrationOptions, TypeHierarchyCapability>? registrationOptionsFactory
             ) where T : class?, IHandlerIdentity?
             {
@@ -700,8 +661,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static ILanguageServerRegistry OnTypeHierarchy<T>(
                 this ILanguageServerRegistry registry,
                 Func<TypeHierarchyPrepareParams, Task<Container<TypeHierarchyItem<T>>?>> handler,
-                Func<TypeHierarchySupertypesCallsParams<T>, Task<Container<TypeHierarchySupertypesCall>?>> supertypesHandler,
-                Func<TypeHierarchySubtypesCallsParams<T>, Task<Container<TypeHierarchySubtypesCall>?>> subtypesHandler,
+                Func<TypeHierarchySupertypesParams<T>, Task<Container<TypeHierarchyItem>?>> supertypesHandler,
+                Func<TypeHierarchySubtypesParams<T>, Task<Container<TypeHierarchyItem>?>> subtypesHandler,
                 RegistrationOptionsDelegate<TypeHierarchyRegistrationOptions, TypeHierarchyCapability>? registrationOptionsFactory
             ) where T : class?, IHandlerIdentity?
             {
@@ -718,9 +679,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static ILanguageServerRegistry OnTypeHierarchy(
                 this ILanguageServerRegistry registry,
                 Action<TypeHierarchyPrepareParams, IObserver<IEnumerable<TypeHierarchyItem>>, TypeHierarchyCapability, CancellationToken> handler,
-                Action<TypeHierarchySupertypesCallsParams, IObserver<IEnumerable<TypeHierarchySupertypesCall>>, TypeHierarchyCapability, CancellationToken>
+                Action<TypeHierarchySupertypesParams, IObserver<IEnumerable<TypeHierarchyItem>>, TypeHierarchyCapability, CancellationToken>
                     supertypesHandler,
-                Action<TypeHierarchySubtypesCallsParams, IObserver<IEnumerable<TypeHierarchySubtypesCall>>, TypeHierarchyCapability, CancellationToken>
+                Action<TypeHierarchySubtypesParams, IObserver<IEnumerable<TypeHierarchyItem>>, TypeHierarchyCapability, CancellationToken>
                     subtypesHandler,
                 RegistrationOptionsDelegate<TypeHierarchyRegistrationOptions, TypeHierarchyCapability>? registrationOptionsFactory
             )
@@ -744,8 +705,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                .AddHandler(
                                     TextDocumentNames.TypeHierarchySupertypes,
                                     _ => new LanguageProtocolDelegatingHandlers.PartialResults<
-                                        TypeHierarchySupertypesCallsParams,
-                                        Container<TypeHierarchySupertypesCall>?, TypeHierarchySupertypesCall,
+                                        TypeHierarchySupertypesParams,
+                                        Container<TypeHierarchyItem>?, TypeHierarchyItem,
                                         TypeHierarchyRegistrationOptions,
                                         TypeHierarchyCapability
                                     >(
@@ -753,14 +714,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                         PartialAdapter<TypeHierarchyCapability>.Adapt(supertypesHandler),
                                         RegistrationAdapter<TypeHierarchyCapability>.Adapt(registrationOptionsFactory),
                                         _.GetRequiredService<IProgressManager>(),
-                                        Container<TypeHierarchySupertypesCall>.From
+                                        Container<TypeHierarchyItem>.From
                                     )
                                 )
                                .AddHandler(
                                     TextDocumentNames.TypeHierarchySubtypes,
                                     _ => new LanguageProtocolDelegatingHandlers.PartialResults<
-                                        TypeHierarchySubtypesCallsParams,
-                                        Container<TypeHierarchySubtypesCall>?, TypeHierarchySubtypesCall,
+                                        TypeHierarchySubtypesParams,
+                                        Container<TypeHierarchyItem>?, TypeHierarchyItem,
                                         TypeHierarchyRegistrationOptions,
                                         TypeHierarchyCapability
                                     >(
@@ -768,7 +729,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                         PartialAdapter<TypeHierarchyCapability>.Adapt(subtypesHandler),
                                         RegistrationAdapter<TypeHierarchyCapability>.Adapt(registrationOptionsFactory),
                                         _.GetRequiredService<IProgressManager>(),
-                                        Container<TypeHierarchySubtypesCall>.From
+                                        Container<TypeHierarchyItem>.From
                                     )
                                 )
                     ;
@@ -777,9 +738,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static ILanguageServerRegistry OnTypeHierarchy<T>(
                 this ILanguageServerRegistry registry,
                 Action<TypeHierarchyPrepareParams, IObserver<IEnumerable<TypeHierarchyItem<T>>>, TypeHierarchyCapability, CancellationToken> handler,
-                Action<TypeHierarchySupertypesCallsParams<T>, IObserver<IEnumerable<TypeHierarchySupertypesCall>>, TypeHierarchyCapability, CancellationToken>
+                Action<TypeHierarchySupertypesParams<T>, IObserver<IEnumerable<TypeHierarchyItem>>, TypeHierarchyCapability, CancellationToken>
                     supertypesHandler,
-                Action<TypeHierarchySubtypesCallsParams<T>, IObserver<IEnumerable<TypeHierarchySubtypesCall>>, TypeHierarchyCapability, CancellationToken>
+                Action<TypeHierarchySubtypesParams<T>, IObserver<IEnumerable<TypeHierarchyItem>>, TypeHierarchyCapability, CancellationToken>
                     subtypesHandler,
                 RegistrationOptionsDelegate<TypeHierarchyRegistrationOptions, TypeHierarchyCapability>? registrationOptionsFactory
             ) where T : class?, IHandlerIdentity?
@@ -799,8 +760,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static ILanguageServerRegistry OnTypeHierarchy(
                 this ILanguageServerRegistry registry,
                 Action<TypeHierarchyPrepareParams, IObserver<IEnumerable<TypeHierarchyItem>>, TypeHierarchyCapability> handler,
-                Action<TypeHierarchySupertypesCallsParams, IObserver<IEnumerable<TypeHierarchySupertypesCall>>, TypeHierarchyCapability> supertypesHandler,
-                Action<TypeHierarchySubtypesCallsParams, IObserver<IEnumerable<TypeHierarchySubtypesCall>>, TypeHierarchyCapability> subtypesHandler,
+                Action<TypeHierarchySupertypesParams, IObserver<IEnumerable<TypeHierarchyItem>>, TypeHierarchyCapability> supertypesHandler,
+                Action<TypeHierarchySubtypesParams, IObserver<IEnumerable<TypeHierarchyItem>>, TypeHierarchyCapability> subtypesHandler,
                 RegistrationOptionsDelegate<TypeHierarchyRegistrationOptions, TypeHierarchyCapability>? registrationOptionsFactory
             )
             {
@@ -824,8 +785,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                             .AddHandler(
                                  TextDocumentNames.TypeHierarchySupertypes,
                                  _ => new LanguageProtocolDelegatingHandlers.PartialResults<
-                                     TypeHierarchySupertypesCallsParams,
-                                     Container<TypeHierarchySupertypesCall>?, TypeHierarchySupertypesCall,
+                                     TypeHierarchySupertypesParams,
+                                     Container<TypeHierarchyItem>?, TypeHierarchyItem,
                                      TypeHierarchyRegistrationOptions,
                                      TypeHierarchyCapability
                                  >(
@@ -833,14 +794,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                      PartialAdapter<TypeHierarchyCapability>.Adapt(supertypesHandler),
                                      RegistrationAdapter<TypeHierarchyCapability>.Adapt(registrationOptionsFactory),
                                      _.GetRequiredService<IProgressManager>(),
-                                     Container<TypeHierarchySupertypesCall>.From
+                                     Container<TypeHierarchyItem>.From
                                  )
                              )
                             .AddHandler(
                                  TextDocumentNames.TypeHierarchySubtypes,
                                  _ => new LanguageProtocolDelegatingHandlers.PartialResults<
-                                     TypeHierarchySubtypesCallsParams,
-                                     Container<TypeHierarchySubtypesCall>?, TypeHierarchySubtypesCall,
+                                     TypeHierarchySubtypesParams,
+                                     Container<TypeHierarchyItem>?, TypeHierarchyItem,
                                      TypeHierarchyRegistrationOptions,
                                      TypeHierarchyCapability
                                  >(
@@ -848,7 +809,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                      PartialAdapter<TypeHierarchyCapability>.Adapt(subtypesHandler),
                                      RegistrationAdapter<TypeHierarchyCapability>.Adapt(registrationOptionsFactory),
                                      _.GetRequiredService<IProgressManager>(),
-                                     Container<TypeHierarchySubtypesCall>.From
+                                     Container<TypeHierarchyItem>.From
                                  )
                              )
                     ;
@@ -857,8 +818,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static ILanguageServerRegistry OnTypeHierarchy<T>(
                 this ILanguageServerRegistry registry,
                 Action<TypeHierarchyPrepareParams, IObserver<IEnumerable<TypeHierarchyItem<T>>>, TypeHierarchyCapability> handler,
-                Action<TypeHierarchySupertypesCallsParams<T>, IObserver<IEnumerable<TypeHierarchySupertypesCall>>, TypeHierarchyCapability> supertypesHandler,
-                Action<TypeHierarchySubtypesCallsParams<T>, IObserver<IEnumerable<TypeHierarchySubtypesCall>>, TypeHierarchyCapability> subtypesHandler,
+                Action<TypeHierarchySupertypesParams<T>, IObserver<IEnumerable<TypeHierarchyItem>>, TypeHierarchyCapability> supertypesHandler,
+                Action<TypeHierarchySubtypesParams<T>, IObserver<IEnumerable<TypeHierarchyItem>>, TypeHierarchyCapability> subtypesHandler,
                 RegistrationOptionsDelegate<TypeHierarchyRegistrationOptions, TypeHierarchyCapability>? registrationOptionsFactory
             ) where T : class?, IHandlerIdentity?
             {
@@ -876,8 +837,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static ILanguageServerRegistry OnTypeHierarchy<T>(
                 this ILanguageServerRegistry registry,
                 Action<TypeHierarchyPrepareParams, IObserver<IEnumerable<TypeHierarchyItem<T>>>, CancellationToken> handler,
-                Action<TypeHierarchySupertypesCallsParams<T>, IObserver<IEnumerable<TypeHierarchySupertypesCall>>, CancellationToken> supertypesHandler,
-                Action<TypeHierarchySubtypesCallsParams<T>, IObserver<IEnumerable<TypeHierarchySubtypesCall>>, CancellationToken> subtypesHandler,
+                Action<TypeHierarchySupertypesParams<T>, IObserver<IEnumerable<TypeHierarchyItem>>, CancellationToken> supertypesHandler,
+                Action<TypeHierarchySubtypesParams<T>, IObserver<IEnumerable<TypeHierarchyItem>>, CancellationToken> subtypesHandler,
                 RegistrationOptionsDelegate<TypeHierarchyRegistrationOptions, TypeHierarchyCapability>? registrationOptionsFactory
             ) where T : class?, IHandlerIdentity?
             {
@@ -895,8 +856,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static ILanguageServerRegistry OnTypeHierarchy<T>(
                 this ILanguageServerRegistry registry,
                 Action<TypeHierarchyPrepareParams, IObserver<IEnumerable<TypeHierarchyItem<T>>>> handler,
-                Action<TypeHierarchySupertypesCallsParams<T>, IObserver<IEnumerable<TypeHierarchySupertypesCall>>> supertypesHandler,
-                Action<TypeHierarchySubtypesCallsParams<T>, IObserver<IEnumerable<TypeHierarchySubtypesCall>>> subtypesHandler,
+                Action<TypeHierarchySupertypesParams<T>, IObserver<IEnumerable<TypeHierarchyItem>>> supertypesHandler,
+                Action<TypeHierarchySubtypesParams<T>, IObserver<IEnumerable<TypeHierarchyItem>>> subtypesHandler,
                 RegistrationOptionsDelegate<TypeHierarchyRegistrationOptions, TypeHierarchyCapability>? registrationOptionsFactory
             ) where T : class?, IHandlerIdentity?
             {
@@ -916,28 +877,28 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 private readonly Func<TypeHierarchyPrepareParams, TypeHierarchyCapability, CancellationToken, Task<Container<TypeHierarchyItem<T>>?>>
                     _handlePrepare;
 
-                private readonly Func<TypeHierarchySupertypesCallsParams<T>, TypeHierarchyCapability, CancellationToken,
-                        Task<Container<TypeHierarchySupertypesCall>?>>
-                    _handleSupertypesCalls;
+                private readonly Func<TypeHierarchySupertypesParams<T>, TypeHierarchyCapability, CancellationToken,
+                        Task<Container<TypeHierarchyItem>?>>
+                    _handleSupertypes;
 
-                private readonly Func<TypeHierarchySubtypesCallsParams<T>, TypeHierarchyCapability, CancellationToken,
-                        Task<Container<TypeHierarchySubtypesCall>?>>
-                    _handleSubtypesCalls;
+                private readonly Func<TypeHierarchySubtypesParams<T>, TypeHierarchyCapability, CancellationToken,
+                        Task<Container<TypeHierarchyItem>?>>
+                    _handleSubtypes;
 
                 private readonly RegistrationOptionsDelegate<TypeHierarchyRegistrationOptions, TypeHierarchyCapability> _registrationOptionsFactory;
 
                 public DelegatingTypeHierarchyHandler(
                     Func<TypeHierarchyPrepareParams, TypeHierarchyCapability, CancellationToken, Task<Container<TypeHierarchyItem<T>>?>> handlePrepare,
-                    Func<TypeHierarchySupertypesCallsParams<T>, TypeHierarchyCapability, CancellationToken, Task<Container<TypeHierarchySupertypesCall>?>>
-                        handleSupertypesCalls,
-                    Func<TypeHierarchySubtypesCallsParams<T>, TypeHierarchyCapability, CancellationToken, Task<Container<TypeHierarchySubtypesCall>?>>
-                        handleSubtypesCalls,
+                    Func<TypeHierarchySupertypesParams<T>, TypeHierarchyCapability, CancellationToken, Task<Container<TypeHierarchyItem>?>>
+                        handleSupertypes,
+                    Func<TypeHierarchySubtypesParams<T>, TypeHierarchyCapability, CancellationToken, Task<Container<TypeHierarchyItem>?>>
+                        handleSubtypes,
                     RegistrationOptionsDelegate<TypeHierarchyRegistrationOptions, TypeHierarchyCapability> registrationOptionsFactory
                 )
                 {
                     _handlePrepare = handlePrepare;
-                    _handleSupertypesCalls = handleSupertypesCalls;
-                    _handleSubtypesCalls = handleSubtypesCalls;
+                    _handleSupertypes = handleSupertypes;
+                    _handleSubtypes = handleSubtypes;
                     _registrationOptionsFactory = registrationOptionsFactory;
                 }
 
@@ -946,18 +907,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     return _handlePrepare(request, Capability, cancellationToken);
                 }
 
-                protected override Task<Container<TypeHierarchySupertypesCall>?> HandleSupertypesCalls(
-                    TypeHierarchySupertypesCallsParams<T> request, CancellationToken cancellationToken
+                protected override Task<Container<TypeHierarchyItem>?> HandleSupertypes(
+                    TypeHierarchySupertypesParams<T> request, CancellationToken cancellationToken
                 )
                 {
-                    return _handleSupertypesCalls(request, Capability, cancellationToken);
+                    return _handleSupertypes(request, Capability, cancellationToken);
                 }
 
-                protected override Task<Container<TypeHierarchySubtypesCall>?> HandleSubtypesCalls(
-                    TypeHierarchySubtypesCallsParams<T> request, CancellationToken cancellationToken
+                protected override Task<Container<TypeHierarchyItem>?> HandleSubtypes(
+                    TypeHierarchySubtypesParams<T> request, CancellationToken cancellationToken
                 )
                 {
-                    return _handleSubtypesCalls(request, Capability, cancellationToken);
+                    return _handleSubtypes(request, Capability, cancellationToken);
                 }
 
                 protected internal override TypeHierarchyRegistrationOptions CreateRegistrationOptions(
@@ -973,11 +934,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 private readonly Action<TypeHierarchyPrepareParams, IObserver<IEnumerable<TypeHierarchyItem<T>>>, TypeHierarchyCapability, CancellationToken>
                     _handleParams;
 
-                private readonly Action<TypeHierarchySupertypesCallsParams<T>, IObserver<IEnumerable<TypeHierarchySupertypesCall>>, TypeHierarchyCapability,
+                private readonly Action<TypeHierarchySupertypesParams<T>, IObserver<IEnumerable<TypeHierarchyItem>>, TypeHierarchyCapability,
                         CancellationToken>
                     _handleSupertypes;
 
-                private readonly Action<TypeHierarchySubtypesCallsParams<T>, IObserver<IEnumerable<TypeHierarchySubtypesCall>>, TypeHierarchyCapability,
+                private readonly Action<TypeHierarchySubtypesParams<T>, IObserver<IEnumerable<TypeHierarchyItem>>, TypeHierarchyCapability,
                         CancellationToken>
                     _handleSubtypes;
 
@@ -986,9 +947,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 public DelegatingPartialTypeHierarchyHandler(
                     IProgressManager progressManager,
                     Action<TypeHierarchyPrepareParams, IObserver<IEnumerable<TypeHierarchyItem<T>>>, TypeHierarchyCapability, CancellationToken> handleParams,
-                    Action<TypeHierarchySupertypesCallsParams<T>, IObserver<IEnumerable<TypeHierarchySupertypesCall>>, TypeHierarchyCapability, CancellationToken>
+                    Action<TypeHierarchySupertypesParams<T>, IObserver<IEnumerable<TypeHierarchyItem>>, TypeHierarchyCapability, CancellationToken>
                         handleSupertypes,
-                    Action<TypeHierarchySubtypesCallsParams<T>, IObserver<IEnumerable<TypeHierarchySubtypesCall>>, TypeHierarchyCapability, CancellationToken>
+                    Action<TypeHierarchySubtypesParams<T>, IObserver<IEnumerable<TypeHierarchyItem>>, TypeHierarchyCapability, CancellationToken>
                         handleSubtypes,
                     RegistrationOptionsDelegate<TypeHierarchyRegistrationOptions, TypeHierarchyCapability> registrationOptionsFactory
                 ) : base(progressManager)
@@ -1007,14 +968,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 }
 
                 protected override void Handle(
-                    TypeHierarchySupertypesCallsParams<T> request, IObserver<IEnumerable<TypeHierarchySupertypesCall>> results, CancellationToken cancellationToken
+                    TypeHierarchySupertypesParams<T> request, IObserver<IEnumerable<TypeHierarchyItem>> results, CancellationToken cancellationToken
                 )
                 {
                     _handleSupertypes(request, results, Capability, cancellationToken);
                 }
 
                 protected override void Handle(
-                    TypeHierarchySubtypesCallsParams<T> request, IObserver<IEnumerable<TypeHierarchySubtypesCall>> results, CancellationToken cancellationToken
+                    TypeHierarchySubtypesParams<T> request, IObserver<IEnumerable<TypeHierarchyItem>> results, CancellationToken cancellationToken
                 )
                 {
                     _handleSubtypes(request, results, Capability, cancellationToken);

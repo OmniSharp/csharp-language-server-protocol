@@ -21,7 +21,7 @@ namespace Test {
     }
 }
 ";
-            await Verify(GenerationHelpers.Generate<EnumLikeStringGenerator>(source));
+            await Verify(GenerationHelpers.GenerateAll(source));
         }
     }
 }

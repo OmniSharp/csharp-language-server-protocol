@@ -44,7 +44,7 @@ namespace Lsp.Integration.Tests
 
             var (client, _) = await Initialize(ClientOptionsAction, ServerOptionsAction);
 
-            var result = await client.RequestMoniker(new MonikerParams(), CancellationToken);
+            var result = await client.RequestMonikers(new MonikerParams(), CancellationToken);
 
             result.Should().HaveCount(1);
             result.Should().Match(z => z.Any(x => x.Kind == MonikerKind.Export));
@@ -52,7 +52,7 @@ namespace Lsp.Integration.Tests
 
         private void ServerOptionsAction(LanguageServerOptions obj)
         {
-            obj.OnMoniker(
+            obj.OnMonikers(
                 _request, (_, _) => new MonikerRegistrationOptions
                 {
                     DocumentSelector = TextDocumentSelector.ForLanguage("csharp"),

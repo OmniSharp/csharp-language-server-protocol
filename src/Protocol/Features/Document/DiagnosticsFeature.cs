@@ -121,13 +121,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             internal class Converter : JsonConverter<RelatedDocumentDiagnosticReport>
             {
-                public override void WriteJson(JsonWriter writer, RelatedDocumentDiagnosticReport value, JsonSerializer serializer)
+                public override void WriteJson(JsonWriter writer, RelatedDocumentDiagnosticReport? value, JsonSerializer serializer)
                 {
                     throw new NotImplementedException();
                 }
 
                 public override RelatedDocumentDiagnosticReport ReadJson(
-                    JsonReader reader, Type objectType, RelatedDocumentDiagnosticReport existingValue, bool hasExistingValue, JsonSerializer serializer
+                    JsonReader reader, Type objectType, RelatedDocumentDiagnosticReport? existingValue, bool hasExistingValue, JsonSerializer serializer
                 )
                 {
                     throw new NotImplementedException();
