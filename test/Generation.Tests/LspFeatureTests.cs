@@ -124,5 +124,168 @@ namespace Lsp.Tests.Integration.Fixtures
 
             await Verify(GenerationHelpers.GenerateAll(source));
         }
+
+        [Fact]
+        public async Task Supports_Nullable_Params_With_Typed_Data()
+        {
+            var source = @"
+using System.Diagnostics;
+using System.Linq;
+using MediatR;
+using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+
+// ReSharper disable once CheckNamespace
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
+{
+    namespace Models
+    {
+        [Parallel]
+        [Method(TextDocumentNames.CodeLens, Direction.ClientToServer)]
+        [GenerateHandler(""OmniSharp.Extensions.LanguageServer.Protocol.Document.Test"")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(SubLensRegistrationOptions))]
+        [Capability(typeof(SubLensCapability))]
+        [Resolver(typeof(SubLens))]
+        public partial record SubLensParams : ITextDocumentIdentifierParams, IWorkDoneProgressParams, IPartialItemsRequest<SubLensContainer?, SubLens>
+        {
+            /// <summary>
+            /// The document to request code lens for.
+            /// </summary>
+            public TextDocumentIdentifier TextDocument { get; init; } = null!;
+        }
+
+        public partial class SubLensContainer {}
+
+        /// <summary>
+        /// A code lens represents a command that should be shown along with
+        /// source text, like the number of references, a way to run tests, etc.
+        ///
+        /// A code lens is _unresolved_ when no command is associated to it. For performance
+        /// reasons the creation of a code lens and resolving should be done in two stages.
+        /// </summary>
+        [DebuggerDisplay(""{"" + nameof(DebuggerDisplay) + "",nq}"")]
+        [Parallel]
+        [Method(TextDocumentNames.CodeLensResolve, Direction.ClientToServer)]
+        [GenerateHandler(""OmniSharp.Extensions.LanguageServer.Protocol.Document.Test"", Name = ""SubLensResolve"")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [GenerateTypedData]
+        [GenerateContainer]
+        [Capability(typeof(SubLensCapability))]
+        public partial record SubLens : IRequest<SubLens>, ICanBeResolved, IDoesNotParticipateInRegistration
+        {
+            /// <summary>
+            /// The range in which this code lens is valid. Should only span a single line.
+            /// </summary>
+            public Range Range { get; init; } = null!;
+
+            /// <summary>
+            /// The command this code lens represents.
+            /// </summary>
+            [Optional]
+            public Command? Command { get; init; }
+
+            /// <summary>
+            /// A data entry field that is preserved on a code lens item between
+            /// a code lens and a code lens resolve request.
+            /// </summary>
+            [Optional]
+            public JToken? Data { get; init; }
+
+            private string DebuggerDisplay => $""{Range}{( Command != null ? $"" {Command}"" : """" )}"";
+
+            /// <inheritdoc />
+            public override string ToString()
+            {
+                return DebuggerDisplay;
+            }
+        }
+
+        [GenerateRegistrationOptions(nameof(ServerCapabilities.SubLensProvider))]
+        [RegistrationOptionsConverter(typeof(SubLensRegistrationOptionsConverter))]
+        [RegistrationName(TextDocumentNames.CodeLens)]
+        public partial class SubLensRegistrationOptions : IWorkDoneProgressOptions, ITextDocumentRegistrationOptions
+        {
+            /// <summary>
+            /// Code lens has a resolve provider as well.
+            /// </summary>
+            [Optional]
+            public bool ResolveProvider { get; set; }
+
+            private class SubLensRegistrationOptionsConverter : RegistrationOptionsConverterBase<SubLensRegistrationOptions, StaticOptions>
+            {
+                private readonly IHandlersManager _handlersManager;
+
+                public SubLensRegistrationOptionsConverter(IHandlersManager handlersManager)
+                {
+                    _handlersManager = handlersManager;
+                }
+
+                public override StaticOptions Convert(SubLensRegistrationOptions source)
+                {
+                    return new()
+                    {
+                        ResolveProvider = source.ResolveProvider || _handlersManager.Descriptors.Any(z => z.HandlerType == typeof(ISubLensResolveHandler)),
+                        WorkDoneProgress = source.WorkDoneProgress
+                    };
+                }
+            }
+        }
+        
+        [Parallel]
+        [Method(WorkspaceNames.CodeLensRefresh, Direction.ServerToClient)]
+        [GenerateHandler(""OmniSharp.Extensions.LanguageServer.Protocol.Workspace.Test"")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
+        [Capability(typeof(SubLensWorkspaceClientCapabilities))]
+        public partial record SubLensRefreshParams : IRequest;
+    }
+
+    namespace Client.Capabilities
+    {
+        [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.CodeLens))]
+        public partial class SubLensCapability : DynamicCapability
+        {
+        }
+
+        /// <summary>
+        /// Capabilities specific to the code lens requests scoped to the
+        /// workspace.
+        ///
+        /// @since 3.16.0.
+        /// </summary>
+        [CapabilityKey(nameof(ClientCapabilities.Workspace), nameof(WorkspaceClientCapabilities.CodeLens))]
+        public class SubLensWorkspaceClientCapabilities : ICapability
+        {
+            /// <summary>
+            /// Whether the client implementation supports a refresh request send from the server
+            /// to the client. This is useful if a server detects a change which requires a
+            /// re-calculation of all code lenses.
+            /// </summary>
+            [Optional]
+            public bool RefreshSupport { get; set; }
+        }
+    }
+
+    namespace Document
+    {
+    }
+}
+";
+
+            await Verify(GenerationHelpers.GenerateAll(source));
+        }
     }
 }
