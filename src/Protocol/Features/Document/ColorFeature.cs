@@ -20,7 +20,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
         [RegistrationOptions(typeof(DocumentColorRegistrationOptions))]
         [Capability(typeof(ColorProviderCapability))]
-        public partial record DocumentColorParams : IPartialItemsRequest<Container<ColorInformation>, ColorInformation>, IWorkDoneProgressParams
+        public partial record DocumentColorParams : IPartialItemsRequest<Container<ColorInformation>?, ColorInformation>, IWorkDoneProgressParams
         {
             /// <summary>
             /// The text document.

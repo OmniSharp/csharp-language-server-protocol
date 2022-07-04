@@ -30,7 +30,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [RegistrationOptions(typeof(CodeActionRegistrationOptions))]
         [Capability(typeof(CodeActionCapability))]
         [Resolver(typeof(CodeAction))]
-        public partial record CodeActionParams : ITextDocumentIdentifierParams, IPartialItemsRequest<CommandOrCodeActionContainer, CommandOrCodeAction>,
+        public partial record CodeActionParams : ITextDocumentIdentifierParams, IPartialItemsRequest<CommandOrCodeActionContainer?, CommandOrCodeAction>,
                                                  IWorkDoneProgressParams
         {
             /// <summary>
@@ -48,6 +48,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             public CodeActionContext Context { get; init; } = null!;
         }
+
+        // marker class is required
+        public partial class CommandOrCodeActionContainer {}
 
         /// <summary>
         /// Contains additional diagnostic information about the context in which

@@ -201,11 +201,14 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 new OnRequestMethodGeneratorWithoutRegistrationOptionsStrategy(false),
                 new OnRequestMethodGeneratorWithoutRegistrationOptionsStrategy(true),
                 new OnRequestTypedResolveMethodGeneratorWithoutRegistrationOptionsStrategy(),
+//                new OnRequestTypedMethodGeneratorWithoutRegistrationOptionsStrategy(),
                 new OnRequestMethodGeneratorWithRegistrationOptionsStrategy(false),
                 new OnRequestMethodGeneratorWithRegistrationOptionsStrategy(true),
                 new OnRequestTypedResolveMethodGeneratorWithRegistrationOptionsStrategy(),
+//                new OnRequestTypedMethodGeneratorWithRegistrationOptionsStrategy(),
                 new SendMethodNotificationStrategy(),
-                new SendMethodRequestStrategy()
+                new SendMethodRequestStrategy(),
+                new SendMethodTypedResolveRequestStrategy()
             );
             var actionStrategies = ImmutableArray.Create<IExtensionMethodGeneratorStrategy>(
                 new EnsureNamespaceStrategy(),

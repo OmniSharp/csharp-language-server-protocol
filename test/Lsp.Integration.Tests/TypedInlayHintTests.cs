@@ -18,9 +18,9 @@ using Xunit.Abstractions;
 
 namespace Lsp.Integration.Tests
 {
-    public class TypedCodeLensTests : LanguageProtocolTestBase
+    public class TypedInlayHintTests : LanguageProtocolTestBase
     {
-        public TypedCodeLensTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper, LogEventLevel.Verbose))
+        public TypedInlayHintTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper, LogEventLevel.Verbose))
         {
         }
 
@@ -36,18 +36,13 @@ namespace Lsp.Integration.Tests
                     );
                     options.AddTextDocumentIdentifier(identifier);
 
-                    options.OnCodeLens(
-                        codeLensParams =>
+                    options.OnInlayHints(
+                        inlayHintParams =>
                         {
-                            return Task.FromResult<CodeLensContainer?>(
-                                new CodeLensContainer<Data>(
-                                    new CodeLens<Data>
+                            return Task.FromResult<InlayHintContainer<Data>?>(
+                                new InlayHintContainer<Data>(
+                                    new InlayHint<Data>
                                     {
-                                        Command = new Command
-                                        {
-                                            Name = "data-a",
-                                            Arguments = JArray.FromObject(new object[] { 1, "2", false })
-                                        },
                                         Data = new Data
                                         {
                                             Child = new Nested
@@ -61,25 +56,41 @@ namespace Lsp.Integration.Tests
                                 )
                             );
                         },
-                        l => { return Task.FromResult(l with { Command = l.Command with { Name = "resolved-a" } }); },
-                        (_, _) => new CodeLensRegistrationOptions
+                        l =>
+                        {
+                            return Task.FromResult(
+                                l with
+                                {
+                                    TextEdits = new List<TextEdit>()
+                                    {
+                                        new AnnotatedTextEdit()
+                                        {
+                                            Range = new Range(( 1, 1 ), ( 1, 3 )),
+                                            AnnotationId = "id1",
+                                            NewText = "MyText1"
+                                        }
+                                    },
+                                }
+                            );
+                        },
+                        (_, _) => new InlayHintRegistrationOptions
                         {
                             DocumentSelector = TextDocumentSelector.ForPattern("**/*.cs")
                         }
                     );
 
-                    options.OnCodeLens(
-                        codeLensParams =>
+                    options.OnInlayHints(
+                        inlayHintParams =>
                         {
-                            return Task.FromResult<CodeLensContainer?>(
-                                new CodeLensContainer<Nested>(
-                                    new CodeLens<Nested>
+                            return Task.FromResult<InlayHintContainer?>(
+                                new InlayHintContainer<Nested>(
+                                    new InlayHint<Nested>
                                     {
-                                        Command = new Command
-                                        {
-                                            Name = "nested-b",
-                                            Arguments = JArray.FromObject(new object[] { 1, "2", false })
-                                        },
+                                        Kind = InlayHintKind.Parameter,
+                                        Label = new StringOrInlayHintLabelParts("my hint"),
+                                        Position = ( 1, 2 ),
+                                        PaddingLeft = true,
+                                        PaddingRight = true,
                                         Data = new Nested
                                         {
                                             Date = DateTimeOffset.Now
@@ -88,54 +99,91 @@ namespace Lsp.Integration.Tests
                                 )
                             );
                         },
-                        l => { return Task.FromResult(l with { Command = l.Command with { Name = "resolved-b" } }); },
-                        (_, _) => new CodeLensRegistrationOptions
+                        l =>
+                        {
+                            return Task.FromResult(
+                                l with
+                                {
+                                    TextEdits = new List<TextEdit>()
+                                    {
+                                        new TextEdit()
+                                        {
+                                            Range = new Range(( 1, 1 ), ( 1, 3 )),
+                                            NewText = "MyText2"
+                                        }
+                                    },
+                                }
+                            );
+                        },
+                        (_, _) => new InlayHintRegistrationOptions
                         {
                             DocumentSelector = TextDocumentSelector.ForPattern("**/*.cs")
                         }
                     );
 
-                    options.OnCodeLens(
-                        codeLensParams =>
+                    options.OnInlayHints(
+                        inlayHintParams =>
                         {
-                            return Task.FromResult<CodeLensContainer?>(
-                                new CodeLensContainer(
-                                    new CodeLens
+                            return Task.FromResult<InlayHintContainer?>(
+                                new InlayHintContainer(
+                                    new InlayHint
                                     {
-                                        Command = new Command
-                                        {
-                                            Name = "no-data-c",
-                                            Arguments = JArray.FromObject(new object[] { 1, "2", false })
-                                        }
+                                        Kind = InlayHintKind.Parameter,
+                                        Label = "my hint",
+                                        Position = ( 1, 2 ),
+                                        PaddingLeft = true,
+                                        PaddingRight = true,
                                     }
                                 )
                             );
                         },
-                        l => { return Task.FromResult(l with { Command = l.Command with { Name = "resolved-c" } }); },
-                        (_, _) => new CodeLensRegistrationOptions
+                        l =>
+                        {
+                            return Task.FromResult(
+                                l with
+                                {
+                                    TextEdits = new List<TextEdit>()
+                                    {
+                                        new AnnotatedTextEdit()
+                                        {
+                                            Range = new Range(( 1, 1 ), ( 1, 3 )),
+                                            AnnotationId = "id3",
+                                            NewText = "MyText3"
+                                        }
+                                    },
+                                }
+                            );
+                        },
+                        (_, _) => new InlayHintRegistrationOptions
                         {
                             DocumentSelector = TextDocumentSelector.ForPattern("**/*.cs")
                         }
                     );
 
-                    options.OnCodeLens(
-                        codeLensParams =>
+                    options.OnInlayHints(
+                        inlayHintParams =>
                         {
-                            return Task.FromResult<CodeLensContainer?>(
-                                new CodeLensContainer(
-                                    new CodeLens
+                            return Task.FromResult<InlayHintContainer?>(
+                                new InlayHintContainer(
+                                    new InlayHint
                                     {
-                                        Command = new Command
-                                        {
-                                            Name = "not-included",
-                                            Arguments = JArray.FromObject(new object[] { 1, "2", false })
-                                        }
                                     }
                                 )
                             );
                         },
-                        l => { return Task.FromResult(l with { Command = l.Command with { Name = "resolved-d" } }); },
-                        (_, _) => new CodeLensRegistrationOptions
+                        l => { return Task.FromResult(l with
+                        {
+                            TextEdits = new List<TextEdit>()
+                            {
+                                new AnnotatedTextEdit()
+                                {
+                                    Range = new Range(( 1, 1 ), ( 1, 3 )),
+                                    AnnotationId = "id4",
+                                    NewText = "Not Found"
+                                }
+                            }
+                        }); },
+                        (_, _) => new InlayHintRegistrationOptions
                         {
                             DocumentSelector = TextDocumentSelector.ForLanguage("vb")
                         }
@@ -143,19 +191,20 @@ namespace Lsp.Integration.Tests
                 }
             );
 
-            var codeLens = await client.RequestCodeLens(
-                new CodeLensParams
+            var InlayHint = await client.RequestInlayHints(
+                new InlayHintParams
                 {
                     TextDocument = new TextDocumentIdentifier("/some/path/file.cs"),
                 }
             );
 
-            var lens = codeLens.ToArray();
+            var lens = InlayHint.ToArray();
 
-            var responses = await Task.WhenAll(lens.Select(z => client.ResolveCodeLens(z)));
-            responses.Select(z => z.Command!.Name).Should().Contain(new[] { "resolved-a", "resolved-b", "resolved-c" });
-            responses.Select(z => z.Command!.Name).Should().NotContain("resolved-d");
+            var responses = (await Task.WhenAll(lens.Select(z => client.ResolveInlayHint(z)))).SelectMany(z => z.TextEdits ?? Array.Empty<TextEdit>()).ToArray();
+            responses.Select(z => z.NewText).Should().Contain(new[] { "MyText1", "MyText2", "MyText3" });
+            responses.Select(z => z.NewText).Should().NotContain("Not Found");
             lens.Length.Should().Be(3);
+            responses.OfType<AnnotatedTextEdit>().Should().HaveCount(2);
         }
 
         [Fact]
@@ -164,18 +213,13 @@ namespace Lsp.Integration.Tests
             var (client, _) = await Initialize(
                 options => { }, options =>
                 {
-                    options.OnCodeLens(
-                        (codeLensParams, capability, token) =>
+                    options.OnInlayHints(
+                        (InlayHintParams, capability, token) =>
                         {
-                            return Task.FromResult<CodeLensContainer?>(
-                                new CodeLensContainer<Data>(
-                                    new CodeLens<Data>
+                            return Task.FromResult<InlayHintContainer<Data>?>(
+                                new InlayHintContainer<Data>(
+                                    new InlayHint<Data>
                                     {
-                                        Command = new Command
-                                        {
-                                            Name = "execute-a",
-                                            Arguments = JArray.FromObject(new object[] { 1, "2", false })
-                                        },
                                         Data = new Data
                                         {
                                             Child = new Nested
@@ -194,20 +238,19 @@ namespace Lsp.Integration.Tests
                             lens.Data.Id.Should().NotBeEmpty();
                             lens.Data.Child.Should().NotBeNull();
                             lens.Data.Name.Should().Be("name");
-                            return Task.FromResult(lens with { Command = lens.Command with { Name = "resolved" } });
-                            return Task.FromResult(lens);
+                            return Task.FromResult(lens with { Data = lens.Data with { Name = "Resolved"} });
                         },
-                        (_, _) => new CodeLensRegistrationOptions()
+                        (_, _) => new InlayHintRegistrationOptions()
                     );
                 }
             );
 
-            var items = await client.RequestCodeLens(new CodeLensParams());
-
+            var items = await client.SendRequest(TextDocumentNames.InlayHint,  new InlayHintParams()).Returning<InlayHintContainer<Data>?>(CancellationToken);
+            client.TextDocument.RequestInlayHints()
             var item = items.Single();
 
-            item = await client.ResolveCodeLens(item);
-            item.Command!.Name.Should().Be("resolved");
+            item = await client.ResolveInlayHint(item);
+            item.Data!.Name.Should().Be("resolved");
         }
 
         [Fact]
@@ -216,11 +259,11 @@ namespace Lsp.Integration.Tests
             var (client, _) = await Initialize(
                 options => { }, options =>
                 {
-                    options.ObserveCodeLens<Data>(
-                        (codeLensParams, observer, capability, token) =>
+                    options.ObserveInlayHint<Data>(
+                        (InlayHintParams, observer, capability, token) =>
                         {
-                            var a = new CodeLensContainer<Data>(
-                                new CodeLens<Data>
+                            var a = new InlayHintContainer<Data>(
+                                new InlayHint<Data>
                                 {
                                     Command = new Command
                                     {
@@ -242,22 +285,22 @@ namespace Lsp.Integration.Tests
                             observer.OnNext(a);
                             observer.OnCompleted();
                         },
-                        (codeLens, capability, token) =>
+                        (InlayHint, capability, token) =>
                         {
-                            codeLens.Data.Id.Should().NotBeEmpty();
-                            codeLens.Data.Child.Should().NotBeNull();
-                            codeLens.Data.Name.Should().Be("name");
-                            return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
-                            return Task.FromResult(codeLens);
+                            InlayHint.Data.Id.Should().NotBeEmpty();
+                            InlayHint.Data.Child.Should().NotBeNull();
+                            InlayHint.Data.Name.Should().Be("name");
+                            return Task.FromResult(InlayHint with { Command = InlayHint.Command with { Name = "resolved" } });
+                            return Task.FromResult(InlayHint);
                         },
-                        (_, _) => new CodeLensRegistrationOptions()
+                        (_, _) => new InlayHintRegistrationOptions()
                     );
                 }
             );
 
-            var item = await client.RequestCodeLens(new CodeLensParams()).SelectMany(z => z).Take(1).ToTask(CancellationToken);
+            var item = await client.RequestInlayHint(new InlayHintParams()).SelectMany(z => z).Take(1).ToTask(CancellationToken);
 
-            item = await client.ResolveCodeLens(item);
+            item = await client.ResolveInlayHint(item);
             item.Command!.Name.Should().Be("resolved");
         }
 
@@ -267,12 +310,12 @@ namespace Lsp.Integration.Tests
             var (client, _) = await Initialize(
                 options => { }, options =>
                 {
-                    options.OnCodeLens(
-                        (codeLensParams, token) =>
+                    options.OnInlayHints(
+                        (InlayHintParams, token) =>
                         {
-                            return Task.FromResult<CodeLensContainer<Data>>(
-                                new CodeLensContainer<Data>(
-                                    new CodeLens<Data>
+                            return Task.FromResult(
+                                new InlayHintContainer<Data>(
+                                    new InlayHint<Data>
                                     {
                                         Command = new Command
                                         {
@@ -292,24 +335,24 @@ namespace Lsp.Integration.Tests
                                 )
                             );
                         },
-                        (codeLens, token) =>
+                        (InlayHint, token) =>
                         {
-                            codeLens.Data.Id.Should().NotBeEmpty();
-                            codeLens.Data.Child.Should().NotBeNull();
-                            codeLens.Data.Name.Should().Be("name");
-                            return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
-                            return Task.FromResult(codeLens);
+                            InlayHint.Data.Id.Should().NotBeEmpty();
+                            InlayHint.Data.Child.Should().NotBeNull();
+                            InlayHint.Data.Name.Should().Be("name");
+                            return Task.FromResult(InlayHint with { Command = InlayHint.Command with { Name = "resolved" } });
+                            return Task.FromResult(InlayHint);
                         },
-                        (_, _) => new CodeLensRegistrationOptions()
+                        (_, _) => new InlayHintRegistrationOptions()
                     );
                 }
             );
 
-            var items = await client.RequestCodeLens(new CodeLensParams());
+            var items = await client.RequestInlayHint(new InlayHintParams());
 
             var item = items.Single();
 
-            item = await client.ResolveCodeLens(item);
+            item = await client.ResolveInlayHint(item);
             item.Command!.Name.Should().Be("resolved");
         }
 
@@ -319,11 +362,11 @@ namespace Lsp.Integration.Tests
             var (client, _) = await Initialize(
                 options => { }, options =>
                 {
-                    options.ObserveCodeLens<Data>(
-                        (codeLensParams, observer, token) =>
+                    options.ObserveInlayHint<Data>(
+                        (InlayHintParams, observer, token) =>
                         {
-                            var a = new CodeLensContainer<Data>(
-                                new CodeLens<Data>
+                            var a = new InlayHintContainer<Data>(
+                                new InlayHint<Data>
                                 {
                                     Command = new Command
                                     {
@@ -345,22 +388,22 @@ namespace Lsp.Integration.Tests
                             observer.OnNext(a);
                             observer.OnCompleted();
                         },
-                        (codeLens, token) =>
+                        (InlayHint, token) =>
                         {
-                            codeLens.Data.Id.Should().NotBeEmpty();
-                            codeLens.Data.Child.Should().NotBeNull();
-                            codeLens.Data.Name.Should().Be("name");
-                            return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
-                            return Task.FromResult(codeLens);
+                            InlayHint.Data.Id.Should().NotBeEmpty();
+                            InlayHint.Data.Child.Should().NotBeNull();
+                            InlayHint.Data.Name.Should().Be("name");
+                            return Task.FromResult(InlayHint with { Command = InlayHint.Command with { Name = "resolved" } });
+                            return Task.FromResult(InlayHint);
                         },
-                        (_, _) => new CodeLensRegistrationOptions()
+                        (_, _) => new InlayHintRegistrationOptions()
                     );
                 }
             );
 
-            var item = await client.RequestCodeLens(new CodeLensParams()).SelectMany(z => z).Take(1).ToTask(CancellationToken);
+            var item = await client.RequestInlayHint(new InlayHintParams()).SelectMany(z => z).Take(1).ToTask(CancellationToken);
 
-            item = await client.ResolveCodeLens(item);
+            item = await client.ResolveInlayHint(item);
             item.Command!.Name.Should().Be("resolved");
         }
 
@@ -370,12 +413,12 @@ namespace Lsp.Integration.Tests
             var (client, _) = await Initialize(
                 options => { }, options =>
                 {
-                    options.OnCodeLens(
-                        codeLensParams =>
+                    options.OnInlayHints(
+                        inlayHintParams =>
                         {
                             return Task.FromResult(
-                                new CodeLensContainer<Data>(
-                                    new CodeLens<Data>
+                                new InlayHintContainer<Data>(
+                                    new InlayHint<Data>
                                     {
                                         Command = new Command
                                         {
@@ -395,24 +438,24 @@ namespace Lsp.Integration.Tests
                                 )
                             );
                         },
-                        codeLens =>
+                        InlayHint =>
                         {
-                            codeLens.Data.Id.Should().NotBeEmpty();
-                            codeLens.Data.Child.Should().NotBeNull();
-                            codeLens.Data.Name.Should().Be("name");
-                            return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
-                            return Task.FromResult(codeLens);
+                            InlayHint.Data.Id.Should().NotBeEmpty();
+                            InlayHint.Data.Child.Should().NotBeNull();
+                            InlayHint.Data.Name.Should().Be("name");
+                            return Task.FromResult(InlayHint with { Command = InlayHint.Command with { Name = "resolved" } });
+                            return Task.FromResult(InlayHint);
                         },
-                        (_, _) => new CodeLensRegistrationOptions()
+                        (_, _) => new InlayHintRegistrationOptions()
                     );
                 }
             );
 
-            var items = await client.RequestCodeLens(new CodeLensParams());
+            var items = await client.RequestInlayHint(new InlayHintParams());
 
             var item = items.Single();
 
-            item = await client.ResolveCodeLens(item);
+            item = await client.ResolveInlayHint(item);
             item.Command!.Name.Should().Be("resolved");
         }
 
@@ -422,11 +465,11 @@ namespace Lsp.Integration.Tests
             var (client, _) = await Initialize(
                 options => { }, options =>
                 {
-                    options.ObserveCodeLens<Data>(
-                        (codeLensParams, observer) =>
+                    options.ObserveInlayHint<Data>(
+                        (InlayHintParams, observer) =>
                         {
-                            var a = new CodeLensContainer<Data>(
-                                new CodeLens<Data>
+                            var a = new InlayHintContainer<Data>(
+                                new InlayHint<Data>
                                 {
                                     Command = new Command
                                     {
@@ -448,22 +491,22 @@ namespace Lsp.Integration.Tests
                             observer.OnNext(a);
                             observer.OnCompleted();
                         },
-                        codeLens =>
+                        InlayHint =>
                         {
-                            codeLens.Data.Id.Should().NotBeEmpty();
-                            codeLens.Data.Child.Should().NotBeNull();
-                            codeLens.Data.Name.Should().Be("name");
-                            return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
-                            return Task.FromResult(codeLens);
+                            InlayHint.Data.Id.Should().NotBeEmpty();
+                            InlayHint.Data.Child.Should().NotBeNull();
+                            InlayHint.Data.Name.Should().Be("name");
+                            return Task.FromResult(InlayHint with { Command = InlayHint.Command with { Name = "resolved" } });
+                            return Task.FromResult(InlayHint);
                         },
-                        (_, _) => new CodeLensRegistrationOptions()
+                        (_, _) => new InlayHintRegistrationOptions()
                     );
                 }
             );
 
-            var item = await client.RequestCodeLens(new CodeLensParams()).SelectMany(z => z).Take(1).ToTask(CancellationToken);
+            var item = await client.RequestInlayHint(new InlayHintParams()).SelectMany(z => z).Take(1).ToTask(CancellationToken);
 
-            item = await client.ResolveCodeLens(item);
+            item = await client.ResolveInlayHint(item);
             item.Command!.Name.Should().Be("resolved");
         }
 
@@ -474,12 +517,12 @@ namespace Lsp.Integration.Tests
             var (client, _) = await Initialize(
                 options => { }, options =>
                 {
-                    options.OnCodeLens(
-                        (codeLensParams, capability, token) =>
+                    options.OnInlayHints(
+                        (InlayHintParams, capability, token) =>
                         {
                             return Task.FromResult(
-                                new CodeLensContainer(
-                                    new CodeLens
+                                new InlayHintContainer(
+                                    new InlayHint
                                     {
                                         Command = new Command
                                         {
@@ -490,21 +533,21 @@ namespace Lsp.Integration.Tests
                                 )
                             );
                         },
-                        (codeLens, capability, token) =>
+                        (InlayHint, capability, token) =>
                         {
-                            return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
-                            return Task.FromResult(codeLens);
+                            return Task.FromResult(InlayHint with { Command = InlayHint.Command with { Name = "resolved" } });
+                            return Task.FromResult(InlayHint);
                         },
-                        (_, _) => new CodeLensRegistrationOptions()
+                        (_, _) => new InlayHintRegistrationOptions()
                     );
                 }
             );
 
-            var items = await client.RequestCodeLens(new CodeLensParams());
+            var items = await client.RequestInlayHint(new InlayHintParams());
 
             var item = items.Single();
 
-            item = await client.ResolveCodeLens(item);
+            item = await client.ResolveInlayHint(item);
             item.Command!.Name.Should().Be("resolved");
         }
 
@@ -514,11 +557,11 @@ namespace Lsp.Integration.Tests
             var (client, _) = await Initialize(
                 options => { }, options =>
                 {
-                    options.ObserveCodeLens(
-                        (codeLensParams, observer, capability, token) =>
+                    options.ObserveInlayHint(
+                        (InlayHintParams, observer, capability, token) =>
                         {
-                            var a = new CodeLensContainer(
-                                new CodeLens
+                            var a = new InlayHintContainer(
+                                new InlayHint
                                 {
                                     Command = new Command
                                     {
@@ -531,19 +574,19 @@ namespace Lsp.Integration.Tests
                             observer.OnNext(a);
                             observer.OnCompleted();
                         },
-                        (codeLens, capability, token) =>
+                        (InlayHint, capability, token) =>
                         {
-                            return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
-                            return Task.FromResult(codeLens);
+                            return Task.FromResult(InlayHint with { Command = InlayHint.Command with { Name = "resolved" } });
+                            return Task.FromResult(InlayHint);
                         },
-                        (_, _) => new CodeLensRegistrationOptions()
+                        (_, _) => new InlayHintRegistrationOptions()
                     );
                 }
             );
 
-            var item = await client.RequestCodeLens(new CodeLensParams()).SelectMany(z => z).Take(1).ToTask(CancellationToken);
+            var item = await client.RequestInlayHint(new InlayHintParams()).SelectMany(z => z).Take(1).ToTask(CancellationToken);
 
-            item = await client.ResolveCodeLens(item);
+            item = await client.ResolveInlayHint(item);
             item.Command!.Name.Should().Be("resolved");
         }
 
@@ -553,12 +596,12 @@ namespace Lsp.Integration.Tests
             var (client, _) = await Initialize(
                 options => { }, options =>
                 {
-                    options.OnCodeLens(
-                        (codeLensParams, token) =>
+                    options.OnInlayHints(
+                        (InlayHintParams, token) =>
                         {
                             return Task.FromResult(
-                                new CodeLensContainer(
-                                    new CodeLens
+                                new InlayHintContainer(
+                                    new InlayHint
                                     {
                                         Command = new Command
                                         {
@@ -569,21 +612,21 @@ namespace Lsp.Integration.Tests
                                 )
                             );
                         },
-                        (codeLens, token) =>
+                        (InlayHint, token) =>
                         {
-                            return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
-                            return Task.FromResult(codeLens);
+                            return Task.FromResult(InlayHint with { Command = InlayHint.Command with { Name = "resolved" } });
+                            return Task.FromResult(InlayHint);
                         },
-                        (_, _) => new CodeLensRegistrationOptions()
+                        (_, _) => new InlayHintRegistrationOptions()
                     );
                 }
             );
 
-            var items = await client.RequestCodeLens(new CodeLensParams());
+            var items = await client.RequestInlayHint(new InlayHintParams());
 
             var item = items.Single();
 
-            item = await client.ResolveCodeLens(item);
+            item = await client.ResolveInlayHint(item);
             item.Command!.Name.Should().Be("resolved");
         }
 
@@ -593,11 +636,11 @@ namespace Lsp.Integration.Tests
             var (client, _) = await Initialize(
                 options => { }, options =>
                 {
-                    options.ObserveCodeLens(
-                        (codeLensParams, observer, token) =>
+                    options.ObserveInlayHint(
+                        (InlayHintParams, observer, token) =>
                         {
-                            var a = new CodeLensContainer(
-                                new CodeLens
+                            var a = new InlayHintContainer(
+                                new InlayHint
                                 {
                                     Command = new Command
                                     {
@@ -610,19 +653,19 @@ namespace Lsp.Integration.Tests
                             observer.OnNext(a);
                             observer.OnCompleted();
                         },
-                        (codeLens, token) =>
+                        (InlayHint, token) =>
                         {
-                            return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
-                            return Task.FromResult(codeLens);
+                            return Task.FromResult(InlayHint with { Command = InlayHint.Command with { Name = "resolved" } });
+                            return Task.FromResult(InlayHint);
                         },
-                        (_, _) => new CodeLensRegistrationOptions()
+                        (_, _) => new InlayHintRegistrationOptions()
                     );
                 }
             );
 
-            var item = await client.RequestCodeLens(new CodeLensParams()).SelectMany(z => z).Take(1).ToTask(CancellationToken);
+            var item = await client.RequestInlayHint(new InlayHintParams()).SelectMany(z => z).Take(1).ToTask(CancellationToken);
 
-            item = await client.ResolveCodeLens(item);
+            item = await client.ResolveInlayHint(item);
             item.Command!.Name.Should().Be("resolved");
         }
 
@@ -632,12 +675,12 @@ namespace Lsp.Integration.Tests
             var (client, _) = await Initialize(
                 options => { }, options =>
                 {
-                    options.OnCodeLens(
-                        codeLensParams =>
+                    options.OnInlayHints(
+                        inlayHintParams =>
                         {
                             return Task.FromResult(
-                                new CodeLensContainer(
-                                    new CodeLens
+                                new InlayHintContainer(
+                                    new InlayHint
                                     {
                                         Command = new Command
                                         {
@@ -648,21 +691,21 @@ namespace Lsp.Integration.Tests
                                 )
                             );
                         },
-                        codeLens =>
+                        InlayHint =>
                         {
-                            return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
-                            return Task.FromResult(codeLens);
+                            return Task.FromResult(InlayHint with { Command = InlayHint.Command with { Name = "resolved" } });
+                            return Task.FromResult(InlayHint);
                         },
-                        (_, _) => new CodeLensRegistrationOptions()
+                        (_, _) => new InlayHintRegistrationOptions()
                     );
                 }
             );
 
-            var items = await client.RequestCodeLens(new CodeLensParams());
+            var items = await client.RequestInlayHint(new InlayHintParams());
 
             var item = items.Single();
 
-            item = await client.ResolveCodeLens(item);
+            item = await client.ResolveInlayHint(item);
             item.Command!.Name.Should().Be("resolved");
         }
 
@@ -672,11 +715,11 @@ namespace Lsp.Integration.Tests
             var (client, _) = await Initialize(
                 options => { }, options =>
                 {
-                    options.ObserveCodeLens(
-                        (codeLensParams, observer) =>
+                    options.ObserveInlayHint(
+                        (InlayHintParams, observer) =>
                         {
-                            var a = new CodeLensContainer(
-                                new CodeLens
+                            var a = new InlayHintContainer(
+                                new InlayHint
                                 {
                                     Command = new Command
                                     {
@@ -689,19 +732,19 @@ namespace Lsp.Integration.Tests
                             observer.OnNext(a);
                             observer.OnCompleted();
                         },
-                        codeLens =>
+                        InlayHint =>
                         {
-                            return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
-                            return Task.FromResult(codeLens);
+                            return Task.FromResult(InlayHint with { Command = InlayHint.Command with { Name = "resolved" } });
+                            return Task.FromResult(InlayHint);
                         },
-                        (_, _) => new CodeLensRegistrationOptions()
+                        (_, _) => new InlayHintRegistrationOptions()
                     );
                 }
             );
 
-            var item = await client.RequestCodeLens(new CodeLensParams()).SelectMany(z => z).Take(1).ToTask(CancellationToken);
+            var item = await client.RequestInlayHint(new InlayHintParams()).SelectMany(z => z).Take(1).ToTask(CancellationToken);
 
-            item = await client.ResolveCodeLens(item);
+            item = await client.ResolveInlayHint(item);
             item.Command!.Name.Should().Be("resolved");
         }
     }

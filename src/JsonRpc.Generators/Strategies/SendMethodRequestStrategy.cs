@@ -125,6 +125,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                         .WithParameterList(parameterList)
                         .WithExpressionBody(Helpers.GetRequestInvokeExpression())
                         .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+            
         }
     }
 }

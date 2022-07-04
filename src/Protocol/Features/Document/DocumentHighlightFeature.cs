@@ -21,6 +21,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Capability(typeof(DocumentHighlightCapability))]
         public partial record DocumentHighlightParams : TextDocumentPositionParams, IWorkDoneProgressParams,
                                                         IPartialItemsRequest<DocumentHighlightContainer?, DocumentHighlight>;
+        
+        public partial class DocumentHighlightContainer { }
 
         /// <summary>
         /// A document highlight is a range inside a text document which deserves

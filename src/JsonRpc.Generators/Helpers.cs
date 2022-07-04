@@ -883,6 +883,34 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     )
             );
 
+        public static ArrowExpressionClauseSyntax GetRequestReturningInvokeExpression(ExpressionSyntax requestName, TypeSyntax responseType) =>
+            ArrowExpressionClause(
+                InvocationExpression(
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            InvocationExpression(
+                                    MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        IdentifierName("client"),
+                                        IdentifierName("SendRequest")))
+                               .WithArgumentList(
+                                    ArgumentList(
+                                        SeparatedList(
+                                            new []{
+                                                Argument(requestName),
+                                                Argument((IdentifierName(@"request")))}))),
+                            GenericName(
+                                    Identifier("Returning"))
+                               .WithTypeArgumentList(
+                                    TypeArgumentList(
+                                        SingletonSeparatedList(responseType)))))
+                   .WithArgumentList(
+                        ArgumentList(
+                            SingletonSeparatedList(
+                                Argument(
+                                    IdentifierName("cancellationToken")))))
+            );
+
         public static ArrowExpressionClauseSyntax GetPartialInvokeExpression(
             TypeSyntax responseType, TypeSyntax? partialItemType, bool partialItemTypeInheritsFromSelf
         )

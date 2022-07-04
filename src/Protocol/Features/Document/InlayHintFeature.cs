@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -26,8 +27,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(InlayHintRegistrationOptions)), Capability(typeof(InlayHintWorkspaceClientCapabilities))]
+        [Resolver(typeof(InlayHint))]
         public partial record InlayHintParams : ITextDocumentIdentifierParams, IWorkDoneProgressParams,
-                                                IRequest<Container<InlayHint>?>
+                                                IRequest<InlayHintContainer?>
         {
             /// <summary>
             /// The text document.
@@ -52,8 +54,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateHandlerMethods]
         [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
         [GenerateTypedData]
+        [GenerateContainer]
         [Capability(typeof(InlayHintWorkspaceClientCapabilities))]
-        public partial record InlayHint : ICanBeResolved, IRequest<InlayHint>
+        public partial record InlayHint : ICanBeResolved, IRequest<InlayHint>, IDoesNotParticipateInRegistration
         {
             /// <summary>
             /// The position of this hint.
@@ -125,6 +128,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             private string DebuggerDisplay => ToString();
         }
+        
+        public partial class InlayHintContainer {}
 
         /// <summary>
         /// An inlay hint label part allows for interactive and composite labels
@@ -183,6 +188,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public StringOrInlayHintLabelParts(string value) => String = value;
 
             public StringOrInlayHintLabelParts(IEnumerable<InlayHintLabelPart> inlayHintLabelParts) => InlayHintLabelParts = new(inlayHintLabelParts);
+            public StringOrInlayHintLabelParts(Container<InlayHintLabelPart> inlayHintLabelParts) => InlayHintLabelParts = new(inlayHintLabelParts);
 
             public string? String { get; }
             public bool HasString => InlayHintLabelParts is null;
@@ -191,8 +197,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public static implicit operator StringOrInlayHintLabelParts?(string? value) => value is null ? null : new StringOrInlayHintLabelParts(value);
 
-            public static implicit operator StringOrInlayHintLabelParts?(MarkupContent? markupContent) =>
-                markupContent is null ? null : new StringOrInlayHintLabelParts(markupContent);
+            public static implicit operator StringOrInlayHintLabelParts?(Container<InlayHintLabelPart>? parts) =>
+                parts is null ? null : new StringOrInlayHintLabelParts(parts);
+            public static implicit operator StringOrInlayHintLabelParts?(List<InlayHintLabelPart>? parts) =>
+                parts is null ? null : new StringOrInlayHintLabelParts(parts);
+            public static implicit operator StringOrInlayHintLabelParts?(Collection<InlayHintLabelPart>? parts) =>
+                parts is null ? null : new StringOrInlayHintLabelParts(parts);
 
             private string DebuggerDisplay =>
                 $"{( HasString ? String : HasInlayHintLabelParts ? string.Join(", ", InlayHintLabelParts!.Select(z => z.ToString())) : string.Empty )}";

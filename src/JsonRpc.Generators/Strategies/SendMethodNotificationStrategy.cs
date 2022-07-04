@@ -25,19 +25,19 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                         .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
 
             yield return method
-                        .WithParameterList(
-                             ParameterList(
-                                 SeparatedList(
-                                     new[] {
-                                         Parameter(Identifier("mediator"))
-                                            .WithType(extensionMethodContext.Item)
-                                            .WithModifiers(TokenList(Token(SyntaxKind.ThisKeyword))),
-                                         Parameter(Identifier("request"))
-                                            .WithType(notification.Request.Syntax)
-                                     }
-                                 )
-                             )
-                         );
+               .WithParameterList(
+                    ParameterList(
+                        SeparatedList(
+                            new[] {
+                                Parameter(Identifier("mediator"))
+                                   .WithType(extensionMethodContext.Item)
+                                   .WithModifiers(TokenList(Token(SyntaxKind.ThisKeyword))),
+                                Parameter(Identifier("request"))
+                                   .WithType(notification.Request.Syntax)
+                            }
+                        )
+                    )
+                );
         }
     }
 }
