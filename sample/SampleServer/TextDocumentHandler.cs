@@ -146,7 +146,7 @@ namespace SampleServer
             _logger = logger;
         }
 
-        public async Task<Container<SymbolInformation>> Handle(
+        public async Task<Container<WorkspaceSymbol>> Handle(
             WorkspaceSymbolParams request,
             CancellationToken cancellationToken
         )
@@ -190,9 +190,8 @@ namespace SampleServer
 
                 partialResults.OnNext(
                     new[] {
-                        new SymbolInformation {
+                        new WorkspaceSymbol {
                             ContainerName = "Partial Container",
-                            Deprecated = true,
                             Kind = SymbolKind.Constant,
                             Location = new Location {
                                 Range = new Range(
@@ -221,15 +220,14 @@ namespace SampleServer
                 );
 
                 partialResults.OnCompleted();
-                return new SymbolInformation[] { };
+                return new WorkspaceSymbol[] { };
             }
 
             try
             {
                 return new[] {
-                    new SymbolInformation {
+                    new WorkspaceSymbol {
                         ContainerName = "Container",
-                        Deprecated = true,
                         Kind = SymbolKind.Constant,
                         Location = new Location {
                             Range = new Range(

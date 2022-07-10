@@ -30,13 +30,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             var attributes = context.CompilationProvider
                                     .Select(
                                          (compilation, _) => new AttributeData(
-                                                 compilation.GetTypeByMetadataName(
-                                                     "OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateTypedDataAttribute"
-                                                 )!,
-                                                 compilation.GetTypeByMetadataName(
-                                                     "OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateContainerAttribute"
-                                                 )!
-                                             )
+                                             compilation.GetTypeByMetadataName(
+                                                 "OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateTypedDataAttribute"
+                                             )!,
+                                             compilation.GetTypeByMetadataName(
+                                                 "OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateContainerAttribute"
+                                             )!
+                                         )
                                      );
 
             var createContainersSyntaxProvider = context.SyntaxProvider.CreateSyntaxProvider(
@@ -74,16 +74,22 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                  && typeDeclarationSyntax.Members.OfType<PropertyDeclarationSyntax>().Any(z => z.Identifier.Text == "Data")
                  && typeDeclarationSyntax.BaseList.Types.Any(z => z.Type.GetSyntaxName() == "ICanHaveData"), (syntaxContext, _) => syntaxContext
             );
-            
+
             context.RegisterSourceOutput(createContainersSyntaxProvider.Combine(attributes), GenerateContainerClass);
-            context.RegisterSourceOutput(typedParamsCandidatesSyntaxProvider
-                                        .Combine(canBeResolvedSyntaxProvider.Select((z, _) => (TypeDeclarationSyntax)z.Node).Collect())
-                                        .Combine(canHaveDataSyntaxProvider.Select((z, _) => (TypeDeclarationSyntax)z.Node).Collect())
-                                        .Combine(createContainersSyntaxProvider.Select((z, _) => (TypeDeclarationSyntax)z.Node).Collect())
-                                        .Select((tuple, token) => (candidate: tuple.Left.Left.Left, resolvedItems: tuple.Left.Left.Right.Concat(tuple.Left.Right).Concat(tuple.Right).ToImmutableArray())), 
-                                         GenerateTypedParams);
             context.RegisterSourceOutput(canBeResolvedSyntaxProvider.Combine(attributes), GenerateCanBeResolvedClass);
             context.RegisterSourceOutput(canHaveDataSyntaxProvider.Combine(attributes), GenerateCanHaveDataClass);
+            // TODO: Add support for generating handler methods and interfaces that take in the strongly typed data.
+//            context.RegisterSourceOutput(
+//                typedParamsCandidatesSyntaxProvider
+//                   .Combine(canBeResolvedSyntaxProvider.Select((z, _) => (TypeDeclarationSyntax)z.Node).Collect())
+//                   .Combine(canHaveDataSyntaxProvider.Select((z, _) => (TypeDeclarationSyntax)z.Node).Collect())
+//                   .Combine(createContainersSyntaxProvider.Select((z, _) => (TypeDeclarationSyntax)z.Node).Collect())
+//                   .Select(
+//                        (tuple, token) => ( candidate: tuple.Left.Left.Left,
+//                                            resolvedItems: tuple.Left.Left.Right.Concat(tuple.Left.Right).Concat(tuple.Right).ToImmutableArray() )
+//                    ),
+//                GenerateTypedParams
+//            );
         }
 
         private void GenerateContainerClass(SourceProductionContext context, (GeneratorSyntaxContext syntaxContext, AttributeData attributeData) valueTuple)
@@ -100,63 +106,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             var containerName = attribute is { ConstructorArguments: { Length: > 0 } arguments } ? arguments[0].Value as string : null;
 
             var container = CreateContainerClass(classToContain, containerName)
-               .AddAttributeLists(
-                    AttributeList(
-                        SeparatedList(
-                            new[]
-                            {
-                                Attribute(ParseName("System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute")),
-                                Attribute(ParseName("System.Runtime.CompilerServices.CompilerGeneratedAttribute"))
-                            }
-                        )
-                    )
-                );
-
-            var cu = CompilationUnit()
-                    .WithUsings(classToContain.SyntaxTree.GetCompilationUnitRoot().Usings)
-                    .AddMembers(
-                         NamespaceDeclaration(ParseName(typeSymbol.ContainingNamespace.ToDisplayString()))
-                            .AddMembers(container)
-                            .WithLeadingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true))))
-                            .WithTrailingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true))))
-                     );
-
-            foreach (var ns in RequiredUsings)
-            {
-                if (cu.Usings.All(z => z.Name.ToFullString() != ns))
-                {
-                    cu = cu.AddUsings(UsingDirective(ParseName(ns)));
-                }
-            }
-
-            context.AddSource(
-                $"{containerName ?? classToContain.Identifier.Text + "Container"}.cs",
-                cu.NormalizeWhitespace().GetText(Encoding.UTF8)
-            );
-        }
-
-        private void GenerateTypedParams(SourceProductionContext context, (GeneratorSyntaxContext syntaxContext, ImmutableArray<TypeDeclarationSyntax> resolvedItems) valueTuple)
-        {
-            var (syntaxContext, resolvedItems) = valueTuple;
-            var classToContain = (TypeDeclarationSyntax)syntaxContext.Node;
-            var typeSymbol = syntaxContext.SemanticModel.GetDeclaredSymbol(classToContain);
-            
-            if (typeSymbol == null) return;
-            var handlerInterface = typeSymbol.AllInterfaces.FirstOrDefault(z => z.Name == "IRequest" && z.Arity == 1);
-            if (handlerInterface is null) return;
-            var responseSymbol = handlerInterface?.TypeArguments[0];
-
-            var isTyped = resolvedItems
-               .Any(
-                    item =>
-                    {
-                        var symbol = syntaxContext.SemanticModel.GetDeclaredSymbol(item);
-                        return symbol is not null && SymbolEqualityComparer.Default.Equals(responseSymbol, symbol);
-                    }
-                );
-
-            // TODO: Start here to finish creating strongly typed params
-            var paramsType = CreateContainerClass(classToContain, containerName)
                .AddAttributeLists(
                     AttributeList(
                         SeparatedList(
@@ -226,7 +175,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             INamedTypeSymbol? generateTypedDataAttributeSymbol,
             INamedTypeSymbol? generateContainerAttributeSymbol,
             bool includeHandlerIdentity
-            )
+        )
         {
             var attribute = typeSymbol?.GetAttributes()
                                        .FirstOrDefault(z => SymbolEqualityComparer.Default.Equals(z.AttributeClass, generateTypedDataAttributeSymbol));
@@ -295,13 +244,14 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             if (container is { })
             {
                 var containerName = container is { ConstructorArguments: { Length: > 0 } arguments } ? arguments[0].Value as string : null;
-                
+
                 var typedContainer = CreateContainerClass(typedClass, containerName)
                    .WithHandlerIdentityConstraint(includeHandlerIdentity);
 
                 var typedArgumentList = TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("T")));
 
-                if (!(container is { NamedArguments: { Length: > 0 } namedArguments } && namedArguments.FirstOrDefault(z => z.Key == "GenerateImplicitConversion") is { Value.Value: false }))
+                if (!( container is { NamedArguments: { Length: > 0 } namedArguments }
+                    && namedArguments.FirstOrDefault(z => z.Key == "GenerateImplicitConversion") is { Value.Value: false } ))
                 {
                     typedContainer = typedContainer
                        .AddMembers(

@@ -9,9 +9,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
     {
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) => new JValue(value).WriteTo(writer);
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) => Enum.Parse(
-            Nullable.GetUnderlyingType(objectType) ?? objectType, reader.Value.ToString()
-        );
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            if (reader.TokenType == JsonToken.Null) return null;
+            return Enum.Parse(
+                Nullable.GetUnderlyingType(objectType) ?? objectType, reader.Value.ToString()
+            );
+        }
 
         public override bool CanRead => true;
 

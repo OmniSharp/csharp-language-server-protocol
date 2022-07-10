@@ -191,14 +191,14 @@ namespace Lsp.Integration.Tests
                 }
             );
 
-            var InlayHint = await client.RequestInlayHints(
+            var inlayHints = await client.RequestInlayHints(
                 new InlayHintParams
                 {
                     TextDocument = new TextDocumentIdentifier("/some/path/file.cs"),
                 }
             );
 
-            var lens = InlayHint.ToArray();
+            var lens = inlayHints.ToArray();
 
             var responses = (await Task.WhenAll(lens.Select(z => client.ResolveInlayHint(z)))).SelectMany(z => z.TextEdits ?? Array.Empty<TextEdit>()).ToArray();
             responses.Select(z => z.NewText).Should().Contain(new[] { "MyText1", "MyText2", "MyText3" });
@@ -238,72 +238,20 @@ namespace Lsp.Integration.Tests
                             lens.Data.Id.Should().NotBeEmpty();
                             lens.Data.Child.Should().NotBeNull();
                             lens.Data.Name.Should().Be("name");
-                            return Task.FromResult(lens with { Data = lens.Data with { Name = "Resolved"} });
+                            return Task.FromResult(lens with { Data = lens.Data with { Name = "resolved"} });
                         },
                         (_, _) => new InlayHintRegistrationOptions()
                     );
                 }
             );
 
-            var items = await client.SendRequest(TextDocumentNames.InlayHint,  new InlayHintParams()).Returning<InlayHintContainer<Data>?>(CancellationToken);
-            client.TextDocument.RequestInlayHints()
+            var items = await client.TextDocument.RequestInlayHints(new InlayHintParams());
             var item = items.Single();
 
             item = await client.ResolveInlayHint(item);
-            item.Data!.Name.Should().Be("resolved");
+            item.GetRawData<Data>()!.Name.Should().Be("resolved");
         }
-
-        [Fact]
-        public async Task Should_Resolve_With_Partial_Data_Capability()
-        {
-            var (client, _) = await Initialize(
-                options => { }, options =>
-                {
-                    options.ObserveInlayHint<Data>(
-                        (InlayHintParams, observer, capability, token) =>
-                        {
-                            var a = new InlayHintContainer<Data>(
-                                new InlayHint<Data>
-                                {
-                                    Command = new Command
-                                    {
-                                        Name = "execute-a",
-                                        Arguments = JArray.FromObject(new object[] { 1, "2", false })
-                                    },
-                                    Data = new Data
-                                    {
-                                        Child = new Nested
-                                        {
-                                            Date = DateTimeOffset.MinValue
-                                        },
-                                        Id = Guid.NewGuid(),
-                                        Name = "name"
-                                    }
-                                }
-                            );
-
-                            observer.OnNext(a);
-                            observer.OnCompleted();
-                        },
-                        (InlayHint, capability, token) =>
-                        {
-                            InlayHint.Data.Id.Should().NotBeEmpty();
-                            InlayHint.Data.Child.Should().NotBeNull();
-                            InlayHint.Data.Name.Should().Be("name");
-                            return Task.FromResult(InlayHint with { Command = InlayHint.Command with { Name = "resolved" } });
-                            return Task.FromResult(InlayHint);
-                        },
-                        (_, _) => new InlayHintRegistrationOptions()
-                    );
-                }
-            );
-
-            var item = await client.RequestInlayHint(new InlayHintParams()).SelectMany(z => z).Take(1).ToTask(CancellationToken);
-
-            item = await client.ResolveInlayHint(item);
-            item.Command!.Name.Should().Be("resolved");
-        }
-
+        
         [Fact]
         public async Task Should_Resolve_With_Data_CancellationToken()
         {
@@ -317,11 +265,6 @@ namespace Lsp.Integration.Tests
                                 new InlayHintContainer<Data>(
                                     new InlayHint<Data>
                                     {
-                                        Command = new Command
-                                        {
-                                            Name = "execute-a",
-                                            Arguments = JArray.FromObject(new object[] { 1, "2", false })
-                                        },
                                         Data = new Data
                                         {
                                             Child = new Nested
@@ -335,76 +278,24 @@ namespace Lsp.Integration.Tests
                                 )
                             );
                         },
-                        (InlayHint, token) =>
+                        (inlayHint, token) =>
                         {
-                            InlayHint.Data.Id.Should().NotBeEmpty();
-                            InlayHint.Data.Child.Should().NotBeNull();
-                            InlayHint.Data.Name.Should().Be("name");
-                            return Task.FromResult(InlayHint with { Command = InlayHint.Command with { Name = "resolved" } });
-                            return Task.FromResult(InlayHint);
+                            inlayHint.Data.Id.Should().NotBeEmpty();
+                            inlayHint.Data.Child.Should().NotBeNull();
+                            inlayHint.Data.Name.Should().Be("name");
+                            return Task.FromResult(inlayHint with { Data = inlayHint.Data with { Name = "resolved"} });
                         },
                         (_, _) => new InlayHintRegistrationOptions()
                     );
                 }
             );
 
-            var items = await client.RequestInlayHint(new InlayHintParams());
+            var items = await client.RequestInlayHints(new InlayHintParams());
 
             var item = items.Single();
 
             item = await client.ResolveInlayHint(item);
-            item.Command!.Name.Should().Be("resolved");
-        }
-
-        [Fact]
-        public async Task Should_Resolve_With_Partial_Data_CancellationToken()
-        {
-            var (client, _) = await Initialize(
-                options => { }, options =>
-                {
-                    options.ObserveInlayHint<Data>(
-                        (InlayHintParams, observer, token) =>
-                        {
-                            var a = new InlayHintContainer<Data>(
-                                new InlayHint<Data>
-                                {
-                                    Command = new Command
-                                    {
-                                        Name = "execute-a",
-                                        Arguments = JArray.FromObject(new object[] { 1, "2", false })
-                                    },
-                                    Data = new Data
-                                    {
-                                        Child = new Nested
-                                        {
-                                            Date = DateTimeOffset.MinValue
-                                        },
-                                        Id = Guid.NewGuid(),
-                                        Name = "name"
-                                    }
-                                }
-                            );
-
-                            observer.OnNext(a);
-                            observer.OnCompleted();
-                        },
-                        (InlayHint, token) =>
-                        {
-                            InlayHint.Data.Id.Should().NotBeEmpty();
-                            InlayHint.Data.Child.Should().NotBeNull();
-                            InlayHint.Data.Name.Should().Be("name");
-                            return Task.FromResult(InlayHint with { Command = InlayHint.Command with { Name = "resolved" } });
-                            return Task.FromResult(InlayHint);
-                        },
-                        (_, _) => new InlayHintRegistrationOptions()
-                    );
-                }
-            );
-
-            var item = await client.RequestInlayHint(new InlayHintParams()).SelectMany(z => z).Take(1).ToTask(CancellationToken);
-
-            item = await client.ResolveInlayHint(item);
-            item.Command!.Name.Should().Be("resolved");
+            item.GetRawData<Data>()!.Name.Should().Be("resolved");
         }
 
         [Fact]
@@ -420,11 +311,6 @@ namespace Lsp.Integration.Tests
                                 new InlayHintContainer<Data>(
                                     new InlayHint<Data>
                                     {
-                                        Command = new Command
-                                        {
-                                            Name = "execute-a",
-                                            Arguments = JArray.FromObject(new object[] { 1, "2", false })
-                                        },
                                         Data = new Data
                                         {
                                             Child = new Nested
@@ -438,79 +324,25 @@ namespace Lsp.Integration.Tests
                                 )
                             );
                         },
-                        InlayHint =>
+                        inlayHint =>
                         {
-                            InlayHint.Data.Id.Should().NotBeEmpty();
-                            InlayHint.Data.Child.Should().NotBeNull();
-                            InlayHint.Data.Name.Should().Be("name");
-                            return Task.FromResult(InlayHint with { Command = InlayHint.Command with { Name = "resolved" } });
-                            return Task.FromResult(InlayHint);
+                            inlayHint.Data.Id.Should().NotBeEmpty();
+                            inlayHint.Data.Child.Should().NotBeNull();
+                            inlayHint.Data.Name.Should().Be("name");
+                            return Task.FromResult(inlayHint with { Data = inlayHint.Data with { Name = "resolved"} });
                         },
                         (_, _) => new InlayHintRegistrationOptions()
                     );
                 }
             );
 
-            var items = await client.RequestInlayHint(new InlayHintParams());
+            var items = await client.RequestInlayHints(new InlayHintParams());
 
             var item = items.Single();
 
             item = await client.ResolveInlayHint(item);
-            item.Command!.Name.Should().Be("resolved");
+            item.GetRawData<Data>()!.Name.Should().Be("resolved");
         }
-
-        [Fact]
-        public async Task Should_Resolve_With_Partial_Data()
-        {
-            var (client, _) = await Initialize(
-                options => { }, options =>
-                {
-                    options.ObserveInlayHint<Data>(
-                        (InlayHintParams, observer) =>
-                        {
-                            var a = new InlayHintContainer<Data>(
-                                new InlayHint<Data>
-                                {
-                                    Command = new Command
-                                    {
-                                        Name = "execute-a",
-                                        Arguments = JArray.FromObject(new object[] { 1, "2", false })
-                                    },
-                                    Data = new Data
-                                    {
-                                        Child = new Nested
-                                        {
-                                            Date = DateTimeOffset.MinValue
-                                        },
-                                        Id = Guid.NewGuid(),
-                                        Name = "name"
-                                    }
-                                }
-                            );
-
-                            observer.OnNext(a);
-                            observer.OnCompleted();
-                        },
-                        InlayHint =>
-                        {
-                            InlayHint.Data.Id.Should().NotBeEmpty();
-                            InlayHint.Data.Child.Should().NotBeNull();
-                            InlayHint.Data.Name.Should().Be("name");
-                            return Task.FromResult(InlayHint with { Command = InlayHint.Command with { Name = "resolved" } });
-                            return Task.FromResult(InlayHint);
-                        },
-                        (_, _) => new InlayHintRegistrationOptions()
-                    );
-                }
-            );
-
-            var item = await client.RequestInlayHint(new InlayHintParams()).SelectMany(z => z).Take(1).ToTask(CancellationToken);
-
-            item = await client.ResolveInlayHint(item);
-            item.Command!.Name.Should().Be("resolved");
-        }
-
-
         [Fact]
         public async Task Should_Resolve_Capability()
         {
@@ -524,149 +356,35 @@ namespace Lsp.Integration.Tests
                                 new InlayHintContainer(
                                     new InlayHint
                                     {
-                                        Command = new Command
+                                        Data = JObject.FromObject(new Data
                                         {
-                                            Name = "execute-a",
-                                            Arguments = JArray.FromObject(new object[] { 1, "2", false })
-                                        }
+                                            Child = new Nested
+                                            {
+                                                Date = DateTimeOffset.MinValue
+                                            },
+                                            Id = Guid.NewGuid(),
+                                            Name = "name"
+                                        })
                                     }
                                 )
                             );
                         },
-                        (InlayHint, capability, token) =>
+                        (inlayHint, capability, token) =>
                         {
-                            return Task.FromResult(InlayHint with { Command = InlayHint.Command with { Name = "resolved" } });
-                            return Task.FromResult(InlayHint);
+                            inlayHint.Data["Name"] = "resolved";
+                            return Task.FromResult(inlayHint with { Data = inlayHint.Data});
                         },
                         (_, _) => new InlayHintRegistrationOptions()
                     );
                 }
             );
 
-            var items = await client.RequestInlayHint(new InlayHintParams());
+            var items = await client.RequestInlayHints(new InlayHintParams());
 
             var item = items.Single();
 
             item = await client.ResolveInlayHint(item);
-            item.Command!.Name.Should().Be("resolved");
-        }
-
-        [Fact]
-        public async Task Should_Resolve_Partial_Capability()
-        {
-            var (client, _) = await Initialize(
-                options => { }, options =>
-                {
-                    options.ObserveInlayHint(
-                        (InlayHintParams, observer, capability, token) =>
-                        {
-                            var a = new InlayHintContainer(
-                                new InlayHint
-                                {
-                                    Command = new Command
-                                    {
-                                        Name = "execute-a",
-                                        Arguments = JArray.FromObject(new object[] { 1, "2", false })
-                                    },
-                                }
-                            );
-
-                            observer.OnNext(a);
-                            observer.OnCompleted();
-                        },
-                        (InlayHint, capability, token) =>
-                        {
-                            return Task.FromResult(InlayHint with { Command = InlayHint.Command with { Name = "resolved" } });
-                            return Task.FromResult(InlayHint);
-                        },
-                        (_, _) => new InlayHintRegistrationOptions()
-                    );
-                }
-            );
-
-            var item = await client.RequestInlayHint(new InlayHintParams()).SelectMany(z => z).Take(1).ToTask(CancellationToken);
-
-            item = await client.ResolveInlayHint(item);
-            item.Command!.Name.Should().Be("resolved");
-        }
-
-        [Fact]
-        public async Task Should_Resolve_CancellationToken()
-        {
-            var (client, _) = await Initialize(
-                options => { }, options =>
-                {
-                    options.OnInlayHints(
-                        (InlayHintParams, token) =>
-                        {
-                            return Task.FromResult(
-                                new InlayHintContainer(
-                                    new InlayHint
-                                    {
-                                        Command = new Command
-                                        {
-                                            Name = "execute-a",
-                                            Arguments = JArray.FromObject(new object[] { 1, "2", false })
-                                        },
-                                    }
-                                )
-                            );
-                        },
-                        (InlayHint, token) =>
-                        {
-                            return Task.FromResult(InlayHint with { Command = InlayHint.Command with { Name = "resolved" } });
-                            return Task.FromResult(InlayHint);
-                        },
-                        (_, _) => new InlayHintRegistrationOptions()
-                    );
-                }
-            );
-
-            var items = await client.RequestInlayHint(new InlayHintParams());
-
-            var item = items.Single();
-
-            item = await client.ResolveInlayHint(item);
-            item.Command!.Name.Should().Be("resolved");
-        }
-
-        [Fact]
-        public async Task Should_Resolve_Partial_CancellationToken()
-        {
-            var (client, _) = await Initialize(
-                options => { }, options =>
-                {
-                    options.ObserveInlayHint(
-                        (InlayHintParams, observer, token) =>
-                        {
-                            var a = new InlayHintContainer(
-                                new InlayHint
-                                {
-                                    Command = new Command
-                                    {
-                                        Name = "execute-a",
-                                        Arguments = JArray.FromObject(new object[] { 1, "2", false })
-                                    },
-                                }
-                            );
-
-                            observer.OnNext(a);
-                            observer.OnCompleted();
-                        },
-                        (InlayHint, token) =>
-                        {
-                            return Task.FromResult(InlayHint with { Command = InlayHint.Command with { Name = "resolved" } });
-                            return Task.FromResult(InlayHint);
-                        },
-                        (_, _) => new InlayHintRegistrationOptions()
-                    );
-                }
-            );
-
-            var item = await client.RequestInlayHint(new InlayHintParams()).SelectMany(z => z).Take(1).ToTask(CancellationToken);
-
-            item = await client.ResolveInlayHint(item);
-            item.Command!.Name.Should().Be("resolved");
+            item.GetRawData<Data>()!.Name.Should().Be("resolved");
         }
 
         [Fact]
@@ -682,70 +400,35 @@ namespace Lsp.Integration.Tests
                                 new InlayHintContainer(
                                     new InlayHint
                                     {
-                                        Command = new Command
+                                        Data = JToken.FromObject(new Data
                                         {
-                                            Name = "execute-a",
-                                            Arguments = JArray.FromObject(new object[] { 1, "2", false })
-                                        },
+                                            Child = new Nested
+                                            {
+                                                Date = DateTimeOffset.MinValue
+                                            },
+                                            Id = Guid.NewGuid(),
+                                            Name = "name"
+                                        })
                                     }
                                 )
                             );
                         },
-                        InlayHint =>
+                        inlayHint =>
                         {
-                            return Task.FromResult(InlayHint with { Command = InlayHint.Command with { Name = "resolved" } });
-                            return Task.FromResult(InlayHint);
+                            inlayHint.Data["Name"] = "resolved";
+                            return Task.FromResult(inlayHint with { Data = inlayHint.Data});
                         },
                         (_, _) => new InlayHintRegistrationOptions()
                     );
                 }
             );
 
-            var items = await client.RequestInlayHint(new InlayHintParams());
+            var items = await client.RequestInlayHints(new InlayHintParams());
 
             var item = items.Single();
 
             item = await client.ResolveInlayHint(item);
-            item.Command!.Name.Should().Be("resolved");
-        }
-
-        [Fact]
-        public async Task Should_Resolve_Partial()
-        {
-            var (client, _) = await Initialize(
-                options => { }, options =>
-                {
-                    options.ObserveInlayHint(
-                        (InlayHintParams, observer) =>
-                        {
-                            var a = new InlayHintContainer(
-                                new InlayHint
-                                {
-                                    Command = new Command
-                                    {
-                                        Name = "execute-a",
-                                        Arguments = JArray.FromObject(new object[] { 1, "2", false })
-                                    },
-                                }
-                            );
-
-                            observer.OnNext(a);
-                            observer.OnCompleted();
-                        },
-                        InlayHint =>
-                        {
-                            return Task.FromResult(InlayHint with { Command = InlayHint.Command with { Name = "resolved" } });
-                            return Task.FromResult(InlayHint);
-                        },
-                        (_, _) => new InlayHintRegistrationOptions()
-                    );
-                }
-            );
-
-            var item = await client.RequestInlayHint(new InlayHintParams()).SelectMany(z => z).Take(1).ToTask(CancellationToken);
-
-            item = await client.ResolveInlayHint(item);
-            item.Command!.Name.Should().Be("resolved");
+            item.GetRawData<Data>()!.Name.Should().Be("resolved");
         }
     }
 }

@@ -10,6 +10,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             "JRPC0001", "Exception",
             "{0} - {1} {2}", "JRPC", DiagnosticSeverity.Error, true
         );
+        public static DiagnosticDescriptor ExceptionWarning { get; } = new DiagnosticDescriptor(
+            "JRPC0002", "Exception",
+            "{0} - {1} {2}", "JRPC", DiagnosticSeverity.Warning, true
+        );
 
         public static DiagnosticDescriptor NoHandlerRegistryProvided { get; } = new DiagnosticDescriptor(
             "JRPC1000", "No Handler Registry Provided",

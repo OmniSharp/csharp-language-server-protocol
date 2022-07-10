@@ -3,23 +3,17 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <IsPackable>false</IsPackable>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="../../src/Server/Server.csproj" />
-        <PackageReference Include="Microsoft.Extensions.Logging" VersionOverride="3.0.0" />
-        <PackageReference Include="Serilog.Extensions.Logging" VersionOverride="3.1.0" />
-        <PackageReference Include="Serilog.Sinks.File" VersionOverride="5.0.0" />
-        <PackageReference Include="Serilog.Sinks.Debug" VersionOverride="2.0.0" />
-        <PackageReference Include="System.IO.FileSystem.Primitives" VersionOverride="4.3.0" />
-        <PackageReference Include="System.IO" VersionOverride="4.3.0" />
-        <PackageReference Include="System.Runtime.Handles" VersionOverride="4.3.0" />
-        <PackageReference Include="System.Text.Encoding" VersionOverride="4.3.0" />
-        <PackageReference Include="System.Text.Encoding.Extensions" VersionOverride="4.3.0" />
-        <PackageReference Include="System.Threading.Tasks" VersionOverride="4.3.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging" />
+        <PackageReference Include="Serilog.Extensions.Logging" />
+        <PackageReference Include="Serilog.Sinks.File" />
+        <PackageReference Include="Serilog.Sinks.Debug" />
         <PackageReference Include="Nerdbank.Streams" />
     </ItemGroup>
 
