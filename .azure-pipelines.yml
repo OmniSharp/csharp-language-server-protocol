@@ -79,14 +79,14 @@ jobs:
             - '3.1.x'
             - '5.0.x'
 
-      - task: DotNetCoreCLI@2
+      - task: DotNetCoreCLI@2.210.0
         displayName: 'dotnet tool restore'
         inputs:
           command: custom
           custom: tool
           arguments: 'restore'
 
-      - task: DotNetCoreCLI@2
+      - task: DotNetCoreCLI@2.210.0
         displayName: 'dotnet restore'
         inputs:
           command: restore
