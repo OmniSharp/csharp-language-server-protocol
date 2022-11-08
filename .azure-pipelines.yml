@@ -63,9 +63,9 @@ jobs:
         Linux:
           BuildName: 'Linux'
           ImageName: 'ubuntu-latest'
-        # macOS:
-        #   BuildName: 'macOS'
-        #   ImageName: 'macOS-latest'
+        macOS:
+          BuildName: 'macOS'
+          ImageName: 'macOS-latest'
     pool:
       vmImage: $(ImageName)
     steps:
