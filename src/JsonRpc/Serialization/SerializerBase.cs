@@ -19,7 +19,7 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization
 
         protected virtual JsonSerializerSettings CreateSerializerSettings()
         {
-            var settings = JsonConvert.DefaultSettings != null ? JsonConvert.DefaultSettings() : new JsonSerializerSettings();
+            var settings = JsonConvert.DefaultSettings != null ? JsonConvert.DefaultSettings() : new JsonSerializerSettings { MaxDepth = 128 };
             AddOrReplaceConverters(settings.Converters);
             return _settings = settings;
         }
