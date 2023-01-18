@@ -57,7 +57,7 @@
     <PackageVersion Include="Xunit.SkippableFact" Version="1.4.13" />
     <PackageVersion Include="Nerdbank.Streams" Version="2.8.57" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.0.1" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.3" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" />
     <PackageVersion Include="DryIoc.Internal" Version="5.0.1" />
   </ItemGroup>
 </Project>
