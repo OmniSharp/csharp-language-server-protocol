@@ -52,7 +52,7 @@
         "vscode": "1.1.37"
     },
     "dependencies": {
-        "vscode-languageclient": "^7.0.0-next.8",
+        "vscode-languageclient": "^8.0.0",
         "vscode-languageserver-protocol": "^3.16.0-next.6"
     }
 }
