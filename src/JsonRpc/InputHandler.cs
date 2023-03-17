@@ -144,9 +144,17 @@ namespace OmniSharp.Extensions.JsonRpc
                         {
                             await ProcessInputStream(_stopProcessing.Token).ConfigureAwait(false);
                         }
+                        catch (IOException e)
+                        {
+                            if (e.InnerException is SocketException se && se.SocketErrorCode == SocketError.ConnectionReset)
+                                _logger.LogInformation(e, "Connection reset by client.");
+                            else
+                                throw;
+
+                        }
                         catch (Exception e)
                         {
-                            _logger.LogCritical(e, "unhandled exception");
+                            _logger.LogCritical(e, "Unhandled exception");
                         }
                     }
                 ).Subscribe(_inputActive)
