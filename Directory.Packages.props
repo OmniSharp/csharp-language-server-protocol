@@ -45,8 +45,8 @@
     <PackageVersion Include="Serilog.Sinks.Observable" Version="2.0.2" />
     <PackageVersion Include="Serilog.Sinks.XUnit" Version="3.0.5" />
     <PackageVersion Include="XunitXml.TestLogger" Version="3.0.78" />
-    <PackageVersion Include="coverlet.collector" Version="3.2.0" />
-    <PackageVersion Include="coverlet.msbuild" Version="3.2.0" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.0" />
+    <PackageVersion Include="coverlet.msbuild" Version="6.0.0" />
     <PackageVersion Include="System.Reactive" Version="6.0.0" />
     <PackageVersion Include="System.Collections.Immutable" Version="5.0.0" />
     <PackageVersion Include="System.Threading.Channels" Version="6.0.0" />
