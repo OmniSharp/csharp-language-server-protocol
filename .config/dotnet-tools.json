@@ -15,7 +15,7 @@
             ]
         },
         "dotnet-reportgenerator-globaltool": {
-            "version": "5.1.22",
+            "version": "5.1.23",
             "commands": [
                 "reportgenerator"
             ]
