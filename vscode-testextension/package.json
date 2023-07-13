@@ -49,7 +49,7 @@
         "@types/mocha": "8.0.0",
         "@types/node": "14.0.25",
         "typescript": "3.9.10",
-        "vscode": "1.1.37"
+        "vscode": "1.80.1"
     },
     "dependencies": {
         "vscode-languageclient": "^7.0.0-next.8",
