@@ -117,7 +117,7 @@ jobs:
         run: |
           dotnet nuke Pack --skip
       - name: 🐿 Publish Coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           name: 'actions-${{ matrix.os }}'
       - name: 🏺 Publish logs
