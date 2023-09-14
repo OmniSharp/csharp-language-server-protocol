@@ -25,14 +25,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         {
             /// <summary>
             /// A list of ranges that can be renamed together. The ranges must have
-            /// identical length and contain identical text content. The ranges cannot overlap.
+            /// identical length and contain identical text content. The ranges cannot
+            /// overlap.
             /// </summary>
             public Container<Range> Ranges { get; init; } = null!;
 
             /// <summary>
-            /// An optional word pattern (regular expression) that describes valid contents for
-            /// the given ranges. If no pattern is provided, the client configuration's word
-            /// pattern will be used.
+            /// An optional word pattern (regular expression) that describes valid
+            /// contents for the given ranges. If no pattern is provided, the client
+            /// configuration's word pattern will be used.
             /// </summary>
             [Optional]
             public string? WordPattern { get; init; }

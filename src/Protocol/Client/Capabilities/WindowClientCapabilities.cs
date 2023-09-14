@@ -6,7 +6,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
     public class WindowClientCapabilities : CapabilitiesBase, IWindowClientCapabilities
     {
         /// <summary>
-        /// Whether client supports handling progress notifications.
+        /// Whether the client supports server initiated progress using the `window/workDoneProgress/create` request.
         /// </summary>
         public Supports<bool> WorkDoneProgress { get; set; }
 

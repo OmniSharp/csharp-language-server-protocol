@@ -508,7 +508,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// Capabilities specific to the code lens requests scoped to the
         /// workspace.
         ///
-        /// @since 3.16.0.
+        /// @since 3.17.0.
         /// </summary>
         [CapabilityKey(nameof(ClientCapabilities.Workspace), nameof(WorkspaceClientCapabilities.Diagnostics))]
         public class DiagnosticWorkspaceClientCapabilities : ICapability

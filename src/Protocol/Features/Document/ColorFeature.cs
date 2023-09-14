@@ -76,7 +76,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             /// <summary>
             /// An [edit](#TextEdit) which is applied to a document when selecting
-            /// this presentation for the color.  When `falsy` the [label](#ColorPresentation.label)
+            /// this presentation for the color.  When omitted the [label](#ColorPresentation.label)
             /// is used.
             /// </summary>
             [Optional]

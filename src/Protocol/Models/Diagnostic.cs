@@ -26,7 +26,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public DiagnosticSeverity? Severity { get; init; }
 
         /// <summary>
-        /// The diagnostic's code. Can be omitted.
+        /// The diagnostic's code, which might appear in the user interface.
         /// </summary>
         [Optional]
         public DiagnosticCode? Code { get; init; }
@@ -67,8 +67,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public Container<DiagnosticRelatedInformation>? RelatedInformation { get; init; }
 
         /// <summary>
-        /// A data entry field that is preserved on a code lens item between
-        /// a code lens and a code lens resolve request.
+        /// A data entry field that is preserved between a
+	    /// `textDocument/publishDiagnostics` notification and
+	    /// `textDocument/codeAction` request.
+        ///
+        /// @since 3.16.0
         /// </summary>
         [Optional]
         public JToken? Data { get; init; }

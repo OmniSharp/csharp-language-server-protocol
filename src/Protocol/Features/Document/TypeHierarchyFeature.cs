@@ -26,7 +26,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// The parameter of a `textDocument/prepareTypeHierarchy` request.
         ///
-        /// @since 3.16.0
+        /// @since 3.17.0
         /// </summary>
         [Parallel]
         [Method(TextDocumentNames.PrepareTypeHierarchy, Direction.ClientToServer)]
@@ -42,7 +42,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// Represents programming constructs like functions or constructors in the context
         /// of call hierarchy.
         ///
-        /// @since 3.16.0
+        /// @since 3.17.0
         /// </summary>
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
         [GenerateTypedData]
@@ -76,19 +76,23 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public DocumentUri Uri { get; init; } = null!;
 
             /// <summary>
-            /// The range enclosing this symbol not including leading/trailing whitespace but everything else, e.g. comments and code.
+            /// The range enclosing this symbol not including leading/trailing whitespace
+            /// but everything else, e.g. comments and code.
             /// </summary>
             public Range Range { get; init; } = null!;
 
             /// <summary>
-            /// The range that should be selected and revealed when this symbol is being picked, e.g. the name of a function.
-            /// Must be contained by the [`range`](#TypeHierarchyItem.range).
+            /// The range that should be selected and revealed when this symbol is being
+            /// picked, e.g. the name of a function. Must be contained by the
+            /// [`range`](#TypeHierarchyItem.range).
             /// </summary>
             public Range SelectionRange { get; init; } = null!;
 
             /// <summary>
             /// A data entry field that is preserved between a call hierarchy prepare and
-            /// supertypes calls or subtypes calls requests.
+            /// supertypes or subtypes requests. It could also be used to identify the
+            /// type hierarchy in the server, helping improve the performance on
+            /// resolving supertypes and subtypes.
             /// </summary>
             [Optional]
             public JToken? Data { get; init; }
@@ -132,7 +136,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// The parameter of a `TypeHierarchy/supertypes` request.
         ///
-        /// @since 3.16.0
+        /// @since 3.17.0
         /// </summary>
         [Parallel]
         [Method(TextDocumentNames.TypeHierarchySupertypes, Direction.ClientToServer)]
@@ -147,7 +151,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// The parameter of a `TypeHierarchy/supertypes` request.
         ///
-        /// @since 3.16.0
+        /// @since 3.17.0
         /// </summary>
         [Method(TextDocumentNames.TypeHierarchySupertypes, Direction.ClientToServer)]
         public partial record TypeHierarchySupertypesParams<T> : TypeHierarchyBaseParams<T>, IWorkDoneProgressParams,
@@ -158,7 +162,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// The parameter of a `TypeHierarchy/subtypes` request.
         ///
-        /// @since 3.16.0
+        /// @since 3.17.0
         /// </summary>
         [Parallel]
         [Method(TextDocumentNames.TypeHierarchySubtypes, Direction.ClientToServer)]
@@ -186,7 +190,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// The parameter of a `TypeHierarchy/subtypes` request.
         ///
-        /// @since 3.16.0
+        /// @since 3.17.0
         /// </summary>
         [Method(TextDocumentNames.TypeHierarchySubtypes, Direction.ClientToServer)]
         public partial record TypeHierarchySubtypesParams<T> : TypeHierarchyBaseParams<T>, IWorkDoneProgressParams,
@@ -218,7 +222,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// Type hierarchy options used during static or dynamic registration.
         ///
-        /// @since 3.16.0
+        /// @since 3.17.0
         /// </summary>
         [GenerateRegistrationOptions(nameof(ServerCapabilities.TypeHierarchyProvider))]
         [RegistrationName(TextDocumentNames.PrepareTypeHierarchy)]
@@ -232,7 +236,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// Capabilities specific to the `textDocument/typeHierarchy`.
         ///
-        /// @since 3.16.0
+        /// @since 3.17.0
         /// </summary>
         [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.TypeHierarchy))]
         public partial class TypeHierarchyCapability : DynamicCapability

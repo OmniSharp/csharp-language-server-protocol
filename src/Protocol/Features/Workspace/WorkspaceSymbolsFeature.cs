@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using MediatR;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -30,7 +31,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             public string Query { get; init; }
         }
-        
+
         /// <summary>
         /// The parameters of a Workspace Symbol Request.
         /// </summary>
@@ -122,13 +123,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public Container<SymbolTag>? Tags { get; set; }
 
             /// <summary>
-            /// The location of this symbol.
-            ///
-            /// See also `SymbolInformation.location`.
-            /// </summary>
-            public LocationOrFileLocation Location { get; set; }
-
-            /// <summary>
             /// The name of the symbol containing this symbol. This information is for
             /// user interface purposes (e.g. to render a qualifier in the user interface
             /// if necessary). It can't be used to re-infer a hierarchy for the document
@@ -136,6 +130,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             [Optional]
             public string? ContainerName { get; set; }
+
+            /// <summary>
+            /// The location of this symbol. Whether a server is allowed to
+            /// return a location without a range depends on the client
+            /// capability `workspace.symbol.resolveSupport`.
+            ///
+            /// See also `SymbolInformation.location`.
+            /// </summary>
+            public LocationOrFileLocation Location { get; set; }
+
+            /// <summary>
+            /// A data entry field that is preserved on a workspace symbol between a
+            /// workspace symbol request and a workspace symbol resolve request.
+            /// </summary>
+            public JToken? Data { get; set; }
 
             private string DebuggerDisplay => $"[{Kind}@{Location}] {Name}";
 

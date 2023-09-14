@@ -50,7 +50,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             public Container<TextDocumentItem> CellTextDocuments { get; set; }
         }
-        
+
         /// <summary>
         /// The params sent in a change notebook document notification.
         ///
@@ -316,7 +316,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public ExecutionSummary? ExecutionSummary { get; set; }
         }
 
-
         public partial record ExecutionSummary
         {
             /// <summary>
@@ -333,6 +332,91 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public bool? Success { get; set; }
         }
 
+        [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+        public record NotebookCellTextDocumentFilter
+        {
+            /// <summary>
+            /// A filter that matches against the notebook
+            /// containing the notebook cell. If a string
+            /// value is provided it matches against the
+            /// notebook type. '*' matches every notebook.
+            /// </summary>
+            public StringOrNotebookDocumentFilter Notebook { get; init; }
+
+            /// <summary>
+            /// A language id like `python`.
+            ///
+            /// Will be matched against the language id of the
+            /// notebook cell document. '*' matches every language.
+            /// </summary>
+            [Optional]
+            public string? Language { get; init; }
+
+            private string DebuggerDisplay =>
+                $"{Notebook} {Language}";
+
+            /// <inheritdoc />
+            public override string ToString() => DebuggerDisplay;
+        }
+
+        [JsonConverter(typeof(Converter))]
+        [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+        public record StringOrNotebookDocumentFilter
+        {
+            public StringOrNotebookDocumentFilter(string value) => String = value;
+
+            public StringOrNotebookDocumentFilter(NotebookDocumentFilter notebookDocumentFilter) => NotebookDocumentFilter = notebookDocumentFilter;
+
+            public string? String { get; }
+            public bool HasString => NotebookDocumentFilter is null;
+            public NotebookDocumentFilter? NotebookDocumentFilter { get; }
+            public bool HasNotebookDocumentFilter => NotebookDocumentFilter is { };
+
+            public static implicit operator StringOrNotebookDocumentFilter?(string? value) => value is null ? null : new StringOrNotebookDocumentFilter(value);
+
+            public static implicit operator StringOrNotebookDocumentFilter?(NotebookDocumentFilter notebookDocumentFilter) =>
+                notebookDocumentFilter is null ? null : new StringOrNotebookDocumentFilter(notebookDocumentFilter);
+
+            private string DebuggerDisplay =>
+                $"{( HasString ? String : HasNotebookDocumentFilter ? NotebookDocumentFilter : string.Empty )}";
+
+            /// <inheritdoc />
+            public override string ToString() => DebuggerDisplay;
+
+            internal class Converter : JsonConverter<StringOrNotebookDocumentFilter>
+            {
+                public override void WriteJson(JsonWriter writer, StringOrNotebookDocumentFilter value, JsonSerializer serializer)
+                {
+                    if (value.HasString)
+                    {
+                        writer.WriteValue(value.String);
+                    }
+                    else
+                    {
+                        serializer.Serialize(writer, value.NotebookDocumentFilter);
+                    }
+                }
+
+                public override StringOrNotebookDocumentFilter ReadJson(
+                    JsonReader reader, Type objectType, StringOrNotebookDocumentFilter existingValue, bool hasExistingValue, JsonSerializer serializer
+                )
+                {
+                    if (reader.TokenType == JsonToken.StartObject)
+                    {
+                        return new StringOrNotebookDocumentFilter(JObject.Load(reader).ToObject<NotebookDocumentFilter>(serializer));
+                    }
+
+                    if (reader.TokenType == JsonToken.String)
+                    {
+                        return new StringOrNotebookDocumentFilter(( reader.Value as string )!);
+                    }
+
+                    return new StringOrNotebookDocumentFilter("");
+                }
+
+                public override bool CanRead => true;
+            }
+        }
 
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
         public class NotebookDocumentFilter : IEquatable<NotebookDocumentFilter>
@@ -492,7 +576,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public string Language { get; init; }
         }
 
-
         /// <summary>
         /// The notebooks to be synced
         /// </summary>
@@ -504,9 +587,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// value is provided it matches against the
             /// notebook type. '*' matches every notebook.
             /// </summary>
-            public NotebookDocumentFilter? NotebookDocument { get; init; }
+            public StringOrNotebookDocumentFilter? Notebook { get; init; }
 
-            public bool HasNotebookDocument => NotebookDocument is not null;
+            public bool HasNotebook => Notebook is not null;
 
             /// <summary>
             /// The cells of the matching notebook to be synced.
@@ -515,10 +598,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public bool HasCells => Cells is not null;
 
-
             public bool IsMatch(NotebookDocumentAttributes attributes)
             {
-                return NotebookDocument?.IsMatch(attributes) == true
+                return Notebook?.NotebookDocumentFilter?.IsMatch(attributes) == true
                     || ( attributes.Language is not null && Cells?.Any(z => z.Language == attributes.Language) == true );
             }
 
@@ -530,9 +612,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static explicit operator string(NotebookSelector notebookDocumentFilter)
             {
                 var items = new List<string>();
-                if (notebookDocumentFilter.HasNotebookDocument)
+                if (notebookDocumentFilter.HasNotebook)
                 {
-                    items.Add((string)notebookDocumentFilter.NotebookDocument!);
+                    if (notebookDocumentFilter.Notebook.HasString)
+                    {
+                        items.Add(notebookDocumentFilter.Notebook.String);
+                    }
+                    else if (notebookDocumentFilter.Notebook.HasNotebookDocumentFilter)
+                    {
+                        items.Add((string)notebookDocumentFilter.Notebook.NotebookDocumentFilter!);
+                    }
                 }
 
                 if (notebookDocumentFilter.HasCells)
@@ -547,7 +636,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
                 if (ReferenceEquals(null, other)) return false;
                 if (ReferenceEquals(this, other)) return true;
-                return Equals(NotebookDocument, other.NotebookDocument) && Equals(Cells, other.Cells);
+                return Equals(Notebook, other.Notebook) && Equals(Cells, other.Cells);
             }
 
             public override bool Equals(object? obj)
@@ -562,7 +651,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
                 unchecked
                 {
-                    return ( ( NotebookDocument != null ? NotebookDocument.GetHashCode() : 0 ) * 397 ) ^ ( Cells != null ? Cells.GetHashCode() : 0 );
+                    return ( ( Notebook != null ? Notebook.GetHashCode() : 0 ) * 397 ) ^ ( Cells != null ? Cells.GetHashCode() : 0 );
                 }
             }
 
@@ -668,13 +757,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public partial class NotebookDocumentSyncOptions : INotebookDocumentRegistrationOptions
         {
             /// <summary>
-            /// The notebooks to be synced
+            /// The notebook to be synced. If a string
+            /// value is provided it matches against the
+            /// notebook type. '*' matches every notebook.
             /// </summary>
             public NotebookSelector NotebookSelector { get; set; }
 
             /// <summary>
             /// Whether save notification should be forwarded to
-            /// 
             /// the server. Will only be honored if mode === `notebook`.
             /// </summary>
             public bool? Save { get; set; }
@@ -750,7 +840,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 ClientCapabilities = clientCapabilities;
                 return RegistrationOptions = CreateRegistrationOptions(capability, clientCapabilities);
             }
-            
+
             NotebookDocumentSyncOptions IRegistration<NotebookDocumentSyncOptions, NotebookDocumentSyncClientCapabilities>.GetRegistrationOptions(
                 NotebookDocumentSyncClientCapabilities capability, ClientCapabilities clientCapabilities
             )

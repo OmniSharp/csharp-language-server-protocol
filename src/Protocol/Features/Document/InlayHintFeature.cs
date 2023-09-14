@@ -128,8 +128,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             private string DebuggerDisplay => ToString();
         }
-        
-        public partial class InlayHintContainer {}
+
+        public partial class InlayHintContainer { }
 
         /// <summary>
         /// An inlay hint label part allows for interactive and composite labels
@@ -251,7 +251,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.17.0
         /// </summary>
-        /// 
         [JsonConverter(typeof(NumberEnumConverter))]
         public enum InlayHintKind
         {
@@ -273,9 +272,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         {
             /// <summary>
             /// The server provides support to resolve additional
-            /// information for a code action.
-            ///
-            /// @since 3.16.0
+            /// information for an inlay hint item.
             /// </summary>
             [Optional]
             public bool ResolveProvider { get; set; }

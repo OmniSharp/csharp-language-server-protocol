@@ -32,7 +32,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             public TextDocumentIdentifier TextDocument { get; init; } = null!;
         }
-        
+
         public partial class DocumentLinkContainer { }
 
         /// <summary>

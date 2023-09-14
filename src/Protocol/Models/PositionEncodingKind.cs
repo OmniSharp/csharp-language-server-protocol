@@ -3,7 +3,8 @@
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 /// <summary>
-/// A set of predefined position encoding kinds.
+/// A type indicating how positions are encoded,
+/// specifically what column offsets mean.
 ///
 /// @since 3.17.0
 /// </summary>
@@ -11,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models;
 public readonly partial struct PositionEncodingKind
 {
     /// <summary>
-    /// Character offsets count UTF-8 code units.
+    /// Character offsets count UTF-8 code units (e.g bytes).
     /// </summary>
     public static PositionEncodingKind UTF8 = new("utf-8");
 

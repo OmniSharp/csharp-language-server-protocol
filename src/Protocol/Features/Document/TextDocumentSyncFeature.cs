@@ -59,8 +59,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         /// <summary>
-        /// An event describing a change to a text document. If range and rangeLength are omitted
-        /// the new text is considered to be the full content of the document.
+        /// An event describing a change to a text document. If only a text is provided
+        /// it is considered to be the full content of the document.
         /// </summary>
         public record TextDocumentContentChangeEvent
         {
@@ -94,6 +94,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             /// <summary>
             /// The edits to be applied.
+            ///
+            /// @since 3.16.0 - support for AnnotatedTextEdit. This is guarded by the
+	        /// client capability `workspace.workspaceEdit.changeAnnotationSupport`
             /// </summary>
             /// <remarks>
             /// This can contain both <see cref="TextEdit" /> and <see cref="AnnotatedTextEdit" />
@@ -208,6 +211,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             /// <summary>
             /// A glob pattern, like `*.{ts,js}`.
+            ///
+            /// Glob patterns can have the following syntax:
+            /// - `*` to match one or more characters in a path segment
+            /// - `?` to match on one character in a path segment
+            /// - `**` to match any number of path segments, including none
+            /// - `{}` to group sub patterns into an OR expression. (e.g. `**​/*.{ts,js}`
+            ///   matches all TypeScript and JavaScript files)
+            /// - `[]` to declare a range of characters to match in a path segment
+            ///   (e.g., `example.[0-9]` to match on `example.0`, `example.1`, …)
+            /// - `[!...]` to negate a range of characters to match in a path segment
+            ///   (e.g., `example.[!0-9]` to match on `example.a`, `example.b`, but
+            ///   not `example.0`)
             /// </summary>
             [Optional]
             public string? Pattern
@@ -325,8 +340,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <inheritdoc />
             public override string ToString() => DebuggerDisplay;
         }
-        
-        
+
         /// <summary>
         /// A collection of document filters used to identify valid documents
         /// </summary>
@@ -352,7 +366,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static implicit operator TextDocumentSelector(List<TextDocumentFilter> items) => new TextDocumentSelector(items);
 
             public static implicit operator string(TextDocumentSelector? documentSelector) =>
-                documentSelector is not null ? string.Join(", ", documentSelector.Select(x => (string) x)) : string.Empty;
+                documentSelector is not null ? string.Join(", ", documentSelector.Select(x => (string)x)) : string.Empty;
 
             public bool IsMatch(TextDocumentAttributes attributes) => this.Any(z => z.IsMatch(attributes));
 
@@ -366,7 +380,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             private string DebuggerDisplay => this;
         }
-        
+
         public interface ITextDocumentSyncOptions
         {
             [Optional] bool OpenClose { get; set; }
@@ -375,9 +389,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             [Optional] bool WillSaveWaitUntil { get; set; }
             [Optional] BooleanOr<SaveOptions> Save { get; set; }
         }
-        
+
         public interface ITextDocumentRegistrationOptions : IRegistrationOptions
         {
+            /// <summary>
+            /// A document selector to identify the scope of the registration. If set to
+            /// null the document selector provided on the client side will be used.
+            /// </summary>
             TextDocumentSelector? DocumentSelector { get; set; }
         }
 
