@@ -1,6 +1,8 @@
 #pragma warning disable MA0048 // File name must match type name
-#define INTERNAL_RECORD_ATTRIBUTES
-#if NETSTANDARD || NETCOREAPP
+#if NET5_0_OR_GREATER
+[assembly: System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Runtime.CompilerServices.IsExternalInit))]
+#else
+
 using System.ComponentModel;
 
 // ReSharper disable once CheckNamespace
@@ -11,12 +13,7 @@ namespace System.Runtime.CompilerServices
     /// This class should not be used by developers in source code.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-#if INTERNAL_RECORD_ATTRIBUTES
-    internal
-#else
-    public
-#endif
-        static class IsExternalInit
+    internal static class IsExternalInit
     {
     }
 }

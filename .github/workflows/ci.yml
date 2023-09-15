@@ -79,7 +79,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
         with:
           clean: 'false'
           fetch-depth: '0'
@@ -94,11 +94,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
       - name: 🔨 Use .NET Core 3.1 SDK
-        uses: actions/setup-dotnet@v2.1.0
+        uses: actions/setup-dotnet@v3.2.0
         with:
           dotnet-version: '3.1.x'
       - name: 🔨 Use .NET Core 6.0 SDK
-        uses: actions/setup-dotnet@v2.1.0
+        uses: actions/setup-dotnet@v3.2.0
         with:
           dotnet-version: '6.0.x'
       - name: 🎁 dotnet tool restore
@@ -156,4 +156,4 @@ jobs:
     secrets:
       RSG_NUGET_API_KEY: '${{ secrets.RSG_NUGET_API_KEY }}'
       RSG_AZURE_DEVOPS: '${{ secrets.RSG_AZURE_DEVOPS }}'
-    uses: RocketSurgeonsGuild/actions/.github/workflows/publish-nuget.yml@v0.3.1
+    uses: RocketSurgeonsGuild/actions/.github/workflows/publish-nuget.yml@v0.3.3

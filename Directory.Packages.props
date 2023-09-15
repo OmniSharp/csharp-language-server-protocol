@@ -7,7 +7,7 @@
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="1.1.1" />
     <PackageVersion Include="Rocket.Surgery.MSBuild.CI" Version="1.1.1" />
     <PackageVersion Include="Rocket.Surgery.MSBuild.SourceLink" Version="1.1.1" />
-    <PackageVersion Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" />
+    <PackageVersion Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" />
   </ItemGroup>
     <!-- Samples -->
     <ItemGroup>
@@ -21,10 +21,10 @@
         <PackageVersion Include="System.Threading.Tasks" Version="4.3.0" />
     </ItemGroup>
   <ItemGroup>
-    <PackageVersion Include="GitVersion.Tool" Version="5.10.1" />
-    <PackageVersion Include="JetBrains.ReSharper.CommandLineTools" Version="2022.1.1" />
-    <PackageVersion Include="ReportGenerator" Version="5.1.6" />
-    <PackageVersion Include="Rocket.Surgery.Nuke" Version="0.17.10" />
+    <PackageVersion Include="GitVersion.Tool" Version="5.12.0" />
+    <PackageVersion Include="JetBrains.ReSharper.CommandLineTools" Version="2023.2.1" />
+    <PackageVersion Include="ReportGenerator" Version="5.1.25" />
+    <PackageVersion Include="Rocket.Surgery.Nuke" Version="0.19.1" />
   </ItemGroup>
   <ItemGroup>
     <!-- backwards compat is maintained in Directory.Packages.supports.props -->
@@ -37,29 +37,29 @@
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="2.4.4" />
-    <PackageVersion Include="xunit" Version="2.4.1" />
-    <PackageVersion Include="FluentAssertions" Version="6.6.0" />
-      <PackageVersion Include="Verify.Xunit" Version="16.8.1" />
-      <PackageVersion Include="Verify.SourceGenerators" Version="1.5.0-beta.1" />
-    <PackageVersion Include="NSubstitute" Version="4.3.0" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.4.5" />
+    <PackageVersion Include="xunit" Version="2.4.2" />
+    <PackageVersion Include="FluentAssertions" Version="6.12.0" />
+    <PackageVersion Include="Verify.Xunit" Version="16.8.1" />
+    <PackageVersion Include="Verify.SourceGenerators" Version="1.5.0-beta.1" />
+    <PackageVersion Include="NSubstitute" Version="5.1.0" />
     <PackageVersion Include="Serilog.Extensions.Logging" Version="3.1.0" />
     <PackageVersion Include="Serilog.Sinks.Observable" Version="2.0.2" />
-    <PackageVersion Include="Serilog.Sinks.XUnit" Version="3.0.3" />
-    <PackageVersion Include="XunitXml.TestLogger" Version="3.0.70" />
-    <PackageVersion Include="coverlet.collector" Version="3.1.2" />
-    <PackageVersion Include="coverlet.msbuild" Version="3.1.2" />
-    <PackageVersion Include="System.Reactive" Version="5.0.0" />
+    <PackageVersion Include="Serilog.Sinks.XUnit" Version="3.0.5" />
+    <PackageVersion Include="XunitXml.TestLogger" Version="3.0.78" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.0" />
+    <PackageVersion Include="coverlet.msbuild" Version="6.0.0" />
+    <PackageVersion Include="System.Reactive" Version="6.0.0" />
     <PackageVersion Include="System.Collections.Immutable" Version="5.0.0" />
-    <PackageVersion Include="System.Threading.Channels" Version="4.7.1" />
+    <PackageVersion Include="System.Threading.Channels" Version="6.0.0" />
     <PackageVersion Include="Microsoft.Reactive.Testing" Version="5.0.0" />
     <PackageVersion Include="MediatR" Version="8.1.0" />
     <PackageVersion Include="Bogus" Version="34.0.2" />
-    <PackageVersion Include="Snapper" Version="2.3.1" />
+    <PackageVersion Include="Snapper" Version="2.3.2" />
     <PackageVersion Include="Xunit.SkippableFact" Version="1.4.13" />
     <PackageVersion Include="Nerdbank.Streams" Version="2.8.57" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.0.1" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.3" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" />
     <PackageVersion Include="DryIoc.Internal" Version="5.0.1" />
   </ItemGroup>
 </Project>

@@ -6,6 +6,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D764E024-3D3
 	ProjectSection(SolutionItems) = preProject
 		src\Directory.Build.props = src\Directory.Build.props
 		src\Directory.Build.targets = src\Directory.Build.targets
+		src\.editorconfig = src\.editorconfig
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{2F323ED5-EBF8-45E1-B9D3-C014561B3DDA}"
@@ -38,6 +39,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleServer", "sample\SampleServer\SampleServer.csproj", "{F2067F5F-FA4E-4990-B301-E7898FC4C45F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sample", "sample", "{A316FCEC-81AD-45FB-93EE-C62CA09300DC}"
+	ProjectSection(SolutionItems) = preProject
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client", "src\Client\Client.csproj", "{417E95B2-5AB9-49D5-B7CD-12255472E2E7}"
 EndProject
@@ -52,8 +55,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dap.Server", "src\Dap.Server\Dap.Server.csproj", "{E1A9123B-A236-4240-8C82-A61BD85C3BF4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = ".build", ".build\.build.csproj", "{28B13787-A442-4D28-BF9A-3D65BF13AAEC}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{26522B49-0743-4CBE-BA67-6D17FF65CAB9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "src\Shared\Shared.csproj", "{18FB2302-023B-4F6F-9F6D-099B47B69D9F}"
 EndProject
@@ -80,6 +81,67 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Protocol.Proposals", "src\Protocol.Proposals\Protocol.Proposals.csproj", "{201B1CA7-AB12-41AD-9246-BC30F2EBE2DF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lsp.Integration.Tests", "test\Lsp.Integration.Tests\Lsp.Integration.Tests.csproj", "{72A74595-A278-46F0-9C8B-3151C9681B91}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{93A0F406-2CEB-491E-9F40-6DA1BA67DD7C}"
+	ProjectSection(SolutionItems) = preProject
+		.config\dotnet-tools.json = .config\dotnet-tools.json
+		Directory.Build.props = Directory.Build.props
+		Directory.Packages.props = Directory.Packages.props
+		Directory.Packages.supports.props = Directory.Packages.supports.props
+		Directory.Build.targets = Directory.Build.targets
+		.editorconfig = .editorconfig
+		build.cmd = build.cmd
+		build.sh = build.sh
+		build.ps1 = build.ps1
+		GitReleaseManager.yaml = GitReleaseManager.yaml
+		.codecov.yml = .codecov.yml
+		.azure-pipelines.yml = .azure-pipelines.yml
+		.appveyor.yml = .appveyor.yml
+		azure-pipelines.nuke.yml = azure-pipelines.nuke.yml
+		GitVersion.yml = GitVersion.yml
+		.travis.yml = .travis.yml
+		LICENSE = LICENSE
+		README.md = README.md
+		.gitignore = .gitignore
+		.gitattributes = .gitattributes
+		.prettierignore = .prettierignore
+		.prettierrc = .prettierrc
+		.lintstagedrc.js = .lintstagedrc.js
+		NuGet.config = NuGet.config
+		package.json = package.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{19909559-F753-4337-952B-A8B5B5889959}"
+	ProjectSection(SolutionItems) = preProject
+		.github\labels.yml = .github\labels.yml
+		.github\renovate.json = .github\renovate.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{97924298-E17E-46E6-83CC-D9CD3B9F5E6F}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\ci-ignore.yml = .github\workflows\ci-ignore.yml
+		.github\workflows\draft-release.yml = .github\workflows\draft-release.yml
+		.github\workflows\publish-nuget.yml = .github\workflows\publish-nuget.yml
+		.github\workflows\dependabot-merge.yml = .github\workflows\dependabot-merge.yml
+		.github\workflows\sync-labels.yml = .github\workflows\sync-labels.yml
+		.github\workflows\close-milestone.yml = .github\workflows\close-milestone.yml
+		.github\workflows\update-milestone.yml = .github\workflows\update-milestone.yml
+		.github\workflows\ci.yml = .github\workflows\ci.yml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".husky", ".husky", "{BED6765C-97D8-406D-B782-3307132D16F0}"
+	ProjectSection(SolutionItems) = preProject
+		.husky\pre-commit = .husky\pre-commit
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".vscode", ".vscode", "{09BE8ED9-1986-40F3-A9A6-D826A7413581}"
+	ProjectSection(SolutionItems) = preProject
+		.vscode\settings.json = .vscode\settings.json
+		.vscode\csharp.code-snippets = .vscode\csharp.code-snippets
+		.vscode\launch.json = .vscode\launch.json
+		.vscode\tasks.json.old = .vscode\tasks.json.old
+		.vscode\tasks.json = .vscode\tasks.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -388,7 +450,7 @@ Global
 		{E540868F-438E-4F7F-BBB7-010D6CB18A57} = {D764E024-3D3F-4112-B932-2DB722A1BACC}
 		{F2C9D555-118E-442B-A953-9A7B58A53F33} = {D764E024-3D3F-4112-B932-2DB722A1BACC}
 		{E1A9123B-A236-4240-8C82-A61BD85C3BF4} = {D764E024-3D3F-4112-B932-2DB722A1BACC}
-		{28B13787-A442-4D28-BF9A-3D65BF13AAEC} = {26522B49-0743-4CBE-BA67-6D17FF65CAB9}
+		{28B13787-A442-4D28-BF9A-3D65BF13AAEC} = {93A0F406-2CEB-491E-9F40-6DA1BA67DD7C}
 		{18FB2302-023B-4F6F-9F6D-099B47B69D9F} = {D764E024-3D3F-4112-B932-2DB722A1BACC}
 		{6D9E5BF4-4666-476B-AC88-D108A80567F6} = {2F323ED5-EBF8-45E1-B9D3-C014561B3DDA}
 		{678A4DD2-A656-4DCC-AE78-F9940C82A6E6} = {D764E024-3D3F-4112-B932-2DB722A1BACC}
@@ -402,6 +464,10 @@ Global
 		{D43637CC-94E6-4ED4-BAA3-E5D1AD3285F5} = {D764E024-3D3F-4112-B932-2DB722A1BACC}
 		{201B1CA7-AB12-41AD-9246-BC30F2EBE2DF} = {D764E024-3D3F-4112-B932-2DB722A1BACC}
 		{72A74595-A278-46F0-9C8B-3151C9681B91} = {2F323ED5-EBF8-45E1-B9D3-C014561B3DDA}
+		{19909559-F753-4337-952B-A8B5B5889959} = {93A0F406-2CEB-491E-9F40-6DA1BA67DD7C}
+		{97924298-E17E-46E6-83CC-D9CD3B9F5E6F} = {19909559-F753-4337-952B-A8B5B5889959}
+		{BED6765C-97D8-406D-B782-3307132D16F0} = {93A0F406-2CEB-491E-9F40-6DA1BA67DD7C}
+		{09BE8ED9-1986-40F3-A9A6-D826A7413581} = {93A0F406-2CEB-491E-9F40-6DA1BA67DD7C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D38DD0EC-D095-4BCD-B8AF-2D788AF3B9AE}
