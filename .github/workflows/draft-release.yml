@@ -11,6 +11,9 @@ on:
 
 jobs:
   create_milestone_and_draft_release:
+    permissions:
+      # write permission is required to create a github release
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -54,5 +57,5 @@ jobs:
           omitNameDuringUpdate: true
           name: 'v${{ steps.gitversion.outputs.majorMinorPatch }}'
           tag: 'v${{ steps.gitversion.outputs.majorMinorPatch }}'
-          token: ${{ secrets.OMNISHARP_BOT_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           commit: ${{ github.base_ref }}
