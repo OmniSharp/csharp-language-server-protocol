@@ -43,7 +43,7 @@
     <PackageVersion Include="Verify.Xunit" Version="16.8.1" />
     <PackageVersion Include="Verify.SourceGenerators" Version="1.5.0-beta.1" />
     <PackageVersion Include="NSubstitute" Version="5.1.0" />
-    <PackageVersion Include="Serilog.Extensions.Logging" Version="3.1.0" />
+    <PackageVersion Include="Serilog.Extensions.Logging" Version="7.0.0" />
     <PackageVersion Include="Serilog.Sinks.Observable" Version="2.0.2" />
     <PackageVersion Include="Serilog.Sinks.XUnit" Version="3.0.5" />
     <PackageVersion Include="XunitXml.TestLogger" Version="3.0.78" />
