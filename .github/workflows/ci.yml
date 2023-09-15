@@ -79,7 +79,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
-        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
+        uses: actions/checkout@v4.0.0
         with:
           clean: 'false'
           fetch-depth: '0'
@@ -117,7 +117,7 @@ jobs:
         run: |
           dotnet nuke Pack --skip
       - name: 🐿 Publish Coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4.0.0-beta.2
         with:
           name: 'actions-${{ matrix.os }}'
       - name: 🏺 Publish logs
