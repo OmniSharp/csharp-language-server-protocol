@@ -112,8 +112,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             JToken? ICanBeResolved.Data
             {
-                get => Item.GetRawData();
-                init => Item.SetRawData(value);
+                get => Item?.GetRawData();
+                init => Item?.SetRawData(value);
             }
         }
 
@@ -124,8 +124,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             JToken? ICanBeResolved.Data
             {
-                get => Item.GetRawData();
-                init => Item.SetRawData(value);
+                get => Item?.GetRawData();
+                init => Item?.SetRawData(value);
             }
         }
 

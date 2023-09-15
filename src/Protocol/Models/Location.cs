@@ -13,7 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public DocumentUri Uri { get; init; } = null!;
 
         /// <summary>
-        /// The range in side the document given by the uri
+        /// The range inside the document given by the uri
         /// </summary>
         public Range Range { get; init; } = null!;
 

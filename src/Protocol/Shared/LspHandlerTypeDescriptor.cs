@@ -15,12 +15,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
         {
             if (HasParamsType)
             {
-                PartialItemsType = ParamsType!.GetInterfaces()
-                                              .FirstOrDefault(z => z.IsGenericType && typeof(IPartialItems<>).IsAssignableFrom(z.GetGenericTypeDefinition()))
+                PartialItemsType = (ParamsType!.GetInterfaces()
+                                               .FirstOrDefault(z => z.IsGenericType && typeof(IPartialItems<>).IsAssignableFrom(z.GetGenericTypeDefinition()))
+                                                ??
+                                    ParamsType!.GetInterfaces()
+                                               .FirstOrDefault(z => z.IsGenericType && typeof(IPartialItemsWithInitialValue<,>).IsAssignableFrom(z.GetGenericTypeDefinition()))
+                                                )
                                              ?.GetGenericArguments()[0];
 
-                PartialItemType = ParamsType.GetInterfaces()
-                                            .FirstOrDefault(z => z.IsGenericType && typeof(IPartialItem<>).IsAssignableFrom(z.GetGenericTypeDefinition()))
+                PartialItemType = (ParamsType.GetInterfaces()
+                                             .FirstOrDefault(z => z.IsGenericType && typeof(IPartialItem<>).IsAssignableFrom(z.GetGenericTypeDefinition()))??
+                                   ParamsType.GetInterfaces()
+                                             .FirstOrDefault(z => z.IsGenericType && typeof(IPartialItemWithInitialValue<,>).IsAssignableFrom(z.GetGenericTypeDefinition())))
                                            ?.GetGenericArguments()[0];
             }
 

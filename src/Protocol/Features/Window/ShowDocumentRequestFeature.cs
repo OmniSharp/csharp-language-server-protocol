@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     namespace Models
     {
         /// <summary>
-        /// Params to show a document.
+        /// Params to show a resource.
         ///
         /// @since 3.16.0
         /// </summary>
@@ -31,7 +31,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             /// <summary>
             /// Indicates to show the resource in an external program.
-            /// To show for example `https://code.visualstudio.com/`
+            /// To show, for example, `https://code.visualstudio.com/`
             /// in the default WEB browser set `external` to `true`.
             /// </summary>
             [Optional]

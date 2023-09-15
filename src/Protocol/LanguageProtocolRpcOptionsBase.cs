@@ -32,6 +32,22 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             return (T)(object)this;
         }
 
+        public T AddNotebookDocumentIdentifier(params INotebookDocumentIdentifier[] handlers)
+        {
+            foreach (var item in handlers)
+            {
+                Services.AddSingleton(typeof(INotebookDocumentIdentifier), item);
+            }
+
+            return (T)(object)this;
+        }
+
+        public T AddNotebookDocumentIdentifier<TI>() where TI : INotebookDocumentIdentifier
+        {
+            Services.AddSingleton(typeof(INotebookDocumentIdentifier), typeof(TI));
+            return (T)(object)this;
+        }
+
         public LspSerializer Serializer { get; set; } = new LspSerializer(ClientVersion.Lsp3);
         public ConfigurationBuilder ConfigurationBuilder { get; set; } = new ConfigurationBuilder();
         internal bool AddDefaultLoggingProvider { get; set; }

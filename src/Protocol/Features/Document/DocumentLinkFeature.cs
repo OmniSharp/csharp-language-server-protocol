@@ -24,7 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [RegistrationOptions(typeof(DocumentLinkRegistrationOptions))]
         [Capability(typeof(DocumentLinkCapability))]
         [Resolver(typeof(DocumentLink))]
-        public partial record DocumentLinkParams : ITextDocumentIdentifierParams, IPartialItemsRequest<DocumentLinkContainer, DocumentLink>,
+        public partial record DocumentLinkParams : ITextDocumentIdentifierParams, IPartialItemsRequest<DocumentLinkContainer?, DocumentLink>,
                                                    IWorkDoneProgressParams
         {
             /// <summary>
@@ -32,6 +32,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             public TextDocumentIdentifier TextDocument { get; init; } = null!;
         }
+
+        public partial class DocumentLinkContainer { }
 
         /// <summary>
         /// A document link is a range in a text document that links to an internal or external resource, like another

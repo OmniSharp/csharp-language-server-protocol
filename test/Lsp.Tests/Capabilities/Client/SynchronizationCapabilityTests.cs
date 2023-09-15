@@ -12,7 +12,7 @@ namespace Lsp.Tests.Capabilities.Client
         [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new SynchronizationCapability {
+            var model = new TextSynchronizationCapability {
                 WillSave = false,
                 WillSaveWaitUntil = false,
                 DidSave = false,
@@ -22,7 +22,7 @@ namespace Lsp.Tests.Capabilities.Client
 
             result.Should().Be(expected);
 
-            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<SynchronizationCapability>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<TextSynchronizationCapability>(expected);
             deresult.Should().BeEquivalentTo(model, x => x.UsingStructuralRecordEquality());
         }
     }

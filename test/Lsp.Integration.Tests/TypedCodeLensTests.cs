@@ -39,7 +39,7 @@ namespace Lsp.Integration.Tests
                     options.OnCodeLens(
                         codeLensParams =>
                         {
-                            return Task.FromResult(
+                            return Task.FromResult<CodeLensContainer?>(
                                 new CodeLensContainer<Data>(
                                     new CodeLens<Data>
                                     {
@@ -64,14 +64,14 @@ namespace Lsp.Integration.Tests
                         l => { return Task.FromResult(l with { Command = l.Command with { Name = "resolved-a" } }); },
                         (_, _) => new CodeLensRegistrationOptions
                         {
-                            DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
+                            DocumentSelector = TextDocumentSelector.ForPattern("**/*.cs")
                         }
                     );
 
                     options.OnCodeLens(
                         codeLensParams =>
                         {
-                            return Task.FromResult(
+                            return Task.FromResult<CodeLensContainer?>(
                                 new CodeLensContainer<Nested>(
                                     new CodeLens<Nested>
                                     {
@@ -91,14 +91,14 @@ namespace Lsp.Integration.Tests
                         l => { return Task.FromResult(l with { Command = l.Command with { Name = "resolved-b" } }); },
                         (_, _) => new CodeLensRegistrationOptions
                         {
-                            DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
+                            DocumentSelector = TextDocumentSelector.ForPattern("**/*.cs")
                         }
                     );
 
                     options.OnCodeLens(
                         codeLensParams =>
                         {
-                            return Task.FromResult(
+                            return Task.FromResult<CodeLensContainer?>(
                                 new CodeLensContainer(
                                     new CodeLens
                                     {
@@ -114,14 +114,14 @@ namespace Lsp.Integration.Tests
                         l => { return Task.FromResult(l with { Command = l.Command with { Name = "resolved-c" } }); },
                         (_, _) => new CodeLensRegistrationOptions
                         {
-                            DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
+                            DocumentSelector = TextDocumentSelector.ForPattern("**/*.cs")
                         }
                     );
 
                     options.OnCodeLens(
                         codeLensParams =>
                         {
-                            return Task.FromResult(
+                            return Task.FromResult<CodeLensContainer?>(
                                 new CodeLensContainer(
                                     new CodeLens
                                     {
@@ -137,7 +137,7 @@ namespace Lsp.Integration.Tests
                         l => { return Task.FromResult(l with { Command = l.Command with { Name = "resolved-d" } }); },
                         (_, _) => new CodeLensRegistrationOptions
                         {
-                            DocumentSelector = DocumentSelector.ForLanguage("vb")
+                            DocumentSelector = TextDocumentSelector.ForLanguage("vb")
                         }
                     );
                 }
@@ -167,7 +167,7 @@ namespace Lsp.Integration.Tests
                     options.OnCodeLens(
                         (codeLensParams, capability, token) =>
                         {
-                            return Task.FromResult(
+                            return Task.FromResult<CodeLensContainer<Data>?>(
                                 new CodeLensContainer<Data>(
                                     new CodeLens<Data>
                                     {
@@ -270,7 +270,7 @@ namespace Lsp.Integration.Tests
                     options.OnCodeLens(
                         (codeLensParams, token) =>
                         {
-                            return Task.FromResult(
+                            return Task.FromResult<CodeLensContainer<Data>?>(
                                 new CodeLensContainer<Data>(
                                     new CodeLens<Data>
                                     {

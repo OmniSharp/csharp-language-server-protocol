@@ -4,6 +4,7 @@ using Xunit;
 
 namespace Generation.Tests
 {
+    [UsesVerify]
     public class LspFeatureTests
     {
 //        [Fact(Skip = "for testing"]
@@ -11,97 +12,7 @@ namespace Generation.Tests
         public async Task Supports_Params_Type_As_Source()
         {
             var source = FeatureFixture.ReadSource("Workspace.WorkspaceSymbolsFeature.cs");
-            var expected = @"
-using MediatR;
-using Microsoft.Extensions.DependencyInjection;
-using OmniSharp.Extensions.DebugAdapter.Protocol;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
-using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.JsonRpc.Generation;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
-using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
-
-#nullable enable
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
-{
-    [Parallel, Method(WorkspaceNames.WorkspaceSymbol, Direction.ClientToServer)]
-    [System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-    public partial interface IWorkspaceSymbolsHandler : IJsonRpcRequestHandler<WorkspaceSymbolParams, Container<SymbolInformation>?>, IRegistration<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>
-    {
-    }
-
-    [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
-    abstract public partial class WorkspaceSymbolsHandlerBase : AbstractHandlers.Request<WorkspaceSymbolParams, Container<SymbolInformation>?, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>, IWorkspaceSymbolsHandler
-    {
-    }
-
-    [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
-    abstract public partial class WorkspaceSymbolsPartialHandlerBase : AbstractHandlers.PartialResults<WorkspaceSymbolParams, Container<SymbolInformation>?, SymbolInformation, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>, IWorkspaceSymbolsHandler
-    {
-        protected WorkspaceSymbolsPartialHandlerBase(System.Guid id, IProgressManager progressManager) : base(progressManager, Container<SymbolInformation>.From)
-        {
-        }
-    }
-}
-#nullable restore
-
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
-{
-#nullable enable
-    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute, System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-    public static partial class WorkspaceSymbolsExtensions
-    {
-        public static ILanguageServerRegistry OnWorkspaceSymbols(this ILanguageServerRegistry registry, Func<WorkspaceSymbolParams, Task<Container<SymbolInformation>?>> handler, RegistrationOptionsDelegate<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability> registrationOptions)
-        {
-            return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, new LanguageProtocolDelegatingHandlers.Request<WorkspaceSymbolParams, Container<SymbolInformation>?, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(HandlerAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolParams, Container<SymbolInformation>?>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions)));
-        }
-
-        public static ILanguageServerRegistry OnWorkspaceSymbols(this ILanguageServerRegistry registry, Func<WorkspaceSymbolParams, CancellationToken, Task<Container<SymbolInformation>?>> handler, RegistrationOptionsDelegate<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability> registrationOptions)
-        {
-            return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, new LanguageProtocolDelegatingHandlers.Request<WorkspaceSymbolParams, Container<SymbolInformation>?, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(HandlerAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolParams, Container<SymbolInformation>?>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions)));
-        }
-
-        public static ILanguageServerRegistry OnWorkspaceSymbols(this ILanguageServerRegistry registry, Func<WorkspaceSymbolParams, WorkspaceSymbolCapability, CancellationToken, Task<Container<SymbolInformation>?>> handler, RegistrationOptionsDelegate<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability> registrationOptions)
-        {
-            return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, new LanguageProtocolDelegatingHandlers.Request<WorkspaceSymbolParams, Container<SymbolInformation>?, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(HandlerAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolParams, Container<SymbolInformation>?>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions)));
-        }
-
-        public static ILanguageServerRegistry ObserveWorkspaceSymbols(this ILanguageServerRegistry registry, Action<WorkspaceSymbolParams, IObserver<IEnumerable<SymbolInformation>>> handler, RegistrationOptionsDelegate<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability> registrationOptions)
-        {
-            return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, _ => new LanguageProtocolDelegatingHandlers.PartialResults<WorkspaceSymbolParams, Container<SymbolInformation>?, SymbolInformation, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(PartialAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolParams, SymbolInformation>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<SymbolInformation>.From));
-        }
-
-        public static ILanguageServerRegistry ObserveWorkspaceSymbols(this ILanguageServerRegistry registry, Action<WorkspaceSymbolParams, IObserver<IEnumerable<SymbolInformation>>, CancellationToken> handler, RegistrationOptionsDelegate<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability> registrationOptions)
-        {
-            return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, _ => new LanguageProtocolDelegatingHandlers.PartialResults<WorkspaceSymbolParams, Container<SymbolInformation>?, SymbolInformation, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(PartialAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolParams, SymbolInformation>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<SymbolInformation>.From));
-        }
-
-        public static ILanguageServerRegistry ObserveWorkspaceSymbols(this ILanguageServerRegistry registry, Action<WorkspaceSymbolParams, IObserver<IEnumerable<SymbolInformation>>, WorkspaceSymbolCapability, CancellationToken> handler, RegistrationOptionsDelegate<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability> registrationOptions)
-        {
-            return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, _ => new LanguageProtocolDelegatingHandlers.PartialResults<WorkspaceSymbolParams, Container<SymbolInformation>?, SymbolInformation, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(PartialAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolParams, SymbolInformation>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<SymbolInformation>.From));
-        }
-
-        public static IRequestProgressObservable<IEnumerable<SymbolInformation>, Container<SymbolInformation>?> RequestWorkspaceSymbols(this ITextDocumentLanguageClient mediator, WorkspaceSymbolParams request, CancellationToken cancellationToken = default) => mediator.ProgressManager.MonitorUntil(request, value => new Container<SymbolInformation>(value), cancellationToken);
-        public static IRequestProgressObservable<IEnumerable<SymbolInformation>, Container<SymbolInformation>?> RequestWorkspaceSymbols(this ILanguageClient mediator, WorkspaceSymbolParams request, CancellationToken cancellationToken = default) => mediator.ProgressManager.MonitorUntil(request, value => new Container<SymbolInformation>(value), cancellationToken);
-    }
-#nullable restore
-}";
-            await GenerationHelpers.AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
+            await Verify(GenerationHelpers.GenerateAll(source));
         }
 
         [Fact]
@@ -161,197 +72,7 @@ namespace Lsp.Tests.Integration.Fixtures
 }
 #nullable restore";
 
-            var expectedOptions = @"
-using MediatR;
-using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.JsonRpc.Generation;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
-
-#nullable enable
-namespace Lsp.Tests.Integration.Fixtures
-{
-    [RegistrationOptionsKey(""unitTestDiscovery"")]
-    [RegistrationOptionsConverterAttribute(typeof(UnitTestRegistrationOptionsConverter))]
-    public partial class UnitTestRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions
-    {
-        [Optional]
-        public bool WorkDoneProgress { get; set; }
-
-        class UnitTestRegistrationOptionsConverter : RegistrationOptionsConverterBase<UnitTestRegistrationOptions, StaticOptions>
-        {
-            public UnitTestRegistrationOptionsConverter()
-            {
-            }
-
-            public override StaticOptions Convert(UnitTestRegistrationOptions source)
-            {
-                return new StaticOptions{SupportsDebugging = source.SupportsDebugging, WorkDoneProgress = source.WorkDoneProgress};
-            }
-        }
-
-        [RegistrationOptionsKey(""unitTestDiscovery"")]
-        public partial class StaticOptions : IWorkDoneProgressOptions
-        {
-            [Optional]
-            public bool SupportsDebugging { get; set; }
-
-            [Optional]
-            public bool WorkDoneProgress { get; set; }
-        }
-    }
-}
-#nullable restore";
-            var expectedStrongTypes = @"
-using MediatR;
-using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.JsonRpc.Generation;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-
-#nullable enable
-namespace Lsp.Tests.Integration.Fixtures
-{
-    [Parallel, Method(""tests/run"", Direction.ClientToServer)]
-    [
-        GenerateHandler,
-        GenerateHandlerMethods(typeof(ILanguageServerRegistry)),
-        GenerateRequestMethods(typeof(ILanguageClient))
-    ]
-    [RegistrationOptions(typeof(UnitTestRegistrationOptions)), Capability(typeof(UnitTestCapability))]
-    public partial class UnitTest : IRequest
-    {
-        public string Name { get; set; } = null!;
-    }
-
-    [Parallel, Method(""tests/discover"", Direction.ClientToServer)]
-    [
-        GenerateHandler,
-        GenerateHandlerMethods(typeof(ILanguageServerRegistry)),
-        GenerateRequestMethods(typeof(ILanguageClient))
-    ]
-    [RegistrationOptions(typeof(UnitTestRegistrationOptions)), Capability(typeof(UnitTestCapability))]
-    public partial class DiscoverUnitTestsParams : IPartialItemsRequest<Container<UnitTest>, UnitTest>, IWorkDoneProgressParams
-    {
-        public ProgressToken? PartialResultToken { get; set; } = null!;
-        public ProgressToken? WorkDoneToken { get; set; } = null!;
-    }
-
-    [CapabilityKey(""workspace"", ""unitTests"")]
-    public partial class UnitTestCapability : DynamicCapability
-    {
-        public string Property { get; set; } = null!;
-    }
-
-    [GenerateRegistrationOptions(""unitTestDiscovery"")]
-    public partial class UnitTestRegistrationOptions : IWorkDoneProgressOptions
-    {
-        [Optional] public bool SupportsDebugging { get; set; }
-    }
-}
-#nullable restore
-";
-            var expectedHandlers = @"
-using Lsp.Tests.Integration.Fixtures;
-using MediatR;
-using Microsoft.Extensions.DependencyInjection;
-using OmniSharp.Extensions.DebugAdapter.Protocol;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
-using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.JsonRpc.Generation;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
-using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-#nullable enable
-namespace Lsp.Tests.Integration.Fixtures
-{
-    [Parallel, Method(""tests/discover"", Direction.ClientToServer)]
-    [System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-    public partial interface IDiscoverUnitTestsHandler : IJsonRpcRequestHandler<DiscoverUnitTestsParams, Container<UnitTest>>, IRegistration<UnitTestRegistrationOptions, UnitTestCapability>
-    {
-    }
-
-    [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
-    abstract public partial class DiscoverUnitTestsHandlerBase : AbstractHandlers.Request<DiscoverUnitTestsParams, Container<UnitTest>, UnitTestRegistrationOptions, UnitTestCapability>, IDiscoverUnitTestsHandler
-    {
-    }
-
-    [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
-    abstract public partial class DiscoverUnitTestsPartialHandlerBase : AbstractHandlers.PartialResults<DiscoverUnitTestsParams, Container<UnitTest>, UnitTest, UnitTestRegistrationOptions, UnitTestCapability>, IDiscoverUnitTestsHandler
-    {
-        protected DiscoverUnitTestsPartialHandlerBase(System.Guid id, IProgressManager progressManager) : base(progressManager, Container<UnitTest>.From)
-        {
-        }
-    }
-}
-#nullable restore
-
-namespace Lsp.Tests.Integration.Fixtures
-{
-#nullable enable
-    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute, System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-    public static partial class DiscoverUnitTestsExtensions
-    {
-        public static ILanguageServerRegistry OnDiscoverUnitTests(this ILanguageServerRegistry registry, Func<DiscoverUnitTestsParams, Task<Container<UnitTest>>> handler, RegistrationOptionsDelegate<UnitTestRegistrationOptions, UnitTestCapability> registrationOptions)
-        {
-            return registry.AddHandler(""tests/discover"", new LanguageProtocolDelegatingHandlers.Request<DiscoverUnitTestsParams, Container<UnitTest>, UnitTestRegistrationOptions, UnitTestCapability>(HandlerAdapter<UnitTestCapability>.Adapt<DiscoverUnitTestsParams, Container<UnitTest>>(handler), RegistrationAdapter<UnitTestCapability>.Adapt<UnitTestRegistrationOptions>(registrationOptions)));
-        }
-
-        public static ILanguageServerRegistry OnDiscoverUnitTests(this ILanguageServerRegistry registry, Func<DiscoverUnitTestsParams, CancellationToken, Task<Container<UnitTest>>> handler, RegistrationOptionsDelegate<UnitTestRegistrationOptions, UnitTestCapability> registrationOptions)
-        {
-            return registry.AddHandler(""tests/discover"", new LanguageProtocolDelegatingHandlers.Request<DiscoverUnitTestsParams, Container<UnitTest>, UnitTestRegistrationOptions, UnitTestCapability>(HandlerAdapter<UnitTestCapability>.Adapt<DiscoverUnitTestsParams, Container<UnitTest>>(handler), RegistrationAdapter<UnitTestCapability>.Adapt<UnitTestRegistrationOptions>(registrationOptions)));
-        }
-
-        public static ILanguageServerRegistry OnDiscoverUnitTests(this ILanguageServerRegistry registry, Func<DiscoverUnitTestsParams, UnitTestCapability, CancellationToken, Task<Container<UnitTest>>> handler, RegistrationOptionsDelegate<UnitTestRegistrationOptions, UnitTestCapability> registrationOptions)
-        {
-            return registry.AddHandler(""tests/discover"", new LanguageProtocolDelegatingHandlers.Request<DiscoverUnitTestsParams, Container<UnitTest>, UnitTestRegistrationOptions, UnitTestCapability>(HandlerAdapter<UnitTestCapability>.Adapt<DiscoverUnitTestsParams, Container<UnitTest>>(handler), RegistrationAdapter<UnitTestCapability>.Adapt<UnitTestRegistrationOptions>(registrationOptions)));
-        }
-
-        public static ILanguageServerRegistry ObserveDiscoverUnitTests(this ILanguageServerRegistry registry, Action<DiscoverUnitTestsParams, IObserver<IEnumerable<UnitTest>>> handler, RegistrationOptionsDelegate<UnitTestRegistrationOptions, UnitTestCapability> registrationOptions)
-        {
-            return registry.AddHandler(""tests/discover"", _ => new LanguageProtocolDelegatingHandlers.PartialResults<DiscoverUnitTestsParams, Container<UnitTest>, UnitTest, UnitTestRegistrationOptions, UnitTestCapability>(PartialAdapter<UnitTestCapability>.Adapt<DiscoverUnitTestsParams, UnitTest>(handler), RegistrationAdapter<UnitTestCapability>.Adapt<UnitTestRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<UnitTest>.From));
-        }
-
-        public static ILanguageServerRegistry ObserveDiscoverUnitTests(this ILanguageServerRegistry registry, Action<DiscoverUnitTestsParams, IObserver<IEnumerable<UnitTest>>, CancellationToken> handler, RegistrationOptionsDelegate<UnitTestRegistrationOptions, UnitTestCapability> registrationOptions)
-        {
-            return registry.AddHandler(""tests/discover"", _ => new LanguageProtocolDelegatingHandlers.PartialResults<DiscoverUnitTestsParams, Container<UnitTest>, UnitTest, UnitTestRegistrationOptions, UnitTestCapability>(PartialAdapter<UnitTestCapability>.Adapt<DiscoverUnitTestsParams, UnitTest>(handler), RegistrationAdapter<UnitTestCapability>.Adapt<UnitTestRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<UnitTest>.From));
-        }
-
-        public static ILanguageServerRegistry ObserveDiscoverUnitTests(this ILanguageServerRegistry registry, Action<DiscoverUnitTestsParams, IObserver<IEnumerable<UnitTest>>, UnitTestCapability, CancellationToken> handler, RegistrationOptionsDelegate<UnitTestRegistrationOptions, UnitTestCapability> registrationOptions)
-        {
-            return registry.AddHandler(""tests/discover"", _ => new LanguageProtocolDelegatingHandlers.PartialResults<DiscoverUnitTestsParams, Container<UnitTest>, UnitTest, UnitTestRegistrationOptions, UnitTestCapability>(PartialAdapter<UnitTestCapability>.Adapt<DiscoverUnitTestsParams, UnitTest>(handler), RegistrationAdapter<UnitTestCapability>.Adapt<UnitTestRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<UnitTest>.From));
-        }
-
-        public static IRequestProgressObservable<IEnumerable<UnitTest>, Container<UnitTest>> RequestDiscoverUnitTests(this ILanguageClient mediator, DiscoverUnitTestsParams request, CancellationToken cancellationToken = default) => mediator.ProgressManager.MonitorUntil(request, value => new Container<UnitTest>(value), cancellationToken);
-    }
-#nullable restore
-}";
-            await GenerationHelpers.AssertGeneratedAsExpected<RegistrationOptionsGenerator>(source, expectedOptions);
-            await GenerationHelpers.AssertGeneratedAsExpected<StronglyTypedGenerator>(source, expectedStrongTypes);
-            await GenerationHelpers.AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expectedHandlers);
+            await Verify(GenerationHelpers.GenerateAll(source));
         }
 
         [Fact]
@@ -401,56 +122,508 @@ namespace Lsp.Tests.Integration.Fixtures
 }
 #nullable restore";
 
-            var expectedHandlers = @"
-using Lsp.Tests.Integration.Fixtures;
+            await Verify(GenerationHelpers.GenerateAll(source));
+        }
+
+        [Fact]
+        public async Task Supports_Inlay_Hint()
+        {
+            var source = @"
+using System.Diagnostics;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
-using OmniSharp.Extensions.DebugAdapter.Protocol;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-#nullable enable
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
+// ReSharper disable once CheckNamespace
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 {
-    [Parallel, Method(ClientNames.RegisterCapability, Direction.ServerToClient)]
-    [System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-    public partial interface IRegisterCapabilityHandler : IJsonRpcRequestHandler<RegistrationParams, MediatR.Unit>
+    namespace Models
     {
+        [Parallel]
+        [Method(TextDocumentNames.InlayHint, Direction.ClientToServer)]
+        [
+            GenerateHandler(""OmniSharp.Extensions.LanguageServer.Protocol.Document"", Name = ""OutlayHints""),
+            GenerateHandlerMethods,
+            GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
+        ]
+        [RegistrationOptions(typeof(OutlayHintRegistrationOptions)), Capability(typeof(OutlayHintWorkspaceClientCapabilities))]
+        [Resolver(typeof(OutlayHint))]
+        public partial record OutlayHintParams : ITextDocumentIdentifierParams, IWorkDoneProgressParams,
+                                                 IRequest<OutlayHintContainer?>
+        {
+            /// <summary>
+            /// The text document.
+            /// </summary>
+            public TextDocumentIdentifier TextDocument { get; init; }
+
+            /// <summary>
+            /// The visible document range for which inlay hints should be computed.
+            /// </summary>
+            public Range Range { get; init; }
+        }
+
+        /// <summary>
+        /// Outlay hint information.
+        ///
+        /// @since 3.17.0
+        /// </summary>
+        [DebuggerDisplay(""{"" + nameof(DebuggerDisplay) + "",nq}"")]
+        [Parallel]
+        [Method(TextDocumentNames.InlayHintResolve, Direction.ClientToServer)]
+        [GenerateHandler(""OmniSharp.Extensions.LanguageServer.Protocol.Document"", Name = ""OutlayHintResolve"")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [GenerateTypedData]
+        [GenerateContainer]
+        [Capability(typeof(OutlayHintWorkspaceClientCapabilities))]
+        public partial record OutlayHint : ICanBeResolved, IRequest<OutlayHint>, IDoesNotParticipateInRegistration
+        {
+            /// <summary>
+            /// The position of this hint.
+            /// </summary>
+            public Position Position { get; init; }
+
+            /// <summary>
+            /// The label of this hint. A human readable string or an array of
+            /// OutlayHintLabelPart label parts.
+            ///
+            /// *Note* that neither the string nor the label part can be empty.
+            /// </summary>
+            public StringOrOutlayHintLabelParts Label { get; init; }
+
+            /// <summary>
+            /// The kind of this hint. Can be omitted in which case the client
+            /// should fall back to a reasonable default.
+            /// </summary>
+            public OutlayHintKind? Kind { get; init; }
+
+            /// <summary>
+            /// Optional text edits that are performed when accepting this inlay hint.
+            ///
+            /// *Note* that edits are expected to change the document so that the inlay
+            /// hint (or its nearest variant) is now part of the document and the inlay
+            /// hint itself is now obsolete.
+            ///
+            /// Depending on the client capability `inlayHint.resolveSupport` clients
+            /// might resolve this property late using the resolve request.
+            /// </summary>
+            [Optional]
+            public Container<TextEdit>? TextEdits { get; init; }
+
+            /// <summary>
+            /// The tooltip text when you hover over this item.
+            ///
+            /// Depending on the client capability `inlayHint.resolveSupport` clients
+            /// might resolve this property late using the resolve request.
+            /// </summary>
+            [Optional]
+            public StringOrMarkupContent? Tooltip { get; init; }
+
+            /// <summary>
+            /// Render padding before the hint.
+            ///
+            /// Note: Padding should use the editor's background color, not the
+            /// background color of the hint itself. That means padding can be used
+            /// to visually align/separate an inlay hint.
+            /// </summary>
+            [Optional]
+            public bool? PaddingLeft { get; init; }
+
+            /// <summary>
+            /// Render padding after the hint.
+            ///
+            /// Note: Padding should use the editor's background color, not the
+            /// background color of the hint itself. That means padding can be used
+            /// to visually align/separate an inlay hint.
+            /// </summary>
+            [Optional]
+            public bool? PaddingRight { get; init; }
+
+            /// <summary>
+            /// A data entry field that is preserved on a document link between a
+            /// DocumentLinkRequest and a DocumentLinkResolveRequest.
+            /// </summary>
+            [Optional]
+            public JToken? Data { get; init; }
+
+            private string DebuggerDisplay => ToString();
+        }
+        
+        public partial class OutlayHintContainer {}
+
+        /// <summary>
+        /// An inlay hint label part allows for interactive and composite labels
+        /// of inlay hints.
+        ///
+        /// @since 3.17.0
+        /// </summary>
+        [DebuggerDisplay(""{"" + nameof(DebuggerDisplay) + "",nq}"")]
+        public partial record OutlayHintLabelPart
+        {
+            /// <summary>
+            /// The value of this label part.
+            /// </summary>
+            public string Value { get; init; }
+
+            /// <summary>
+            /// The tooltip text when you hover over this label part. Depending on
+            /// the client capability `inlayHint.resolveSupport` clients might resolve
+            /// this property late using the resolve request.
+            /// </summary>
+            [Optional]
+            public StringOrMarkupContent? Tooltip { get; init; }
+
+            /// <summary>
+            /// An optional source code location that represents this
+            /// label part.
+            ///
+            /// The editor will use this location for the hover and for code navigation
+            /// features: This part will become a clickable link that resolves to the
+            /// definition of the symbol at the given location (not necessarily the
+            /// location itself), it shows the hover that shows at the given location,
+            /// and it shows a context menu with further code navigation commands.
+            ///
+            /// Depending on the client capability `inlayHint.resolveSupport` clients
+            /// might resolve this property late using the resolve request.
+            /// </summary>
+            [Optional]
+            public Location? Location { get; init; }
+
+            /// <summary>
+            /// An optional command for this label part.
+            ///
+            /// Depending on the client capability `inlayHint.resolveSupport` clients
+            /// might resolve this property late using the resolve request.
+            /// </summary>
+            [Optional]
+            public Command? Command { get; init; }
+
+            private string DebuggerDisplay => ToString();
+        }
+
+        [JsonConverter(typeof(Converter))]
+        [DebuggerDisplay(""{"" + nameof(DebuggerDisplay) + "",nq}"")]
+        public record StringOrOutlayHintLabelParts
+        {
+            public StringOrOutlayHintLabelParts(string value) => String = value;
+
+            public StringOrOutlayHintLabelParts(IEnumerable<OutlayHintLabelPart> inlayHintLabelParts) => OutlayHintLabelParts = new(inlayHintLabelParts);
+
+            public string? String { get; }
+            public bool HasString => OutlayHintLabelParts is null;
+            public Container<OutlayHintLabelPart>? OutlayHintLabelParts { get; }
+            public bool HasOutlayHintLabelParts => OutlayHintLabelParts is { };
+
+            public static implicit operator StringOrOutlayHintLabelParts?(string? value) => value is null ? null : new StringOrOutlayHintLabelParts(value);
+
+            public static implicit operator StringOrOutlayHintLabelParts?(MarkupContent? markupContent) =>
+                markupContent is null ? null : new StringOrOutlayHintLabelParts(markupContent);
+
+            private string DebuggerDisplay =>
+                $""{( HasString ? String : HasOutlayHintLabelParts ? string.Join("", "", OutlayHintLabelParts!.Select(z => z.ToString())) : string.Empty )}"";
+
+            /// <inheritdoc />
+            public override string ToString() => DebuggerDisplay;
+
+            internal class Converter : JsonConverter<StringOrOutlayHintLabelParts>
+            {
+                public override void WriteJson(JsonWriter writer, StringOrOutlayHintLabelParts value, JsonSerializer serializer)
+                {
+                    if (value.HasString)
+                    {
+                        writer.WriteValue(value.String);
+                    }
+                    else
+                    {
+                        serializer.Serialize(writer, value.OutlayHintLabelParts ?? Array.Empty<OutlayHintLabelPart>());
+                    }
+                }
+
+                public override StringOrOutlayHintLabelParts ReadJson(
+                    JsonReader reader, Type objectType, StringOrOutlayHintLabelParts existingValue, bool hasExistingValue, JsonSerializer serializer
+                )
+                {
+                    if (reader.TokenType == JsonToken.StartArray)
+                    {
+                        var result = JArray.Load(reader);
+                        return new StringOrOutlayHintLabelParts(result.ToObject<Container<OutlayHintLabelPart>>());
+                    }
+
+                    if (reader.TokenType == JsonToken.String)
+                    {
+                        return new StringOrOutlayHintLabelParts(( reader.Value as string )!);
+                    }
+
+                    return """";
+                }
+
+                public override bool CanRead => true;
+            }
+        }
+
+        /// <summary>
+        /// Outlay hint kinds.
+        ///
+        /// @since 3.17.0
+        /// </summary>
+        /// 
+        [JsonConverter(typeof(NumberEnumConverter))]
+        public enum OutlayHintKind
+        {
+            /// <summary>
+            /// An inlay hint that for a type annotation.
+            /// </summary>
+            Type = 1,
+
+            /// <summary>
+            /// An inlay hint that is for a parameter.
+            /// </summary>
+            Parameter = 2
+        }
+
+        [GenerateRegistrationOptions(nameof(ServerCapabilities.OutlayHintProvider))]
+        [RegistrationOptionsConverter(typeof(OutlayHintRegistrationOptionsConverter))]
+        [RegistrationName(TextDocumentNames.OutlayHint)]
+        public partial class OutlayHintRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions
+        {
+            /// <summary>
+            /// The server provides support to resolve additional
+            /// information for a code action.
+            ///
+            /// @since 3.16.0
+            /// </summary>
+            [Optional]
+            public bool ResolveProvider { get; set; }
+
+            private class OutlayHintRegistrationOptionsConverter : RegistrationOptionsConverterBase<OutlayHintRegistrationOptions, StaticOptions>
+            {
+                private readonly IHandlersManager _handlersManager;
+
+                public OutlayHintRegistrationOptionsConverter(IHandlersManager handlersManager)
+                {
+                    _handlersManager = handlersManager;
+                }
+
+                public override StaticOptions Convert(OutlayHintRegistrationOptions source)
+                {
+                    return new()
+                    {
+                        ResolveProvider = source.ResolveProvider || _handlersManager.Descriptors.Any(z => z.HandlerType == typeof(IOutlayHintResolveHandler)),
+                        WorkDoneProgress = source.WorkDoneProgress,
+                    };
+                }
+            }
+        }
     }
 
-    [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
-    abstract public partial class RegisterCapabilityHandlerBase : AbstractHandlers.Request<RegistrationParams, MediatR.Unit>, IRegisterCapabilityHandler
+    namespace Client.Capabilities
+    {
+        [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.OutlayHint))]
+        public partial class OutlayHintWorkspaceClientCapabilities : DynamicCapability
+        {
+            /// <summary>
+            /// Indicates which properties a client can resolve lazily on a inlay
+            /// hint.
+            /// </summary>
+            [Optional]
+            public OutlayHintCapabilityResolveSupport? ResolveSupport { get; set; }
+        }
+
+        /// <summary>
+        /// Indicates which properties a client can resolve lazily on a inlay
+        /// hint.
+        /// </summary>
+        public class OutlayHintCapabilityResolveSupport
+        {
+            /// <summary>
+            /// The properties that a client can resolve lazily.
+            /// </summary>
+            public Container<string> Properties { get; set; }
+        }
+    }
+
+    namespace Document
     {
     }
 }
-#nullable restore
+";
 
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
+            await Verify(GenerationHelpers.GenerateAll(source));
+        }
+
+        [Fact]
+        public async Task Supports_Nullable_Params_With_Typed_Data()
+        {
+            var source = @"
+using System.Diagnostics;
+using System.Linq;
+using MediatR;
+using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+
+// ReSharper disable once CheckNamespace
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 {
-#nullable enable
-    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute, System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-    public static partial class RegisterCapabilityExtensions
+    namespace Models
     {
-        public static ILanguageClientRegistry OnRegisterCapability(this ILanguageClientRegistry registry, Func<RegistrationParams, Task> handler) => registry.AddHandler(ClientNames.RegisterCapability, new DelegatingHandlers.Request<RegistrationParams>(HandlerAdapter.Adapt<RegistrationParams>(handler)));
-        public static ILanguageClientRegistry OnRegisterCapability(this ILanguageClientRegistry registry, Func<RegistrationParams, CancellationToken, Task> handler) => registry.AddHandler(ClientNames.RegisterCapability, new DelegatingHandlers.Request<RegistrationParams>(HandlerAdapter.Adapt<RegistrationParams>(handler)));
+        [Parallel]
+        [Method(TextDocumentNames.CodeLens, Direction.ClientToServer)]
+        [GenerateHandler(""OmniSharp.Extensions.LanguageServer.Protocol.Document.Test"")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [RegistrationOptions(typeof(SubLensRegistrationOptions))]
+        [Capability(typeof(SubLensCapability))]
+        [Resolver(typeof(SubLens))]
+        public partial record SubLensParams : ITextDocumentIdentifierParams, IWorkDoneProgressParams, IPartialItemsRequest<SubLensContainer?, SubLens>
+        {
+            /// <summary>
+            /// The document to request code lens for.
+            /// </summary>
+            public TextDocumentIdentifier TextDocument { get; init; } = null!;
+        }
+
+        public partial class SubLensContainer {}
+
+        /// <summary>
+        /// A code lens represents a command that should be shown along with
+        /// source text, like the number of references, a way to run tests, etc.
+        ///
+        /// A code lens is _unresolved_ when no command is associated to it. For performance
+        /// reasons the creation of a code lens and resolving should be done in two stages.
+        /// </summary>
+        [DebuggerDisplay(""{"" + nameof(DebuggerDisplay) + "",nq}"")]
+        [Parallel]
+        [Method(TextDocumentNames.CodeLensResolve, Direction.ClientToServer)]
+        [GenerateHandler(""OmniSharp.Extensions.LanguageServer.Protocol.Document.Test"", Name = ""SubLensResolve"")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+        [GenerateTypedData]
+        [GenerateContainer]
+        [Capability(typeof(SubLensCapability))]
+        public partial record SubLens : IRequest<SubLens>, ICanBeResolved, IDoesNotParticipateInRegistration
+        {
+            /// <summary>
+            /// The range in which this code lens is valid. Should only span a single line.
+            /// </summary>
+            public Range Range { get; init; } = null!;
+
+            /// <summary>
+            /// The command this code lens represents.
+            /// </summary>
+            [Optional]
+            public Command? Command { get; init; }
+
+            /// <summary>
+            /// A data entry field that is preserved on a code lens item between
+            /// a code lens and a code lens resolve request.
+            /// </summary>
+            [Optional]
+            public JToken? Data { get; init; }
+
+            private string DebuggerDisplay => $""{Range}{( Command != null ? $"" {Command}"" : """" )}"";
+
+            /// <inheritdoc />
+            public override string ToString()
+            {
+                return DebuggerDisplay;
+            }
+        }
+
+        [GenerateRegistrationOptions(nameof(ServerCapabilities.SubLensProvider))]
+        [RegistrationOptionsConverter(typeof(SubLensRegistrationOptionsConverter))]
+        [RegistrationName(TextDocumentNames.CodeLens)]
+        public partial class SubLensRegistrationOptions : IWorkDoneProgressOptions, ITextDocumentRegistrationOptions
+        {
+            /// <summary>
+            /// Code lens has a resolve provider as well.
+            /// </summary>
+            [Optional]
+            public bool ResolveProvider { get; set; }
+
+            private class SubLensRegistrationOptionsConverter : RegistrationOptionsConverterBase<SubLensRegistrationOptions, StaticOptions>
+            {
+                private readonly IHandlersManager _handlersManager;
+
+                public SubLensRegistrationOptionsConverter(IHandlersManager handlersManager)
+                {
+                    _handlersManager = handlersManager;
+                }
+
+                public override StaticOptions Convert(SubLensRegistrationOptions source)
+                {
+                    return new()
+                    {
+                        ResolveProvider = source.ResolveProvider || _handlersManager.Descriptors.Any(z => z.HandlerType == typeof(ISubLensResolveHandler)),
+                        WorkDoneProgress = source.WorkDoneProgress
+                    };
+                }
+            }
+        }
+        
+        [Parallel]
+        [Method(WorkspaceNames.CodeLensRefresh, Direction.ServerToClient)]
+        [GenerateHandler(""OmniSharp.Extensions.LanguageServer.Protocol.Workspace.Test"")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
+        [Capability(typeof(SubLensWorkspaceClientCapabilities))]
+        public partial record SubLensRefreshParams : IRequest;
     }
-#nullable restore
-}";
-            await GenerationHelpers.AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expectedHandlers);
+
+    namespace Client.Capabilities
+    {
+        [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.CodeLens))]
+        public partial class SubLensCapability : DynamicCapability
+        {
+        }
+
+        /// <summary>
+        /// Capabilities specific to the code lens requests scoped to the
+        /// workspace.
+        ///
+        /// @since 3.16.0.
+        /// </summary>
+        [CapabilityKey(nameof(ClientCapabilities.Workspace), nameof(WorkspaceClientCapabilities.CodeLens))]
+        public class SubLensWorkspaceClientCapabilities : ICapability
+        {
+            /// <summary>
+            /// Whether the client implementation supports a refresh request send from the server
+            /// to the client. This is useful if a server detects a change which requires a
+            /// re-calculation of all code lenses.
+            /// </summary>
+            [Optional]
+            public bool RefreshSupport { get; set; }
+        }
+    }
+
+    namespace Document
+    {
+    }
+}
+";
+
+            await Verify(GenerationHelpers.GenerateAll(source));
         }
     }
 }

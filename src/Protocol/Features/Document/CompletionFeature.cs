@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -28,7 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(CompletionRegistrationOptions)), Capability(typeof(CompletionCapability)), Resolver(typeof(CompletionItem))]
-        public partial record CompletionParams : TextDocumentPositionParams, IWorkDoneProgressParams, IPartialItemsRequest<CompletionList, CompletionItem>
+        public partial record CompletionParams : TextDocumentPositionParams, IWorkDoneProgressParams, IPartialItemsWithInitialValueRequest<CompletionList, CompletionItem>
         {
             /// <summary>
             /// The completion context. This is only available it the client specifies to send
@@ -45,7 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document", Name = "CompletionResolve"),
             GenerateHandlerMethods,
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient)),
-            GenerateContainer("CompletionList"),
+            GenerateContainer("CompletionList", GenerateImplicitConversion = false),
             GenerateTypedData
         ]
         [Capability(typeof(CompletionCapability))]
@@ -57,6 +58,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// this completion.
             /// </summary>
             public string Label { get; init; }
+
+            /// <summary>
+            /// Additional details for the label
+            ///
+            /// @since 3.17.0 - proposed state
+            /// </summary>
+            [Optional]
+            public CompletionItemLabelDetails? LabelDetails { get; init; }
 
             /// <summary>
             /// The kind of this completion item. Based of the kind
@@ -104,14 +113,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             /// <summary>
             /// A string that shoud be used when comparing this item
-            /// with other items. When `falsy` the label is used.
+            /// with other items. When omitted the label is used.
             /// </summary>
             [Optional]
             public string? SortText { get; init; }
 
             /// <summary>
             /// A string that should be used when filtering a set of
-            /// completion items. When `falsy` the label is used.
+            /// completion items. When omitted the label is used.
             /// </summary>
 
             [Optional]
@@ -119,7 +128,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             /// <summary>
             /// A string that should be inserted a document when selecting
-            /// this completion. When `falsy` the label is used.
+            /// this completion. When omitted the label is used.
             /// </summary>
 
             [Optional]
@@ -169,6 +178,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public TextEditOrInsertReplaceEdit? TextEdit { get; init; }
 
             /// <summary>
+            /// The edit text used if the completion item is part of a CompletionList and
+            /// CompletionList defines an item default for the text edit range.
+            ///
+            /// Clients will only honor this property if they opt into completion list
+            /// item defaults using the capability `completionList.itemDefaults`.
+            ///
+            /// If not provided and a list's default range is provided the label
+            /// property is used as a text.
+            ///
+            /// @since 3.17.0
+            /// </summary>
+            [Optional]
+            public string? TextEditText { get; init; }
+
+            /// <summary>
             /// An optional array of additional text edits that are applied when
             /// selecting this completion. Edits must not overlap with the main edit
             /// nor with themselves.
@@ -199,7 +223,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             [Optional]
             public JToken? Data { get; init; }
 
-            private string DebuggerDisplay => $"[{Kind}] {Label}{( Tags?.Any() == true ? $" tags: {string.Join(", ", Tags.Select(z => z.ToString()))}" : "" )}";
+            private string DebuggerDisplay => $"[{Kind}] {Label}{(Tags?.Any() == true ? $" tags: {string.Join(", ", Tags.Select(z => z.ToString()))}" : "")}";
 
             /// <inheritdoc />
             public override string ToString() => DebuggerDisplay;
@@ -288,6 +312,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             [Optional]
             public Container<string>? AllCommitCharacters { get; set; }
 
+            /// <summary>
+            /// The server supports the following `CompletionItem` specific
+            /// capabilities.
+            ///
+            /// @since 3.17.0 - proposed state
+            /// </summary>
+            [Optional]
+            public CompletionRegistrationCompletionItemOptions? CompletionItem { get; set; }
+
             class CompletionRegistrationOptionsConverter : RegistrationOptionsConverterBase<CompletionRegistrationOptions, StaticOptions>
             {
                 private readonly IHandlersManager _handlersManager;
@@ -299,14 +332,29 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
                 public override StaticOptions Convert(CompletionRegistrationOptions source)
                 {
-                    return new() {
+                    return new()
+                    {
                         ResolveProvider = source.ResolveProvider || _handlersManager.Descriptors.Any(z => z.HandlerType == typeof(ICompletionResolveHandler)),
                         AllCommitCharacters = source.AllCommitCharacters,
                         TriggerCharacters = source.TriggerCharacters,
                         WorkDoneProgress = source.WorkDoneProgress,
+                        CompletionItem = source.CompletionItem
                     };
                 }
             }
+        }
+
+        public class CompletionRegistrationCompletionItemOptions
+        {
+            /// <summary>
+            /// The server has support for completion item label
+            /// details (see also `CompletionItemLabelDetails`) when receiving
+            /// a completion item in a resolve call.
+            ///
+            /// @since 3.17.0
+            /// </summary>
+            [Optional]
+            public bool? LabelDetailsSupport { get; set; }
         }
 
         public record CompletionContext
@@ -353,7 +401,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// Represents a collection of [completion items](#CompletionItem) to be presented
         /// in the editor.
         /// </summary>
-        [JsonConverter(typeof(CompletionListConverter))]
+        [JsonConverter(typeof(Converter))]
         public partial class CompletionList
         {
             public CompletionList(bool isIncomplete) : this(Enumerable.Empty<CompletionItem>(), isIncomplete)
@@ -377,13 +425,99 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             public IEnumerable<CompletionItem> Items => this;
 
+            /// <summary>
+            /// In many cases the items of an actual completion result share the same
+            /// value for properties like `commitCharacters` or the range of a text
+            /// edit. A completion list can therefore define item defaults which will
+            /// be used if a completion item itself doesn't specify the value.
+            ///
+            /// If a completion list specifies a default value and a completion item
+            /// also specifies a corresponding value the one from the item is used.
+            ///
+            /// Servers are only allowed to return default values if the client
+            /// signals support for this via the `completionList.itemDefaults`
+            /// capability.
+            ///
+            /// @since 3.17.0
+            /// </summary>
+            [Optional]
+            public CompletionListItemDefaults? ItemDefaults { get; set; }
+
             public static CompletionList? From<T>(CompletionList<T>? list) where T : class?, IHandlerIdentity?
-                => list switch {
-                    not null => new(list.Items.Select(CompletionItem.From)!, list.IsIncomplete),
-                    _        => null
+                => list switch
+                {
+                    not null => new(list.Items.Select(CompletionItem.From)!, list.IsIncomplete)
+                    {
+                        ItemDefaults = list.ItemDefaults
+                    },
+                    _ => null
                 };
+
+            public static CompletionList From(CompletionList? source, IEnumerable<CompletionItem>? result)
+                => new((source?.Items ?? Array.Empty<CompletionItem>()).Concat(result ?? Array.Empty<CompletionItem>()))
+                {
+                    ItemDefaults = source?.ItemDefaults
+                };
+
+            internal class Converter : JsonConverter<CompletionList>
+            {
+                public override void WriteJson(JsonWriter writer, CompletionList? value, JsonSerializer serializer)
+                {
+                    if (!value.IsIncomplete && value.ItemDefaults is null)
+                    {
+                        serializer.Serialize(writer, value.Items.ToArray());
+                        return;
+                    }
+
+                    writer.WriteStartObject();
+                    writer.WritePropertyName("isIncomplete");
+                    writer.WriteValue(value.IsIncomplete);
+
+                    writer.WritePropertyName("items");
+                    writer.WriteStartArray();
+                    foreach (var item in value.Items)
+                    {
+                        serializer.Serialize(writer, item);
+                    }
+                    writer.WriteEndArray();
+
+                    if (value.ItemDefaults is { })
+                    {
+                        writer.WritePropertyName("itemDefaults");
+                        serializer.Serialize(writer, value.ItemDefaults);
+                    }
+
+                    writer.WriteEndObject();
+                }
+
+                public override CompletionList? ReadJson(
+                    JsonReader reader, Type objectType, CompletionList? existingValue, bool hasExistingValue, JsonSerializer serializer
+                )
+                {
+                    if (reader.TokenType == JsonToken.StartArray)
+                    {
+                        var array = JArray.Load(reader).ToObject<IEnumerable<CompletionItem>>(serializer);
+                        return new CompletionList(array);
+                    }
+
+                    if (reader.TokenType == JsonToken.Null)
+                    {
+                        return null;
+                    }
+
+                    var result = JObject.Load(reader);
+                    var items = result["items"].ToObject<IEnumerable<CompletionItem>>(serializer);
+                    return new CompletionList(items, result["isIncomplete"]?.Value<bool>() ?? false)
+                    {
+                        ItemDefaults = result["itemDefaults"]?.ToObject<CompletionListItemDefaults>()
+                    };
+                }
+
+                public override bool CanRead => true;
+            }
         }
 
+        [JsonConverter(typeof(TypedCompletionListConverter))]
         public partial class CompletionList<T>
         {
             public CompletionList(bool isIncomplete) : this(isIncomplete, Enumerable.Empty<CompletionItem<T>>())
@@ -412,12 +546,133 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             public IEnumerable<CompletionItem<T>> Items => this;
 
+            /// <summary>
+            /// In many cases the items of an actual completion result share the same
+            /// value for properties like `commitCharacters` or the range of a text
+            /// edit. A completion list can therefore define item defaults which will
+            /// be used if a completion item itself doesn't specify the value.
+            ///
+            /// If a completion list specifies a default value and a completion item
+            /// also specifies a corresponding value the one from the item is used.
+            ///
+            /// Servers are only allowed to return default values if the client
+            /// signals support for this via the `completionList.itemDefaults`
+            /// capability.
+            ///
+            /// @since 3.17.0
+            /// </summary>
+            [Optional]
+            public CompletionListItemDefaults? ItemDefaults { get; set; }
+
             public static CompletionList<T>? Create(CompletionList? list)
-                => list switch {
+                => list switch
+                {
                     not null =>
-                        new(list.IsIncomplete, list.Items.Select(CompletionItem<T>.From)!),
+                        new(list.IsIncomplete, list.Items.Select(CompletionItem<T>.From)!)
+                        {
+                            ItemDefaults = list.ItemDefaults
+                        },
                     _ => null
                 };
+
+            [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("container")]
+            public static implicit operator CompletionList?(CompletionList<T>? container) => container switch
+            {
+                not null => new CompletionList(container.Select(value => (CompletionItem)value), container.IsIncomplete)
+                {
+                    ItemDefaults = container.ItemDefaults
+                },
+                _ => null
+            };
+
+        }
+
+        internal class TypedCompletionListConverter : JsonConverter
+        {
+            public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+            {
+                serializer.Serialize(writer, (CompletionList?)value);
+            }
+
+            public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+            {
+                var completionList = serializer.Deserialize<CompletionList>(reader);
+                return objectType.GetMethod(nameof(CompletionList<IHandlerIdentity>.Create), BindingFlags.Static | BindingFlags.Public)!
+                          .Invoke(null, new object[] { completionList })!;
+            }
+
+            public override bool CanConvert(Type objectType)
+            {
+                return objectType.IsGenericType && objectType.GetGenericTypeDefinition() == typeof(CompletionList<>);
+            }
+
+            public override bool CanRead => true;
+        }
+
+        public record CompletionListItemDefaults
+        {
+            /// <summary>
+            /// A default commit character set.
+            ///
+            /// @since 3.17.0
+            /// </summary>
+            [Optional]
+            public Container<string>? CommitCharacters { get; init; }
+
+            /// <summary>
+            /// A default edit range
+            ///
+            /// @since 3.17.0
+            /// </summary>
+            [Optional]
+            public RangeOrEditRange? EditRange { get; init; }
+
+            /// <summary>
+            /// A default insert text format
+            ///
+            /// @since 3.17.0
+            /// </summary>
+            [Optional]
+            public InsertTextFormat? InsertTextFormat { get; init; }
+
+            /// <summary>
+            /// A default insert text mode
+            ///
+            /// @since 3.17.0
+            /// </summary>
+            public InsertTextMode? InsertTextMode { get; init; }
+
+            /// <summary>
+            /// A default data value.
+            ///
+            /// @since 3.17.0
+            /// </summary>
+            [Optional]
+            public JToken? Data { get; init; }
+        }
+
+        /// <summary>
+        /// Additional details for a completion item label.
+        ///
+        /// @since 3.17.0 - proposed state
+        /// </summary>
+        public record CompletionItemLabelDetails
+        {
+            /// <summary>
+            /// An optional string which is rendered less prominently directly after
+            /// {@link CompletionItem.label label}, without any spacing. Should be
+            /// used for function signatures or type annotations.
+            /// </summary>
+            [Optional]
+            public string? Detail { get; init; }
+
+            /// <summary>
+            /// An optional string which is rendered less prominently after
+            /// {@link CompletionItemLabelDetails.detail}. Should be used for fully qualified
+            /// names or file path.
+            /// </summary>
+            [Optional]
+            public string? Description { get; init; }
         }
     }
 
@@ -444,6 +699,46 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             [Optional]
             public bool ContextSupport { get; set; }
+
+            /// <summary>
+            /// The client's default when the completion item doesn't provide a
+            /// `insertTextMode` property.
+            ///
+            /// @since 3.17.0
+            /// </summary>
+            [Optional]
+            public InsertTextMode? InsertTextMode { get; set; }
+
+            /// <summary>
+            /// The client supports the following `CompletionList` specific
+            /// capabilities.
+            ///
+            /// @since 3.17.0
+            /// </summary>
+            [Optional]
+            public CompletionListCapabilityOptions? CompletionList { get; set; }
+        }
+
+        /// <summary>
+        /// The client supports the following `CompletionList` specific
+        /// capabilities.
+        ///
+        /// @since 3.17.0
+        /// </summary>
+        public class CompletionListCapabilityOptions
+        {
+            /// <summary>
+            /// The client supports the following itemDefaults on
+            /// a completion list.
+            ///
+            /// The value lists the supported property names of the
+            /// `CompletionList.itemDefaults` object. If omitted
+            /// no properties are supported.
+            ///
+            /// @since 3.17.0
+            /// </summary>
+            [Optional]
+            public Container<string>? ItemDefaults { get; set; }
         }
 
         public class CompletionItemCapabilityOptions
@@ -532,6 +827,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             [Optional]
             public CompletionItemInsertTextModeSupportCapabilityOptions? InsertTextModeSupport { get; set; }
+
+            /// <summary>
+            /// The client has support for completion item label
+            /// details (see also `CompletionItemLabelDetails`).
+            ///
+            /// @since 3.17.0
+            /// </summary>
+            [Optional]
+            public bool LabelDetailsSupport { get; set; }
         }
 
         public class CompletionItemInsertTextModeSupportCapabilityOptions

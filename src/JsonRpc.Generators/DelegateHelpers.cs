@@ -29,25 +29,25 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                              );
         }
 
-        public static Func<TypeSyntax, TypeSyntax?, MethodDeclarationSyntax> MakeGenericFactory(
-            Func<TypeSyntax, TypeSyntax?, MethodDeclarationSyntax> factory, TypeSyntax constraint
+        public static Func<TypeSyntax, TypeSyntax?, TypeSyntax?, MethodDeclarationSyntax> MakeGenericFactory(
+            Func<TypeSyntax, TypeSyntax?, TypeSyntax?, MethodDeclarationSyntax> factory, TypeSyntax constraint
         )
         {
-            return (syntax, resolveSyntax) => factory(syntax, resolveSyntax)
-                                             .WithTypeParameterList(TypeParameterList(SingletonSeparatedList(TypeParameter(Identifier("T")))))
-                                             .WithConstraintClauses(
-                                                  SingletonList(
-                                                      TypeParameterConstraintClause(IdentifierName("T"))
-                                                         .WithConstraints(SingletonSeparatedList<TypeParameterConstraintSyntax>(TypeConstraint(constraint)))
-                                                  )
-                                              );
+            return (syntax, resolveSyntax, initialValueHandler) => factory(syntax, resolveSyntax, initialValueHandler)
+                                                                  .WithTypeParameterList(TypeParameterList(SingletonSeparatedList(TypeParameter(Identifier("T")))))
+                                                                  .WithConstraintClauses(
+                                                                       SingletonList(
+                                                                           TypeParameterConstraintClause(IdentifierName("T"))
+                                                                              .WithConstraints(SingletonSeparatedList<TypeParameterConstraintSyntax>(TypeConstraint(constraint)))
+                                                                       )
+                                                                   );
         }
 
-        public static Func<TypeSyntax, TypeSyntax?, IEnumerable<MethodDeclarationSyntax>> MakeGenericFactory(
-            Func<TypeSyntax, TypeSyntax?, IEnumerable<MethodDeclarationSyntax>> factory, TypeSyntax constraint
+        public static Func<TypeSyntax, TypeSyntax?, TypeSyntax?, IEnumerable<MethodDeclarationSyntax>> MakeGenericFactory(
+            Func<TypeSyntax, TypeSyntax?, TypeSyntax?, IEnumerable<MethodDeclarationSyntax>> factory, TypeSyntax constraint
         )
         {
-            return (syntax, resolveSyntax) => factory(syntax, resolveSyntax)
+            return (syntax, resolveSyntax, initialValueHandler) => factory(syntax, resolveSyntax, initialValueHandler)
                .Select(
                     method => method
                              .WithTypeParameterList(TypeParameterList(SingletonSeparatedList(TypeParameter(Identifier("T")))))

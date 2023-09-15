@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
@@ -17,8 +18,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public MarkupContent? MarkupContent { get; }
         public bool HasMarkupContent => String == null;
 
+        [return: NotNullIfNotNull("value")]
         public static implicit operator StringOrMarkupContent?(string? value) => value is null ? null : new StringOrMarkupContent(value);
 
+        [return: NotNullIfNotNull("markupContent")]
         public static implicit operator StringOrMarkupContent?(MarkupContent? markupContent) => markupContent is null ? null : new StringOrMarkupContent(markupContent);
 
         private string DebuggerDisplay => $"{( HasString ? String : HasMarkupContent ? MarkupContent!.ToString() : string.Empty )}";

@@ -18,5 +18,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Generation
         {
 
         }
+        
+        public bool GenerateImplicitConversion { get; set; }
     }
 }

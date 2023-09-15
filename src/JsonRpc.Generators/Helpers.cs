@@ -30,8 +30,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                            z.Type is SimpleNameSyntax and (
                                { Identifier: { Text: "IJsonRpcRequestHandler" }, Arity: 1 or 2 }
                                or { Identifier: { Text: "ICanBeResolvedHandler" }, Arity: 1 }
-                               or { Identifier: { Text: "IPartialItemRequest" }, Arity: 2 }
-                               or { Identifier: { Text: "IPartialItemsRequest" }, Arity: 2 }
+                               or { Identifier: { Text: "IPartialItemRequest" or "IPartialItemWithInitialValueRequest" }, Arity: 2 }
+                               or { Identifier: { Text: "IPartialItemsRequest" or "IPartialItemsWithInitialValueRequest" }, Arity: 2 }
                                or { Identifier: { Text: "IRequest" }, Arity: 1 }
                                or { Identifier: { Text: "IJsonRpcRequest" }, Arity: 0 }
                                )
@@ -51,15 +51,18 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             TypeSyntax? type = null!;
             foreach (var baseType in syntax.BaseList?.Types.AsEnumerable() ?? Array.Empty<BaseTypeSyntax>())
             {
-                type = baseType.Type switch {
-                    GenericNameSyntax gns => gns switch {
-                        { Identifier: { Text: "IJsonRpcRequestHandler" }, Arity: 1 } => ParseName("MediatR.Unit"),
-                        { Identifier: { Text: "IJsonRpcRequestHandler" }, Arity: 2 } => gns.TypeArgumentList.Arguments[1],
-                        { Identifier: { Text: "ICanBeResolvedHandler" }, Arity: 1 }  => gns.TypeArgumentList.Arguments[0],
-                        { Identifier: { Text: "IPartialItemRequest" }, Arity: 2 }    => gns.TypeArgumentList.Arguments[0],
-                        { Identifier: { Text: "IPartialItemsRequest" }, Arity: 2 }   => gns.TypeArgumentList.Arguments[0],
-                        { Identifier: { Text: "IRequest" }, Arity: 1 }               => gns.TypeArgumentList.Arguments[0],
-                        _                                                            => null
+                type = baseType.Type switch
+                {
+                    GenericNameSyntax gns => gns switch
+                    {
+                        { Identifier: { Text: "IJsonRpcRequestHandler" }, Arity: 1 }                                       => ParseName("MediatR.Unit"),
+                        { Identifier: { Text: "IJsonRpcRequestHandler" }, Arity: 2 }                                       => gns.TypeArgumentList.Arguments[1],
+                        { Identifier: { Text: "ICanBeResolvedHandler" }, Arity: 1 }                                        => gns.TypeArgumentList.Arguments[0],
+                        { Identifier: { Text: "IPartialItemRequest" or "IPartialItemWithInitialValueRequest" }, Arity: 2 } => gns.TypeArgumentList.Arguments[0],
+                        { Identifier: { Text: "IPartialItemsRequest" or "IPartialItemsWithInitialValueRequest" }, Arity: 2 } => gns.TypeArgumentList.Arguments
+                            [0],
+                        { Identifier: { Text: "IRequest" }, Arity: 1 } => gns.TypeArgumentList.Arguments[0],
+                        _                                              => null
                     },
                     SimpleNameSyntax and { Identifier: { Text: "IRequest" } }        => ParseName("MediatR.Unit"),
                     SimpleNameSyntax and { Identifier: { Text: "IJsonRpcRequest" } } => ParseName("MediatR.Unit"),
@@ -89,7 +92,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                              .OfType<TypeConstraintSyntax>()
                              .FirstOrDefault()?.Type;
             }
-            else if (syntax.BaseList?.Types.Select(z => z.Type).OfType<SimpleNameSyntax>().Any(z => z.Identifier.Text == "IRequest" || z.Identifier.Text == "IJsonRpcRequest")
+            else if (syntax.BaseList?.Types.Select(z => z.Type).OfType<SimpleNameSyntax>()
+                           .Any(z => z.Identifier.Text == "IRequest" || z.Identifier.Text == "IJsonRpcRequest")
                   == true)
             {
                 type = IdentifierName(syntax.Identifier.Text);
@@ -98,17 +102,23 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             {
                 foreach (var baseType in syntax.BaseList?.Types.AsEnumerable() ?? Array.Empty<BaseTypeSyntax>())
                 {
-                    type = baseType.Type switch {
-                        GenericNameSyntax gns => gns switch {
+                    type = baseType.Type switch
+                    {
+                        GenericNameSyntax gns => gns switch
+                        {
                             { Identifier: { Text: "IJsonRpcRequestHandler" } }          => gns.TypeArgumentList.Arguments[0],
                             { Identifier: { Text: "IJsonRpcNotificationHandler" } }     => gns.TypeArgumentList.Arguments[0],
                             { Identifier: { Text: "ICanBeResolvedHandler" }, Arity: 1 } => gns.TypeArgumentList.Arguments[0],
-                            { Identifier: { Text: "IRequest" }, Arity: 1 } => IdentifierName(syntax.Identifier.Text),
-                            { Identifier: { Text: "IRequest" }, Arity: 0 }             => IdentifierName(syntax.Identifier.Text),
-                            { Identifier: { Text: "IJsonRpcRequest" } }                => IdentifierName(syntax.Identifier.Text),
-                            { Identifier: { Text: "IPartialItemRequest" }, Arity: 2 }  => IdentifierName(syntax.Identifier.Text),
-                            { Identifier: { Text: "IPartialItemsRequest" }, Arity: 2 } => IdentifierName(syntax.Identifier.Text),
-                            _                                                          => null,
+                            { Identifier: { Text: "IRequest" }, Arity: 1 }              => IdentifierName(syntax.Identifier.Text),
+                            { Identifier: { Text: "IRequest" }, Arity: 0 }              => IdentifierName(syntax.Identifier.Text),
+                            { Identifier: { Text: "IJsonRpcRequest" } }                 => IdentifierName(syntax.Identifier.Text),
+                            { Identifier: { Text: "IPartialItemRequest" or "IPartialItemWithInitialValueRequest" }, Arity: 2 } => IdentifierName(
+                                syntax.Identifier.Text
+                            ),
+                            { Identifier: { Text: "IPartialItemsRequest" or "IPartialItemsWithInitialValueRequest" }, Arity: 2 } => IdentifierName(
+                                syntax.Identifier.Text
+                            ),
+                            _ => null,
                         },
                         _ => null,
                     };
@@ -150,8 +160,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             TypeSyntax? type = null!;
             foreach (var baseType in syntax.BaseList?.Types.AsEnumerable() ?? Array.Empty<BaseTypeSyntax>())
             {
-                type = baseType.Type switch {
-                    GenericNameSyntax gns => gns switch {
+                type = baseType.Type switch
+                {
+                    GenericNameSyntax gns => gns switch
+                    {
                         { Identifier: { Text: "ICapability" }, Arity: 1 }   => gns.TypeArgumentList.Arguments[0],
                         { Identifier: { Text: "IRegistration" }, Arity: 2 } => gns.TypeArgumentList.Arguments[1],
                         _                                                   => null
@@ -190,9 +202,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             TypeSyntax? type = null!;
             foreach (var baseType in syntax.BaseList?.Types.AsEnumerable() ?? Array.Empty<BaseTypeSyntax>())
             {
-                type = baseType.Type switch {
-                    GenericNameSyntax gns and { Identifier: { Text: "IRegistration" }, Arity: >0 } => gns.TypeArgumentList.Arguments[0],
-                    _                                                                              => null
+                type = baseType.Type switch
+                {
+                    GenericNameSyntax gns and { Identifier: { Text: "IRegistration" }, Arity: > 0 } => gns.TypeArgumentList.Arguments[0],
+                    _                                                                               => null
                 };
                 if (type != null) break;
             }
@@ -222,35 +235,42 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
         public static SyntaxSymbol? GetPartialItems(TypeDeclarationSyntax syntax, INamedTypeSymbol symbol, SyntaxSymbol requestType)
         {
-            var handlerInterface = symbol.AllInterfaces
-                                         .FirstOrDefault(z => z.Name == "IPartialItems" && z.TypeArguments.Length == 1)
-                                ?? requestType.Symbol.AllInterfaces.FirstOrDefault(z => z.Name == "IPartialItems" && z.TypeArguments.Length == 1);
+            var handlerInterface = symbol.AllInterfaces.Concat(requestType.Symbol.AllInterfaces).FirstOrDefault(
+                z => z is { Name: "IPartialItems", TypeArguments.Length: 1 } or { Name: "IPartialItemsWithInitialValue", TypeArguments.Length: 2 }
+            );
             var localSymbol = handlerInterface?.TypeArguments[0] as INamedTypeSymbol;
             if (localSymbol == null) return null;
             var type = syntax.BaseList?.Types
                              .Select(z => z.Type is GenericNameSyntax genericNameSyntax ? genericNameSyntax : null)
                              .Where(z => z != null)
-                             .Where(z => z!.Identifier.Text == "IPartialItemsRequest" && z.Arity == 2)
+                             .Where(z => z is { Identifier.Text: "IPartialItemsRequest" or "IPartialItemsWithInitialValueRequest", Arity: 2 })
                              .Select(z => z!.TypeArgumentList.Arguments[1])
                              .FirstOrDefault();
 
             return new SyntaxSymbol(type ?? ResolveTypeName(localSymbol), localSymbol);
         }
 
-        public static SyntaxSymbol? GetPartialItem(TypeDeclarationSyntax syntax, INamedTypeSymbol symbol, SyntaxSymbol requestType)
+        public static (SyntaxSymbol? partialItem, bool inheritsFromSelf) GetPartialItem(
+            TypeDeclarationSyntax syntax, INamedTypeSymbol symbol, SyntaxSymbol requestType, Compilation compilation
+        )
         {
-            var handlerInterface = symbol.AllInterfaces
-                                         .FirstOrDefault(z => z.Name == "IPartialItem" && z.TypeArguments.Length == 1)
-                                ?? requestType.Symbol.AllInterfaces.FirstOrDefault(z => z.Name == "IPartialItem" && z.TypeArguments.Length == 1);
+            var handlerInterface = symbol.AllInterfaces.Concat(requestType.Symbol.AllInterfaces)
+                                         .FirstOrDefault(
+                                              z => z is { Name: "IPartialItem", TypeArguments.Length: 1 } or
+                                                  { Name: "IPartialItemWithInitialValue", TypeArguments.Length: 2 }
+                                          );
             var localSymbol = handlerInterface?.TypeArguments[0] as INamedTypeSymbol;
-            if (localSymbol == null) return null;
+            if (localSymbol == null) return ( null, false );
             var type = syntax.BaseList?.Types
                              .Select(z => z.Type is GenericNameSyntax genericNameSyntax ? genericNameSyntax : null)
                              .Where(z => z != null)
-                             .Where(z => z!.Identifier.Text == "IPartialItemRequest" && z.Arity == 2)
+                             .Where(z => z is { Identifier.Text: "IPartialItemRequest" or "IPartialItemWithInitialValueRequest", Arity: 2 })
                              .Select(z => z!.TypeArgumentList.Arguments[1])
                              .FirstOrDefault();
-            return new SyntaxSymbol(type ?? ResolveTypeName(localSymbol), localSymbol);
+            return (
+                new SyntaxSymbol(type ?? ResolveTypeName(localSymbol), localSymbol),
+                handlerInterface!.TypeArguments.Length == 2 && compilation.HasImplicitConversion(handlerInterface!.TypeArguments[1], handlerInterface.TypeArguments[0])
+            );
         }
 
         public static NameSyntax ResolveTypeName(ITypeSymbol symbol)
@@ -270,12 +290,16 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             return IdentifierName(symbol.Name);
         }
 
-        public static GenericNameSyntax CreatePartialAction(TypeSyntax requestType, TypeSyntax partialType, bool withCancellationToken, params TypeSyntax[] types)
+        public static GenericNameSyntax CreatePartialAction(
+            TypeSyntax requestType, TypeSyntax partialType, bool withCancellationToken, params TypeSyntax[] types
+        )
         {
-            var typeArguments = new List<TypeSyntax> {
+            var typeArguments = new List<TypeSyntax>
+            {
                 requestType,
                 GenericName("IObserver").WithTypeArgumentList(TypeArgumentList(SeparatedList(new[] { partialType }))),
             };
+
             typeArguments.AddRange(types);
             if (withCancellationToken)
             {
@@ -286,7 +310,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                .WithTypeArgumentList(TypeArgumentList(SeparatedList(typeArguments)));
         }
 
-        public static ExpressionStatementSyntax EnsureRegistrationOptionsIsSet(NameSyntax registrationOptionsName, TypeSyntax registrationOptionsType, bool hasCapability) =>
+        public static ExpressionStatementSyntax EnsureRegistrationOptionsIsSet(
+            NameSyntax registrationOptionsName, TypeSyntax registrationOptionsType, bool hasCapability
+        ) =>
             ExpressionStatement(
                 AssignmentExpression(
                     SyntaxKind.CoalesceAssignmentExpression,
@@ -322,31 +348,39 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         private static ArgumentListSyntax GetHandlerArgumentList() =>
             ArgumentList(
                 SeparatedList(
-                    new[] {
+                    new[]
+                    {
                         HandlerArgument
                     }
                 )
             );
 
         public static ArgumentListSyntax GetRegistrationHandlerArgumentList(
-            TypeSyntax registrationOptionsName, TypeSyntax registrationType, ArgumentSyntax handlerArgument, TypeSyntax? capabilityType, bool includeId
+            TypeSyntax registrationOptionsName, TypeSyntax registrationType, ArgumentSyntax handlerArgument, ArgumentSyntax? initialArgument,
+            TypeSyntax? capabilityType, bool includeId
         ) =>
             ArgumentList(
                 SeparatedList(
-                    includeId
-                        ? new[] {
+                    ( includeId
+                        ? new[]
+                        {
                             Argument(IdentifierName("id")),
+                            initialArgument!,
                             handlerArgument,
                             Argument(GetRegistrationOptionsAdapter(registrationOptionsName, registrationType, capabilityType))
                         }
-                        : new[] {
+                        : new[]
+                        {
+                            initialArgument!,
                             handlerArgument,
                             Argument(GetRegistrationOptionsAdapter(registrationOptionsName, registrationType, capabilityType))
-                        }
+                        } )
+                   .Where(z => z is not null)
                 )
             );
 
         public static ArgumentSyntax HandlerArgument = Argument(IdentifierName("handler"));
+        public static ArgumentSyntax InitialHandlerArgument = Argument(IdentifierName("initialHandler"));
         public static ArgumentSyntax ResolveHandlerArgument = Argument(IdentifierName("resolveHandler"));
 
         public static ArgumentSyntax GetHandlerAdapterArgument(
@@ -393,55 +427,62 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(registrationOptionsName))));
         }
 
-        private static ArgumentListSyntax GetPartialResultArgumentList(TypeSyntax responseName, ArgumentSyntax handlerArgument) =>
-            ArgumentList(
-                SeparatedList(
-                    new[] {
-                        handlerArgument,
-                        Argument(
-                            InvocationExpression(
-                                MemberAccessExpression(
-                                    SyntaxKind.SimpleMemberAccessExpression,
-                                    IdentifierName("_"),
-                                    GenericName(Identifier("GetService"))
-                                       .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("IProgressManager"))))
-                                )
-                            )
-                        ),
-                        Argument(
+        private static SeparatedSyntaxList<ArgumentSyntax> GetPartialResultArgumentList(
+            TypeSyntax responseName, ArgumentSyntax handlerArgument, ArgumentSyntax? initialArgument
+        ) =>
+            SeparatedList(
+                new[]
+                {
+                    initialArgument!,
+                    handlerArgument,
+                    Argument(
+                        InvocationExpression(
                             MemberAccessExpression(
                                 SyntaxKind.SimpleMemberAccessExpression,
-                                responseName.EnsureNotNullable(),
-                                IdentifierName("From")
+                                IdentifierName("_"),
+                                GenericName(Identifier("GetService"))
+                                   .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("IProgressManager"))))
                             )
                         )
-                    }
-                )
-            );
+                    ),
+                    Argument(
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            responseName.EnsureNotNullable(),
+                            IdentifierName("From")
+                        )
+                    )
+                }.Where(z => z is not null)
+            )!;
 
-        private static ArgumentListSyntax GetPartialItemsArgumentList(TypeSyntax responseName, ArgumentSyntax handlerArgument) =>
+        private static ArgumentListSyntax GetPartialItemsArgumentList(
+            TypeSyntax responseName, ArgumentSyntax handlerArgument, ArgumentSyntax? initialArgument
+        ) =>
             ArgumentList(
                 SeparatedList(
-                    new[] {
-                        handlerArgument,
-                        Argument(
-                            InvocationExpression(
+                    new[]
+                        {
+                            initialArgument!,
+                            handlerArgument,
+                            Argument(
+                                InvocationExpression(
+                                    MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        IdentifierName("_"),
+                                        GenericName(Identifier("GetService"))
+                                           .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("IProgressManager"))))
+                                    )
+                                )
+                            ),
+                            Argument(
                                 MemberAccessExpression(
                                     SyntaxKind.SimpleMemberAccessExpression,
-                                    IdentifierName("_"),
-                                    GenericName(Identifier("GetService"))
-                                       .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("IProgressManager"))))
+                                    responseName.EnsureNotNullable(),
+                                    IdentifierName("From")
                                 )
                             )
-                        ),
-                        Argument(
-                            MemberAccessExpression(
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                responseName.EnsureNotNullable(),
-                                IdentifierName("From")
-                            )
-                        )
-                    }
+                        }
+                       .Where(z => z is not null)
                 )
             );
 
@@ -456,7 +497,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         public static ObjectCreationExpressionSyntax CreateHandlerArgument(string innerClassName, params TypeSyntax[] genericArguments) =>
             ObjectCreationExpression(GenericName(innerClassName).WithTypeArgumentList(TypeArgumentList(SeparatedList(genericArguments))));
 
-        public static ArrowExpressionClauseSyntax GetNotificationCapabilityHandlerExpression(ExpressionSyntax nameExpression, TypeSyntax requestName, TypeSyntax capabilityName)
+        public static ArrowExpressionClauseSyntax GetNotificationCapabilityHandlerExpression(
+            ExpressionSyntax nameExpression, TypeSyntax requestName, TypeSyntax capabilityName
+        )
         {
             return ArrowExpressionClause(
                 AddHandler(
@@ -540,7 +583,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
         public static ArrowExpressionClauseSyntax GetPartialResultCapabilityHandlerExpression(
             ExpressionSyntax nameExpression, TypeSyntax requestName, TypeSyntax itemType, TypeSyntax responseType,
-            TypeSyntax capabilityName
+            TypeSyntax capabilityName, bool requestPartialHasInitialValue
         )
         {
             return ArrowExpressionClause(
@@ -553,20 +596,30 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                             ),
                             CreateHandlerArgument(
                                     IdentifierName("LanguageProtocolDelegatingHandlers"),
-                                    "PartialResultCapability",
+                                    requestPartialHasInitialValue ? "PartialResultCapabilityWithInitialValue" : "PartialResultCapability",
                                     requestName,
                                     responseType,
                                     itemType,
                                     capabilityName
                                 )
                                .WithArgumentList(
-                                    GetPartialResultArgumentList(
-                                        responseType,
-                                        GetHandlerAdapterArgument(
-                                            TypeArgumentList(SeparatedList(new[] { requestName, itemType })),
-                                            HandlerArgument,
-                                            capabilityName,
-                                            true
+                                    ArgumentList(
+                                        GetPartialResultArgumentList(
+                                            responseType,
+                                            GetHandlerAdapterArgument(
+                                                TypeArgumentList(SeparatedList(new[] { requestName, itemType })),
+                                                HandlerArgument,
+                                                capabilityName,
+                                                true
+                                            ),
+                                            requestPartialHasInitialValue
+                                                ? GetHandlerAdapterArgument(
+                                                    TypeArgumentList(SeparatedList(new[] { requestName, responseType })),
+                                                    InitialHandlerArgument,
+                                                    capabilityName,
+                                                    false
+                                                )
+                                                : null
                                         )
                                     )
                                 )
@@ -577,7 +630,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         }
 
         public static ArrowExpressionClauseSyntax GetPartialResultHandlerExpression(
-            ExpressionSyntax nameExpression, TypeSyntax requestName, TypeSyntax partialItem, TypeSyntax responseType
+            ExpressionSyntax nameExpression, TypeSyntax requestName, TypeSyntax partialItem, TypeSyntax responseType, bool requestPartialHasInitialValue
         )
         {
             return ArrowExpressionClause(
@@ -590,12 +643,18 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                             ),
                             CreateHandlerArgument(
                                     IdentifierName("LanguageProtocolDelegatingHandlers"),
-                                    "PartialResult",
+                                    requestPartialHasInitialValue ? "PartialResultWithInitialValue" : "PartialResult",
                                     requestName,
                                     responseType,
                                     partialItem
                                 )
-                               .WithArgumentList(GetPartialResultArgumentList(responseType, HandlerArgument))
+                               .WithArgumentList(
+                                    ArgumentList(
+                                        GetPartialResultArgumentList(
+                                            responseType, HandlerArgument, requestPartialHasInitialValue ? InitialHandlerArgument : null
+                                        )
+                                    )
+                                )
                         )
                     )
                 )
@@ -604,7 +663,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
         public static ArrowExpressionClauseSyntax GetPartialResultsCapabilityHandlerExpression(
             ExpressionSyntax nameExpression, TypeSyntax requestName, TypeSyntax responseType,
-            TypeSyntax itemName, TypeSyntax capabilityName
+            TypeSyntax itemName, TypeSyntax capabilityName, bool requestPartialHasInitialValue
         )
         {
             return ArrowExpressionClause(
@@ -617,20 +676,30 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                             ),
                             CreateHandlerArgument(
                                     IdentifierName("LanguageProtocolDelegatingHandlers"),
-                                    "PartialResultsCapability",
+                                    requestPartialHasInitialValue ? "PartialResultsCapabilityWithInitialValue" : "PartialResultsCapability",
                                     requestName,
                                     responseType,
                                     itemName,
                                     capabilityName
                                 )
                                .WithArgumentList(
-                                    GetPartialResultArgumentList(
-                                        responseType,
-                                        GetHandlerAdapterArgument(
-                                            TypeArgumentList(SeparatedList(new[] { requestName, itemName })),
-                                            HandlerArgument,
-                                            capabilityName,
-                                            true
+                                    ArgumentList(
+                                        GetPartialResultArgumentList(
+                                            responseType,
+                                            GetHandlerAdapterArgument(
+                                                TypeArgumentList(SeparatedList(new[] { requestName, itemName })),
+                                                HandlerArgument,
+                                                capabilityName,
+                                                true
+                                            ),
+                                            requestPartialHasInitialValue
+                                                ? GetHandlerAdapterArgument(
+                                                    TypeArgumentList(SeparatedList(new[] { requestName, responseType })),
+                                                    InitialHandlerArgument,
+                                                    capabilityName,
+                                                    false
+                                                )
+                                                : null
                                         )
                                     )
                                 )
@@ -642,7 +711,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
         public static ArrowExpressionClauseSyntax GetPartialResultsHandlerExpression(
             ExpressionSyntax nameExpression, TypeSyntax requestName, TypeSyntax itemName,
-            TypeSyntax responseType
+            TypeSyntax responseType, bool requestPartialHasInitialValue
         )
         {
             return ArrowExpressionClause(
@@ -655,7 +724,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                             ),
                             CreateHandlerArgument(
                                     IdentifierName("LanguageProtocolDelegatingHandlers"),
-                                    "PartialResults",
+                                    requestPartialHasInitialValue ? "PartialResultsWithInitialValue" : "PartialResults",
                                     requestName,
                                     responseType,
                                     itemName
@@ -668,7 +737,15 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                             HandlerArgument,
                                             null,
                                             true
-                                        )
+                                        ),
+                                        requestPartialHasInitialValue
+                                            ? GetHandlerAdapterArgument(
+                                                TypeArgumentList(SeparatedList(new[] { requestName, responseType })),
+                                                InitialHandlerArgument,
+                                                null,
+                                                false
+                                            )
+                                            : null
                                     )
                                 )
                         )
@@ -689,7 +766,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                    .WithArgumentList(
                         ArgumentList(
                             SeparatedList<ArgumentSyntax>(
-                                new SyntaxNodeOrToken[] {
+                                new SyntaxNodeOrToken[]
+                                {
                                     Argument(nameExpression),
                                     Token(SyntaxKind.CommaToken),
                                     Argument(
@@ -723,7 +801,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                    .WithArgumentList(
                         ArgumentList(
                             SeparatedList(
-                                new[] {
+                                new[]
+                                {
                                     Argument(nameExpression),
                                     Argument(
                                         item.IsUnit
@@ -773,7 +852,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                    .WithArgumentList(
                         ArgumentList(
                             SeparatedList(
-                                new[] {
+                                new[]
+                                {
                                     Argument(IdentifierName(@"request"))
                                 }
                             )
@@ -793,7 +873,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                    .WithArgumentList(
                         ArgumentList(
                             SeparatedList(
-                                new[] {
+                                new[]
+                                {
                                     Argument(IdentifierName(@"request")),
                                     Argument(IdentifierName("cancellationToken"))
                                 }
@@ -802,39 +883,70 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     )
             );
 
-        public static ArrowExpressionClauseSyntax GetPartialInvokeExpression(TypeSyntax responseType, TypeSyntax? partialItemType)
+        public static ArrowExpressionClauseSyntax GetRequestReturningInvokeExpression(ExpressionSyntax requestName, TypeSyntax responseType) =>
+            ArrowExpressionClause(
+                InvocationExpression(
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            InvocationExpression(
+                                    MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        IdentifierName("client"),
+                                        IdentifierName("SendRequest")))
+                               .WithArgumentList(
+                                    ArgumentList(
+                                        SeparatedList(
+                                            new []{
+                                                Argument(requestName),
+                                                Argument((IdentifierName(@"request")))}))),
+                            GenericName(
+                                    Identifier("Returning"))
+                               .WithTypeArgumentList(
+                                    TypeArgumentList(
+                                        SingletonSeparatedList(responseType)))))
+                   .WithArgumentList(
+                        ArgumentList(
+                            SingletonSeparatedList(
+                                Argument(
+                                    IdentifierName("cancellationToken")))))
+            );
+
+        public static ArrowExpressionClauseSyntax GetPartialInvokeExpression(
+            TypeSyntax responseType, TypeSyntax? partialItemType, bool partialItemTypeInheritsFromSelf
+        )
         {
             var realResponseType = responseType is NullableTypeSyntax nts ? nts.ElementType : responseType;
             var factoryArgument = Argument(
-                SimpleLambdaExpression(
-                    Parameter(Identifier("value")),
-                    ObjectCreationExpression(realResponseType)
-                       .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("value")))))
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    realResponseType.EnsureNotNullable(),
+                    IdentifierName("From")
                 )
             );
-            var arguments = new[] {
-                Argument(
-                    IdentifierName(@"request")
-                ),
+            var arguments = new[]
+            {
+                Argument(IdentifierName(@"request")),
                 factoryArgument,
                 Argument(IdentifierName("cancellationToken"))
             };
-            if (partialItemType is {})
+            if (partialItemType is { } && !partialItemTypeInheritsFromSelf)
             {
                 var realPartialItemType = partialItemType is NullableTypeSyntax nts2 ? nts2.ElementType : partialItemType;
-                arguments = new[] {
+                arguments = new[]
+                {
                     arguments[0],
                     arguments[1],
                     Argument(
-                        SimpleLambdaExpression(
-                            Parameter(Identifier("value")),
-                            ObjectCreationExpression(realPartialItemType)
-                               .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("value")))))
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            realPartialItemType.EnsureNotNullable(),
+                            IdentifierName("From")
                         )
                     ),
                     arguments[2]
                 };
             }
+
             return ArrowExpressionClause(
                 InvocationExpression(
                         MemberAccessExpression(
@@ -893,14 +1005,17 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         }
 
         public static SeparatedSyntaxList<TypeParameterConstraintSyntax> HandlerIdentityConstraint { get; } = SeparatedList(
-            new TypeParameterConstraintSyntax[] {
+            new TypeParameterConstraintSyntax[]
+            {
                 ClassOrStructConstraint(SyntaxKind.ClassConstraint)
                    .WithQuestionToken(Token(SyntaxKind.QuestionToken)),
                 TypeConstraint(NullableType(IdentifierName("IHandlerIdentity"))),
             }
         );
 
-        public static SyntaxList<TypeParameterConstraintClauseSyntax> HandlerIdentityConstraintClause(bool withHandlerIdentity, IdentifierNameSyntax? openGenericType = null)
+        public static SyntaxList<TypeParameterConstraintClauseSyntax> HandlerIdentityConstraintClause(
+            bool withHandlerIdentity, IdentifierNameSyntax? openGenericType = null
+        )
         {
             if (!withHandlerIdentity)
                 return SingletonList(
@@ -946,7 +1061,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         private static readonly Lazy<AccessorListSyntax> GetSetAccessorLazy = LazyFactory.Create(
             () => AccessorList(
                 List(
-                    new[] {
+                    new[]
+                    {
                         AccessorDeclaration(SyntaxKind.GetAccessorDeclaration).WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
                         AccessorDeclaration(SyntaxKind.SetAccessorDeclaration).WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
                     }
@@ -957,7 +1073,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         private static readonly Lazy<AccessorListSyntax> GetInitAccessorLazy = LazyFactory.Create(
             () => AccessorList(
                 List(
-                    new[] {
+                    new[]
+                    {
                         AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
                            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
                         AccessorDeclaration(SyntaxKind.InitAccessorDeclaration)
@@ -972,7 +1089,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         private static readonly Lazy<AccessorListSyntax> GetAccessorLazy = LazyFactory.Create(
             () => AccessorList(
                 List(
-                    new[] {
+                    new[]
+                    {
                         AccessorDeclaration(SyntaxKind.GetAccessorDeclaration).WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
                     }
                 )
@@ -989,7 +1107,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
         public static string? GetSyntaxName(this TypeSyntax typeSyntax)
         {
-            return typeSyntax switch {
+            return typeSyntax switch
+            {
                 SimpleNameSyntax sns     => sns.Identifier.Text,
                 QualifiedNameSyntax qns  => qns.Right.Identifier.Text,
                 NullableTypeSyntax nts   => nts.ElementType.GetSyntaxName() + "?",
@@ -1091,19 +1210,25 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
             if (syntax.ExpressionBody is not null)
             {
-                syntax = syntax.WithExpressionBody(syntax.ExpressionBody.WithExpression(syntax.ExpressionBody.Expression.InsideNullableSwitchExpression(identifierNameSyntax)));
+                syntax = syntax.WithExpressionBody(
+                    syntax.ExpressionBody.WithExpression(syntax.ExpressionBody.Expression.InsideNullableSwitchExpression(identifierNameSyntax))
+                );
             }
 
             return syntax
                   .WithParameterList(
-                       ParameterList(SeparatedList(syntax.ParameterList.Parameters.Select(parameter => parameter.WithType(parameter.Type?.EnsureNullable())).ToArray()))
+                       ParameterList(
+                           SeparatedList(syntax.ParameterList.Parameters.Select(parameter => parameter.WithType(parameter.Type?.EnsureNullable())).ToArray())
+                       )
                    )
                   .AddAttributeLists(
                        AttributeList(
                                SingletonSeparatedList(
                                    Attribute(
                                            QualifiedName(
-                                               QualifiedName(QualifiedName(IdentifierName("System"), IdentifierName("Diagnostics")), IdentifierName("CodeAnalysis")),
+                                               QualifiedName(
+                                                   QualifiedName(IdentifierName("System"), IdentifierName("Diagnostics")), IdentifierName("CodeAnalysis")
+                                               ),
                                                IdentifierName("NotNullIfNotNull")
                                            )
                                        )
@@ -1130,7 +1255,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             return ( MakeMethodNullable(syntax as BaseMethodDeclarationSyntax, identifierNameSyntax) as MethodDeclarationSyntax )!;
         }
 
-        public static ConversionOperatorDeclarationSyntax MakeMethodNullable(this ConversionOperatorDeclarationSyntax syntax, IdentifierNameSyntax identifierNameSyntax)
+        public static ConversionOperatorDeclarationSyntax MakeMethodNullable(
+            this ConversionOperatorDeclarationSyntax syntax, IdentifierNameSyntax identifierNameSyntax
+        )
         {
             return ( MakeMethodNullable(syntax as BaseMethodDeclarationSyntax, identifierNameSyntax) as ConversionOperatorDeclarationSyntax )!;
         }
@@ -1140,7 +1267,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             return SwitchExpression(name)
                .WithArms(
                     SeparatedList(
-                        new[] {
+                        new[]
+                        {
                             SwitchExpressionArm(
                                 UnaryPattern(ConstantPattern(LiteralExpression(SyntaxKind.NullLiteralExpression))),
                                 creationExpression

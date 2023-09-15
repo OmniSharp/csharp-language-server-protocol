@@ -64,7 +64,7 @@ namespace Lsp.Integration.Tests
                         completionItem => { return Task.FromResult(completionItem with { Command = completionItem.Command with { Name = "resolved-a" } }); },
                         (_, _) => new CompletionRegistrationOptions
                         {
-                            DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
+                            DocumentSelector = TextDocumentSelector.ForPattern("**/*.cs")
                         }
                     );
 
@@ -91,7 +91,7 @@ namespace Lsp.Integration.Tests
                         completionItem => { return Task.FromResult(completionItem with { Command = completionItem.Command with { Name = "resolved-b" } }); },
                         (_, _) => new CompletionRegistrationOptions
                         {
-                            DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
+                            DocumentSelector = TextDocumentSelector.ForPattern("**/*.cs")
                         }
                     );
 
@@ -114,7 +114,7 @@ namespace Lsp.Integration.Tests
                         completionItem => { return Task.FromResult(completionItem with { Command = completionItem.Command with { Name = "resolved-c" } }); },
                         (_, _) => new CompletionRegistrationOptions
                         {
-                            DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
+                            DocumentSelector = TextDocumentSelector.ForPattern("**/*.cs")
                         }
                     );
 
@@ -137,7 +137,7 @@ namespace Lsp.Integration.Tests
                         completionItem => { return Task.FromResult(completionItem with { Command = completionItem.Command with { Name = "resolved-d" } }); },
                         (_, _) => new CompletionRegistrationOptions
                         {
-                            DocumentSelector = DocumentSelector.ForLanguage("vb")
+                            DocumentSelector = TextDocumentSelector.ForLanguage("vb")
                         }
                     );
                 }
@@ -222,9 +222,24 @@ namespace Lsp.Integration.Tests
                 options => { }, options =>
                 {
                     options.ObserveCompletion<Data>(
+                        (completionParams, token) => Task.FromResult(
+                            new CompletionList<Data>()
+                            {
+                                ItemDefaults = new CompletionListItemDefaults()
+                                {
+                                    InsertTextMode = InsertTextMode.AsIs,
+                                    EditRange = new Range()
+                                    {
+                                        End = new Position(0, 1)
+                                    },
+                                    CommitCharacters = new Container<string>("a", "b", "c"),
+                                    Data = JObject.FromObject(new { Test = 1 })
+                                }
+                            }
+                        ),
                         (completionParams, observer, capability, token) =>
                         {
-                            var a = new CompletionList<Data>(
+                            var a = new Container<CompletionItem<Data>>(
                                 new CompletionItem<Data>
                                 {
                                     Command = new Command
@@ -260,6 +275,8 @@ namespace Lsp.Integration.Tests
             );
 
             var completionList = await client.RequestCompletion(new CompletionParams());
+            completionList.ItemDefaults.Should().NotBeNull();
+            completionList.ItemDefaults.CommitCharacters.Should().ContainInOrder("a", "b", "c");
             var item = completionList.First();
 
             item = await client.ResolveCompletion(item);
@@ -324,9 +341,10 @@ namespace Lsp.Integration.Tests
                 options => { }, options =>
                 {
                     options.ObserveCompletion<Data>(
+                        (completionParams, token) => Task.FromResult(new CompletionList<Data>()),
                         (completionParams, observer, token) =>
                         {
-                            var a = new CompletionList<Data>(
+                            var a = new Container<CompletionItem<Data>>(
                                 new CompletionItem<Data>
                                 {
                                     Command = new Command
@@ -425,9 +443,10 @@ namespace Lsp.Integration.Tests
                 options => { }, options =>
                 {
                     options.ObserveCompletion<Data>(
+                        (completionParams) => Task.FromResult(new CompletionList<Data>()),
                         (completionParams, observer) =>
                         {
-                            var a = new CompletionList<Data>(
+                            var a = new Container<CompletionItem<Data>>(
                                 new CompletionItem<Data>
                                 {
                                     Command = new Command
@@ -512,9 +531,10 @@ namespace Lsp.Integration.Tests
                 options => { }, options =>
                 {
                     options.ObserveCompletion(
+                        (completionParams, token) => Task.FromResult(new CompletionList()),
                         (completionParams, observer, capability, token) =>
                         {
-                            var a = new CompletionList(
+                            var a = new Container<CompletionItem>(
                                 new CompletionItem
                                 {
                                     Command = new Command
@@ -583,9 +603,10 @@ namespace Lsp.Integration.Tests
                 options => { }, options =>
                 {
                     options.ObserveCompletion(
+                        (completionParams, token) => Task.FromResult(new CompletionList()),
                         (completionParams, observer, token) =>
                         {
-                            var a = new CompletionList(
+                            var a = new Container<CompletionItem>(
                                 new CompletionItem
                                 {
                                     Command = new Command
@@ -654,9 +675,10 @@ namespace Lsp.Integration.Tests
                 options => { }, options =>
                 {
                     options.ObserveCompletion(
+                        (completionParams) => Task.FromResult(new CompletionList()),
                         (completionParams, observer) =>
                         {
-                            var a = new CompletionList(
+                            var a = new Container<CompletionItem>(
                                 new CompletionItem
                                 {
                                     Command = new Command

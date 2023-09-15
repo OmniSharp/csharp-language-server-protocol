@@ -8,15 +8,15 @@ namespace Lsp.Tests
 {
     internal static class TextDocumentSyncHandlerExtensions
     {
-        public static ITextDocumentSyncHandler With(DocumentSelector? documentSelector, string language) =>
+        public static ITextDocumentSyncHandler With(TextDocumentSelector? documentSelector, string language) =>
             Substitute.For<ITextDocumentSyncHandler>().With(documentSelector, language);
 
-        public static ITextDocumentSyncHandler With(this ITextDocumentSyncHandler handler, DocumentSelector? documentSelector, string language)
+        public static ITextDocumentSyncHandler With(this ITextDocumentSyncHandler handler, TextDocumentSelector? documentSelector, string language)
         {
-            ( (IDidChangeTextDocumentHandler) handler ).GetRegistrationOptions(Arg.Any<SynchronizationCapability>(), Arg.Any<ClientCapabilities>()).Returns(new TextDocumentChangeRegistrationOptions() { DocumentSelector = documentSelector });
-            ( (IDidOpenTextDocumentHandler) handler ).GetRegistrationOptions(Arg.Any<SynchronizationCapability>(), Arg.Any<ClientCapabilities>()).Returns(new TextDocumentOpenRegistrationOptions() { DocumentSelector = documentSelector });
-            ( (IDidCloseTextDocumentHandler) handler ).GetRegistrationOptions(Arg.Any<SynchronizationCapability>(), Arg.Any<ClientCapabilities>()).Returns(new TextDocumentCloseRegistrationOptions() { DocumentSelector = documentSelector });
-            ( (IDidSaveTextDocumentHandler) handler ).GetRegistrationOptions(Arg.Any<SynchronizationCapability>(), Arg.Any<ClientCapabilities>()).Returns(new TextDocumentSaveRegistrationOptions() { DocumentSelector = documentSelector });
+            ( (IDidChangeTextDocumentHandler) handler ).GetRegistrationOptions(Arg.Any<TextSynchronizationCapability>(), Arg.Any<ClientCapabilities>()).Returns(new TextDocumentChangeRegistrationOptions() { DocumentSelector = documentSelector });
+            ( (IDidOpenTextDocumentHandler) handler ).GetRegistrationOptions(Arg.Any<TextSynchronizationCapability>(), Arg.Any<ClientCapabilities>()).Returns(new TextDocumentOpenRegistrationOptions() { DocumentSelector = documentSelector });
+            ( (IDidCloseTextDocumentHandler) handler ).GetRegistrationOptions(Arg.Any<TextSynchronizationCapability>(), Arg.Any<ClientCapabilities>()).Returns(new TextDocumentCloseRegistrationOptions() { DocumentSelector = documentSelector });
+            ( (IDidSaveTextDocumentHandler) handler ).GetRegistrationOptions(Arg.Any<TextSynchronizationCapability>(), Arg.Any<ClientCapabilities>()).Returns(new TextDocumentSaveRegistrationOptions() { DocumentSelector = documentSelector });
             handler.GetTextDocumentAttributes(Arg.Any<DocumentUri>())
                    .Returns(c => new TextDocumentAttributes(c.Arg<DocumentUri>(), language));
 

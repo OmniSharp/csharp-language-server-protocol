@@ -180,7 +180,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     public record ChangeAnnotationIdentifier
     {
         /// <summary>
-        /// An optional annotation identifer describing the operation.
+        /// An identifier referring to a change annotation managed by a workspace
+        /// edit.
         ///
         /// @since 3.16.0
         /// </summary>
@@ -207,7 +208,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     public record AnnotatedTextEdit : TextEdit
     {
         /// <summary>
-        /// The actual annotation
+        /// The actual annotation identifier.
         /// </summary>
         public ChangeAnnotationIdentifier AnnotationId { get; init; } = null!;
 

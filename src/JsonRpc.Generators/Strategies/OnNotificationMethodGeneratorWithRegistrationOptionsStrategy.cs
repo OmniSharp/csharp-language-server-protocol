@@ -138,6 +138,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                             capabilityName,
                                             false
                                         ),
+                                        null,
                                         capabilityName,
                                         false
                                     )

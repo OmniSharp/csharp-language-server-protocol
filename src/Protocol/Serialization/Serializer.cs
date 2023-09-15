@@ -105,7 +105,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
         protected override void AddOrReplaceConverters(ICollection<JsonConverter> converters)
         {
             ReplaceConverter(converters, new SupportsConverter());
-            ReplaceConverter(converters, new CompletionListConverter());
+            ReplaceConverter(converters, new CompletionList.Converter());
             ReplaceConverter(converters, new DiagnosticCodeConverter());
             ReplaceConverter(converters, new NullableDiagnosticCodeConverter());
             ReplaceConverter(converters, new LocationOrLocationLinksConverter());
@@ -123,6 +123,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             ReplaceConverter(converters, new SemanticTokensFullOrDeltaPartialResultConverter());
             ReplaceConverter(converters, new SymbolInformationOrDocumentSymbolConverter());
             ReplaceConverter(converters, new LocationOrLocationLinkConverter());
+            ReplaceConverter(converters, new StringOrInlayHintLabelParts.Converter());
             ReplaceConverter(converters, new WorkspaceEditDocumentChangeConverter());
             ReplaceConverter(converters, new ParameterInformationLabelConverter());
             ReplaceConverter(converters, new ValueTupleContractResolver<long, long>());

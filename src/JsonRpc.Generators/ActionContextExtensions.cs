@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using OmniSharp.Extensions.JsonRpc.Generators.Contexts;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators
 {
@@ -8,12 +9,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
     {
         public static ParameterListSyntax GetRegistryParameterList(this ExtensionMethodContext extensionMethodContext)
         {
-            return SyntaxFactory.ParameterList(
-                SyntaxFactory.SeparatedList(
+            return ParameterList(
+                SeparatedList(
                     new[] {
-                        SyntaxFactory.Parameter(SyntaxFactory.Identifier("registry"))
+                        Parameter(Identifier("registry"))
                                      .WithType(extensionMethodContext.Item)
-                                     .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.ThisKeyword)))
+                                     .WithModifiers(TokenList(Token(SyntaxKind.ThisKeyword)))
                     }
                 )
             );

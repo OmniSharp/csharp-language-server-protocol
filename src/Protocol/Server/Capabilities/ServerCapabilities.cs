@@ -15,11 +15,32 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
     public class ServerCapabilities : CapabilitiesBase, IServerCapabilities
     {
         /// <summary>
+        /// The position encoding the server picked from the encodings offered
+        /// by the client via the client capability `general.positionEncodings`.
+        ///
+        /// If the client didn't provide any position encodings the only valid
+        /// value that a server can return is 'utf-16'.
+        ///
+        /// If omitted it defaults to 'utf-16'.
+        ///
+        /// @since 3.17.0
+        /// </summary>
+        public PositionEncodingKind? PositionEncoding { get; set; }
+
+        /// <summary>
         /// Defines how text documents are synced. Is either a detailed structure defining each notification or
         /// for backwards compatibility the TextDocumentSyncKind number.
         /// </summary>
         [Optional]
         public TextDocumentSync? TextDocumentSync { get; set; }
+
+        /// <summary>
+        /// Defines how notebook documents are synced.
+        ///
+        /// @since 3.17.0
+        /// </summary>
+        [Optional]
+        public NotebookDocumentSyncOptions? NotebookDocumentSync { get; set; }
 
         /// <summary>
         /// The server provides hover support.
@@ -170,6 +191,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         ///
         /// Since 3.10.0
         /// </summary>
+        [Optional]
         public BooleanOr<FoldingRangeRegistrationOptions.StaticOptions>? FoldingRangeProvider { get; set; }
 
         /// <summary>
@@ -177,6 +199,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         ///
         /// Since 3.15.0
         /// </summary>
+        [Optional]
         public BooleanOr<SelectionRangeRegistrationOptions.StaticOptions>? SelectionRangeProvider { get; set; }
 
         /// <summary>
@@ -192,7 +215,40 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         ///
         /// Since 3.14.0
         /// </summary>
+        [Optional]
         public BooleanOr<DeclarationRegistrationOptions.StaticOptions>? DeclarationProvider { get; set; }
+
+        /// <summary>
+        /// The server provides type hierarchy support.
+        ///
+        /// @since 3.17.0
+        /// </summary>
+        [Optional]
+        public BooleanOr<TypeHierarchyRegistrationOptions.StaticOptions>? TypeHierarchyProvider { get; set; }
+
+        /// <summary>
+        /// The server provides inline values.
+        ///
+        /// @since 3.17.0
+        /// </summary>
+        [Optional]
+        public BooleanOr<InlineValueRegistrationOptions.StaticOptions>? InlineValueProvider { get; set; }
+
+        /// <summary>
+        /// The server provides inlay hints.
+        ///
+        /// @since 3.17.0
+        /// </summary>
+        [Optional]
+        public BooleanOr<InlayHintRegistrationOptions.StaticOptions>? InlayHintProvider { get; set; }
+
+        /// <summary>
+        /// The server has support for pull model diagnostics.
+        ///
+        /// @since 3.17.0
+        /// </summary>
+        [Optional]
+        public DiagnosticsRegistrationOptions.StaticOptions? DiagnosticProvider { get; set; }
 
         /// <summary>
         /// Workspace specific server capabilities

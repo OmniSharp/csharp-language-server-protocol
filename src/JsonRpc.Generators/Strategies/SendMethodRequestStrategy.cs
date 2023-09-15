@@ -16,7 +16,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 
             var parameterList = ParameterList(
                 SeparatedList(
-                    new[] {
+                    new[]
+                    {
                         Parameter(Identifier("mediator"))
                            .WithType(extensionMethodContext.Item)
                            .WithModifiers(TokenList(Token(SyntaxKind.ThisKeyword))),
@@ -43,7 +44,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                     .WithTypeArgumentList(
                                          TypeArgumentList(
                                              SeparatedList(
-                                                 new[] {
+                                                 new[]
+                                                 {
                                                      request.PartialItem.Syntax,
                                                      request.Response!.Syntax
                                                  }
@@ -59,7 +61,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                  )
                              )
                             .WithParameterList(parameterList)
-                            .WithExpressionBody(Helpers.GetPartialInvokeExpression(request.Response.Syntax, request.PartialItem.Syntax))
+                            .WithExpressionBody(
+                                 Helpers.GetPartialInvokeExpression(
+                                     request.Response.Syntax,
+                                     request.PartialHasInitialValue ? null : request.PartialItem.Syntax,
+                                     request.PartialItemInheritsFromSelf
+                                 )
+                             )
                             .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
                 yield break;
             }
@@ -67,7 +75,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             if (request.PartialItems is not null)
             {
                 request.AdditionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol.Progress");
-                var partialItemsSyntax = GenericName("IEnumerable").WithTypeArgumentList(TypeArgumentList(SeparatedList(new[] { request.PartialItems!.Syntax })));
+                var partialItemsSyntax =
+                    GenericName("IEnumerable").WithTypeArgumentList(TypeArgumentList(SeparatedList(new[] { request.PartialItems!.Syntax })));
                 yield return MethodDeclaration(
                                  GenericName(
                                          Identifier("IRequestProgressObservable")
@@ -75,7 +84,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                     .WithTypeArgumentList(
                                          TypeArgumentList(
                                              SeparatedList(
-                                                 new[] {
+                                                 new[]
+                                                 {
                                                      partialItemsSyntax,
                                                      request.Response!.Syntax
                                                  }
@@ -91,7 +101,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                  )
                              )
                             .WithParameterList(parameterList)
-                            .WithExpressionBody(Helpers.GetPartialInvokeExpression(request.Response.Syntax, default))
+                            .WithExpressionBody(Helpers.GetPartialInvokeExpression(request.Response.Syntax, default, false))
                             .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
                 yield break;
             }
@@ -115,6 +125,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                         .WithParameterList(parameterList)
                         .WithExpressionBody(Helpers.GetRequestInvokeExpression())
                         .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+            
         }
     }
 }

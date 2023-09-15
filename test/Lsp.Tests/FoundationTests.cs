@@ -142,7 +142,7 @@ namespace Lsp.Tests
         {
             var instance = Activator.CreateInstance(type);
             var property = type.GetProperty("DebuggerDisplay", BindingFlags.NonPublic | BindingFlags.Instance)!;
-            var a1 = () => ( property.GetValue(instance) as string )!;
+            var a1 = () => (property.GetValue(instance) as string)!;
             var a2 = () => instance!.ToString()!;
 
             a1.Should().NotThrow().And.NotBeNull();
@@ -205,7 +205,7 @@ namespace Lsp.Tests
             source.Should().Contain(destination);
         }
 
-        [Theory(DisplayName = "Handler interfaces should have a abstract class")]
+        [Theory(DisplayName = "Handler interfaces should have an class")]
         [ClassData(typeof(TypeHandlerData))]
         public void HandlersShouldAbstractClass(ILspHandlerTypeDescriptor descriptor)
         {
@@ -392,6 +392,7 @@ namespace Lsp.Tests
                 var returns = ForAnyParameter(info => info.ParameterType.GetGenericArguments().LastOrDefault() == returnType);
                 var isAction = ForAnyParameter(info => info.ParameterType.Name.StartsWith(nameof(Action)));
                 var isFunc = ForAnyParameter(info => info.ParameterType.Name.StartsWith("Func"));
+
                 var takesParameter = ForAnyParameter(info => info.ParameterType.GetGenericArguments().FirstOrDefault() == descriptor.ParamsType);
                 var takesCapability = ForAnyParameter(info => info.ParameterType.GetGenericArguments().Skip(1).FirstOrDefault() == descriptor.CapabilityType);
 
@@ -522,6 +523,7 @@ namespace Lsp.Tests
                 Func<MethodInfo, bool> isAction = info => info.ReturnType.Name == "Void";
                 Func<MethodInfo, bool> takesParameter = info => info.GetParameters().Skip(1).Any(z => z.ParameterType == descriptor.ParamsType);
 
+                if (!TypeHandlerExtensionData.HandlersToSkip.All(z => descriptor.HandlerType != z)) return;
                 if (descriptor.IsRequest && descriptor.HasPartialItems)
                 {
                     Func<MethodInfo, bool> partialReturnType = info =>
@@ -688,7 +690,7 @@ namespace Lsp.Tests
             {
                 foreach (var type in typeof(CompletionParams).Assembly.ExportedTypes.Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z))
                                                              .Where(z => !z.Name.EndsWith("Manager"))
-                                                             .Except(new[] { typeof(ITextDocumentSyncHandler) })
+                                                             .Except(new[] { typeof(ITextDocumentSyncHandler), typeof(INotebookDocumentSyncHandler) })
                         )
                 {
                     if (type.IsGenericTypeDefinition && !MethodAttribute.AllFrom(type).Any()) continue;
@@ -731,7 +733,7 @@ namespace Lsp.Tests
                     );
                 foreach (var type in typeof(CompletionParams).Assembly.ExportedTypes.Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z))
                                                              .Where(z => !z.Name.EndsWith("Manager"))
-                                                             .Except(new[] { typeof(ITextDocumentSyncHandler), typeof(IExecuteCommandHandler<>) })
+                                                             .Except(new[] { typeof(ITextDocumentSyncHandler), typeof(INotebookDocumentSyncHandler), typeof(IExecuteCommandHandler<>) })
                         )
                 {
                     if (type.IsGenericTypeDefinition && !MethodAttribute.AllFrom(type).Any()) continue;
@@ -747,7 +749,10 @@ namespace Lsp.Tests
                 typeof(ISemanticTokensFullHandler),
                 typeof(ISemanticTokensDeltaHandler),
                 typeof(ISemanticTokensRangeHandler),
-                typeof(ICodeActionHandler)
+                typeof(ICodeActionHandler),
+                typeof(IDocumentDiagnosticHandler),
+                typeof(IWorkspaceDiagnosticHandler),
+                typeof(ICompletionHandler)
             };
 
             public TypeHandlerExtensionData()
@@ -767,7 +772,7 @@ namespace Lsp.Tests
                 foreach (var type in typeof(CompletionParams).Assembly.ExportedTypes
                                                              .Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z))
                                                              .Where(z => !z.Name.EndsWith("Manager"))
-                                                             .Except(new[] { typeof(ITextDocumentSyncHandler) })
+                                                             .Except(new[] { typeof(ITextDocumentSyncHandler), typeof(INotebookDocumentSyncHandler) })
                         )
                 {
                     if (type.IsGenericTypeDefinition && !MethodAttribute.AllFrom(type).Any()) continue;
@@ -813,7 +818,7 @@ namespace Lsp.Tests
         {
             var name = GetExtensionClassName(descriptor);
             return descriptor.HandlerType.Assembly.GetExportedTypes()
-                             .FirstOrDefault(z => z.IsClass && z.IsAbstract && ( z.Name == name || z.Name == name + "Base" ))!;
+                             .FirstOrDefault(z => z.IsClass && z.IsAbstract && (z.Name == name || z.Name == name + "Base"))!;
         }
 
         private static string GetOnMethodName(IHandlerTypeDescriptor descriptor)

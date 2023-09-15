@@ -90,7 +90,7 @@ namespace Lsp.Tests.Matchers
         {
             // Given
             var textDocumentSyncHandler =
-                TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
+                TextDocumentSyncHandlerExtensions.With(TextDocumentSelector.ForPattern("**/*.cs"), "csharp");
             var textDocumentIdentifiers = new TextDocumentIdentifiers();
             AutoSubstitute.Provide(textDocumentIdentifiers);
             var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, Substitute.For<IResolverContext>(),
@@ -121,7 +121,7 @@ namespace Lsp.Tests.Matchers
         {
             // Given
             var textDocumentSyncHandler =
-                TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cshtml"), "csharp");
+                TextDocumentSyncHandlerExtensions.With(TextDocumentSelector.ForPattern("**/*.cshtml"), "csharp");
             var textDocumentIdentifiers = new TextDocumentIdentifiers();
             AutoSubstitute.Provide(textDocumentIdentifiers);
             var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, Substitute.For<IResolverContext>(),
@@ -152,7 +152,7 @@ namespace Lsp.Tests.Matchers
         {
             // Given
             var textDocumentSyncHandler =
-                TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
+                TextDocumentSyncHandlerExtensions.With(TextDocumentSelector.ForPattern("**/*.cs"), "csharp");
             var textDocumentIdentifiers = new TextDocumentIdentifiers();
             AutoSubstitute.Provide(textDocumentIdentifiers);
             var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, Substitute.For<IResolverContext>(),
@@ -181,7 +181,7 @@ namespace Lsp.Tests.Matchers
         {
             // Given
             var textDocumentSyncHandler =
-                TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
+                TextDocumentSyncHandlerExtensions.With(TextDocumentSelector.ForPattern("**/*.cs"), "csharp");
             var textDocumentIdentifiers = new TextDocumentIdentifiers();
             AutoSubstitute.Provide(textDocumentIdentifiers);
             var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, Substitute.For<IResolverContext>(),
@@ -210,7 +210,7 @@ namespace Lsp.Tests.Matchers
         {
             // Given
             var textDocumentSyncHandler =
-                TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
+                TextDocumentSyncHandlerExtensions.With(TextDocumentSelector.ForPattern("**/*.cs"), "csharp");
             var textDocumentIdentifiers = new TextDocumentIdentifiers();
             AutoSubstitute.Provide(textDocumentIdentifiers);
             var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, Substitute.For<IResolverContext>(),
@@ -239,7 +239,7 @@ namespace Lsp.Tests.Matchers
         {
             // Given
             var textDocumentSyncHandler =
-                TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
+                TextDocumentSyncHandlerExtensions.With(TextDocumentSelector.ForPattern("**/*.cs"), "csharp");
             var textDocumentIdentifiers = new TextDocumentIdentifiers();
             AutoSubstitute.Provide(textDocumentIdentifiers);
             var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, Substitute.For<IResolverContext>(),
@@ -253,7 +253,7 @@ namespace Lsp.Tests.Matchers
             codeLensHandler.GetRegistrationOptions(Arg.Any<CodeLensCapability>(), Arg.Any<ClientCapabilities>())
                            .Returns(
                                 new CodeLensRegistrationOptions {
-                                    DocumentSelector = new DocumentSelector(new DocumentFilter { Pattern = "**/*.cs" })
+                                    DocumentSelector = new TextDocumentSelector(new TextDocumentFilter { Pattern = "**/*.cs" })
                                 }
                             );
 
@@ -261,7 +261,7 @@ namespace Lsp.Tests.Matchers
             codeLensHandler2.GetRegistrationOptions(Arg.Any<CodeLensCapability>(), Arg.Any<ClientCapabilities>())
                             .Returns(
                                  new CodeLensRegistrationOptions {
-                                     DocumentSelector = new DocumentSelector(new DocumentFilter { Pattern = "**/*.cake" })
+                                     DocumentSelector = new TextDocumentSelector(new TextDocumentFilter { Pattern = "**/*.cake" })
                                  }
                              );
             collection.Add(codeLensHandler, codeLensHandler2);
@@ -294,11 +294,11 @@ namespace Lsp.Tests.Matchers
         {
             // Given
             var textDocumentSyncHandler =
-                TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.ps*1"), "powershell");
+                TextDocumentSyncHandlerExtensions.With(TextDocumentSelector.ForPattern("**/*.ps*1"), "powershell");
             var handler = Substitute.For<IFoldingRangeHandler>();
             handler.GetRegistrationOptions(Arg.Any<FoldingRangeCapability>(), Arg.Any<ClientCapabilities>()).Returns(
                 new FoldingRangeRegistrationOptions {
-                    DocumentSelector = new DocumentSelector(new DocumentFilter { Pattern = "**/*.ps*1" })
+                    DocumentSelector = new TextDocumentSelector(new TextDocumentFilter { Pattern = "**/*.ps*1" })
                 }
             );
             var textDocumentIdentifiers = new TextDocumentIdentifiers();

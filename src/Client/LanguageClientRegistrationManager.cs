@@ -180,14 +180,14 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         public IEnumerable<Registration> GetRegistrationsForMethod(string method) => _registrations.Select(z => z.Value).Where(x => x.Method == method);
 
-        public IEnumerable<Registration> GetRegistrationsMatchingSelector(DocumentSelector documentSelector) =>
+        public IEnumerable<Registration> GetRegistrationsMatchingSelector(TextDocumentSelector textDocumentSelector) =>
             _registrations
                .Select(z => z.Value)
                .Where(
                     x => x.RegisterOptions is ITextDocumentRegistrationOptions { DocumentSelector: { } } ro &&
                          ro.DocumentSelector
                            .Join(
-                                documentSelector,
+                                textDocumentSelector,
                                 z => z.HasLanguage ? z.Language :
                                     z.HasScheme ? z.Scheme :
                                     z.HasPattern ? z.Pattern : string.Empty,

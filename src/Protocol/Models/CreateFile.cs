@@ -18,13 +18,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public DocumentUri Uri { get; init; } = null!;
 
         /// <summary>
-        /// Additional Options
+        /// Additional options
         /// </summary>
         [Optional]
         public CreateFileOptions? Options { get; init; }
 
         /// <summary>
-        /// An optional annotation describing the operation.
+        /// An optional annotation identifier describing the operation.
         ///
         /// @since 3.16.0
         /// </summary>

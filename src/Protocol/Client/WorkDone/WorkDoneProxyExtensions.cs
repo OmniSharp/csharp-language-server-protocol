@@ -60,6 +60,24 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
             DoObserveWorkDone(proxy, @params, observer);
             return func(proxy, @params);
         }
+        
+        public static TResult ObserveWorkDone<T, TResult>(
+            this INotebookDocumentLanguageClient proxy, T @params, Func<INotebookDocumentLanguageClient, T, TResult> func, IObserver<WorkDoneProgress> observer
+        )
+            where T : IWorkDoneProgressParams
+        {
+            DoObserveWorkDone(proxy, @params, observer);
+            return func(proxy, @params);
+        }
+
+        public static TResult ObserveWorkDone<T, TResult>(
+            this INotebookDocumentLanguageClient proxy, T @params, Func<INotebookDocumentLanguageClient, T, TResult> func, IWorkDoneProgressObserver observer
+        )
+            where T : IWorkDoneProgressParams
+        {
+            DoObserveWorkDone(proxy, @params, observer);
+            return func(proxy, @params);
+        }
 
         public static TResult ObserveWorkDone<T, TResult>(
             this IWindowLanguageClient proxy, T @params, Func<IWindowLanguageClient, T, TResult> func, IObserver<WorkDoneProgress> observer

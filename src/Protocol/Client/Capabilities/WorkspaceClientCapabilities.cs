@@ -55,6 +55,27 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         public Supports<FileOperationsWorkspaceClientCapabilities> FileOperations { get; set; }
 
         /// <summary>
+        /// Client workspace capabilities specific to inline values.
+        ///
+        /// @since 3.17.0
+        /// </summary>
+        public Supports<InlineValueWorkspaceClientCapabilities> InlineValue { get; set; }
+
+        /// <summary>
+        /// Client workspace capabilities specific to inlay hints.
+        ///
+        /// @since 3.17.0
+        /// </summary>
+        public Supports<InlayHintWorkspaceClientCapabilities> InlayHint { get; set; }
+
+        /// <summary>
+        /// Client workspace capabilities specific to diagnostics.
+        ///
+        /// @since 3.17.0.
+        /// </summary>
+        public Supports<DiagnosticWorkspaceClientCapabilities> Diagnostics { get; set; }
+
+        /// <summary>
         /// The client has support for workspace folders.
         ///
         /// Since 3.6.0
@@ -68,6 +89,4 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// </summary>
         public Supports<bool> Configuration { get; set; }
     }
-
-
 }

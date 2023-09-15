@@ -9,13 +9,40 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 {
+    internal class ProgressObserver<TInitial, T> : ProgressObserver<T>, IProgressObserverWithInitialValue<TInitial, T>
+    {
+        private bool _isInitialized;
+        
+        public static ProgressObserver<TInitial, T> Noop { get; } =
+            new ProgressObserver<TInitial, T>(new ProgressToken(nameof(Noop)), null, null, CancellationToken.None, () => { });
+
+        public ProgressObserver(
+            ProgressToken token, IResponseRouter? responseRouter, ISerializer? serializer, CancellationToken cancellationToken, Action disposal
+        ) : base(token, responseRouter, serializer, cancellationToken, disposal)
+        {
+        }
+
+        public void OnNext(TInitial initial)
+        {
+            if (_isInitialized || isComplete || responseRouter == null) return;
+            responseRouter.SendNotification(
+                new ProgressParams
+                {
+                    Token = ProgressToken,
+                    Value = JToken.FromObject(initial, serializer?.JsonSerializer)
+                }
+            );
+            _isInitialized = true;
+        }
+    }
+
     internal class ProgressObserver<T> : IProgressObserver<T>
     {
-        private readonly IResponseRouter? _responseRouter;
-        private readonly ISerializer? _serializer;
+        protected readonly IResponseRouter? responseRouter;
+        protected readonly ISerializer? serializer;
         private readonly Action _disposal;
         private readonly TaskCompletionSource<Unit> _completionSource;
-        private bool _isComplete;
+        protected bool isComplete;
 
         public static ProgressObserver<T> Noop { get; } =
             new ProgressObserver<T>(new ProgressToken(nameof(Noop)), null, null, CancellationToken.None, () => { });
@@ -28,8 +55,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
             Action disposal
         )
         {
-            _responseRouter = responseRouter;
-            _serializer = serializer;
+            this.responseRouter = responseRouter;
+            this.serializer = serializer;
             _disposal = disposal;
             ProgressToken = token;
             CancellationToken = cancellationToken;
@@ -43,25 +70,26 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 
         public void OnCompleted()
         {
-            if (_isComplete) return;
+            if (isComplete) return;
             _completionSource.TrySetResult(Unit.Default);
-            _isComplete = true;
+            isComplete = true;
         }
 
         void IObserver<T>.OnError(Exception error)
         {
-            if (_isComplete) return;
+            if (isComplete) return;
             _completionSource.TrySetException(error);
-            _isComplete = true;
+            isComplete = true;
         }
 
         public void OnNext(T value)
         {
-            if (_isComplete || _responseRouter == null) return;
-            _responseRouter.SendNotification(
-                new ProgressParams {
+            if (isComplete || responseRouter == null) return;
+            responseRouter.SendNotification(
+                new ProgressParams
+                {
                     Token = ProgressToken,
-                    Value = JToken.FromObject(value, _serializer?.JsonSerializer)
+                    Value = JToken.FromObject(value, serializer?.JsonSerializer)
                 }
             );
         }

@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public string LanguageId { get; init; } = null!;
 
         /// <summary>
-        /// The version number of this document (it will strictly increase after each
+        /// The version number of this document (it will increase after each
         /// change, including undo/redo).
         /// </summary>
         public int? Version { get; init; }

@@ -177,6 +177,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
                 Data = result?.Data ?? ImmutableArray<int>.Empty;
             }
+
+            public static SemanticTokensPartialResult From(SemanticTokens? result) => new SemanticTokensPartialResult(result);
         }
 
 
@@ -418,6 +420,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
                 return new SemanticTokensFullOrDelta(semanticTokensDeltaPartialResult);
             }
+
+            public static SemanticTokensFullOrDeltaPartialResult From(SemanticTokensFullOrDelta? result) => new SemanticTokensFullOrDeltaPartialResult(result);
         }
 
         /// <summary>
@@ -604,6 +608,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static SemanticTokenType Modifier { get; } = new SemanticTokenType("modifier");
             public static SemanticTokenType Event { get; } = new SemanticTokenType("event");
             public static SemanticTokenType EnumMember { get; } = new SemanticTokenType("enumMember");
+
+            /// <summary>
+            /// @since 3.17.0
+            /// </summary>
+            public static SemanticTokenType Decorator { get; } = new SemanticTokenType("decorator");
         }
 
         [RegistrationName(TextDocumentNames.SemanticTokensRegistration)]
@@ -708,6 +717,32 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             [Optional]
             public bool MultilineTokenSupport { get; set; }
+
+            /// <summary>
+            /// Whether the client allows the server to actively cancel a
+            /// semantic token request, e.g. supports returning
+            /// ErrorCodes.ServerCancelled. If a server does the client
+            /// needs to retrigger the request.
+            ///
+            /// @since 3.17.0
+            /// </summary>
+            [Optional]
+            public bool ServerCancelSupport { get; set; }
+
+            /// <summary>
+            /// Whether the client uses semantic tokens to augment existing
+            /// syntax tokens. If set to `true` client side created syntax
+            /// tokens and semantic tokens are both used for colorization. If
+            /// set to `false` the client only uses the returned semantic tokens
+            /// for colorization.
+            ///
+            /// If the value is `undefined` then the client behavior is not
+            /// specified.
+            ///
+            /// @since 3.17.0
+            /// </summary>
+            [Optional]
+            public bool AugmentsSyntaxTokens { get; set; }
         }
 
         public partial class SemanticTokensCapabilityRequests
@@ -931,7 +966,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
                 return mediator.ProgressManager.MonitorUntil(
                     @params,
-                    (partial, result) => new SemanticTokens
+                    (result, partial) => new SemanticTokens
                     {
                         Data = partial.Data,
                         ResultId = result?.ResultId
@@ -946,9 +981,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             )
             {
                 return mediator.ProgressManager.MonitorUntil(
-                    @params, (partial, result) =>
+                    @params, (result, partial) =>
                     {
-                        if (partial.IsDelta)
+                        if (partial?.IsDelta == true)
                         {
                             return new SemanticTokensFullOrDelta(
                                 new SemanticTokensDelta
@@ -959,7 +994,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                             );
                         }
 
-                        if (partial.IsFull)
+                        if (partial?.IsFull == true)
                         {
                             return new SemanticTokensFullOrDelta(
                                 new SemanticTokens
@@ -971,7 +1006,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                         }
 
                         return new SemanticTokensFullOrDelta(new SemanticTokens());
-                    }, cancellationToken
+                    }, SemanticTokensFullOrDeltaPartialResult.From, cancellationToken
                 );
             }
 
@@ -982,12 +1017,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
                 return mediator.ProgressManager.MonitorUntil(
                     @params,
-                    (partial, result) => new SemanticTokens
+                    (result, partial) => new SemanticTokens
                     {
                         Data = partial.Data,
                         ResultId = result?.ResultId
                     },
-                    tokens => new SemanticTokensPartialResult(tokens)!,
+                    SemanticTokensPartialResult.From,
                     cancellationToken
                 );
             }

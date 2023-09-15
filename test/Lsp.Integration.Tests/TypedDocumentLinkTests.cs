@@ -59,14 +59,14 @@ namespace Lsp.Integration.Tests
                         documentLink => { return Task.FromResult(documentLink with { Tooltip = "resolved-a" }); },
                         (_, _) => new DocumentLinkRegistrationOptions
                         {
-                            DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
+                            DocumentSelector = TextDocumentSelector.ForPattern("**/*.cs")
                         }
                     );
 
                     options.OnDocumentLink(
                         codeLensParams =>
                         {
-                            return Task.FromResult(
+                            return Task.FromResult<DocumentLinkContainer<Nested>?>(
                                 new DocumentLinkContainer<Nested>(
                                     new DocumentLink<Nested>
                                     {
@@ -82,7 +82,7 @@ namespace Lsp.Integration.Tests
                         documentLink => { return Task.FromResult(documentLink with { Tooltip = "resolved-b" }); },
                         (_, _) => new DocumentLinkRegistrationOptions
                         {
-                            DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
+                            DocumentSelector = TextDocumentSelector.ForPattern("**/*.cs")
                         }
                     );
 
@@ -101,7 +101,7 @@ namespace Lsp.Integration.Tests
                         documentLink => { return Task.FromResult(documentLink with { Tooltip = "resolved-c" }); },
                         (_, _) => new DocumentLinkRegistrationOptions
                         {
-                            DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
+                            DocumentSelector = TextDocumentSelector.ForPattern("**/*.cs")
                         }
                     );
 
@@ -120,7 +120,7 @@ namespace Lsp.Integration.Tests
                         documentLink => { return Task.FromResult(documentLink with { Tooltip = "resolved-d" }); },
                         (_, _) => new DocumentLinkRegistrationOptions
                         {
-                            DocumentSelector = DocumentSelector.ForLanguage("vb")
+                            DocumentSelector = TextDocumentSelector.ForLanguage("vb")
                         }
                     );
                 }

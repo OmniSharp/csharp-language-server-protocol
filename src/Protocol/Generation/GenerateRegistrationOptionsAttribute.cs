@@ -13,13 +13,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Generation
     {
         public bool SupportsWorkDoneProgress { get; init; }
         public bool SupportsStaticRegistrationOptions { get; init; }
-        public bool SupportsDocumentSelector { get; init; }
+        public bool SupportsTextDocumentSelector { get; init; }
+        public bool SupportsNotebookDocumentSelector { get; init; }
         public Type? Converter { get; init; }
 
         public bool SupportsTextDocument
         {
-            get => SupportsDocumentSelector;
-            init => SupportsDocumentSelector = value;
+            get => SupportsTextDocumentSelector;
+            init => SupportsTextDocumentSelector = value;
+        }
+
+        public bool SupportsNotebookDocument
+        {
+            get => SupportsNotebookDocumentSelector;
+            init => SupportsNotebookDocumentSelector = value;
         }
 
         public GenerateRegistrationOptionsAttribute(string? key = null, params string?[] keys)

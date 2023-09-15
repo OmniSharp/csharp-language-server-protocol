@@ -10,7 +10,7 @@ namespace SampleServer
     {
         public FoldingRangeRegistrationOptions GetRegistrationOptions() =>
             new FoldingRangeRegistrationOptions {
-                DocumentSelector = DocumentSelector.ForLanguage("csharp")
+                DocumentSelector = TextDocumentSelector.ForLanguage("csharp")
             };
 
         public Task<Container<FoldingRange>?> Handle(
@@ -30,7 +30,7 @@ namespace SampleServer
             );
 
         public FoldingRangeRegistrationOptions GetRegistrationOptions(FoldingRangeCapability capability, ClientCapabilities clientCapabilities) => new FoldingRangeRegistrationOptions {
-            DocumentSelector = DocumentSelector.ForLanguage("csharp")
+            DocumentSelector = TextDocumentSelector.ForLanguage("csharp")
         };
     }
 }

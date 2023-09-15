@@ -2,7 +2,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
     public class TextDocumentClientCapabilities : CapabilitiesBase, ITextDocumentClientCapabilities
     {
-        public Supports<SynchronizationCapability?> Synchronization { get; set; }
+        public Supports<TextSynchronizationCapability?> Synchronization { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/completion`
@@ -146,5 +146,33 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// @since 3.16.0
         /// </summary>
         public Supports<MonikerCapability?> Moniker { get; set; }
+
+        /// <summary>
+        /// Capabilities specific to the various type hierarchy requests.
+        ///
+        /// @since 3.17.0
+        /// </summary>
+        public Supports<TypeHierarchyCapability?> TypeHierarchy { get; set; }
+
+        /// <summary>
+        /// Capabilities specific to the `textDocument/inlineValue` request.
+        ///
+        /// @since 3.17.0
+        /// </summary>
+        public Supports<InlineValueWorkspaceClientCapabilities?> InlineValue { get; set; }
+
+        /// <summary>
+        /// Capability specific to the `textDocument/inlayHint` request.
+        ///
+        /// @since 3.17.0
+        /// </summary>
+        public Supports<InlayHintWorkspaceClientCapabilities?> InlayHint { get; set; }
+
+        /// <summary>
+        /// Capability specific to the diagnostic pull model.
+        ///
+        /// @since 3.17.0
+        /// </summary>
+        public Supports<DiagnosticWorkspaceClientCapabilities?> Diagnostic { get; set; }
     }
 }

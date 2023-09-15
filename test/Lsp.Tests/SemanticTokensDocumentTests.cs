@@ -299,14 +299,14 @@ namespace Lsp.Tests
             var faker = new Faker<TokenizationValue>()
                        .RuleFor(
                             z => z.Type,
-                            f => f.PickRandom(SemanticTokenType.Defaults).OrNull(f, 0.2f) ?? new SemanticTokenType("none")
+                            f => f.PickRandom(_legend.TokenTypes.AsEnumerable()).OrNull(f, 0.2f) ?? new SemanticTokenType("none")
                         )
                        .RuleFor(
                             x => x.Modifiers,
                             f => Enumerable.Range(0, f.Random.Int(0, 3))
                                            .Select(
                                                 z =>
-                                                    f.PickRandom(SemanticTokenModifier.Defaults).OrNull(f, 0.2f) ??
+                                                    f.PickRandom(_legend.TokenModifiers.AsEnumerable()).OrNull(f, 0.2f) ??
                                                     new SemanticTokenModifier("none")
                                             )
                                            .ToArray()
@@ -503,6 +503,6 @@ namespace CSharpTutorials
         }
     }
 }
-".Replace("\r\n", "\n");
+".Replace("\r\n", "\n", StringComparison.Ordinal);
     }
 }

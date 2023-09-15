@@ -228,13 +228,13 @@ namespace Lsp.Integration.Tests
             obj.OnPrepareRename(
                 _prepareRename, (_, _) => new RenameRegistrationOptions
                 {
-                    DocumentSelector = DocumentSelector.ForLanguage("csharp")
+                    DocumentSelector = TextDocumentSelector.ForLanguage("csharp")
                 }
             );
             obj.OnRename(
                 _rename, (_, _) => new RenameRegistrationOptions
                 {
-                    DocumentSelector = DocumentSelector.ForLanguage("csharp"),
+                    DocumentSelector = TextDocumentSelector.ForLanguage("csharp"),
                     PrepareProvider = true,
                 }
             );
