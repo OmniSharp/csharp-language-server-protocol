@@ -52,7 +52,7 @@
     <PackageVersion Include="System.Reactive" Version="6.0.0" />
     <PackageVersion Include="System.Collections.Immutable" Version="5.0.0" />
     <PackageVersion Include="System.Threading.Channels" Version="6.0.0" />
-    <PackageVersion Include="Microsoft.Reactive.Testing" Version="5.0.0" />
+    <PackageVersion Include="Microsoft.Reactive.Testing" Version="6.0.0" />
     <PackageVersion Include="MediatR" Version="8.1.0" />
     <PackageVersion Include="Bogus" Version="34.0.2" />
     <PackageVersion Include="Snapper" Version="2.3.2" />
