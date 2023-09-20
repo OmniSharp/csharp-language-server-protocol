@@ -13,4 +13,4 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using System.Diagnostics;
 
-[assembly: AssemblyCapabilityKey(typeof(OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.WorkspaceSymbolCapability), nameof(ClientCapabilities.TextDocument), nameof(WorkspaceClientCapabilities.Symbol))]
+[assembly: AssemblyCapabilityKey(typeof(OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.WorkspaceSymbolCapability), nameof(ClientCapabilities.Workspace), nameof(WorkspaceClientCapabilities.Symbol))]

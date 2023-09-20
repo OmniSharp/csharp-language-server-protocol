@@ -159,20 +159,20 @@
         ///
         /// @since 3.17.0
         /// </summary>
-        Supports<InlineValueWorkspaceClientCapabilities?> InlineValue { get; set; }
+        Supports<InlineValueClientCapabilities?> InlineValue { get; set; }
 
         /// <summary>
         /// Capability specific to the `textDocument/inlayHint` request.
         ///
         /// @since 3.17.0
         /// </summary>
-        Supports<InlayHintWorkspaceClientCapabilities?> InlayHint { get; set; }
+        Supports<InlayHintClientCapabilities?> InlayHint { get; set; }
 
         /// <summary>
         /// Capability specific to the diagnostic pull model.
         ///
         /// @since 3.17.0
         /// </summary>
-        Supports<DiagnosticWorkspaceClientCapabilities?> Diagnostic { get; set; }
+        Supports<DiagnosticClientCapabilities?> Diagnostic { get; set; }
     }
 }

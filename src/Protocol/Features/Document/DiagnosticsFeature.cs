@@ -467,7 +467,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.DiagnosticProvider))]
         [RegistrationName(TextDocumentNames.Diagnostics)]
-        public partial class DiagnosticsRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions
+        public partial class DiagnosticsRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions, IStaticRegistrationOptions
         {
             /// <summary>
             /// An optional identifier under which the diagnostics are

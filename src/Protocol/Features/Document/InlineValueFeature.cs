@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
-        [RegistrationOptions(typeof(InlineValueRegistrationOptions)), Capability(typeof(InlineValueWorkspaceClientCapabilities))]
+        [RegistrationOptions(typeof(InlineValueRegistrationOptions)), Capability(typeof(InlineValueClientCapabilities))]
         public partial record InlineValueParams : ITextDocumentIdentifierParams, IWorkDoneProgressParams,
                                                   IRequest<Container<InlineValueBase>?>
         {
@@ -69,7 +69,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace")]
         [GenerateHandlerMethods]
         [GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
-        [Capability(typeof(CodeLensWorkspaceClientCapabilities))]
+        [Capability(typeof(InlineValueWorkspaceClientCapabilities))]
         public partial record InlineValueRefreshParams : IRequest;
 
         [JsonConverter(typeof(Converter))]
@@ -179,7 +179,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.InlineValueProvider))]
         [RegistrationName(TextDocumentNames.InlineValue)]
-        public partial class InlineValueRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions
+        public partial class InlineValueRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions, IStaticRegistrationOptions
         {
         }
     }
@@ -190,12 +190,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
     namespace Client.Capabilities
     {
+        [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.InlineValue))]
+        public partial class InlineValueClientCapabilities : DynamicCapability
+        {
+        }
+
         /// <summary>
         /// Client workspace capabilities specific to inline values.
         ///
         /// @since 3.17.0
         /// </summary>
-        [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.InlineValue))]
+        [CapabilityKey(nameof(ClientCapabilities.Workspace), nameof(WorkspaceClientCapabilities.InlineValue))]
         public partial class InlineValueWorkspaceClientCapabilities : ICapability
         {
             /// <summary>

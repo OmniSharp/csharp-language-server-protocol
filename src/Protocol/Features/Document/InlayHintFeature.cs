@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using MediatR;
 using Newtonsoft.Json;
@@ -12,6 +12,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
 // ReSharper disable once CheckNamespace
@@ -26,7 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
-        [RegistrationOptions(typeof(InlayHintRegistrationOptions)), Capability(typeof(InlayHintWorkspaceClientCapabilities))]
+        [RegistrationOptions(typeof(InlayHintRegistrationOptions)), Capability(typeof(InlayHintClientCapabilities))]
         [Resolver(typeof(InlayHint))]
         public partial record InlayHintParams : ITextDocumentIdentifierParams, IWorkDoneProgressParams,
                                                 IRequest<InlayHintContainer?>
@@ -55,7 +56,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
         [GenerateTypedData]
         [GenerateContainer]
-        [Capability(typeof(InlayHintWorkspaceClientCapabilities))]
+        [Capability(typeof(InlayHintClientCapabilities))]
         public partial record InlayHint : ICanBeResolved, IRequest<InlayHint>, IDoesNotParticipateInRegistration
         {
             /// <summary>
@@ -265,10 +266,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             Parameter = 2
         }
 
+        [Parallel]
+        [Method(WorkspaceNames.InlayHintRefresh, Direction.ServerToClient)]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
+        [Capability(typeof(InlayHintWorkspaceClientCapabilities))]
+        public partial record InlayHintRefreshParams : IRequest;
+
         [GenerateRegistrationOptions(nameof(ServerCapabilities.InlayHintProvider))]
         [RegistrationOptionsConverter(typeof(InlayHintRegistrationOptionsConverter))]
         [RegistrationName(TextDocumentNames.InlayHint)]
-        public partial class InlayHintRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions
+        public partial class InlayHintRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions, IStaticRegistrationOptions
         {
             /// <summary>
             /// The server provides support to resolve additional
@@ -301,7 +310,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     namespace Client.Capabilities
     {
         [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.InlayHint))]
-        public partial class InlayHintWorkspaceClientCapabilities : DynamicCapability
+        public partial class InlayHintClientCapabilities : DynamicCapability
         {
             /// <summary>
             /// Indicates which properties a client can resolve lazily on a inlay
@@ -321,6 +330,27 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// The properties that a client can resolve lazily.
             /// </summary>
             public Container<string> Properties { get; set; }
+        }
+
+        /// <summary>
+        /// Client workspace capabilities specific to inlay hints.
+        ///
+        /// @since 3.17.0.
+        /// </summary>
+        [CapabilityKey(nameof(ClientCapabilities.Workspace), nameof(WorkspaceClientCapabilities.SemanticTokens))]
+        public class InlayHintWorkspaceClientCapabilities : ICapability
+        {
+            /// <summary>
+            /// Whether the client implementation supports a refresh request sent from
+            /// the server to the client.
+            /// 
+            /// Note that this event is global and will force the client to refresh all
+            /// inlay hints currently shown. It should be used with absolute care and
+            /// is useful for situation where a server for example detects a project wide
+            /// change that requires such a calculation.
+            /// </summary>
+            [Optional]
+            public bool RefreshSupport { get; set; }
         }
     }
 
