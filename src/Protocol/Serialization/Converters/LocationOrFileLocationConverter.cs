@@ -19,10 +19,10 @@ public class LocationOrFileLocationConverter : JsonConverter<LocationOrFileLocat
         var obj = JObject.Load(reader);
         if (obj.ContainsKey("range"))
         {
-            return new LocationOrFileLocation(obj.ToObject<Location>());
+            return new LocationOrFileLocation(obj.ToObject<Location>(serializer));
         }
 
-        return new LocationOrFileLocation(obj.ToObject<FileLocation>());
+        return new LocationOrFileLocation(obj.ToObject<FileLocation>(serializer));
     }
 
     public override bool CanRead => true;

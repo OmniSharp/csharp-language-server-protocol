@@ -46,10 +46,10 @@ public partial record RangeOrEditRange
             var obj = JObject.Load(reader);
             if (obj.ContainsKey("insert"))
             {
-                return new RangeOrEditRange(obj.ToObject<EditRange>());
+                return new RangeOrEditRange(obj.ToObject<EditRange>(serializer));
             }
 
-            return new RangeOrEditRange(obj.ToObject<Range>());
+            return new RangeOrEditRange(obj.ToObject<Range>(serializer));
         }
 
         public override bool CanRead => true;

@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using MediatR;
 using Newtonsoft.Json;
@@ -231,7 +231,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     if (reader.TokenType == JsonToken.StartArray)
                     {
                         var result = JArray.Load(reader);
-                        return new StringOrInlayHintLabelParts(result.ToObject<Container<InlayHintLabelPart>>());
+                        return new StringOrInlayHintLabelParts(result.ToObject<Container<InlayHintLabelPart>>(serializer));
                     }
 
                     if (reader.TokenType == JsonToken.String)

@@ -31,10 +31,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             var command = result["insert"];
             if (command?.Type == JTokenType.String)
             {
-                return new TextEditOrInsertReplaceEdit(result.ToObject<InsertReplaceEdit>());
+                return new TextEditOrInsertReplaceEdit(result.ToObject<InsertReplaceEdit>(serializer));
             }
 
-            return new TextEditOrInsertReplaceEdit(result.ToObject<TextEdit>());
+            return new TextEditOrInsertReplaceEdit(result.ToObject<TextEdit>(serializer));
         }
 
         public override bool CanRead => true;

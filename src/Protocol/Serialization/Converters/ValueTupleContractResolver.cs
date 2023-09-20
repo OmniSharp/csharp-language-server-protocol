@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
         public override (T1, T2) ReadJson(JsonReader reader, Type objectType, (T1, T2) existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             var a = JArray.Load(reader);
-            return ( a.ToObject<T1>(), a.ToObject<T2>() );
+            return ( a.ToObject<T1>(serializer), a.ToObject<T2>(serializer) );
         }
     }
 }

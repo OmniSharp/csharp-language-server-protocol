@@ -358,7 +358,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
                     if (reader.TokenType == JsonToken.StartArray)
                     {
                         var result = JArray.Load(reader);
-                        return new StringOrOutlayHintLabelParts(result.ToObject<Container<OutlayHintLabelPart>>());
+                        return new StringOrOutlayHintLabelParts(result.ToObject<Container<OutlayHintLabelPart>>(serializer));
                     }
 
                     if (reader.TokenType == JsonToken.String)

@@ -29,7 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 
             if (reader.TokenType == JsonToken.StartObject)
             {
-                return new GlobPattern(JObject.Load(reader).ToObject<RelativePattern>());
+                return new GlobPattern(JObject.Load(reader).ToObject<RelativePattern>(serializer));
             }
 
             return new GlobPattern("");

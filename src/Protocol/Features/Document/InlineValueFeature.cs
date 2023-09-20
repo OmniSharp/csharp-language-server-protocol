@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -98,7 +98,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     {
                         return new InlineValueText()
                         {
-                            Range = result["range"]!.ToObject<Range?>()!,
+                            Range = result["range"]!.ToObject<Range?>(serializer)!,
                             Text = result["text"]!.Value<string>()!
                         };
                     }
@@ -107,7 +107,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     {
                         return new InlineValueVariableLookup()
                         {
-                            Range = result["range"].ToObject<Range>()!,
+                            Range = result["range"].ToObject<Range>(serializer)!,
                             VariableName = result["variableName"]!.Value<string>()!,
                             CaseSensitiveLookup = result["caseSensitiveLookup"]?.Value<bool?>() ?? false,
                         };
@@ -115,7 +115,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
                     return new InlineValueEvaluatableExpression()
                     {
-                        Range = result["range"].ToObject<Range>()!,
+                        Range = result["range"].ToObject<Range>(serializer)!,
                         Expression = result["expression"]?.Value<string>()
                     };
                 }

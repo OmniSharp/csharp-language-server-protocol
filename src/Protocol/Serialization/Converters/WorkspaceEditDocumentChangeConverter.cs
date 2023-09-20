@@ -26,17 +26,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
                 switch (kind)
                 {
                     case "create":
-                        return new WorkspaceEditDocumentChange(obj.ToObject<CreateFile>());
+                        return new WorkspaceEditDocumentChange(obj.ToObject<CreateFile>(serializer));
                     case "rename":
-                        return new WorkspaceEditDocumentChange(obj.ToObject<RenameFile>());
+                        return new WorkspaceEditDocumentChange(obj.ToObject<RenameFile>(serializer));
                     case "delete":
-                        return new WorkspaceEditDocumentChange(obj.ToObject<DeleteFile>());
+                        return new WorkspaceEditDocumentChange(obj.ToObject<DeleteFile>(serializer));
                     default:
                         throw new NotSupportedException("Object with " + kind + " is not supported");
                 }
             }
 
-            return new WorkspaceEditDocumentChange(obj.ToObject<TextDocumentEdit>());
+            return new WorkspaceEditDocumentChange(obj.ToObject<TextDocumentEdit>(serializer));
         }
 
         public override bool CanRead => true;
