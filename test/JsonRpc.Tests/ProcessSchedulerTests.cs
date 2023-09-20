@@ -346,7 +346,7 @@ namespace JsonRpc.Tests
                 OnCompleted(Subscribed, Unit.Default)
             );
             var errorObservable = testScheduler.CreateColdObservable(
-                OnError(Subscribed, new NotSameException(), Unit.Default)
+                OnError(Subscribed, new NotSameException("Observed values were not the same."), Unit.Default)
             );
             var testObserver = testScheduler.CreateObserver<Unit>();
 
