@@ -22,5 +22,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public const string InlineValueRefresh = "workspace/inlineValue/refresh";
         public const string DiagnosticRefresh = "workspace/diagnostic/refresh";
         public const string Diagnostics = "workspace/diagnostic";
+        public const string InlayHintRefresh = "workspace/inlayHint/refresh";
     }
 }

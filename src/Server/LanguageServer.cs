@@ -419,7 +419,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 {
                     if (request.Capabilities.SelectToken(group.Key) is JObject capabilityData)
                     {
-                        var capability = capabilityData.ToObject(capabilityType) as ICapability;
+                        var capability = capabilityData.ToObject(capabilityType, _serializer.JsonSerializer) as ICapability;
                         _supportedCapabilities.Add(capability!);
                     }
                 }

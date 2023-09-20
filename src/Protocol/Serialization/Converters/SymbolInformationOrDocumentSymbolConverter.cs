@@ -32,10 +32,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             // SymbolInformation has property location, DocumentSymbol does not.
             if (result["location"] != null)
             {
-                return new SymbolInformationOrDocumentSymbol(result.ToObject<SymbolInformation>());
+                return new SymbolInformationOrDocumentSymbol(result.ToObject<SymbolInformation>(serializer));
             }
 
-            return new SymbolInformationOrDocumentSymbol(result.ToObject<DocumentSymbol>());
+            return new SymbolInformationOrDocumentSymbol(result.ToObject<DocumentSymbol>(serializer));
         }
 
         public override bool CanRead => true;

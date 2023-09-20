@@ -509,7 +509,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     var items = result["items"].ToObject<IEnumerable<CompletionItem>>(serializer);
                     return new CompletionList(items, result["isIncomplete"]?.Value<bool>() ?? false)
                     {
-                        ItemDefaults = result["itemDefaults"]?.ToObject<CompletionListItemDefaults>()
+                        ItemDefaults = result["itemDefaults"]?.ToObject<CompletionListItemDefaults>(serializer)
                     };
                 }
 

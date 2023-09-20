@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
-        [RegistrationOptions(typeof(InlineValueRegistrationOptions)), Capability(typeof(InlineValueWorkspaceClientCapabilities))]
+        [RegistrationOptions(typeof(InlineValueRegistrationOptions)), Capability(typeof(InlineValueClientCapabilities))]
         public partial record InlineValueParams : ITextDocumentIdentifierParams, IWorkDoneProgressParams,
                                                   IRequest<Container<InlineValueBase>?>
         {
@@ -69,7 +69,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace")]
         [GenerateHandlerMethods]
         [GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
-        [Capability(typeof(CodeLensWorkspaceClientCapabilities))]
+        [Capability(typeof(InlineValueWorkspaceClientCapabilities))]
         public partial record InlineValueRefreshParams : IRequest;
 
         [JsonConverter(typeof(Converter))]
@@ -98,7 +98,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     {
                         return new InlineValueText()
                         {
-                            Range = result["range"]!.ToObject<Range?>()!,
+                            Range = result["range"]!.ToObject<Range?>(serializer)!,
                             Text = result["text"]!.Value<string>()!
                         };
                     }
@@ -107,7 +107,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     {
                         return new InlineValueVariableLookup()
                         {
-                            Range = result["range"].ToObject<Range>()!,
+                            Range = result["range"].ToObject<Range>(serializer)!,
                             VariableName = result["variableName"]!.Value<string>()!,
                             CaseSensitiveLookup = result["caseSensitiveLookup"]?.Value<bool?>() ?? false,
                         };
@@ -115,7 +115,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
                     return new InlineValueEvaluatableExpression()
                     {
-                        Range = result["range"].ToObject<Range>()!,
+                        Range = result["range"].ToObject<Range>(serializer)!,
                         Expression = result["expression"]?.Value<string>()
                     };
                 }
@@ -179,7 +179,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.InlineValueProvider))]
         [RegistrationName(TextDocumentNames.InlineValue)]
-        public partial class InlineValueRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions
+        public partial class InlineValueRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions, IStaticRegistrationOptions
         {
         }
     }
@@ -190,12 +190,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
     namespace Client.Capabilities
     {
+        [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.InlineValue))]
+        public partial class InlineValueClientCapabilities : DynamicCapability
+        {
+        }
+
         /// <summary>
         /// Client workspace capabilities specific to inline values.
         ///
         /// @since 3.17.0
         /// </summary>
-        [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.InlineValue))]
+        [CapabilityKey(nameof(ClientCapabilities.Workspace), nameof(WorkspaceClientCapabilities.InlineValue))]
         public partial class InlineValueWorkspaceClientCapabilities : ICapability
         {
             /// <summary>

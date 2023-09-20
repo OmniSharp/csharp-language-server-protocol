@@ -32,10 +32,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
                 var obj = JObject.Load(reader);
                 if (obj.ContainsKey("name"))
                 {
-                    return new WorkspaceFolderOrUri(obj.ToObject<WorkspaceFolder>());
+                    return new WorkspaceFolderOrUri(obj.ToObject<WorkspaceFolder>(serializer));
                 }
 
-                return new WorkspaceFolderOrUri(obj.ToObject<DocumentUri>());
+                return new WorkspaceFolderOrUri(obj.ToObject<DocumentUri>(serializer));
             }
 
             return new WorkspaceFolderOrUri("");

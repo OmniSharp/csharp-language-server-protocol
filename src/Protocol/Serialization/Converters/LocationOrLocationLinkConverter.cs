@@ -20,10 +20,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             var obj = JObject.Load(reader);
             if (obj.ContainsKey("uri"))
             {
-                return new LocationOrLocationLink(obj.ToObject<Location>());
+                return new LocationOrLocationLink(obj.ToObject<Location>(serializer));
             }
 
-            return new LocationOrLocationLink(obj.ToObject<LocationLink>());
+            return new LocationOrLocationLink(obj.ToObject<LocationLink>(serializer));
         }
 
         public override bool CanRead => true;

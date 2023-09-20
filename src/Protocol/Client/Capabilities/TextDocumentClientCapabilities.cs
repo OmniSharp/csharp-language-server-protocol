@@ -159,20 +159,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         ///
         /// @since 3.17.0
         /// </summary>
-        public Supports<InlineValueWorkspaceClientCapabilities?> InlineValue { get; set; }
+        public Supports<InlineValueClientCapabilities?> InlineValue { get; set; }
 
         /// <summary>
         /// Capability specific to the `textDocument/inlayHint` request.
         ///
         /// @since 3.17.0
         /// </summary>
-        public Supports<InlayHintWorkspaceClientCapabilities?> InlayHint { get; set; }
+        public Supports<InlayHintClientCapabilities?> InlayHint { get; set; }
 
         /// <summary>
         /// Capability specific to the diagnostic pull model.
         ///
         /// @since 3.17.0
         /// </summary>
-        public Supports<DiagnosticWorkspaceClientCapabilities?> Diagnostic { get; set; }
+        public Supports<DiagnosticClientCapabilities?> Diagnostic { get; set; }
     }
 }

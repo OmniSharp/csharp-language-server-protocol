@@ -31,7 +31,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             if (result["annotationId"] is { Type: JTokenType.String } annotation)
             {
                 edit = new AnnotatedTextEdit() {
-                    AnnotationId = annotation.ToObject<ChangeAnnotationIdentifier>()
+                    AnnotationId = annotation.ToObject<ChangeAnnotationIdentifier>(serializer)
                 };
             }
             else
@@ -41,7 +41,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 
             if (result["range"] is { Type: JTokenType.Object } range)
             {
-                edit = edit with { Range = range.ToObject<Range>()};
+                edit = edit with { Range = range.ToObject<Range>(serializer)};
             }
 
             if (result["newText"] is { Type: JTokenType.String } newText)
