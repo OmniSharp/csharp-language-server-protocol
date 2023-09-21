@@ -44,6 +44,9 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             container.RegisterMany<TextDocumentLanguageClient>(
                 serviceTypeCondition: type => type.Name.Contains(nameof(TextDocumentLanguageClient)), reuse: Reuse.Singleton
             );
+            container.RegisterMany<NotebookDocumentLanguageClient>(
+                serviceTypeCondition: type => type.Name.Contains(nameof(NotebookDocumentLanguageClient)), reuse: Reuse.Singleton
+            );
             container.RegisterMany<ClientLanguageClient>(
                 serviceTypeCondition: type => type.Name.Contains(nameof(ClientLanguageClient)), reuse: Reuse.Singleton
             );

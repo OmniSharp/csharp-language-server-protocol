@@ -30,10 +30,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             var obj = JObject.Load(reader);
             if (obj.ContainsKey("data"))
             {
-                return new SemanticTokensFullOrDeltaPartialResult(obj.ToObject<SemanticTokensPartialResult>());
+                return new SemanticTokensFullOrDeltaPartialResult(obj.ToObject<SemanticTokensPartialResult>(serializer));
             }
 
-            return new SemanticTokensFullOrDeltaPartialResult(obj.ToObject<SemanticTokensDeltaPartialResult>());
+            return new SemanticTokensFullOrDeltaPartialResult(obj.ToObject<SemanticTokensDeltaPartialResult>(serializer));
         }
 
         public override bool CanRead => true;

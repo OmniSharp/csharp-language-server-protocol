@@ -118,7 +118,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                        .WithIdentifier(Identifier(item.JsonRpcAttributes.PartialHandlerMethodName))
                        .WithExpressionBody(
                             GetPartialResultsHandlerExpression(
-                                GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), requestType, partialItems.Syntax, responseType
+                                GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), requestType, partialItems.Syntax, responseType, request.PartialHasInitialValue
                             )
                         )
                 );
@@ -140,7 +140,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                            .WithExpressionBody(
                                 GetPartialResultsCapabilityHandlerExpression(
                                     GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), requestType, responseType,
-                                    resolveType, capability.Syntax
+                                    resolveType, capability.Syntax, request.PartialHasInitialValue
                                 )
                             )
                     );
@@ -157,7 +157,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                 factory = methodFactory(
                     method.WithExpressionBody(
                         GetPartialResultHandlerExpression(
-                            GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), requestType, observerType, responseType
+                            GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), requestType, observerType, responseType, request.PartialHasInitialValue
                         )
                     )
                 );
@@ -175,7 +175,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                     factory = methodFactory(
                         method.WithExpressionBody(
                             GetPartialResultCapabilityHandlerExpression(
-                                GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), requestType, observerType, responseType, capability.Syntax
+                                GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), requestType, observerType, responseType, capability.Syntax, request.PartialHasInitialValue
                             )
                         )
                     );

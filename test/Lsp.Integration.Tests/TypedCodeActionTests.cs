@@ -66,7 +66,7 @@ namespace Lsp.Integration.Tests
                         action => { return Task.FromResult(action with { Command = action.Command with { Name = "resolved-a" } }); },
                         (_, _) => new CodeActionRegistrationOptions
                         {
-                            DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
+                            DocumentSelector = TextDocumentSelector.ForPattern("**/*.cs")
                         }
                     );
 
@@ -95,7 +95,7 @@ namespace Lsp.Integration.Tests
                         action => { return Task.FromResult(action with { Command = action.Command with { Name = "resolved-b" } }); },
                         (_, _) => new CodeActionRegistrationOptions
                         {
-                            DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
+                            DocumentSelector = TextDocumentSelector.ForPattern("**/*.cs")
                         }
                     );
 
@@ -120,7 +120,7 @@ namespace Lsp.Integration.Tests
                         action => { return Task.FromResult(action with { Command = action.Command with { Name = "resolved-c" } }); },
                         (_, _) => new CodeActionRegistrationOptions
                         {
-                            DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
+                            DocumentSelector = TextDocumentSelector.ForPattern("**/*.cs")
                         }
                     );
 
@@ -145,7 +145,7 @@ namespace Lsp.Integration.Tests
                         action => { return Task.FromResult(action with { Command = action.Command with { Name = "resolved-d" } }); },
                         (_, _) => new CodeActionRegistrationOptions
                         {
-                            DocumentSelector = DocumentSelector.ForLanguage("vb")
+                            DocumentSelector = TextDocumentSelector.ForLanguage("vb")
                         }
                     );
                 }

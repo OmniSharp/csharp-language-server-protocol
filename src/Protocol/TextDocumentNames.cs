@@ -44,5 +44,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public const string SemanticTokensRange = "textDocument/semanticTokens/range";
         public const string Moniker = "textDocument/moniker";
         public const string LinkedEditingRange = "textDocument/linkedEditingRange";
+        public const string InlayHint = "textDocument/inlayHint";
+        public const string InlayHintResolve = "inlayHint/resolve";
+        public const string InlineValue = "textDocument/inlineValue";
+        public const string Diagnostics = "textDocument/diagnostic";
+        public const string PrepareTypeHierarchy = "textDocument/prepareTypeHierarchy";
+        public const string TypeHierarchySupertypes = "typeHierarchy/supertypes";
+        public const string TypeHierarchySubtypes = "typeHierarchy/subtypes";
     }
 }

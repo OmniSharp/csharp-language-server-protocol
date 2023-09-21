@@ -14,8 +14,8 @@ namespace Lsp.Tests.Models
         public void SimpleTest(string expected)
         {
             var model = new TextDocumentSaveRegistrationOptions {
-                DocumentSelector = new DocumentSelector(
-                    new DocumentFilter {
+                DocumentSelector = new TextDocumentSelector(
+                    new TextDocumentFilter {
                         Language = "csharp"
                     }
                 ),

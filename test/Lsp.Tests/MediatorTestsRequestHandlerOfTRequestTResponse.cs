@@ -34,11 +34,11 @@ namespace Lsp.Tests
         [Fact]
         public async Task RequestsCancellation()
         {
-            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
+            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(TextDocumentSelector.ForPattern("**/*.cs"), "csharp");
             textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Unit.Value);
 
             var codeActionHandler = Substitute.For<ICodeActionHandler>();
-            codeActionHandler.GetRegistrationOptions(Arg.Any<CodeActionCapability>(), Arg.Any<ClientCapabilities>()).Returns(new CodeActionRegistrationOptions { DocumentSelector = DocumentSelector.ForPattern("**/*.cs") });
+            codeActionHandler.GetRegistrationOptions(Arg.Any<CodeActionCapability>(), Arg.Any<ClientCapabilities>()).Returns(new CodeActionRegistrationOptions { DocumentSelector = TextDocumentSelector.ForPattern("**/*.cs") });
             codeActionHandler
                .Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>())
                .Returns(

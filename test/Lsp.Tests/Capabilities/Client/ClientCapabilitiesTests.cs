@@ -55,7 +55,7 @@ namespace Lsp.Tests.Capabilities.Client
                         DynamicRegistration = true,
                         LinkSupport = true
                     },
-                    Synchronization = new SynchronizationCapability {
+                    Synchronization = new TextSynchronizationCapability {
                         DynamicRegistration = true,
                         WillSave = true,
                         DidSave = true,

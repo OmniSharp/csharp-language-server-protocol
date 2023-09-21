@@ -48,12 +48,19 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                      actionItem = GeneratorData.Create(
                                                          compilaiton, (TypeDeclarationSyntax)syntaxContext.Node, syntaxContext.SemanticModel, additionalUsings
                                                      );
+                                                     if (actionItem is null)
+                                                     {
+                                                         diagnostic = Diagnostic.Create(
+                                                             GeneratorDiagnostics.MustBeARequestOrNotification, syntaxContext.Node.GetLocation(),
+                                                             ( (TypeDeclarationSyntax)syntaxContext.Node ).Identifier.Text
+                                                         );
+                                                     }
                                                  }
                                                  catch (Exception e)
                                                  {
                                                      diagnostic = Diagnostic.Create(
                                                          GeneratorDiagnostics.Exception, syntaxContext.Node.GetLocation(), e.Message,
-                                                         e.StackTrace ?? string.Empty
+                                                         e.StackTrace?.Replace("\n", " ") ?? string.Empty, e.ToString()
                                                      );
                                                      Debug.WriteLine(e);
                                                      Debug.WriteLine(e.StackTrace);
@@ -81,7 +88,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
             if (actionItem is null)
             {
-                context.ReportDiagnostic(diagnostic!);
+                if (diagnostic is { }) context.ReportDiagnostic(diagnostic);
                 return;
             }
 
@@ -99,7 +106,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                         context.ReportDiagnostic(
                             Diagnostic.Create(
                                 GeneratorDiagnostics.Exception, candidateClass.GetLocation(),
-                                $"Strategy {strategy.GetType().FullName} failed!" + " - " + e.Message, e.StackTrace ?? string.Empty
+                                $"Strategy {strategy.GetType().FullName} failed!" + " - " + e.Message, e.StackTrace?.Replace("\n", " ") ?? string.Empty
                             )
                         );
                         Debug.WriteLine($"Strategy {strategy.GetType().FullName} failed!");
@@ -194,11 +201,14 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 new OnRequestMethodGeneratorWithoutRegistrationOptionsStrategy(false),
                 new OnRequestMethodGeneratorWithoutRegistrationOptionsStrategy(true),
                 new OnRequestTypedResolveMethodGeneratorWithoutRegistrationOptionsStrategy(),
+//                new OnRequestTypedMethodGeneratorWithoutRegistrationOptionsStrategy(),
                 new OnRequestMethodGeneratorWithRegistrationOptionsStrategy(false),
                 new OnRequestMethodGeneratorWithRegistrationOptionsStrategy(true),
                 new OnRequestTypedResolveMethodGeneratorWithRegistrationOptionsStrategy(),
+//                new OnRequestTypedMethodGeneratorWithRegistrationOptionsStrategy(),
                 new SendMethodNotificationStrategy(),
-                new SendMethodRequestStrategy()
+                new SendMethodRequestStrategy()/*,
+                new SendMethodTypedResolveRequestStrategy()*/
             );
             var actionStrategies = ImmutableArray.Create<IExtensionMethodGeneratorStrategy>(
                 new EnsureNamespaceStrategy(),

@@ -14,7 +14,7 @@ namespace Lsp.Integration.Tests
             return options
                   .WithTracing(new TraceWriter(logger ?? NullLogger.Instance))
                   .ComparingByMembers<Supports<bool>>()
-                  .ComparingByMembers<Supports<SynchronizationCapability>>()
+                  .ComparingByMembers<Supports<TextSynchronizationCapability>>()
                   .ComparingByMembers<Supports<CompletionCapability>>()
                   .ComparingByMembers<Supports<HoverCapability>>()
                   .ComparingByMembers<Supports<SignatureHelpCapability>>()

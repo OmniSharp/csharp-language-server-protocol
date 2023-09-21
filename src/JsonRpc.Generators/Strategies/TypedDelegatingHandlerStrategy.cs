@@ -71,7 +71,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                        .WithTypeArgumentList(
                             TypeArgumentList(
                                 SeparatedList(
-                                    new[] {
+                                    new[]
+                                    {
                                         item.RegistrationOptions.Syntax,
                                         item.Capability.Syntax
                                     }
@@ -80,14 +81,17 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                         );
 
                     handler = handler.AddMembers(
-                        FieldDeclaration(VariableDeclaration(type).WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier("_registrationOptionsFactory")))))
+                        FieldDeclaration(
+                                VariableDeclaration(type).WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier("_registrationOptionsFactory"))))
+                            )
                            .WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.ReadOnlyKeyword))),
                         MethodDeclaration(item.RegistrationOptions.Syntax, Identifier("CreateRegistrationOptions"))
                            .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.InternalKeyword), Token(SyntaxKind.OverrideKeyword)))
                            .WithParameterList(
                                 ParameterList(
                                     SeparatedList(
-                                        new[] {
+                                        new[]
+                                        {
                                             Parameter(Identifier("capability")).WithType(item.Capability.Syntax),
                                             Parameter(Identifier("clientCapabilities")).WithType(IdentifierName("ClientCapabilities"))
                                         }
@@ -100,7 +104,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                        .WithArgumentList(
                                             ArgumentList(
                                                 SeparatedList(
-                                                    new[] {
+                                                    new[]
+                                                    {
                                                         Argument(IdentifierName("capability")),
                                                         Argument(IdentifierName("clientCapabilities"))
                                                     }
@@ -119,7 +124,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                        .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(item.RegistrationOptions.Syntax)));
 
                     handler = handler.AddMembers(
-                        FieldDeclaration(VariableDeclaration(type).WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier("_registrationOptionsFactory")))))
+                        FieldDeclaration(
+                                VariableDeclaration(type).WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier("_registrationOptionsFactory"))))
+                            )
                            .WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.ReadOnlyKeyword))),
                         MethodDeclaration(item.RegistrationOptions.Syntax, Identifier("CreateRegistrationOptions"))
                            .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.InternalKeyword), Token(SyntaxKind.OverrideKeyword)))
@@ -129,7 +136,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                        .WithArgumentList(
                                             ArgumentList(
                                                 SeparatedList(
-                                                    new[] {
+                                                    new[]
+                                                    {
                                                         Argument(IdentifierName("capability")),
                                                         Argument(IdentifierName("clientCapabilities"))
                                                     }
@@ -239,7 +247,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                    .WithParameterList(
                         ParameterList(
                             SeparatedList(
-                                new[] {
+                                new[]
+                                {
                                     Parameter(Identifier("request")).WithType(requestType),
                                     Parameter(Identifier("cancellationToken")).WithType(IdentifierName("CancellationToken"))
                                 }
@@ -253,12 +262,14 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                     ArgumentList(
                                         SeparatedList(
                                             item.Capability is { }
-                                                ? new[] {
+                                                ? new[]
+                                                {
                                                     Argument(IdentifierName("request")),
                                                     Argument(IdentifierName("Capability")),
                                                     Argument(IdentifierName("cancellationToken"))
                                                 }
-                                                : new[] {
+                                                : new[]
+                                                {
                                                     Argument(IdentifierName("request")),
                                                     Argument(IdentifierName("cancellationToken"))
                                                 }
@@ -280,7 +291,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                    .WithParameterList(
                         ParameterList(
                             SeparatedList(
-                                new[] {
+                                new[]
+                                {
                                     Parameter(Identifier("request")).WithType(resolveType),
                                     Parameter(Identifier("cancellationToken")).WithType(IdentifierName("CancellationToken"))
                                 }
@@ -294,12 +306,14 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                     ArgumentList(
                                         SeparatedList(
                                             item.Capability is { }
-                                                ? new[] {
+                                                ? new[]
+                                                {
                                                     Argument(IdentifierName("request")),
                                                     Argument(IdentifierName("Capability")),
                                                     Argument(IdentifierName("cancellationToken"))
                                                 }
-                                                : new[] {
+                                                : new[]
+                                                {
                                                     Argument(IdentifierName("request")),
                                                     Argument(IdentifierName("cancellationToken"))
                                                 }
@@ -378,7 +392,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                               )
                           );
 
-            var constructorParams = ParameterList(SingletonSeparatedList(Parameter(Identifier("progressManager")).WithType(IdentifierName("IProgressManager"))));
+            var constructorParams =
+                ParameterList(SingletonSeparatedList(Parameter(Identifier("progressManager")).WithType(IdentifierName("IProgressManager"))));
 
             if (item.RegistrationOptions is { })
             {
@@ -388,7 +403,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                        .WithTypeArgumentList(
                             TypeArgumentList(
                                 SeparatedList(
-                                    new[] {
+                                    new[]
+                                    {
                                         item.RegistrationOptions.Syntax,
                                         item.Capability.Syntax
                                     }
@@ -397,14 +413,17 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                         );
 
                     handler = handler.AddMembers(
-                        FieldDeclaration(VariableDeclaration(type).WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier("_registrationOptionsFactory")))))
+                        FieldDeclaration(
+                                VariableDeclaration(type).WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier("_registrationOptionsFactory"))))
+                            )
                            .WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.ReadOnlyKeyword))),
                         MethodDeclaration(item.RegistrationOptions.Syntax, Identifier("CreateRegistrationOptions"))
                            .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.InternalKeyword), Token(SyntaxKind.OverrideKeyword)))
                            .WithParameterList(
                                 ParameterList(
                                     SeparatedList(
-                                        new[] {
+                                        new[]
+                                        {
                                             Parameter(Identifier("capability")).WithType(item.Capability.Syntax),
                                             Parameter(Identifier("clientCapabilities")).WithType(IdentifierName("ClientCapabilities"))
                                         }
@@ -418,7 +437,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                             ArgumentList(
                                                 SeparatedList(
                                                     SeparatedList(
-                                                        new[] {
+                                                        new[]
+                                                        {
                                                             Argument(IdentifierName("capability")),
                                                             Argument(IdentifierName("clientCapabilities"))
                                                         }
@@ -438,7 +458,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                        .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(item.RegistrationOptions.Syntax)));
 
                     handler = handler.AddMembers(
-                        FieldDeclaration(VariableDeclaration(type).WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier("_registrationOptionsFactory")))))
+                        FieldDeclaration(
+                                VariableDeclaration(type).WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier("_registrationOptionsFactory"))))
+                            )
                            .WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.ReadOnlyKeyword))),
                         MethodDeclaration(item.RegistrationOptions.Syntax, Identifier("CreateRegistrationOptions"))
                            .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.InternalKeyword), Token(SyntaxKind.OverrideKeyword)))
@@ -448,7 +470,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                        .WithArgumentList(
                                             ArgumentList(
                                                 SeparatedList(
-                                                    new[] {
+                                                    new[]
+                                                    {
                                                         Argument(IdentifierName("capability")),
                                                         Argument(IdentifierName("clientCapabilities"))
                                                     }
@@ -490,6 +513,20 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                     Parameter(Identifier("handleResolve"))
                        .WithType(DelegateHelpers.CreateAsyncFunc(resolveType, true, resolveType, item.Capability.Syntax))
                 );
+                if (item is { PartialHasInitialValue: true })
+                {
+                    handler = handler.AddMembers(
+                        FieldDeclaration(
+                                VariableDeclaration(DelegateHelpers.CreateAsyncFunc(responseType, true, requestType, item.Capability.Syntax))
+                                   .WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier("_handleInitialValue"))))
+                            )
+                           .WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.ReadOnlyKeyword)))
+                    );
+                    constructorParams = constructorParams.AddParameters(
+                        Parameter(Identifier("handleInitialValue"))
+                           .WithType(DelegateHelpers.CreateAsyncFunc(responseType, true, requestType, item.Capability.Syntax))
+                    );
+                }
             }
             else
             {
@@ -512,49 +549,81 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                     Parameter(Identifier("handleResolve"))
                        .WithType(DelegateHelpers.CreateAsyncFunc(resolveType, true, resolveType))
                 );
+                if (item is { PartialHasInitialValue: true })
+                {
+                    handler = handler.AddMembers(
+                        FieldDeclaration(
+                                VariableDeclaration(DelegateHelpers.CreateAsyncFunc(responseType, true, requestType))
+                                   .WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier("_handleInitialValue"))))
+                            )
+                           .WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.ReadOnlyKeyword)))
+                    );
+                    constructorParams = constructorParams.AddParameters(
+                        Parameter(Identifier("handleInitialValue"))
+                           .WithType(DelegateHelpers.CreateAsyncFunc(responseType, true, requestType))
+                    );
+                }
+            }
+
+            var constructorDeclaration = ConstructorDeclaration(Identifier($"Delegating{item.JsonRpcAttributes.HandlerName}PartialHandler"))
+                                        .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
+                                        .WithParameterList(constructorParams)
+                                        .WithInitializer(
+                                             ConstructorInitializer(
+                                                 SyntaxKind.BaseConstructorInitializer,
+                                                 ArgumentList(SingletonSeparatedList(Argument(IdentifierName("progressManager"))))
+                                             )
+                                         )
+                                        .WithBody(
+                                             Block(
+                                                 ExpressionStatement(
+                                                     AssignmentExpression(
+                                                         SyntaxKind.SimpleAssignmentExpression,
+                                                         IdentifierName("_registrationOptionsFactory"),
+                                                         IdentifierName("registrationOptionsFactory")
+                                                     )
+                                                 ),
+                                                 ExpressionStatement(
+                                                     AssignmentExpression(
+                                                         SyntaxKind.SimpleAssignmentExpression,
+                                                         IdentifierName("_handle"),
+                                                         IdentifierName("handle")
+                                                     )
+                                                 ),
+                                                 ExpressionStatement(
+                                                     AssignmentExpression(
+                                                         SyntaxKind.SimpleAssignmentExpression,
+                                                         IdentifierName("_handleResolve"),
+                                                         IdentifierName("handleResolve")
+                                                     )
+                                                 )
+                                             )
+                                         );
+
+            if (item is { PartialHasInitialValue: true })
+            {
+                constructorDeclaration = constructorDeclaration.WithBody(
+                    constructorDeclaration.Body!.AddStatements(
+                        ExpressionStatement(
+                            AssignmentExpression(
+                                SyntaxKind.SimpleAssignmentExpression,
+                                IdentifierName("_handleInitialValue"),
+                                IdentifierName("handleInitialValue")
+                            )
+                        )
+                    )
+                );
             }
 
             handler = handler.AddMembers(
-                ConstructorDeclaration(Identifier($"Delegating{item.JsonRpcAttributes.HandlerName}PartialHandler"))
-                   .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
-                   .WithParameterList(constructorParams)
-                   .WithInitializer(
-                        ConstructorInitializer(
-                            SyntaxKind.BaseConstructorInitializer,
-                            ArgumentList(SingletonSeparatedList(Argument(IdentifierName("progressManager"))))
-                        )
-                    )
-                   .WithBody(
-                        Block(
-                            ExpressionStatement(
-                                AssignmentExpression(
-                                    SyntaxKind.SimpleAssignmentExpression,
-                                    IdentifierName("_registrationOptionsFactory"),
-                                    IdentifierName("registrationOptionsFactory")
-                                )
-                            ),
-                            ExpressionStatement(
-                                AssignmentExpression(
-                                    SyntaxKind.SimpleAssignmentExpression,
-                                    IdentifierName("_handle"),
-                                    IdentifierName("handle")
-                                )
-                            ),
-                            ExpressionStatement(
-                                AssignmentExpression(
-                                    SyntaxKind.SimpleAssignmentExpression,
-                                    IdentifierName("_handleResolve"),
-                                    IdentifierName("handleResolve")
-                                )
-                            )
-                        )
-                    ),
+                constructorDeclaration,
                 MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier("Handle"))
                    .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.OverrideKeyword)))
                    .WithParameterList(
                         ParameterList(
                             SeparatedList(
-                                new[] {
+                                new[]
+                                {
                                     Parameter(Identifier("request")).WithType(requestType),
                                     Parameter(Identifier("results")).WithType(observerType),
                                     Parameter(Identifier("cancellationToken")).WithType(IdentifierName("CancellationToken"))
@@ -569,13 +638,15 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                     ArgumentList(
                                         SeparatedList(
                                             item.Capability is { }
-                                                ? new[] {
+                                                ? new[]
+                                                {
                                                     Argument(IdentifierName("request")),
                                                     Argument(IdentifierName("results")),
                                                     Argument(IdentifierName("Capability")),
                                                     Argument(IdentifierName("cancellationToken"))
                                                 }
-                                                : new[] {
+                                                : new[]
+                                                {
                                                     Argument(IdentifierName("request")),
                                                     Argument(IdentifierName("results")),
                                                     Argument(IdentifierName("cancellationToken"))
@@ -585,9 +656,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                 )
                         )
                     )
-                   .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
-            );
-            handler = handler.AddMembers(
+                   .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
                 MethodDeclaration(
                         GenericName(Identifier("Task"))
                            .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(resolveType))),
@@ -597,7 +666,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                    .WithParameterList(
                         ParameterList(
                             SeparatedList(
-                                new[] {
+                                new[]
+                                {
                                     Parameter(Identifier("request")).WithType(resolveType),
                                     Parameter(Identifier("cancellationToken")).WithType(IdentifierName("CancellationToken"))
                                 }
@@ -611,12 +681,14 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                     ArgumentList(
                                         SeparatedList(
                                             item.Capability is { }
-                                                ? new[] {
+                                                ? new[]
+                                                {
                                                     Argument(IdentifierName("request")),
                                                     Argument(IdentifierName("Capability")),
                                                     Argument(IdentifierName("cancellationToken"))
                                                 }
-                                                : new[] {
+                                                : new[]
+                                                {
                                                     Argument(IdentifierName("request")),
                                                     Argument(IdentifierName("cancellationToken"))
                                                 }
@@ -627,6 +699,71 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                     )
                    .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
             );
+            if (item is { PartialHasInitialValue: true })
+            {
+                handler = handler.AddMembers(
+                    MethodDeclaration(
+                            GenericName(Identifier("Task"))
+                               .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(item.Response.Syntax))),
+                            Identifier("HandleInitialValue")
+                        )
+                       .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.OverrideKeyword), Token(SyntaxKind.AsyncKeyword)))
+                       .WithParameterList(
+                            ParameterList(
+                                SeparatedList(
+                                    new[]
+                                    {
+                                        Parameter(Identifier("request")).WithType(requestType),
+                                        Parameter(Identifier("cancellationToken")).WithType(IdentifierName("CancellationToken"))
+                                    }
+                                )
+                            )
+                        )
+                       .WithExpressionBody(
+                            ArrowExpressionClause(
+                                AwaitExpression(
+                                    InvocationExpression(
+                                            MemberAccessExpression(
+                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                InvocationExpression(IdentifierName("_handleInitialValue"))
+                                                   .WithArgumentList(
+                                                        ArgumentList(
+                                                            SeparatedList(
+                                                                item.Capability is { }
+                                                                    ? new[]
+                                                                    {
+                                                                        Argument(IdentifierName("request")),
+                                                                        Argument(IdentifierName("Capability")),
+                                                                        Argument(IdentifierName("cancellationToken"))
+                                                                    }
+                                                                    : new[]
+                                                                    {
+                                                                        Argument(IdentifierName("request")),
+                                                                        Argument(IdentifierName("cancellationToken"))
+                                                                    }
+                                                            )
+                                                        )
+                                                    ),
+                                                IdentifierName("ConfigureAwait")
+                                            )
+                                        )
+                                       .WithArgumentList(
+                                            ArgumentList(
+                                                SingletonSeparatedList(
+                                                    Argument(
+                                                        LiteralExpression(
+                                                            SyntaxKind.FalseLiteralExpression
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                )
+                            )
+                        )
+                       .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                );
+            }
 
 
             return handler;

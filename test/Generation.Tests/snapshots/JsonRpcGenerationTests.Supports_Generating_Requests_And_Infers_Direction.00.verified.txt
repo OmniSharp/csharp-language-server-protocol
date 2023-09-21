@@ -1,0 +1,17 @@
+﻿{
+  Diagnostics: [
+    {
+      Id: JRPC1001,
+      Title: No Response Router Provided,
+      Severity: Info,
+      WarningLevel: 1,
+      Location: Test0.cs: (17,21)-(17,39),
+      Description: ,
+      HelpLink: ,
+      MessageFormat: No Response Router Provided for handler {0}, defaulting to {1}.,
+      Message: No Response Router Provided for handler {0}, defaulting to {1}.,
+      Category: JsonRPC,
+      CustomTags: []
+    }
+  ]
+}

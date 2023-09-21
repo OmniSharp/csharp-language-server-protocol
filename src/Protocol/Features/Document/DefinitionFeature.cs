@@ -18,7 +18,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [RegistrationOptions(typeof(DefinitionRegistrationOptions))]
         [Capability(typeof(DefinitionCapability))]
         public partial record DefinitionParams : TextDocumentPositionParams, IWorkDoneProgressParams,
-                                                 IPartialItemsRequest<LocationOrLocationLinks, LocationOrLocationLink>;
+                                                 IPartialItemsRequest<LocationOrLocationLinks?, LocationOrLocationLink>;
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.DefinitionProvider))]
         [RegistrationName(TextDocumentNames.Definition)]

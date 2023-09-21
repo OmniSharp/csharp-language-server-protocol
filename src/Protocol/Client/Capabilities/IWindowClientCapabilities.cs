@@ -3,7 +3,7 @@
     public interface IWindowClientCapabilities : ICapabilitiesBase
     {
         /// <summary>
-        /// Whether client supports handling progress notifications.
+        /// Whether the client supports server initiated progress using the `window/workDoneProgress/create` request.
         /// </summary>
         Supports<bool> WorkDoneProgress { get; set; }
 

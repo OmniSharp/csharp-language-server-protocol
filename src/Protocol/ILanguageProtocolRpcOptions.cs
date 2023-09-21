@@ -8,5 +8,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         T AddTextDocumentIdentifier(params ITextDocumentIdentifier[] handlers);
         T AddTextDocumentIdentifier<TTextDocumentIdentifier>() where TTextDocumentIdentifier : ITextDocumentIdentifier;
+        T AddNotebookDocumentIdentifier(params INotebookDocumentIdentifier[] handlers);
+        T AddNotebookDocumentIdentifier<TNotebookDocumentIdentifier>() where TNotebookDocumentIdentifier : INotebookDocumentIdentifier;
     }
 }
