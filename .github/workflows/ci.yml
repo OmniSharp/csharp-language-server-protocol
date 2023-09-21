@@ -97,10 +97,10 @@ jobs:
         uses: actions/setup-dotnet@v3.2.0
         with:
           dotnet-version: '3.1.x'
-      - name: 🔨 Use .NET Core 6.0 SDK
+      - name: 🔨 Use .NET Core 7.0 SDK
         uses: actions/setup-dotnet@v3.2.0
         with:
-          dotnet-version: '6.0.x'
+          dotnet-version: '7.0.x'
       - name: 🎁 dotnet tool restore
         run: |
           dotnet tool restore

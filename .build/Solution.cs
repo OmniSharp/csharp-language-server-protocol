@@ -134,9 +134,9 @@ public partial class Solution
                 {
                     DotNetVersion = "3.1.x"
                 },
-                new SetupDotNetStep("Use .NET Core 6.0 SDK")
+                new SetupDotNetStep("Use .NET Core 7.0 SDK")
                 {
-                    DotNetVersion = "6.0.x"
+                    DotNetVersion = "7.0.x"
                 },
             }
         );
