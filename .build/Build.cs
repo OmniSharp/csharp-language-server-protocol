@@ -8,15 +8,16 @@ using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Tools.MSBuild;
 using Rocket.Surgery.Nuke.DotNetCore;
 
+namespace Build;
+
 [PublicAPI]
-[CheckBuildProjectConfigurations]
 [UnsetVisualStudioEnvironmentVariables]
 [PackageIcon("http://www.omnisharp.net/images/logo.png")]
 [EnsureReadmeIsUpdated]
 [DotNetVerbosityMapping]
 [MSBuildVerbosityMapping]
 [NuGetVerbosityMapping]
-public partial class Solution : NukeBuild,
+public sealed partial class Solution : NukeBuild,
                                 ICanRestoreWithDotNetCore,
                                 ICanBuildWithDotNetCore,
                                 ICanTestWithDotNetCore,
@@ -36,10 +37,7 @@ public partial class Solution : NukeBuild,
     /// - Microsoft VisualStudio     https://nuke.build/visualstudio
     /// - Microsoft VSCode           https://nuke.build/vscode
     /// </summary>
-    public static int Main()
-    {
-        return Execute<Solution>(x => x.Default);
-    }
+    public static int Main() => Execute<Solution>(x => x.Default);
 
     [OptionalGitRepository] public GitRepository? GitRepository { get; }
 

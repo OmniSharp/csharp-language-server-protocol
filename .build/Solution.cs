@@ -1,15 +1,14 @@
-using System.Collections.Generic;
-using System.Linq;
 using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.CI.GitHubActions.Configuration;
 using Rocket.Surgery.Nuke.ContinuousIntegration;
 using Rocket.Surgery.Nuke.DotNetCore;
 using Rocket.Surgery.Nuke.GithubActions;
 
+namespace Build;
 
 internal class LocalConstants
 {
-    public static string[] PathsIgnore =
+    public static string[] PathsIgnore => new[]
     {
         ".codecov.yml",
         ".editorconfig",
@@ -37,7 +36,7 @@ internal class LocalConstants
     GitHubActionsImage.WindowsLatest,
     GitHubActionsImage.UbuntuLatest,
     AutoGenerate = false,
-    On = new[] { GitHubActionsTrigger.Push },
+    On = new[] { RocketSurgeonGitHubActionsTrigger.Push },
     OnPushTags = new[] { "v*" },
     OnPushBranches = new[] { "master", "main", "next" },
     OnPullRequestBranches = new[] { "master", "main", "next" },
@@ -49,7 +48,7 @@ internal class LocalConstants
     GitHubActionsImage.WindowsLatest,
     GitHubActionsImage.UbuntuLatest,
     AutoGenerate = false,
-    On = new[] { GitHubActionsTrigger.Push },
+    On = new[] { RocketSurgeonGitHubActionsTrigger.Push },
     OnPushTags = new[] { "v*" },
     OnPushBranches = new[] { "master", "main", "next" },
     OnPullRequestBranches = new[] { "master", "main", "next" },
