@@ -10,8 +10,7 @@
       HelpLink: ,
       MessageFormat: No Response Router Provided for handler {0}, defaulting to {1}.,
       Message: No Response Router Provided for handler {0}, defaulting to {1}.,
-      Category: JsonRPC,
-      CustomTags: []
+      Category: JsonRPC
     }
   ]
 }
