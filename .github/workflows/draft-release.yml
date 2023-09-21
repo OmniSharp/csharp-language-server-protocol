@@ -11,12 +11,17 @@ on:
 
 jobs:
   create_milestone_and_draft_release:
+    permissions:
+      # write permission is required to create a github release
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.6.0
+        uses: actions/checkout@v4.0.0
         with:
           fetch-depth: 0
+
+      - uses: actions/setup-dotnet@v3
 
       - name: Fetch all history for all tags and branches
         run: git fetch --prune
@@ -52,5 +57,5 @@ jobs:
           omitNameDuringUpdate: true
           name: 'v${{ steps.gitversion.outputs.majorMinorPatch }}'
           tag: 'v${{ steps.gitversion.outputs.majorMinorPatch }}'
-          token: ${{ secrets.OMNISHARP_BOT_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           commit: ${{ github.base_ref }}

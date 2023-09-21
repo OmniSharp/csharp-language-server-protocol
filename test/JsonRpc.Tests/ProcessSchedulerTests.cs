@@ -346,7 +346,7 @@ namespace JsonRpc.Tests
                 OnCompleted(Subscribed, Unit.Default)
             );
             var errorObservable = testScheduler.CreateColdObservable(
-                OnError(Subscribed, new NotSameException(), Unit.Default)
+                OnError(Subscribed, new NotSupportedException(), Unit.Default)
             );
             var testObserver = testScheduler.CreateObserver<Unit>();
 
@@ -365,7 +365,7 @@ namespace JsonRpc.Tests
                                        .ToArray();
 
             messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnNext && x.Time == Subscribed);
-            messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnError && x.Time == Subscribed * 2 && x.Value.Exception is NotSameException);
+            messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnError && x.Time == Subscribed * 2 && x.Value.Exception is NotSupportedException);
             messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnNext && x.Time == Subscribed * 3);
         }
 

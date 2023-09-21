@@ -22,7 +22,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [RegistrationOptions(typeof(DocumentSymbolRegistrationOptions))]
         [Capability(typeof(DocumentSymbolCapability))]
         public partial record DocumentSymbolParams : ITextDocumentIdentifierParams,
-                                                     IPartialItemsRequest<SymbolInformationOrDocumentSymbolContainer, SymbolInformationOrDocumentSymbol>,
+                                                     IPartialItemsRequest<SymbolInformationOrDocumentSymbolContainer?, SymbolInformationOrDocumentSymbol>,
                                                      IWorkDoneProgressParams
         {
             /// <summary>
@@ -30,6 +30,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             public TextDocumentIdentifier TextDocument { get; init; } = null!;
         }
+        
+        public partial class SymbolInformationOrDocumentSymbolContainer {}
 
         [JsonConverter(typeof(SymbolInformationOrDocumentSymbolConverter))]
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]

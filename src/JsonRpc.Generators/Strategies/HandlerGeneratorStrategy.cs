@@ -260,6 +260,30 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                     }
 
                     members.Add(handlerClass);
+
+                    if (resolver is { LspAttributes: { GenerateTypedData: true } })
+                    {
+                        members.Add(
+                            GenerateTypedPartialItemHandler(
+                                handlerClass,
+                                request,
+                                resolver,
+                                request.PartialItem
+                            )
+                        );
+                    }
+
+                    if (request is { LspAttributes: { GenerateTypedData: true } })
+                    {
+                        members.Add(
+                            GenerateTypedPartialItemHandler(
+                                handlerClass,
+                                request,
+                                request,
+                                request.PartialItem
+                            )
+                        );
+                    }
                 }
                 else if (request is { PartialItems: { } partialItems })
                 {
@@ -297,7 +321,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                     if (resolver is { LspAttributes: { GenerateTypedData: true } })
                     {
                         members.Add(
-                            GenerateTypedPartialHandler(
+                            GenerateTypedPartialItemsHandler(
                                 handlerClass,
                                 request,
                                 resolver,
@@ -309,7 +333,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                     if (request is { LspAttributes: { GenerateTypedData: true } })
                     {
                         members.Add(
-                            GenerateTypedPartialHandler(
+                            GenerateTypedPartialItemsHandler(
                                 handlerClass,
                                 request,
                                 request,
@@ -401,7 +425,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 
             return QualifiedName(
                 IdentifierName("AbstractHandlers"),
-                GenericName($"PartialResult{( onlyCapability ? "Capability" : "" )}")
+                GenericName($"PartialResult{( request.PartialHasInitialValue ? "WithInitialValue" : "" )}{( onlyCapability ? "Capability" : "" )}")
                    .WithTypeArgumentList(TypeArgumentList(SeparatedList(types)))
             );
         }
@@ -423,7 +447,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 
             return QualifiedName(
                 IdentifierName("AbstractHandlers"),
-                GenericName($"PartialResults{( onlyCapability ? "Capability" : "" )}")
+                GenericName($"PartialResults{( request.PartialHasInitialValue ? "WithInitialValue" : "" )}{( onlyCapability ? "Capability" : "" )}")
                    .WithTypeArgumentList(TypeArgumentList(SeparatedList(types)))
             );
         }
@@ -597,7 +621,298 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             }
         }
 
-        private static TypeDeclarationSyntax GenerateTypedPartialHandler(
+        private static TypeDeclarationSyntax GenerateTypedPartialItemHandler(
+            TypeDeclarationSyntax classDeclarationSyntax,
+            RequestItem item,
+            RequestItem resolver,
+            SyntaxSymbol partialItem
+        )
+        {
+            return ClassDeclaration(classDeclarationSyntax.Identifier)
+                  .WithModifiers(classDeclarationSyntax.Modifiers)
+                  .WithAttributeLists(classDeclarationSyntax.AttributeLists)
+                  .WithHandlerIdentityConstraint(true)
+                  .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(SimpleBaseType(IdentifierName(classDeclarationSyntax.Identifier.Text)))))
+                  .AddMembers(
+                       ConstructorDeclaration(classDeclarationSyntax.Identifier)
+                          .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword)))
+                          .WithParameterList(
+                               ParameterList(
+                                   SeparatedList(
+                                       new[] {
+                                           Parameter(Identifier("id")).WithType(IdentifierName("Guid")),
+                                           Parameter(Identifier("progressManager")).WithType(IdentifierName("IProgressManager"))
+                                       }
+                                   )
+                               )
+                           )
+                          .WithInitializer(
+                               ConstructorInitializer(
+                                   SyntaxKind.BaseConstructorInitializer,
+                                   ArgumentList(
+                                       SeparatedList(
+                                           new[] {
+                                               Argument(IdentifierName("id")),
+                                               Argument(
+                                                   IdentifierName("progressManager")
+                                               )
+                                           }
+                                       )
+                                   )
+                               )
+                           )
+                          .WithBody(Block()),
+                       ConstructorDeclaration(classDeclarationSyntax.Identifier)
+                          .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword)))
+                          .WithParameterList(ParameterList(SingletonSeparatedList(Parameter(Identifier("progressManager")).WithType(IdentifierName("IProgressManager")))))
+                          .WithInitializer(
+                               ConstructorInitializer(
+                                   SyntaxKind.ThisConstructorInitializer,
+                                   ArgumentList(
+                                       SeparatedList(
+                                           new[] {
+                                               Argument(
+                                                   InvocationExpression(
+                                                       MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("Guid"), IdentifierName("NewGuid"))
+                                                   )
+                                               ),
+                                               Argument(
+                                                   IdentifierName("progressManager")
+                                               )
+                                           }
+                                       )
+                                   )
+                               )
+                           )
+                          .WithBody(Block()),
+                       MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier("Handle"))
+                          .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.SealedKeyword), Token(SyntaxKind.OverrideKeyword)))
+                          .WithParameterList(
+                               ParameterList(
+                                   SeparatedList(
+                                       new[] {
+                                           Parameter(Identifier("request")).WithType(item.Request.Syntax),
+                                           Parameter(Identifier("results"))
+                                              .WithType(
+                                                   GenericName(Identifier("IObserver"))
+                                                      .WithTypeArgumentList(
+                                                           TypeArgumentList(
+                                                               SingletonSeparatedList(partialItem.Syntax)))
+                                                       ),
+                                           Parameter(Identifier("cancellationToken")).WithType(IdentifierName("CancellationToken"))
+                                       }
+                                   )
+                               )
+                           )
+                          .WithExpressionBody(
+                               ArrowExpressionClause(
+                                   InvocationExpression(IdentifierName("Handle"))
+                                      .WithArgumentList(
+                                           ArgumentList(
+                                               SeparatedList(
+                                                   new[] {
+                                                       Argument(IdentifierName("request")),
+                                                       Argument(
+                                                           ObjectCreationExpression(
+                                                                   QualifiedName(
+                                                                       IdentifierName("LanguageProtocolDelegatingHandlers"),
+                                                                       GenericName(
+                                                                               Identifier("TypedPartialObserver")
+                                                                           )
+                                                                          .WithTypeArgumentList(
+                                                                               TypeArgumentList(
+                                                                                   SeparatedList(
+                                                                                       new[] {
+                                                                                           GenericName(Identifier(resolver.Response.Symbol.Name))
+                                                                                              .WithTypeArgumentList(
+                                                                                                   TypeArgumentList(
+                                                                                                       SingletonSeparatedList<TypeSyntax>(
+                                                                                                           IdentifierName("T")
+                                                                                                       )
+                                                                                                   )
+                                                                                               ),
+                                                                                           partialItem.Syntax
+                                                                                       }
+                                                                                   )
+                                                                               )
+                                                                           )
+                                                                   )
+                                                               )
+                                                              .WithArgumentList(
+                                                                   ArgumentList(
+                                                                       SeparatedList(
+                                                                           new[] {
+                                                                               Argument(
+                                                                                   IdentifierName("results")
+                                                                               ),
+                                                                               Argument(
+                                                                                   MemberAccessExpression(
+                                                                                       SyntaxKind.SimpleMemberAccessExpression,
+                                                                                       partialItem.Syntax,
+                                                                                       IdentifierName("From")
+                                                                                   )
+                                                                               )
+                                                                           }
+                                                                       )
+                                                                   )
+                                                               )
+                                                       ),
+                                                       Argument(IdentifierName("cancellationToken"))
+                                                   }
+                                               )
+                                           )
+                                       )
+                               )
+                           )
+                          .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
+                       MethodDeclaration(
+                               GenericName(Identifier("Task"))
+                                  .WithTypeArgumentList(
+                                       TypeArgumentList(
+                                           SingletonSeparatedList(
+                                               resolver.Response.Syntax
+                                           )
+                                       )
+                                   ),
+                               Identifier("Handle")
+                           )
+                          .WithModifiers(
+                               TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.SealedKeyword), Token(SyntaxKind.OverrideKeyword), Token(SyntaxKind.AsyncKeyword))
+                           )
+                          .WithParameterList(
+                               ParameterList(
+                                   SeparatedList(
+                                       new[] {
+                                           Parameter(Identifier("request")).WithType(resolver.Request.Syntax),
+                                           Parameter(Identifier("cancellationToken")).WithType(IdentifierName("CancellationToken"))
+                                       }
+                                   )
+                               )
+                           )
+                          .WithBody(
+                               Block(
+                                   LocalDeclarationStatement(
+                                       VariableDeclaration(IdentifierName("var"))
+                                          .WithVariables(
+                                               SingletonSeparatedList(
+                                                   VariableDeclarator(Identifier("response"))
+                                                      .WithInitializer(
+                                                           EqualsValueClause(
+                                                               AwaitExpression(
+                                                                   InvocationExpression(
+                                                                           MemberAccessExpression(
+                                                                               SyntaxKind.SimpleMemberAccessExpression,
+                                                                               InvocationExpression(
+                                                                                       IdentifierName("HandleResolve")
+                                                                                   )
+                                                                                  .WithArgumentList(
+                                                                                       ArgumentList(
+                                                                                           SeparatedList(
+                                                                                               new[] {
+                                                                                                   Argument(IdentifierName("request")),
+                                                                                                   Argument(
+                                                                                                       IdentifierName("cancellationToken")
+                                                                                                   )
+                                                                                               }
+                                                                                           )
+                                                                                       )
+                                                                                   ),
+                                                                               IdentifierName("ConfigureAwait")
+                                                                           )
+                                                                       )
+                                                                      .WithArgumentList(
+                                                                           ArgumentList(
+                                                                               SingletonSeparatedList(Argument(LiteralExpression(SyntaxKind.FalseLiteralExpression)))
+                                                                           )
+                                                                       )
+                                                               )
+                                                           )
+                                                       )
+                                               )
+                                           )
+                                   ),
+                                   ReturnStatement(IdentifierName("response"))
+                               )
+                           ),
+                       MethodDeclaration(
+                               PredefinedType(Token(SyntaxKind.VoidKeyword)),
+                               Identifier("Handle")
+                           )
+                          .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.AbstractKeyword)))
+                          .WithParameterList(
+                               ParameterList(
+                                   SeparatedList(
+                                       new[] {
+                                           Parameter(Identifier("request")).WithType(item.Request.Syntax),
+                                           Parameter(Identifier("results"))
+                                              .WithType(
+                                                   GenericName(Identifier("IObserver"))
+                                                      .WithTypeArgumentList(
+                                                           TypeArgumentList(
+                                                               SingletonSeparatedList<TypeSyntax>(
+                                                                                   GenericName(Identifier(resolver.Request.Symbol.Name))
+                                                                                      .WithTypeArgumentList(
+                                                                                           TypeArgumentList(
+                                                                                               SingletonSeparatedList<TypeSyntax>(
+                                                                                                   IdentifierName("T")
+                                                                                               )
+                                                                                           )
+                                                                                       )
+                                                               )
+                                                           )
+                                                       )
+                                               ),
+                                           Parameter(Identifier("cancellationToken")).WithType(IdentifierName("CancellationToken"))
+                                       }
+                                   )
+                               )
+                           )
+                          .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
+                       MethodDeclaration(
+                               GenericName(Identifier("Task"))
+                                  .WithTypeArgumentList(
+                                       TypeArgumentList(
+                                           SingletonSeparatedList<TypeSyntax>(
+                                               GenericName(Identifier(resolver.Request.Symbol.Name))
+                                                  .WithTypeArgumentList(
+                                                       TypeArgumentList(
+                                                           SingletonSeparatedList<TypeSyntax>(
+                                                               IdentifierName("T")
+                                                           )
+                                                       )
+                                                   )
+                                           )
+                                       )
+                                   ),
+                               Identifier("HandleResolve")
+                           )
+                          .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.AbstractKeyword)))
+                          .WithParameterList(
+                               ParameterList(
+                                   SeparatedList(
+                                       new[] {
+                                           Parameter(Identifier("request"))
+                                              .WithType(
+                                                   GenericName(Identifier(resolver.Request.Symbol.Name))
+                                                      .WithTypeArgumentList(
+                                                           TypeArgumentList(
+                                                               SingletonSeparatedList<TypeSyntax>(
+                                                                   IdentifierName("T")
+                                                               )
+                                                           )
+                                                       )
+                                               ),
+                                           Parameter(Identifier("cancellationToken")).WithType(IdentifierName("CancellationToken"))
+                                       }
+                                   )
+                               )
+                           )
+                          .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                   );
+        }
+
+
+        private static TypeDeclarationSyntax GenerateTypedPartialItemsHandler(
             TypeDeclarationSyntax classDeclarationSyntax,
             RequestItem item,
             RequestItem resolver,
@@ -914,200 +1229,201 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                    .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("T"))));
             }
 
-            return ClassDeclaration(classDeclarationSyntax.Identifier)
-                  .WithModifiers(classDeclarationSyntax.Modifiers)
-                  .WithAttributeLists(classDeclarationSyntax.AttributeLists)
-                  .WithHandlerIdentityConstraint(true)
-                  .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(SimpleBaseType(IdentifierName(classDeclarationSyntax.Identifier.Text)))))
-                  .AddMembers(
-                       ConstructorDeclaration(classDeclarationSyntax.Identifier)
-                          .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword)))
-                          .WithParameterList(ParameterList(SingletonSeparatedList(Parameter(Identifier("id")).WithType(IdentifierName("Guid")))))
-                          .WithInitializer(
-                               ConstructorInitializer(
-                                   SyntaxKind.BaseConstructorInitializer,
-                                   ArgumentList(SingletonSeparatedList(Argument(IdentifierName("id"))))
-                               )
-                           )
-                          .WithBody(Block()),
-                       ConstructorDeclaration(classDeclarationSyntax.Identifier)
-                          .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword)))
-                          .WithInitializer(
-                               ConstructorInitializer(
-                                   SyntaxKind.ThisConstructorInitializer,
-                                   ArgumentList(
-                                       SingletonSeparatedList(
-                                           Argument(
-                                               InvocationExpression(
-                                                   MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("Guid"), IdentifierName("NewGuid"))
-                                               )
-                                           )
-                                       )
-                                   )
-                               )
-                           )
-                          .WithBody(Block()),
-                       MethodDeclaration(
-                               GenericName(Identifier("Task")).WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(item.Response.Syntax))),
-                               Identifier("Handle")
-                           )
-                          .WithModifiers(
-                               TokenList(
-                                   Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.SealedKeyword), Token(SyntaxKind.OverrideKeyword), Token(SyntaxKind.AsyncKeyword)
-                               )
-                           )
-                          .WithParameterList(
-                               ParameterList(
-                                   SeparatedList(
-                                       new[] {
-                                           Parameter(Identifier("request")).WithType(item.Request.Syntax),
-                                           Parameter(Identifier("cancellationToken")).WithType(IdentifierName("CancellationToken"))
-                                       }
-                                   )
-                               )
-                           )
-                          .WithExpressionBody(
-                               ArrowExpressionClause(
-                                   AwaitExpression(
-                                       InvocationExpression(
-                                               MemberAccessExpression(
-                                                   SyntaxKind.SimpleMemberAccessExpression,
-                                                   InvocationExpression(IdentifierName("HandleParams"))
-                                                      .WithArgumentList(
-                                                           ArgumentList(
-                                                               SeparatedList(
-                                                                   new[] {
-                                                                       Argument(IdentifierName("request")),
-                                                                       Argument(IdentifierName("cancellationToken"))
-                                                                   }
-                                                               )
-                                                           )
-                                                       ),
-                                                   IdentifierName("ConfigureAwait")
-                                               )
-                                           )
-                                          .WithArgumentList(
-                                               ArgumentList(
-                                                   SingletonSeparatedList(
-                                                       Argument(
-                                                           LiteralExpression(
-                                                               SyntaxKind.FalseLiteralExpression
-                                                           )
-                                                       )
-                                                   )
-                                               )
-                                           )
-                                   )
-                               )
-                           )
-                          .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
-                       MethodDeclaration(
-                               GenericName(Identifier("Task")).WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(resolver.Response.Syntax))),
-                               Identifier("Handle")
-                           )
-                          .WithModifiers(
-                               TokenList(
-                                   Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.SealedKeyword), Token(SyntaxKind.OverrideKeyword), Token(SyntaxKind.AsyncKeyword)
-                               )
-                           )
-                          .WithParameterList(
-                               ParameterList(
-                                   SeparatedList(
-                                       new[] {
-                                           Parameter(Identifier("request")).WithType(resolver.Response.Syntax),
-                                           Parameter(Identifier("cancellationToken")).WithType(IdentifierName("CancellationToken"))
-                                       }
-                                   )
-                               )
-                           )
-                          .WithExpressionBody(
-                               ArrowExpressionClause(
-                                   AwaitExpression(
-                                       InvocationExpression(
-                                               MemberAccessExpression(
-                                                   SyntaxKind.SimpleMemberAccessExpression,
-                                                   InvocationExpression(IdentifierName("HandleResolve"))
-                                                      .WithArgumentList(
-                                                           ArgumentList(
-                                                               SeparatedList(
-                                                                   new[] {
-                                                                       Argument(
-                                                                           IdentifierName("request")
-                                                                       ),
-                                                                       Argument(
-                                                                           IdentifierName("cancellationToken")
-                                                                       )
-                                                                   }
-                                                               )
-                                                           )
-                                                       ),
-                                                   IdentifierName("ConfigureAwait")
-                                               )
-                                           )
-                                          .WithArgumentList(
-                                               ArgumentList(
-                                                   SingletonSeparatedList(
-                                                       Argument(
-                                                           LiteralExpression(
-                                                               SyntaxKind.FalseLiteralExpression
-                                                           )
-                                                       )
-                                                   )
-                                               )
-                                           )
-                                   )
-                               )
-                           )
-                          .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
-                       MethodDeclaration(
-                               GenericName(Identifier("Task"))
-                                  .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(responseType))),
-                               Identifier("HandleParams")
-                           )
-                          .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.AbstractKeyword)))
-                          .WithParameterList(
-                               ParameterList(
-                                   SeparatedList(
-                                       new[] {
-                                           Parameter(Identifier("request")).WithType(item.Request.Syntax),
-                                           Parameter(Identifier("cancellationToken")).WithType(IdentifierName("CancellationToken"))
-                                       }
-                                   )
-                               )
-                           )
-                          .WithSemicolonToken(
-                               Token(SyntaxKind.SemicolonToken)
-                           ),
-                       MethodDeclaration(
-                               GenericName(Identifier("Task"))
-                                  .WithTypeArgumentList(
-                                       TypeArgumentList(
-                                           SingletonSeparatedList<TypeSyntax>(
-                                               GenericName(Identifier(resolver.Response.Symbol.Name))
-                                                  .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("T"))))
-                                           )
-                                       )
-                                   ),
-                               Identifier("HandleResolve")
-                           )
-                          .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.AbstractKeyword)))
-                          .WithParameterList(
-                               ParameterList(
-                                   SeparatedList(
-                                       new[] {
-                                           Parameter(Identifier("request"))
-                                              .WithType(
-                                                   GenericName(Identifier(resolver.Response.Symbol.Name)).WithTypeArgumentList(
-                                                       TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("T")))
-                                                   )
-                                               ),
-                                           Parameter(Identifier("cancellationToken")).WithType(IdentifierName("CancellationToken"))
-                                       }
-                                   )
-                               )
-                           )
-                          .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
-                   );
+            var typeDeclarationSyntax = ClassDeclaration(classDeclarationSyntax.Identifier)
+                                       .WithModifiers(classDeclarationSyntax.Modifiers)
+                                       .WithAttributeLists(classDeclarationSyntax.AttributeLists)
+                                       .WithHandlerIdentityConstraint(true)
+                                       .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(SimpleBaseType(IdentifierName(classDeclarationSyntax.Identifier.Text)))))
+                                       .AddMembers(
+                                            ConstructorDeclaration(classDeclarationSyntax.Identifier)
+                                               .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword)))
+                                               .WithParameterList(ParameterList(SingletonSeparatedList(Parameter(Identifier("id")).WithType(IdentifierName("Guid")))))
+                                               .WithInitializer(
+                                                    ConstructorInitializer(
+                                                        SyntaxKind.BaseConstructorInitializer,
+                                                        ArgumentList(SingletonSeparatedList(Argument(IdentifierName("id"))))
+                                                    )
+                                                )
+                                               .WithBody(Block()),
+                                            ConstructorDeclaration(classDeclarationSyntax.Identifier)
+                                               .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword)))
+                                               .WithInitializer(
+                                                    ConstructorInitializer(
+                                                        SyntaxKind.ThisConstructorInitializer,
+                                                        ArgumentList(
+                                                            SingletonSeparatedList(
+                                                                Argument(
+                                                                    InvocationExpression(
+                                                                        MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("Guid"), IdentifierName("NewGuid"))
+                                                                    )
+                                                                )
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                               .WithBody(Block()),
+                                            MethodDeclaration(
+                                                    GenericName(Identifier("Task")).WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(item.Response.Syntax))),
+                                                    Identifier("Handle")
+                                                )
+                                               .WithModifiers(
+                                                    TokenList(
+                                                        Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.SealedKeyword), Token(SyntaxKind.OverrideKeyword), Token(SyntaxKind.AsyncKeyword)
+                                                    )
+                                                )
+                                               .WithParameterList(
+                                                    ParameterList(
+                                                        SeparatedList(
+                                                            new[] {
+                                                                Parameter(Identifier("request")).WithType(item.Request.Syntax),
+                                                                Parameter(Identifier("cancellationToken")).WithType(IdentifierName("CancellationToken"))
+                                                            }
+                                                        )
+                                                    )
+                                                )
+                                               .WithExpressionBody(
+                                                    ArrowExpressionClause(
+                                                        AwaitExpression(
+                                                            InvocationExpression(
+                                                                    MemberAccessExpression(
+                                                                        SyntaxKind.SimpleMemberAccessExpression,
+                                                                        InvocationExpression(IdentifierName("HandleParams"))
+                                                                           .WithArgumentList(
+                                                                                ArgumentList(
+                                                                                    SeparatedList(
+                                                                                        new[] {
+                                                                                            Argument(IdentifierName("request")),
+                                                                                            Argument(IdentifierName("cancellationToken"))
+                                                                                        }
+                                                                                    )
+                                                                                )
+                                                                            ),
+                                                                        IdentifierName("ConfigureAwait")
+                                                                    )
+                                                                )
+                                                               .WithArgumentList(
+                                                                    ArgumentList(
+                                                                        SingletonSeparatedList(
+                                                                            Argument(
+                                                                                LiteralExpression(
+                                                                                    SyntaxKind.FalseLiteralExpression
+                                                                                )
+                                                                            )
+                                                                        )
+                                                                    )
+                                                                )
+                                                        )
+                                                    )
+                                                )
+                                               .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
+                                            MethodDeclaration(
+                                                    GenericName(Identifier("Task")).WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(resolver.Response.Syntax))),
+                                                    Identifier("Handle")
+                                                )
+                                               .WithModifiers(
+                                                    TokenList(
+                                                        Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.SealedKeyword), Token(SyntaxKind.OverrideKeyword), Token(SyntaxKind.AsyncKeyword)
+                                                    )
+                                                )
+                                               .WithParameterList(
+                                                    ParameterList(
+                                                        SeparatedList(
+                                                            new[] {
+                                                                Parameter(Identifier("request")).WithType(resolver.Response.Syntax),
+                                                                Parameter(Identifier("cancellationToken")).WithType(IdentifierName("CancellationToken"))
+                                                            }
+                                                        )
+                                                    )
+                                                )
+                                               .WithExpressionBody(
+                                                    ArrowExpressionClause(
+                                                        AwaitExpression(
+                                                            InvocationExpression(
+                                                                    MemberAccessExpression(
+                                                                        SyntaxKind.SimpleMemberAccessExpression,
+                                                                        InvocationExpression(IdentifierName("HandleResolve"))
+                                                                           .WithArgumentList(
+                                                                                ArgumentList(
+                                                                                    SeparatedList(
+                                                                                        new[] {
+                                                                                            Argument(
+                                                                                                IdentifierName("request")
+                                                                                            ),
+                                                                                            Argument(
+                                                                                                IdentifierName("cancellationToken")
+                                                                                            )
+                                                                                        }
+                                                                                    )
+                                                                                )
+                                                                            ),
+                                                                        IdentifierName("ConfigureAwait")
+                                                                    )
+                                                                )
+                                                               .WithArgumentList(
+                                                                    ArgumentList(
+                                                                        SingletonSeparatedList(
+                                                                            Argument(
+                                                                                LiteralExpression(
+                                                                                    SyntaxKind.FalseLiteralExpression
+                                                                                )
+                                                                            )
+                                                                        )
+                                                                    )
+                                                                )
+                                                        )
+                                                    )
+                                                )
+                                               .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
+                                            MethodDeclaration(
+                                                    GenericName(Identifier("Task"))
+                                                       .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(responseType))),
+                                                    Identifier("HandleParams")
+                                                )
+                                               .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.AbstractKeyword)))
+                                               .WithParameterList(
+                                                    ParameterList(
+                                                        SeparatedList(
+                                                            new[] {
+                                                                Parameter(Identifier("request")).WithType(item.Request.Syntax),
+                                                                Parameter(Identifier("cancellationToken")).WithType(IdentifierName("CancellationToken"))
+                                                            }
+                                                        )
+                                                    )
+                                                )
+                                               .WithSemicolonToken(
+                                                    Token(SyntaxKind.SemicolonToken)
+                                                ),
+                                            MethodDeclaration(
+                                                    GenericName(Identifier("Task"))
+                                                       .WithTypeArgumentList(
+                                                            TypeArgumentList(
+                                                                SingletonSeparatedList<TypeSyntax>(
+                                                                    GenericName(Identifier(resolver.Response.Symbol.Name))
+                                                                       .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("T"))))
+                                                                )
+                                                            )
+                                                        ),
+                                                    Identifier("HandleResolve")
+                                                )
+                                               .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.AbstractKeyword)))
+                                               .WithParameterList(
+                                                    ParameterList(
+                                                        SeparatedList(
+                                                            new[] {
+                                                                Parameter(Identifier("request"))
+                                                                   .WithType(
+                                                                        GenericName(Identifier(resolver.Response.Symbol.Name)).WithTypeArgumentList(
+                                                                            TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("T")))
+                                                                        )
+                                                                    ),
+                                                                Parameter(Identifier("cancellationToken")).WithType(IdentifierName("CancellationToken"))
+                                                            }
+                                                        )
+                                                    )
+                                                )
+                                               .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                                        );
+            return typeDeclarationSyntax;
         }
     }
 }

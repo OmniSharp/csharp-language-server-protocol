@@ -68,7 +68,7 @@ namespace Lsp.Tests
             var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
                                                       new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
             handler.Initialize();
-            var sub = (IJsonRpcHandler) TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.something"), "csharp");
+            var sub = (IJsonRpcHandler) TextDocumentSyncHandlerExtensions.With(TextDocumentSelector.ForPattern("**/*.something"), "csharp");
 
             handler.Add(sub);
             handler.Should().Contain(x => x.Method == key);
@@ -133,9 +133,9 @@ namespace Lsp.Tests
             var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
                                                       new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
             handler.Initialize();
-            var sub = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
+            var sub = TextDocumentSyncHandlerExtensions.With(TextDocumentSelector.ForPattern("**/*.cs"), "csharp");
 
-            var sub2 = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cake"), "csharp");
+            var sub2 = TextDocumentSyncHandlerExtensions.With(TextDocumentSelector.ForPattern("**/*.cake"), "csharp");
 
             handler.Add(sub);
             handler.Add(sub2);
@@ -155,7 +155,7 @@ namespace Lsp.Tests
                 reg.GetRegistrationOptions(Arg.Any<ClientCapabilities>())
                    .Returns(
                         new TextDocumentSyncRegistrationOptions() {
-                            DocumentSelector = new DocumentSelector()
+                            DocumentSelector = new TextDocumentSelector()
                         }
                     );
             handler.Add(sub);
@@ -176,7 +176,7 @@ handler.Initialize();
                 reg.GetRegistrationOptions(Arg.Any<ClientCapabilities>())
                    .Returns(
                         new TextDocumentSyncRegistrationOptions {
-                            DocumentSelector = new DocumentSelector()
+                            DocumentSelector = new TextDocumentSelector()
                         }
                     );
             var sub2 = (IJsonRpcHandler) Substitute.For(new[] { requestHandler, type2 }, new object[0]);
@@ -184,7 +184,7 @@ handler.Initialize();
                 reg2.GetRegistrationOptions(Arg.Any<ClientCapabilities>())
                     .Returns(
                          new TextDocumentSyncRegistrationOptions {
-                             DocumentSelector = new DocumentSelector()
+                             DocumentSelector = new TextDocumentSelector()
                          }
                      );
             handler.Add(sub);
@@ -232,7 +232,7 @@ handler.Initialize();
             ( (ICodeLensHandler) codeLensHandler ).GetRegistrationOptions(Arg.Any<CodeLensCapability>(), Arg.Any<ClientCapabilities>())
                                                   .Returns(
                                                        new CodeLensRegistrationOptions {
-                                                           DocumentSelector = new DocumentSelector(DocumentFilter.ForLanguage("foo"))
+                                                           DocumentSelector = new TextDocumentSelector(TextDocumentFilter.ForLanguage("foo"))
                                                        }
                                                    );
 
@@ -251,7 +251,7 @@ handler.Initialize();
             ( (ICodeLensHandler) codeLensHandler ).GetRegistrationOptions(Arg.Any<CodeLensCapability>(), Arg.Any<ClientCapabilities>())
                                                   .Returns(
                                                        new CodeLensRegistrationOptions {
-                                                           DocumentSelector = new DocumentSelector()
+                                                           DocumentSelector = new TextDocumentSelector()
                                                        }
                                                    );
 
@@ -261,7 +261,7 @@ handler.Initialize();
             ( (IDocumentLinkHandler) documentLinkHandler ).GetRegistrationOptions(Arg.Any<DocumentLinkCapability>(), Arg.Any<ClientCapabilities>())
                                                           .Returns(
                                                                new DocumentLinkRegistrationOptions {
-                                                                   DocumentSelector = new DocumentSelector()
+                                                                   DocumentSelector = new TextDocumentSelector()
                                                                }
                                                            );
 
@@ -271,7 +271,7 @@ handler.Initialize();
             ( (ICompletionHandler) completionHandler ).GetRegistrationOptions(Arg.Any<CompletionCapability>(), Arg.Any<ClientCapabilities>())
                                                       .Returns(
                                                            new CompletionRegistrationOptions {
-                                                               DocumentSelector = new DocumentSelector()
+                                                               DocumentSelector = new TextDocumentSelector()
                                                            }
                                                        );
 

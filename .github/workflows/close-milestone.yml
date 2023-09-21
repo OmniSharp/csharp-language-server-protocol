@@ -10,9 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.6.0
+        uses: actions/checkout@v4.0.0
         with:
           fetch-depth: 0
+
+      - uses: actions/setup-dotnet@v3
 
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v0.10.2
@@ -22,7 +24,7 @@ jobs:
       - name: Install GitReleaseManager
         uses: gittools/actions/gitreleasemanager/setup@v0.10.2
         with:
-          versionSpec: '0.11.x'
+          versionSpec: '0.15.x'
 
       - name: Use GitVersion
         id: gitversion

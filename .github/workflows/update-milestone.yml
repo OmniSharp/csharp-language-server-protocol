@@ -13,10 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.6.0
+        uses: actions/checkout@v4.0.0
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
+
+      - uses: actions/setup-dotnet@v3
 
       - name: Fetch all history for all tags and branches
         run: git fetch --prune
@@ -31,7 +33,7 @@ jobs:
         if: ${{ github.event.action == 'opened' }}
         uses: gittools/actions/gitreleasemanager/setup@v0.10.2
         with:
-          versionSpec: '0.11.x'
+          versionSpec: '0.15.x'
 
       - name: Use GitVersion
         if: ${{ github.event.action == 'opened' }}

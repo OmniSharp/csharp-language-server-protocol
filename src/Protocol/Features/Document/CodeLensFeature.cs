@@ -25,13 +25,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [RegistrationOptions(typeof(CodeLensRegistrationOptions))]
         [Capability(typeof(CodeLensCapability))]
         [Resolver(typeof(CodeLens))]
-        public partial record CodeLensParams : ITextDocumentIdentifierParams, IWorkDoneProgressParams, IPartialItemsRequest<CodeLensContainer, CodeLens>
+        public partial record CodeLensParams : ITextDocumentIdentifierParams, IWorkDoneProgressParams, IPartialItemsRequest<CodeLensContainer?, CodeLens>
         {
             /// <summary>
             /// The document to request code lens for.
             /// </summary>
             public TextDocumentIdentifier TextDocument { get; init; } = null!;
         }
+
+        // marker class is required
+        public partial class CodeLensContainer {}
 
         /// <summary>
         /// A code lens represents a command that should be shown along with
@@ -108,10 +111,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 }
             }
         }
-    }
-
-    namespace Models
-    {
+        
         [Parallel]
         [Method(WorkspaceNames.CodeLensRefresh, Direction.ServerToClient)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace")]

@@ -46,3 +46,4 @@ coverage.info
 /codealike.json
 .tmp/
 .nuke/temp/
+**/*.received.cs

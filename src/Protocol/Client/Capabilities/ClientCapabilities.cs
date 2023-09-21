@@ -19,6 +19,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         public TextDocumentClientCapabilities? TextDocument { get; set; }
 
         /// <summary>
+        /// Capabilities specific to the notebook document support.
+        ///
+        /// @since 3.17.0
+        /// </summary>
+        [Optional]
+        public NotebookDocumentClientCapabilities? NotebookDocument { get; set; }
+
+        /// <summary>
         /// Window specific client capabilities.
         /// </summary>
         [Optional]

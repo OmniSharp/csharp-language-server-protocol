@@ -80,11 +80,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                 var registrationOptions = descriptor.RegistrationOptions as ITextDocumentRegistrationOptions;
 
                 _logger.LogTrace("Registration options {OptionsName}", registrationOptions?.GetType().FullName);
-                _logger.LogTrace("Document Selector {DocumentSelector}", registrationOptions?.DocumentSelector?.ToString() ?? string.Empty);
+                _logger.LogTrace("Document Selector {TextDocumentSelector}", registrationOptions?.DocumentSelector?.ToString() ?? string.Empty);
                 if (registrationOptions?.DocumentSelector is null || registrationOptions.DocumentSelector.IsMatch(attributes))
                 {
                     _logger.LogTrace(
-                        "Handler Selected: {Handler} {Id} via {DocumentSelector} (targeting {HandlerInterface})",
+                        "Handler Selected: {Handler} {Id} via {TextDocumentSelector} (targeting {HandlerInterface})",
                         descriptor.ImplementationType.FullName,
                         descriptor.Handler is ICanBeIdentifiedHandler h ? h.Id.ToString() : string.Empty,
                         registrationOptions?.DocumentSelector?.ToString(),

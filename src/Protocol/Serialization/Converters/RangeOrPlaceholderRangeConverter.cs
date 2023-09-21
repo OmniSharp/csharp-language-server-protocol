@@ -36,13 +36,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             {
                 var obj = (JToken.ReadFrom(reader) as JObject)!;
                 return obj.ContainsKey("placeholder")
-                    ? new RangeOrPlaceholderRange(obj.ToObject<PlaceholderRange>())
+                    ? new RangeOrPlaceholderRange(obj.ToObject<PlaceholderRange>(serializer))
                     : obj.ContainsKey("defaultBehavior")
                         ? new RangeOrPlaceholderRange(
-                            obj.ToObject<RenameDefaultBehavior>()
+                            obj.ToObject<RenameDefaultBehavior>(serializer)
                         )
                         : new RangeOrPlaceholderRange(
-                            obj.ToObject<Range>()
+                            obj.ToObject<Range>(serializer)
                         );
             }
 

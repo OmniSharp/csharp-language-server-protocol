@@ -28,18 +28,23 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public TextDocumentIdentifier TextDocument { get; init; } = null!;
 
             /// <summary>
-            /// The position at which this request was sent.
+            /// The position around which the on type formatting should happen.
+            /// This is not necessarily the exact position where the character denoted
+            /// by the property `ch` got typed.
             /// </summary>
             public Position Position { get; init; } = null!;
 
             /// <summary>
-            /// The character that has been typed.
+            /// The character that has been typed that triggered the formatting
+            /// on type request.That is not necessarily the last character that
+            /// got inserted into the document since the client could auto insert
+            /// characters as well(e.g.like automatic brace completion).
             /// </summary>
             [JsonProperty("ch")]
             public string Character { get; init; } = null!;
 
             /// <summary>
-            /// The format options.
+            /// The formatting options.
             /// </summary>
             public FormattingOptions Options { get; init; } = null!;
         }
@@ -49,7 +54,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public partial class DocumentOnTypeFormattingRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions
         {
             /// <summary>
-            /// A character on which formatting should be triggered, like `}`.
+            /// A character on which formatting should be triggered, like `{`.
             /// </summary>
             public string FirstTriggerCharacter { get; set; } = null!;
 

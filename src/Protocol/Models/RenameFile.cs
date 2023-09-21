@@ -23,13 +23,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public DocumentUri NewUri { get; init; } = null!;
 
         /// <summary>
-        /// Rename Options.
+        /// Rename options.
         /// </summary>
         [Optional]
         public RenameFileOptions? Options { get; init; }
 
         /// <summary>
-        /// An optional annotation describing the operation.
+        /// An optional annotation identifier describing the operation.
         ///
         /// @since 3.16.0
         /// </summary>

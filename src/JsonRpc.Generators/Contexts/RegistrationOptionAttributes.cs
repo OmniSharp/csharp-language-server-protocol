@@ -11,11 +11,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
         string? Key,
         ExpressionSyntax[]? KeyExpression,
         bool SupportsWorkDoneProgress,
-        bool SupportsDocumentSelector,
+        bool SupportsTextDocumentSelector,
+        bool SupportsNotebookDocumentSelector,
         bool SupportsStaticRegistrationOptions,
         SyntaxSymbol? RegistrationOptionsConverter,
         bool ImplementsWorkDoneProgress,
-        bool ImplementsDocumentSelector,
+        bool ImplementsTextDocumentSelector,
+        bool ImplementsNotebookDocumentSelector,
         bool ImplementsStaticRegistrationOptions
     )
     {
@@ -28,23 +30,32 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
 //            var registrationOptionsInterfaceSymbol = compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions");
             var textDocumentRegistrationOptionsInterfaceSymbol =
                 compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Models.ITextDocumentRegistrationOptions");
+            var notebookDocumentRegistrationOptionsInterfaceSymbol =
+                compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Models.INotebookDocumentRegistrationOptions");
             var workDoneProgressOptionsInterfaceSymbol =
                 compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions");
             var staticRegistrationOptionsInterfaceSymbol =
                 compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Models.IStaticRegistrationOptions");
 
             if (!( symbol.GetAttribute(registrationOptionsAttributeSymbol) is { } data )) return null;
-            if (!( data.ApplicationSyntaxReference?.GetSyntax() is AttributeSyntax attributeSyntax )) return null;
+            if (data.ApplicationSyntaxReference?.GetSyntax() is not AttributeSyntax attributeSyntax) return null;
 
             TypeSyntax? converterSyntax = null;
             ITypeSymbol? converter = null;
 
-            var supportsDocumentSelector = data.NamedArguments.Any(z => z is { Key: nameof(SupportsDocumentSelector), Value: { Value: true } })
+            var supportsTextDocumentSelector = data.NamedArguments.Any(z => z is { Key: nameof(SupportsTextDocumentSelector), Value: { Value: true } })
                                         || ( symbol.AllInterfaces.Length > 0 && symbol.AllInterfaces.Any(
                                                z => SymbolEqualityComparer.Default.Equals(z, textDocumentRegistrationOptionsInterfaceSymbol)
                                            ) )
                                         || ( textDocumentRegistrationOptionsInterfaceSymbol is { } && syntax.BaseList?.Types.Any(
                                                type => type.Type.GetSyntaxName()?.Contains(textDocumentRegistrationOptionsInterfaceSymbol.Name) == true
+                                           ) == true );
+            var supportsNotebookDocumentSelector = data.NamedArguments.Any(z => z is { Key: nameof(SupportsNotebookDocumentSelector), Value: { Value: true } })
+                                        || ( symbol.AllInterfaces.Length > 0 && symbol.AllInterfaces.Any(
+                                               z => SymbolEqualityComparer.Default.Equals(z, notebookDocumentRegistrationOptionsInterfaceSymbol)
+                                           ) )
+                                        || ( notebookDocumentRegistrationOptionsInterfaceSymbol is { } && syntax.BaseList?.Types.Any(
+                                               type => type.Type.GetSyntaxName()?.Contains(notebookDocumentRegistrationOptionsInterfaceSymbol.Name) == true
                                            ) == true );
             var supportsWorkDoneProgress = data.NamedArguments.Any(z => z is { Key: nameof(SupportsWorkDoneProgress), Value: { Value: true } })
                                         || ( symbol.AllInterfaces.Length > 0 && symbol.AllInterfaces.Any(
@@ -135,7 +146,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                 value,
                 valueExpressionSyntaxes,
                 supportsWorkDoneProgress,
-                supportsDocumentSelector,
+                supportsTextDocumentSelector,
+                supportsNotebookDocumentSelector,
                 supportsStaticRegistrationOptions,
                 converterSyntax is null ? null : new SyntaxSymbol(converterSyntax, (INamedTypeSymbol)converter!),
                 symbol
@@ -152,6 +164,15 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                    .AsEnumerable()
                    .All(
                         z => textDocumentRegistrationOptionsInterfaceSymbol?
+                            .GetMembers()
+                            .AsEnumerable()
+                            .Any(x => SymbolEqualityComparer.Default.Equals(z, x)) == true
+                    ),
+                symbol
+                   .GetMembers()
+                   .AsEnumerable()
+                   .All(
+                        z => notebookDocumentRegistrationOptionsInterfaceSymbol?
                             .GetMembers()
                             .AsEnumerable()
                             .Any(x => SymbolEqualityComparer.Default.Equals(z, x)) == true

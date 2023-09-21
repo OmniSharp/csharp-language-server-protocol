@@ -44,9 +44,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                              )
                          );
 
-            if (item is RequestItem { Response: { Symbol: ITypeParameterSymbol } } ri)
+            if (request is { Response.Symbol: ITypeParameterSymbol })
             {
-                method = method.AddTypeParameterListParameters(TypeParameter(ri.Response.Symbol.Name));
+                method = method.AddTypeParameterListParameters(TypeParameter(request.Response.Symbol.Name));
             }
 
             if (request.IsUnit)
@@ -65,24 +65,27 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             var methodFactory = MakeFactory(
                 extensionMethodContext.GetRegistryParameterList(),
                 registrationOptions.Syntax,
-                item.Capability?.Syntax
+                request.Capability?.Syntax,
+                request.PartialHasInitialValue
             );
             var factory = methodFactory(method);
 
             yield return factory(
                 CreateAsyncFunc(request.Response.Syntax, false, request.Request.Syntax),
-                resolve.ReturnIfNotNull(static r => CreateAsyncFunc(r.Response.Syntax, false, r.Request.Syntax))
+                resolve.ReturnIfNotNull(static r => CreateAsyncFunc(r.Response.Syntax, false, r.Request.Syntax)),
+                null
             );
             yield return factory(
                 CreateAsyncFunc(request.Response.Syntax, true, request.Request.Syntax),
-                resolve.ReturnIfNotNull(static r => CreateAsyncFunc(r.Response.Syntax, true, r.Request.Syntax))
+                resolve.ReturnIfNotNull(static r => CreateAsyncFunc(r.Response.Syntax, true, r.Request.Syntax)),
+                null
             );
 
             if (allowDerivedRequests)
             {
                 var genericFactory = MakeGenericFactory(factory, request.Request.Syntax);
-                yield return genericFactory(CreateAsyncFunc(request.Response.Syntax, false, IdentifierName("T")), null);
-                yield return genericFactory(CreateAsyncFunc(request.Response.Syntax, true, IdentifierName("T")), null);
+                yield return genericFactory(CreateAsyncFunc(request.Response.Syntax, false, IdentifierName("T")), null, null);
+                yield return genericFactory(CreateAsyncFunc(request.Response.Syntax, true, IdentifierName("T")), null, null);
             }
 
             {
@@ -90,13 +93,14 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                 {
                     yield return factory(
                         CreateAsyncFunc(request.Response.Syntax, true, request.Request.Syntax, capability.Syntax),
-                        resolve.ReturnIfNotNull(r => CreateAsyncFunc(r.Response.Syntax, true, r.Request.Syntax, capability.Syntax))
+                        resolve.ReturnIfNotNull(r => CreateAsyncFunc(r.Response.Syntax, true, r.Request.Syntax, capability.Syntax)),
+                        null
                     );
 
                     if (allowDerivedRequests)
                     {
                         var genericFactory = MakeGenericFactory(factory, request.Request.Syntax);
-                        yield return genericFactory(CreateAsyncFunc(request.Response.Syntax, true, IdentifierName("T"), capability.Syntax), null);
+                        yield return genericFactory(CreateAsyncFunc(request.Response.Syntax, true, IdentifierName("T"), capability.Syntax), null, null);
                     }
                 }
             }
@@ -120,24 +124,29 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 
                 yield return factory(
                     CreatePartialAction(request.Request.Syntax, partialItemsSyntax, false),
-                    resolve.ReturnIfNotNull(r => CreateAsyncFunc(r.Response.Syntax, false, r.Request.Syntax))
+                    resolve.ReturnIfNotNull(r => CreateAsyncFunc(r.Response.Syntax, false, r.Request.Syntax)),
+                    CreateAsyncFunc(request.Response.Syntax, false, request.Request.Syntax)
                 );
                 yield return factory(
                     CreatePartialAction(request.Request.Syntax, partialItemsSyntax, true),
-                    resolve.ReturnIfNotNull(r => CreateAsyncFunc(r.Response.Syntax, true, r.Request.Syntax))
+                    resolve.ReturnIfNotNull(r => CreateAsyncFunc(r.Response.Syntax, true, r.Request.Syntax)),
+                    CreateAsyncFunc(request.Response.Syntax, true, request.Request.Syntax)
                 );
                 if (allowDerivedRequests)
                 {
                     var genericFactory = MakeGenericFactory(factory, request.Request.Syntax);
-                    yield return genericFactory(CreatePartialAction(IdentifierName("T"), partialItemsSyntax, false), null);
-                    yield return genericFactory(CreatePartialAction(IdentifierName("T"), partialItemsSyntax, true), null);
+                    yield return genericFactory(CreatePartialAction(IdentifierName("T"), partialItemsSyntax, false), null,
+                                                CreateAsyncFunc(request.Response.Syntax, false, request.Request.Syntax));
+                    yield return genericFactory(CreatePartialAction(IdentifierName("T"), partialItemsSyntax, true), null,
+                                                CreateAsyncFunc(request.Response.Syntax, true, request.Request.Syntax));
                 }
 
                 if (request.Capability is { } capability)
                 {
                     yield return factory(
                         CreatePartialAction(request.Request.Syntax, partialItemsSyntax, true, capability.Syntax),
-                        resolve.ReturnIfNotNull(r => CreateAsyncFunc(r.Response.Syntax, true, r.Request.Syntax, capability.Syntax))
+                        resolve.ReturnIfNotNull(r => CreateAsyncFunc(r.Response.Syntax, true, r.Request.Syntax, capability.Syntax)),
+                        CreateAsyncFunc(request.Response.Syntax, true, request.Request.Syntax)
                     );
                 }
             }
@@ -160,47 +169,61 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 
                 yield return factory(
                     CreatePartialAction(request.Request.Syntax, partialItem.Syntax, false),
-                    resolve.ReturnIfNotNull(r => CreateAsyncFunc(r.Response.Syntax, false, r.Request.Syntax))
+                    resolve.ReturnIfNotNull(r => CreateAsyncFunc(r.Response.Syntax, false, r.Request.Syntax)),
+                    CreateAsyncFunc(request.Response.Syntax, false, request.Request.Syntax)
                 );
                 yield return factory(
                     CreatePartialAction(request.Request.Syntax, partialItem.Syntax, true),
-                    resolve.ReturnIfNotNull(r => CreateAsyncFunc(r.Response.Syntax, true, r.Request.Syntax))
+                    resolve.ReturnIfNotNull(r => CreateAsyncFunc(r.Response.Syntax, true, r.Request.Syntax)),
+                    CreateAsyncFunc(request.Response.Syntax, true, request.Request.Syntax)
                 );
 
                 if (allowDerivedRequests)
                 {
                     var genericFactory = MakeGenericFactory(factory, request.Request.Syntax);
-                    yield return genericFactory(CreatePartialAction(IdentifierName("T"), partialItem.Syntax, false), null);
-                    yield return genericFactory(CreatePartialAction(IdentifierName("T"), partialItem.Syntax, true), null);
+                    yield return genericFactory(CreatePartialAction(IdentifierName("T"), partialItem.Syntax, false), null,
+                                                CreateAsyncFunc(request.Response.Syntax, false, request.Request.Syntax));
+                    yield return genericFactory(CreatePartialAction(IdentifierName("T"), partialItem.Syntax, true), null,
+                                                CreateAsyncFunc(request.Response.Syntax, true, request.Request.Syntax));
                 }
 
                 if (request.Capability is { } capability)
                 {
                     yield return factory(
                         CreatePartialAction(request.Request.Syntax, partialItem.Syntax, true, capability.Syntax),
-                        resolve.ReturnIfNotNull(r => CreateAsyncFunc(r.Response.Syntax, true, r.Request.Syntax, capability.Syntax))
+                        resolve.ReturnIfNotNull(r => CreateAsyncFunc(r.Response.Syntax, true, r.Request.Syntax, capability.Syntax)),
+                        CreateAsyncFunc(request.Response.Syntax, true, request.Request.Syntax)
                     );
 
                     if (allowDerivedRequests)
                     {
                         var genericFactory = MakeGenericFactory(factory, request.Request.Syntax);
-                        yield return genericFactory(CreatePartialAction(IdentifierName("T"), partialItem.Syntax, true, capability.Syntax), null);
+                        yield return genericFactory(CreatePartialAction(IdentifierName("T"), partialItem.Syntax, true, capability.Syntax), null,
+                                                    CreateAsyncFunc(request.Response.Syntax, true, request.Request.Syntax));
                     }
                 }
             }
         }
 
-        private static Func<MethodDeclarationSyntax, Func<TypeSyntax, TypeSyntax?, MethodDeclarationSyntax>> MakeFactory(
-            ParameterListSyntax preParameterList, TypeSyntax registrationOptions, TypeSyntax? capabilityName
+        private static Func<MethodDeclarationSyntax, Func<TypeSyntax, TypeSyntax?, TypeSyntax?, MethodDeclarationSyntax>> MakeFactory(
+            ParameterListSyntax preParameterList, TypeSyntax registrationOptions, TypeSyntax? capabilityName, bool partialHasInitialValue
         )
         {
-            return method => (syntax, resolveSyntax) => GenerateMethod(method, syntax, resolveSyntax);
+            return method => (syntax, resolveSyntax, initialHandlerSyntax) => generateMethod(method, syntax, resolveSyntax, initialHandlerSyntax);
 
-            MethodDeclarationSyntax MethodFactory(MethodDeclarationSyntax method, TypeSyntax syntax, TypeSyntax? resolveSyntax, ParameterSyntax registrationParameter)
+            MethodDeclarationSyntax methodFactory(MethodDeclarationSyntax method, TypeSyntax syntax, TypeSyntax? resolveSyntax, TypeSyntax? initialHandlerSyntax, ParameterSyntax registrationParameter)
             {
                 return method
                       .WithParameterList(
                            preParameterList
+                              .AddParameters(
+                                   partialHasInitialValue && initialHandlerSyntax is {}
+                                       ? new[] {
+                                           Parameter(Identifier("initialHandler"))
+                                              .WithType(initialHandlerSyntax)
+                                       }
+                                       : Array.Empty<ParameterSyntax>()
+                               )
                               .AddParameters(Parameter(Identifier("handler")).WithType(syntax))
                               .AddParameters(
                                    resolveSyntax is { }
@@ -208,18 +231,18 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                            Parameter(Identifier("resolveHandler"))
                                               .WithType(resolveSyntax)
                                        }
-                                       : new ParameterSyntax[] { }
+                                       : Array.Empty<ParameterSyntax>()
                                )
                               .AddParameters(registrationParameter)
                        );
             }
 
-            MethodDeclarationSyntax GenerateMethod(MethodDeclarationSyntax method, TypeSyntax syntax, TypeSyntax? resolveSyntax)
+            MethodDeclarationSyntax generateMethod(MethodDeclarationSyntax method, TypeSyntax syntax, TypeSyntax? resolveSyntax, TypeSyntax? initialHandlerSyntax)
             {
                 if (capabilityName is { })
                 {
-                    return MethodFactory(
-                        method, syntax, resolveSyntax,
+                    return methodFactory(
+                        method, syntax, resolveSyntax, initialHandlerSyntax,
                         Parameter(Identifier("registrationOptions"))
                            .WithType(
                                 GenericName(Identifier("RegistrationOptionsDelegate")).WithTypeArgumentList(
@@ -229,8 +252,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                     );
                 }
 
-                return MethodFactory(
-                    method, syntax, resolveSyntax,
+                return methodFactory(
+                    method, syntax, resolveSyntax, initialHandlerSyntax,
                     Parameter(Identifier("registrationOptions"))
                        .WithType(
                             GenericName(Identifier("RegistrationOptionsDelegate"))
@@ -272,6 +295,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                         capabilityName,
                                         false
                                     ),
+                                    null,
                                     capabilityName,
                                     resolve is not null
                                 )
@@ -315,6 +339,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                         capabilityName,
                                         false
                                     ),
+                                    null,
                                     capabilityName,
                                     resolve is not null
                                 )
@@ -354,7 +379,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                             ),
                             CreateHandlerArgument(
                                     IdentifierName("LanguageProtocolDelegatingHandlers"),
-                                    "PartialResults",
+                                    item.PartialHasInitialValue ? "PartialResultsWithInitialValue" :  "PartialResults",
                                     args.ToArray()
                                 )
                                .WithArgumentList(
@@ -368,6 +393,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                             capabilityName,
                                             true
                                         ),
+                                        item.PartialHasInitialValue ?
+                                            GetHandlerAdapterArgument(
+                                                TypeArgumentList(SeparatedList( new [] { item.Request.Syntax, item.Response.Syntax } )),
+                                                InitialHandlerArgument,
+                                                capabilityName,
+                                                false
+                                            ): null,
                                         capabilityName
                                     )
                                 )
@@ -405,7 +437,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                             Parameter(
                                 Identifier("_")
                             ),
-                            CreateHandlerArgument(IdentifierName("LanguageProtocolDelegatingHandlers"), "PartialResult", args.ToArray())
+                            CreateHandlerArgument(IdentifierName("LanguageProtocolDelegatingHandlers"), item.PartialHasInitialValue ? "PartialResultWithInitialValue" :  "PartialResult", args.ToArray())
                                .WithArgumentList(
                                     GetPartialResultArgumentList(
                                         IdentifierName("registrationOptions"),
@@ -417,6 +449,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                             capabilityName,
                                             true
                                         ),
+                                        item.PartialHasInitialValue ?
+                                            GetHandlerAdapterArgument(
+                                                TypeArgumentList(SeparatedList(new [] { item.Request.Syntax, item.Response.Syntax })),
+                                                InitialHandlerArgument,
+                                                capabilityName,
+                                                false
+                                            ): null,
                                         capabilityName
                                     )
                                 )
@@ -466,6 +505,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                         capabilityName,
                                         false
                                     ),
+                                    null,
                                     capabilityName,
                                     true
                                 )
@@ -476,11 +516,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
         }
 
         private static ArgumentListSyntax GetPartialItemsArgumentList(
-            TypeSyntax registrationOptionsName, TypeSyntax registrationType, TypeSyntax responseName, ArgumentSyntax handlerArgument, TypeSyntax? capabilityType
+            TypeSyntax registrationOptionsName, TypeSyntax registrationType, TypeSyntax responseName, ArgumentSyntax handlerArgument, ArgumentSyntax? initialArgument, TypeSyntax? capabilityType
         ) =>
             ArgumentList(
                 SeparatedList(
                     new[] {
+                        initialArgument!,
                         handlerArgument,
                         Argument(GetRegistrationOptionsAdapter(registrationOptionsName, registrationType, capabilityType)),
                         Argument(
@@ -500,16 +541,17 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                 IdentifierName("From")
                             )
                         )
-                    }
+                    }.Where(z => z is not null)
                 )
             );
 
         private static ArgumentListSyntax GetPartialResultArgumentList(
-            TypeSyntax registrationOptionsName, TypeSyntax registrationType, TypeSyntax responseName, ArgumentSyntax handlerArgument, TypeSyntax? capabilityType
+            TypeSyntax registrationOptionsName, TypeSyntax registrationType, TypeSyntax responseName, ArgumentSyntax handlerArgument, ArgumentSyntax? initialArgument, TypeSyntax? capabilityType
         ) =>
             ArgumentList(
                 SeparatedList(
                     new[] {
+                        initialArgument!,
                         handlerArgument,
                         Argument(GetRegistrationOptionsAdapter(registrationOptionsName, registrationType, capabilityType)),
                         Argument(
@@ -529,7 +571,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                 IdentifierName("From")
                             )
                         )
-                    }
+                    }.Where(z => z is not null)
                 )
             );
     }

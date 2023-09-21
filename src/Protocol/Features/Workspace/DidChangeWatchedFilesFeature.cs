@@ -36,9 +36,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
     namespace Client.Capabilities
     {
-        [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(WorkspaceClientCapabilities.DidChangeWatchedFiles))]
+        [CapabilityKey(nameof(ClientCapabilities.Workspace), nameof(WorkspaceClientCapabilities.DidChangeWatchedFiles))]
         public partial class DidChangeWatchedFilesCapability : DynamicCapability
         {
+            /// <summary>
+            /// Whether the client has support for relative patterns
+            /// or not.
+            /// </summary>
+            [Optional]
+            public bool? RelativePatternSupport { get; init; }
         }
     }
 }

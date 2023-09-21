@@ -63,7 +63,7 @@ namespace Lsp.Integration.Tests
                         outgoingHandlerA,
                         (_, _) => new()
                         {
-                            DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
+                            DocumentSelector = TextDocumentSelector.ForPattern("**/*.cs")
                         }
                     );
 
@@ -85,7 +85,7 @@ namespace Lsp.Integration.Tests
                         outgoingHandlerB,
                         (_, _) => new()
                         {
-                            DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
+                            DocumentSelector = TextDocumentSelector.ForPattern("**/*.cs")
                         }
                     );
                 }
@@ -144,7 +144,7 @@ namespace Lsp.Integration.Tests
                         outgoingHandler,
                         (_, _) => new()
                         {
-                            DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
+                            DocumentSelector = TextDocumentSelector.ForPattern("**/*.cs")
                         }
                     );
                 }

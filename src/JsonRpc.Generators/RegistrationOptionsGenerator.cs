@@ -23,8 +23,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         };
 
         private record AttributeData(
-            INamedTypeSymbol RegistrationOptionsInterfaceSymbol, INamedTypeSymbol TextDocumentRegistrationOptionsInterfaceSymbol,
-            INamedTypeSymbol WorkDoneProgressOptionsInterfaceSymbol, INamedTypeSymbol StaticRegistrationOptionsInterfaceSymbol
+            INamedTypeSymbol RegistrationOptionsInterfaceSymbol, 
+            INamedTypeSymbol TextDocumentRegistrationOptionsInterfaceSymbol,
+            INamedTypeSymbol NotebookDocumentRegistrationOptionsInterfaceSymbol,
+            INamedTypeSymbol WorkDoneProgressOptionsInterfaceSymbol, 
+            INamedTypeSymbol StaticRegistrationOptionsInterfaceSymbol
         );
 
         public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -39,6 +42,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                  compilation.GetTypeByMetadataName(
                                                      "OmniSharp.Extensions.LanguageServer.Protocol.Models.ITextDocumentRegistrationOptions"
                                                  )!;
+                                             var notebookDocumentRegistrationOptionsInterfaceSymbol =
+                                                 compilation.GetTypeByMetadataName(
+                                                     "OmniSharp.Extensions.LanguageServer.Protocol.Models.INotebookDocumentRegistrationOptions"
+                                                 )!;
                                              var workDoneProgressOptionsInterfaceSymbol =
                                                  compilation.GetTypeByMetadataName(
                                                      "OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions"
@@ -48,8 +55,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                      "OmniSharp.Extensions.LanguageServer.Protocol.Models.IStaticRegistrationOptions"
                                                  )!;
                                              return new AttributeData(
-                                                 registrationOptionsInterfaceSymbol, textDocumentRegistrationOptionsInterfaceSymbol,
-                                                 workDoneProgressOptionsInterfaceSymbol, staticRegistrationOptionsInterfaceSymbol
+                                                 registrationOptionsInterfaceSymbol, 
+                                                 textDocumentRegistrationOptionsInterfaceSymbol,
+                                                 notebookDocumentRegistrationOptionsInterfaceSymbol,
+                                                 workDoneProgressOptionsInterfaceSymbol,
+                                                 staticRegistrationOptionsInterfaceSymbol
                                              );
                                          }
                                      );
@@ -162,7 +172,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     staticRegistrationOptions = staticRegistrationOptions.AddAttributeLists(attributeList);
                 }
 
-                if (data.SupportsDocumentSelector && !data.ImplementsDocumentSelector)
+                if (data.SupportsTextDocumentSelector && !data.ImplementsTextDocumentSelector)
                 {
                     if (registrationOptions.BaseList?.Types.Any(
                             z => z.Type.ToFullString().Contains(attributes.TextDocumentRegistrationOptionsInterfaceSymbol.Name)
@@ -174,7 +184,37 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     }
 
                     extendedRegistrationOptions = extendedRegistrationOptions.AddMembers(
-                        PropertyDeclaration(NullableType(IdentifierName("DocumentSelector")), Identifier("DocumentSelector"))
+                        PropertyDeclaration(NullableType(IdentifierName("TextDocumentSelector")), Identifier("DocumentSelector"))
+                           .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
+                           .WithAccessorList(
+                                AccessorList(
+                                    List(
+                                        new[]
+                                        {
+                                            AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                                               .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
+                                            AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+                                               .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                                        }
+                                    )
+                                )
+                            )
+                    );
+                }
+
+                if (data.SupportsNotebookDocumentSelector && !data.ImplementsNotebookDocumentSelector)
+                {
+                    if (registrationOptions.BaseList?.Types.Any(
+                            z => z.Type.ToFullString().Contains(attributes.NotebookDocumentRegistrationOptionsInterfaceSymbol.Name)
+                        ) != true)
+                    {
+                        extendedRegistrationOptions = ExtendAndImplementInterface(
+                            extendedRegistrationOptions, attributes.NotebookDocumentRegistrationOptionsInterfaceSymbol
+                        );
+                    }
+
+                    extendedRegistrationOptions = extendedRegistrationOptions.AddMembers(
+                        PropertyDeclaration(NullableType(IdentifierName("NotebookDocumentSelector")), Identifier("DocumentSelector"))
                            .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
                            .WithAccessorList(
                                 AccessorList(
@@ -272,7 +312,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             catch (Exception e)
             {
                 context.ReportDiagnostic(
-                    Diagnostic.Create(GeneratorDiagnostics.Exception, registrationOptions.GetLocation(), e.Message, e.StackTrace ?? string.Empty)
+                    Diagnostic.Create(GeneratorDiagnostics.Exception, registrationOptions.GetLocation(), e.Message, e.StackTrace?.Replace("\n", " ") ?? string.Empty, e.ToString())
                 );
                 Debug.WriteLine(e);
                 Debug.WriteLine(e.StackTrace);

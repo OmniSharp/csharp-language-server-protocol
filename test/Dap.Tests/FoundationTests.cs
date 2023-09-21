@@ -140,7 +140,7 @@ namespace Dap.Tests
             lhs.Direction.Should().Be(rhs.Direction, $"{type.FullName} direction does not match {paramsType.FullName}");
         }
 
-        [Theory(DisplayName = "Handler interfaces should have a abstract class")]
+        [Theory(DisplayName = "Handler interfaces should have an abstract class")]
         [ClassData(typeof(TypeHandlerData))]
         public void HandlersShouldAbstractClass(IHandlerTypeDescriptor descriptor)
         {
@@ -226,17 +226,19 @@ namespace Dap.Tests
                                                      .Distinct()
                                                      .ToHashSet();
 
-            var expectedEventRegistries = descriptor.Direction switch {
-                Direction.ClientToServer => new (string type, Func<ParameterInfo, bool> matcher)[] { ( "Server", info => info.ParameterType.Name.EndsWith("ServerRegistry") ) },
-                Direction.ServerToClient => new (string type, Func<ParameterInfo, bool> matcher)[] { ( "Client", info => info.ParameterType.Name.EndsWith("ClientRegistry") ) },
+            var expectedEventRegistries = descriptor.Direction switch
+            {
+                Direction.ClientToServer => new (string type, Func<ParameterInfo, bool> matcher)[] { ("Server", info => info.ParameterType.Name.EndsWith("ServerRegistry")) },
+                Direction.ServerToClient => new (string type, Func<ParameterInfo, bool> matcher)[] { ("Client", info => info.ParameterType.Name.EndsWith("ClientRegistry")) },
                 Direction.Bidirectional => new (string type, Func<ParameterInfo, bool> matcher)[]
                     { ( "Server", info => info.ParameterType.Name.EndsWith("ServerRegistry") ), ( "Client", info => info.ParameterType.Name.EndsWith("ClientRegistry") ) },
                 _ => throw new NotImplementedException(descriptor.HandlerType.FullName)
             };
 
-            var expectedRequestHandlers = descriptor.Direction switch {
-                Direction.ClientToServer => new (string type, Func<ParameterInfo, bool> matcher)[] { ( "Server", info => info.ParameterType.Name.EndsWith("Client") ) },
-                Direction.ServerToClient => new (string type, Func<ParameterInfo, bool> matcher)[] { ( "Client", info => info.ParameterType.Name.EndsWith("Server") ) },
+            var expectedRequestHandlers = descriptor.Direction switch
+            {
+                Direction.ClientToServer => new (string type, Func<ParameterInfo, bool> matcher)[] { ("Server", info => info.ParameterType.Name.EndsWith("Client")) },
+                Direction.ServerToClient => new (string type, Func<ParameterInfo, bool> matcher)[] { ("Client", info => info.ParameterType.Name.EndsWith("Server")) },
                 Direction.Bidirectional => new (string type, Func<ParameterInfo, bool> matcher)[]
                     { ( "Server", info => info.ParameterType.Name.EndsWith("Client") ), ( "Client", info => info.ParameterType.Name.EndsWith("Server") ) },
                 _ => throw new NotImplementedException(descriptor.HandlerType.FullName)
@@ -526,7 +528,7 @@ namespace Dap.Tests
         {
             var name = GetExtensionClassName(descriptor);
             return descriptor.HandlerType.Assembly.GetExportedTypes()
-                             .FirstOrDefault(z => z.IsClass && z.IsAbstract && ( z.Name == name || z.Name == name + "Base" ));
+                             .FirstOrDefault(z => z.IsClass && z.IsAbstract && (z.Name == name || z.Name == name + "Base"));
         }
 
         private static string GetOnMethodName(IHandlerTypeDescriptor descriptor) => "On" + SpecialCasedHandlerName(descriptor);

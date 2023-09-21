@@ -8,7 +8,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
     {
         public static DiagnosticDescriptor Exception { get; } = new DiagnosticDescriptor(
             "JRPC0001", "Exception",
-            "{0} - {1}", "JRPC", DiagnosticSeverity.Error, true
+            "{0} - {1} {2}", "JRPC", DiagnosticSeverity.Error, true
+        );
+        public static DiagnosticDescriptor ExceptionWarning { get; } = new DiagnosticDescriptor(
+            "JRPC0002", "Exception",
+            "{0} - {1} {2}", "JRPC", DiagnosticSeverity.Warning, true
         );
 
         public static DiagnosticDescriptor NoHandlerRegistryProvided { get; } = new DiagnosticDescriptor(
@@ -39,6 +43,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         public static DiagnosticDescriptor MustBeReadOnly { get; } = new DiagnosticDescriptor(
             "JRPC1005", "Type must be made readonly",
             "Type {0} must be made readonly.", "JsonRPC", DiagnosticSeverity.Error, true
+        );
+
+        public static DiagnosticDescriptor MustBeARequestOrNotification { get; } = new DiagnosticDescriptor(
+            "JRPC1006", "Type must implement a request or notification interface",
+            "Type {0} must implement a request or notification interface.", "JsonRPC", DiagnosticSeverity.Error, true
         );
 
         public static DiagnosticDescriptor MustInheritFromCanBeResolved { get; } = new DiagnosticDescriptor(

@@ -31,10 +31,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             var command = result["command"];
             if (command?.Type == JTokenType.String)
             {
-                return new CommandOrCodeAction(result.ToObject<Command>());
+                return new CommandOrCodeAction(result.ToObject<Command>(serializer));
             }
 
-            return new CommandOrCodeAction(result.ToObject<CodeAction>());
+            return new CommandOrCodeAction(result.ToObject<CodeAction>(serializer));
         }
 
         public override bool CanRead => true;

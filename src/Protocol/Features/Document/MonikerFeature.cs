@@ -23,7 +23,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// </summary>
         [Parallel]
         [Method(TextDocumentNames.Moniker, Direction.ClientToServer)]
-        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document")]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document", Name = "Monikers")]
         [GenerateHandlerMethods]
         [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
         [RegistrationOptions(typeof(MonikerRegistrationOptions))]

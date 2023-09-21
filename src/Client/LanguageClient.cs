@@ -177,6 +177,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             IEnumerable<OnLanguageClientStartedDelegate> startedDelegates,
             IEnumerable<IOnLanguageClientStarted> startedHandlers,
             ITextDocumentLanguageClient textDocumentLanguageClient,
+            INotebookDocumentLanguageClient notebookDocumentLanguageClient,
             IClientLanguageClient clientLanguageClient,
             IGeneralLanguageClient generalLanguageClient,
             IWindowLanguageClient windowLanguageClient,
@@ -228,6 +229,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
             // We need to at least create Window here in case any handler does loggin in their constructor
             TextDocument = textDocumentLanguageClient;
+            NotebookDocument = notebookDocumentLanguageClient;
             Client = clientLanguageClient;
             General = generalLanguageClient;
             Window = windowLanguageClient;
@@ -235,6 +237,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         }
 
         public ITextDocumentLanguageClient TextDocument { get; }
+        public INotebookDocumentLanguageClient NotebookDocument { get; }
         public IClientLanguageClient Client { get; }
         public IGeneralLanguageClient General { get; }
         public IWindowLanguageClient Window { get; }

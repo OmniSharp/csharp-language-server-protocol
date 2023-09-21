@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using DryIoc;
 using MediatR;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -180,6 +181,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             IEnumerable<IOnLanguageServerStarted> startedHandlers,
             IServerWorkDoneManager serverWorkDoneManager,
             ITextDocumentLanguageServer textDocumentLanguageServer,
+            INotebookDocumentLanguageServer notebookDocumentLanguageServer,
             IClientLanguageServer clientLanguageServer,
             IGeneralLanguageServer generalLanguageServer,
             IWindowLanguageServer windowLanguageServer,
@@ -214,6 +216,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             // We need to at least create Window here in case any handler does logging in their constructor
             TextDocument = textDocumentLanguageServer;
+            NotebookDocument = notebookDocumentLanguageServer;
             Client = clientLanguageServer;
             General = generalLanguageServer;
             Window = windowLanguageServer;
@@ -231,19 +234,27 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _capabilityTypes = options.Value.UseAssemblyAttributeScanning
                 ? options.Value.Assemblies
                          .SelectMany(z => z.GetCustomAttributes<AssemblyCapabilityKeyAttribute>())
-                         .ToLookup(z => z.CapabilityKey, z => z.CapabilityType)
+                         .ToLookup(
+                              z => char.ToLowerInvariant(z.CapabilityKey[0]) + z.CapabilityKey.Substring(1), z => z.CapabilityType,
+                              StringComparer.OrdinalIgnoreCase
+                          )
                 : options.Value.Assemblies
                          .SelectMany(z => z.ExportedTypes)
                          .Where(z => z.IsClass && !z.IsAbstract)
                          .Where(z => typeof(ICapability).IsAssignableFrom(z))
                          .Where(z => z.GetCustomAttributes<CapabilityKeyAttribute>().Any())
-                         .ToLookup(z => string.Join(".", z.GetCustomAttribute<CapabilityKeyAttribute>().Keys));
+                         .ToLookup(
+                              z => string.Join(
+                                  ".", z.GetCustomAttribute<CapabilityKeyAttribute>().Keys.Select(z => char.ToLowerInvariant(z[0]) + z.Substring(1))
+                              ), StringComparer.OrdinalIgnoreCase
+                          );
 
             _disposable.Add(_collection.Add(this));
         }
 
 
         public ITextDocumentLanguageServer TextDocument { get; }
+        public INotebookDocumentLanguageServer NotebookDocument { get; }
         public IClientLanguageServer Client { get; }
         public IGeneralLanguageServer General { get; }
         public IWindowLanguageServer Window { get; }
@@ -318,7 +329,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         {
             ConfigureServerLogging(request);
 
-            ReadClientCapabilities(request, out var clientCapabilities, out var textDocumentCapabilities, out _, out var windowCapabilities, out _);
+            ReadClientCapabilities(
+                request, out var clientCapabilities, out var textDocumentCapabilities, out var notebookDocumentClientCapabilities,
+                out var workspaceClientCapabilities, out var windowCapabilities, out _
+            );
 
             await LanguageProtocolEventingHelper.Run(
                 _initializeDelegates,
@@ -340,7 +354,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 )
             );
 
-            var result = ReadServerCapabilities(clientCapabilities, windowCapabilities, textDocumentCapabilities);
+            var result = ReadServerCapabilities(
+                clientCapabilities, windowCapabilities, workspaceClientCapabilities, textDocumentCapabilities, notebookDocumentClientCapabilities
+            );
 
             await LanguageProtocolEventingHelper.Run(
                 _initializedDelegates,
@@ -389,6 +405,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             InternalInitializeParams request,
             out ClientCapabilities clientCapabilities,
             out TextDocumentClientCapabilities textDocumentCapabilities,
+            out NotebookDocumentClientCapabilities notebookDocumentCapabilities,
             out WorkspaceClientCapabilities workspaceCapabilities,
             out WindowClientCapabilities windowCapabilities,
             out GeneralClientCapabilities generalCapabilities
@@ -402,7 +419,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 {
                     if (request.Capabilities.SelectToken(group.Key) is JObject capabilityData)
                     {
-                        var capability = capabilityData.ToObject(capabilityType) as ICapability;
+                        var capability = capabilityData.ToObject(capabilityType, _serializer.JsonSerializer) as ICapability;
                         _supportedCapabilities.Add(capability!);
                     }
                 }
@@ -418,6 +435,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 {
                     supportedCapabilities.AddRange(
                         LspHandlerDescriptorHelpers.GetSupportedCapabilities(clientCapabilities.TextDocument)
+                    );
+                }
+
+                if (clientCapabilities.NotebookDocument != null)
+                {
+                    supportedCapabilities.AddRange(
+                        LspHandlerDescriptorHelpers.GetSupportedCapabilities(clientCapabilities.NotebookDocument)
                     );
                 }
 
@@ -440,6 +464,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             ClientSettings = new InitializeParams(request, clientCapabilities) { Capabilities = clientCapabilities };
             textDocumentCapabilities = ClientSettings.Capabilities.TextDocument ??= _serializer.DeserializeObject<TextDocumentClientCapabilities>("{}");
+            notebookDocumentCapabilities =
+                ClientSettings.Capabilities.NotebookDocument ??= _serializer.DeserializeObject<NotebookDocumentClientCapabilities>("{}");
             workspaceCapabilities = ClientSettings.Capabilities.Workspace ??= _serializer.DeserializeObject<WorkspaceClientCapabilities>("{}");
             windowCapabilities = ClientSettings.Capabilities.Window ??= _serializer.DeserializeObject<WindowClientCapabilities>("{}");
             generalCapabilities = ClientSettings.Capabilities.General ??= _serializer.DeserializeObject<GeneralClientCapabilities>("{}");
@@ -448,7 +474,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         }
 
         private InitializeResult ReadServerCapabilities(
-            ClientCapabilities clientCapabilities, WindowClientCapabilities windowCapabilities, TextDocumentClientCapabilities textDocumentCapabilities
+            ClientCapabilities clientCapabilities,
+            WindowClientCapabilities windowCapabilities,
+            WorkspaceClientCapabilities workspaceCapabilities,
+            TextDocumentClientCapabilities textDocumentCapabilities,
+            NotebookDocumentClientCapabilities notebookDocumentCapabilities
         )
         {
             // little hack to ensure that we get the proposed capabilities if proposals are turned on
@@ -457,7 +487,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             var serverCapabilitiesObject = new JObject();
             foreach (var converter in _registrationOptionsConverters)
             {
-                var keys = ( converter.Key ?? Array.Empty<string>() ).Select(key => char.ToLower(key[0]) + key.Substring(1)).ToArray();
+                var keys = ( converter.Key ?? Array.Empty<string>() ).Select(key => char.ToLowerInvariant(key[0]) + key.Substring(1)).ToArray();
                 var value = serverCapabilitiesObject;
                 foreach (var key in keys.Take(keys.Length - 1))
                 {

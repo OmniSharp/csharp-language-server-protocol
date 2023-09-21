@@ -1,10 +1,10 @@
 {
     "private": true,
     "devDependencies": {
-        "@prettier/plugin-xml": "1.2.0",
-        "husky": "7.0.4",
-        "lint-staged": "12.3.4",
-        "prettier": "2.5.1"
+        "@prettier/plugin-xml": "3.2.1",
+        "husky": "8.0.3",
+        "lint-staged": "14.0.1",
+        "prettier": "3.0.3"
     },
     "scripts": {
         "prepare": "husky install"

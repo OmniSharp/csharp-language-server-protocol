@@ -32,7 +32,7 @@ namespace Lsp.Tests
         public void Should_AllowSupportedCapabilities(IJsonRpcHandler handler, object instance)
         {
             var textDocumentSyncHandler =
-                TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
+                TextDocumentSyncHandlerExtensions.With(TextDocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var collection =
                 new SharedHandlerCollection(
@@ -77,7 +77,7 @@ namespace Lsp.Tests
         public void Should_AllowUnsupportedCapabilities(IJsonRpcHandler handler, object instance)
         {
             var textDocumentSyncHandler =
-                TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
+                TextDocumentSyncHandlerExtensions.With(TextDocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var collection =
                 new SharedHandlerCollection(
@@ -115,7 +115,7 @@ namespace Lsp.Tests
         public void Should_AllowNullSupportedCapabilities(IJsonRpcHandler handler, object instance)
         {
             var textDocumentSyncHandler =
-                TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
+                TextDocumentSyncHandlerExtensions.With(TextDocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var collection =
                 new SharedHandlerCollection(
@@ -154,7 +154,7 @@ namespace Lsp.Tests
         public void Should_DisallowDynamicSupportedCapabilities(IJsonRpcHandler handler, object instance)
         {
             var textDocumentSyncHandler =
-                TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
+                TextDocumentSyncHandlerExtensions.With(TextDocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var collection =
                 new SharedHandlerCollection(
@@ -194,7 +194,7 @@ namespace Lsp.Tests
         public void Should_Handle_Mixed_Capabilities()
         {
             var textDocumentSyncHandler =
-                TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
+                TextDocumentSyncHandlerExtensions.With(TextDocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var codeActionHandler = Substitute.For<ICodeActionHandler>();
             var definitionHandler = Substitute.For<IDefinitionHandler>();
@@ -243,7 +243,7 @@ namespace Lsp.Tests
         public void GH162_TextDocumentSync_Should_Work_Without_WillSave_Or_WillSaveWaitUntil()
         {
             var textDocumentSyncHandler =
-                TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
+                TextDocumentSyncHandlerExtensions.With(TextDocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var collection =
                 new SharedHandlerCollection(
@@ -263,7 +263,7 @@ namespace Lsp.Tests
             {
                 TextDocument = new TextDocumentClientCapabilities
                 {
-                    Synchronization = new SynchronizationCapability
+                    Synchronization = new TextSynchronizationCapability
                     {
                         DidSave = true,
                         DynamicRegistration = false,
@@ -280,7 +280,7 @@ namespace Lsp.Tests
         public void GH162_TextDocumentSync_Should_Work_With_WillSave_Or_WillSaveWaitUntil()
         {
             var textDocumentSyncHandler =
-                TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
+                TextDocumentSyncHandlerExtensions.With(TextDocumentSelector.ForPattern("**/*.cs"), "csharp");
             var willSaveTextDocumentHandler = Substitute.For<IWillSaveTextDocumentHandler>();
             var willSaveWaitUntilTextDocumentHandler = Substitute.For<IWillSaveWaitUntilTextDocumentHandler>();
             var didSaveTextDocumentHandler = Substitute.For<IDidSaveTextDocumentHandler>();
@@ -306,7 +306,7 @@ namespace Lsp.Tests
             {
                 TextDocument = new TextDocumentClientCapabilities
                 {
-                    Synchronization = new SynchronizationCapability
+                    Synchronization = new TextSynchronizationCapability
                     {
                         DidSave = true,
                         DynamicRegistration = false,

@@ -329,7 +329,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
     namespace Server.Capabilities
     {
-        public class FileOperationsWorkspaceServerCapabilities : DynamicCapability
+        public class FileOperationsWorkspaceServerCapabilities
         {
             /// <summary>
             /// The client has support for sending didCreateFiles notifications.

@@ -9,6 +9,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public const string DidChangeWorkspaceFolders = "workspace/didChangeWorkspaceFolders";
         public const string ExecuteCommand = "workspace/executeCommand";
         public const string WorkspaceSymbol = "workspace/symbol";
+        public const string WorkspaceSymbolResolve = "workspaceSymbol/resolve";
         public const string WorkspaceFolders = "workspace/workspaceFolders";
         public const string SemanticTokensRefresh = "workspace/semanticTokens/refresh";
         public const string CodeLensRefresh = "workspace/codeLens/refresh";
@@ -18,6 +19,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public const string DidRenameFiles = "workspace/didRenameFiles";
         public const string WillDeleteFiles = "workspace/willDeleteFiles";
         public const string DidDeleteFiles = "workspace/didDeleteFiles";
-
+        public const string InlineValueRefresh = "workspace/inlineValue/refresh";
+        public const string DiagnosticRefresh = "workspace/diagnostic/refresh";
+        public const string Diagnostics = "workspace/diagnostic";
+        public const string InlayHintRefresh = "workspace/inlayHint/refresh";
     }
 }

@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
             ISerializer serializer,
             ProgressToken token,
             IObservable<TResult> requestResult,
-            Func<TItem, TResult, TResult> factory,
+            Func<TResult, TItem, TResult> factory,
             Func<TResult, TItem> reverseFactory,
             CancellationToken cancellationToken,
             Action onCompleteAction
@@ -37,20 +37,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
             _task = Observable.Create<TResult>(
                                    observer => new CompositeDisposable
                                    {
-                                       _dataSubject
-                                          .ForkJoin(
-                                               requestResult
-                                                  .Do(
-                                                       _ =>
-                                                       {
-                                                           if (_receivedPartialData) return;
-                                                           _dataSubject.OnNext(reverseFactory(_));
-                                                       },
-                                                       _dataSubject.OnError,
-                                                       _dataSubject.OnCompleted
-                                                   ),
-                                               factory
+                                       requestResult
+                                          .Do(
+                                               result =>
+                                               {
+                                                   if (_receivedPartialData) return;
+                                                   _dataSubject.OnNext(reverseFactory(result));
+                                               },
+                                               _dataSubject.OnError,
+                                               _dataSubject.OnCompleted
                                            )
+                                          .ForkJoin(_dataSubject, factory)
                                           .Subscribe(observer),
                                        Disposable.Create(onCompleteAction)
                                    }
@@ -89,7 +86,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         {
             if (_dataSubject.IsDisposed) return;
             _receivedPartialData = true;
-            _dataSubject.OnNext(value.ToObject<TItem>(_serializer.JsonSerializer));
+            _dataSubject.OnNext(value.ToObject<TItem>(_serializer.JsonSerializer)!);
         }
 
         public void Dispose()
