@@ -50,7 +50,7 @@
     <PackageVersion Include="coverlet.collector" Version="6.0.0" />
     <PackageVersion Include="coverlet.msbuild" Version="6.0.0" />
     <PackageVersion Include="System.Reactive" Version="6.0.0" />
-    <PackageVersion Include="System.Collections.Immutable" Version="5.0.0" />
+    <PackageVersion Include="System.Collections.Immutable" Version="7.0.0" />
     <PackageVersion Include="System.Threading.Channels" Version="6.0.0" />
     <PackageVersion Include="Microsoft.Reactive.Testing" Version="5.0.0" />
     <PackageVersion Include="MediatR" Version="8.1.0" />
