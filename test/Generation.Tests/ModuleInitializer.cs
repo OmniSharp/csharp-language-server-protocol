@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using DiffEngine;
 using Microsoft.CodeAnalysis;
 
@@ -7,12 +7,11 @@ public static class ModuleInitializer
     [ModuleInitializer]
     public static void Init()
     {
-        VerifySourceGenerators.Enable();
+        VerifySourceGenerators.Initialize();
         VerifierSettings.AddExtraSettings(
-            settings => { settings.Converters.Add(new SyntaxTreeConverter()); }
-        );
+            settings => settings.Converters.Add(new SyntaxTreeConverter()));
         DiffRunner.Disabled = true;
-        VerifierSettings.DerivePathInfo(
+        DerivePathInfo(
             static (sourceFile, directory, type, method) =>
             {
                 static string GetTypeName(Type type) => type.IsNested ? $"{type.ReflectedType!.Name}.{type.Name}" : type.Name;
