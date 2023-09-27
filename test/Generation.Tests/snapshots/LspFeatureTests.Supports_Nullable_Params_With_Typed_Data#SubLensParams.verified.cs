@@ -50,6 +50,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Test
 
         private readonly Guid _id;
         Guid ICanBeIdentifiedHandler.Id => _id;
+
         public abstract Task<SubLens> Handle(SubLens request, CancellationToken cancellationToken);
     }
 
@@ -84,6 +85,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Test
 
         private readonly Guid _id;
         Guid ICanBeIdentifiedHandler.Id => _id;
+
         public abstract Task<SubLens> Handle(SubLens request, CancellationToken cancellationToken);
     }
 

@@ -36,7 +36,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 
             public override StaticOptions Convert(CodeActionRegistrationOptions source)
             {
-                return new StaticOptions{CodeActionKinds = source.CodeActionKinds, ResolveProvider = source.ResolveProvider, WorkDoneProgress = source.WorkDoneProgress};
+                return new StaticOptions
+                {
+                    CodeActionKinds = source.CodeActionKinds,
+                    ResolveProvider = source.ResolveProvider,
+                    WorkDoneProgress = source.WorkDoneProgress
+                };
             }
         }
 
@@ -51,6 +56,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             /// </summary>
             [Optional]
             public Container<CodeActionKind>? CodeActionKinds { get; set; } = new Container<CodeActionKind>();
+
             /// <summary>
             /// The server provides support to resolve additional
             /// information for a code action.

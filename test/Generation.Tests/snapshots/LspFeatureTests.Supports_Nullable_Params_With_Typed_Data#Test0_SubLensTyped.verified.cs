@@ -26,7 +26,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test.Models
         public SubLens<TData> WithData<TData>(TData data)
             where TData : class?, IHandlerIdentity?
         {
-            return new SubLens<TData>{Range = Range, Command = Command, Data = data};
+            return new SubLens<TData>
+            {
+                Range = Range,
+                Command = Command,
+                Data = data
+            };
         }
 
         [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("item")]
@@ -59,6 +64,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test.Models
         /// The range in which this code lens is valid. Should only span a single line.
         /// </summary>
         public Range Range { get; init; } = null !;
+
         /// <summary>
         /// The command this code lens represents.
         /// </summary>
@@ -71,8 +77,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test.Models
         /// </summary>
         [Optional]
         public T Data { get => this.GetRawData<T>()!; init => this.SetRawData<T>(value); }
-
         private string DebuggerDisplay => $"{Range}{(Command != null ? $" {Command}" : "")}";
+
         /// <inheritdoc/>
         public override string ToString()
         {
@@ -82,18 +88,32 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test.Models
         public SubLens<TData> WithData<TData>(TData data)
             where TData : class?, IHandlerIdentity?
         {
-            return new SubLens<TData>{Range = Range, Command = Command, Data = data};
+            return new SubLens<TData>
+            {
+                Range = Range,
+                Command = Command,
+                Data = data
+            };
         }
 
         JToken? ICanBeResolved.Data { get; init; }
-
         private JToken? JData { get => this.GetRawData(); init => this.SetRawData(value); }
 
-        public static implicit operator SubLens<T>(SubLens value) => new SubLens<T>{Range = value.Range, Command = value.Command, JData = value.Data};
+        public static implicit operator SubLens<T>(SubLens value) => new SubLens<T>
+        {
+            Range = value.Range,
+            Command = value.Command,
+            JData = value.Data
+        };
         [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("value")]
         public static implicit operator SubLens? (SubLens<T>? value) => value switch
         {
-            not null => new SubLens{Range = value.Range, Command = value.Command, Data = value.JData},
+            not null => new SubLens
+            {
+                Range = value.Range,
+                Command = value.Command,
+                Data = value.JData
+            },
             _ => null
         };
         [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("item")]

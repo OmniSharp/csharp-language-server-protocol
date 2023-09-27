@@ -28,7 +28,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test.Models
         public OutlayHint<TData> WithData<TData>(TData data)
             where TData : class?, IHandlerIdentity?
         {
-            return new OutlayHint<TData>{Position = Position, Label = Label, Kind = Kind, TextEdits = TextEdits, Tooltip = Tooltip, PaddingLeft = PaddingLeft, PaddingRight = PaddingRight, Data = data};
+            return new OutlayHint<TData>
+            {
+                Position = Position,
+                Label = Label,
+                Kind = Kind,
+                TextEdits = TextEdits,
+                Tooltip = Tooltip,
+                PaddingLeft = PaddingLeft,
+                PaddingRight = PaddingRight,
+                Data = data
+            };
         }
 
         [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("item")]
@@ -59,7 +69,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test.Models
         /// The position of this hint.
         /// </summary>
         public Position Position { get; init; }
-
         /// <summary>
         /// The label of this hint. A human readable string or an array of
         /// OutlayHintLabelPart label parts.
@@ -67,7 +76,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test.Models
         /// *Note* that neither the string nor the label part can be empty.
         /// </summary>
         public StringOrOutlayHintLabelParts Label { get; init; }
-
         /// <summary>
         /// The kind of this hint. Can be omitted in which case the client
         /// should fall back to a reasonable default.
@@ -122,23 +130,52 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test.Models
         /// </summary>
         [Optional]
         public T Data { get => this.GetRawData<T>()!; init => this.SetRawData<T>(value); }
-
         private string DebuggerDisplay => ToString();
+
         public OutlayHint<TData> WithData<TData>(TData data)
             where TData : class?, IHandlerIdentity?
         {
-            return new OutlayHint<TData>{Position = Position, Label = Label, Kind = Kind, TextEdits = TextEdits, Tooltip = Tooltip, PaddingLeft = PaddingLeft, PaddingRight = PaddingRight, Data = data};
+            return new OutlayHint<TData>
+            {
+                Position = Position,
+                Label = Label,
+                Kind = Kind,
+                TextEdits = TextEdits,
+                Tooltip = Tooltip,
+                PaddingLeft = PaddingLeft,
+                PaddingRight = PaddingRight,
+                Data = data
+            };
         }
 
         JToken? ICanBeResolved.Data { get; init; }
-
         private JToken? JData { get => this.GetRawData(); init => this.SetRawData(value); }
 
-        public static implicit operator OutlayHint<T>(OutlayHint value) => new OutlayHint<T>{Position = value.Position, Label = value.Label, Kind = value.Kind, TextEdits = value.TextEdits, Tooltip = value.Tooltip, PaddingLeft = value.PaddingLeft, PaddingRight = value.PaddingRight, JData = value.Data};
+        public static implicit operator OutlayHint<T>(OutlayHint value) => new OutlayHint<T>
+        {
+            Position = value.Position,
+            Label = value.Label,
+            Kind = value.Kind,
+            TextEdits = value.TextEdits,
+            Tooltip = value.Tooltip,
+            PaddingLeft = value.PaddingLeft,
+            PaddingRight = value.PaddingRight,
+            JData = value.Data
+        };
         [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("value")]
         public static implicit operator OutlayHint? (OutlayHint<T>? value) => value switch
         {
-            not null => new OutlayHint{Position = value.Position, Label = value.Label, Kind = value.Kind, TextEdits = value.TextEdits, Tooltip = value.Tooltip, PaddingLeft = value.PaddingLeft, PaddingRight = value.PaddingRight, Data = value.JData},
+            not null => new OutlayHint
+            {
+                Position = value.Position,
+                Label = value.Label,
+                Kind = value.Kind,
+                TextEdits = value.TextEdits,
+                Tooltip = value.Tooltip,
+                PaddingLeft = value.PaddingLeft,
+                PaddingRight = value.PaddingRight,
+                Data = value.JData
+            },
             _ => null
         };
         [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("item")]

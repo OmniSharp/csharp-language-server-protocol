@@ -50,6 +50,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
         private readonly Guid _id;
         Guid ICanBeIdentifiedHandler.Id => _id;
+
         public abstract Task<OutlayHint> Handle(OutlayHint request, CancellationToken cancellationToken);
     }
 

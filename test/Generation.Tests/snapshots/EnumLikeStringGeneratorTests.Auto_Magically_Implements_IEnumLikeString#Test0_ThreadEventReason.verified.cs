@@ -17,9 +17,14 @@ namespace Test
     {
         private static readonly Lazy<IReadOnlyList<ThreadEventReason>> _defaults = new Lazy<IReadOnlyList<ThreadEventReason>>(() =>
         {
-            return new ThreadEventReason[]{Started, Exited};
+            return new ThreadEventReason[]
+            {
+                Started,
+                Exited
+            };
         });
         public static IEnumerable<ThreadEventReason> Defaults => _defaults.Value;
+
         private readonly string _value;
         public ThreadEventReason(string type) => _value = type;
         public static implicit operator ThreadEventReason(string kind) => new ThreadEventReason(kind);
