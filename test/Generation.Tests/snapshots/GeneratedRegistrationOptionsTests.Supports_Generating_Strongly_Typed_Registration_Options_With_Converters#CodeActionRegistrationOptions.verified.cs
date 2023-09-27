@@ -38,6 +38,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             /// </summary>
             [Optional]
             public Container<CodeActionKind>? CodeActionKinds { get; set; } = new Container<CodeActionKind>();
+
             /// <summary>
             /// The server provides support to resolve additional
             /// information for a code action.

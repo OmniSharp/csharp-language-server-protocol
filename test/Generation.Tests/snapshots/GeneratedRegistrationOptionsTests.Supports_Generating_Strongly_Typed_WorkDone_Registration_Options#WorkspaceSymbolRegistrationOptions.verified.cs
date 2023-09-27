@@ -22,7 +22,10 @@ namespace Test
 
             public override StaticOptions Convert(WorkspaceSymbolRegistrationOptions source)
             {
-                return new StaticOptions{WorkDoneProgress = source.WorkDoneProgress};
+                return new StaticOptions
+                {
+                    WorkDoneProgress = source.WorkDoneProgress
+                };
             }
         }
 

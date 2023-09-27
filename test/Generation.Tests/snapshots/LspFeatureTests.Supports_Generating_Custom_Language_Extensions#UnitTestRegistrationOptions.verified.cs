@@ -29,7 +29,11 @@ namespace Lsp.Tests.Integration.Fixtures
 
             public override StaticOptions Convert(UnitTestRegistrationOptions source)
             {
-                return new StaticOptions{SupportsDebugging = source.SupportsDebugging, WorkDoneProgress = source.WorkDoneProgress};
+                return new StaticOptions
+                {
+                    SupportsDebugging = source.SupportsDebugging,
+                    WorkDoneProgress = source.WorkDoneProgress
+                };
             }
         }
 

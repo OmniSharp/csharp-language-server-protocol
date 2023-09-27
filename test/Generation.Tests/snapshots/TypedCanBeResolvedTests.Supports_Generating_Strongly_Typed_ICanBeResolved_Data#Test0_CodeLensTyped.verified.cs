@@ -27,7 +27,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         public CodeLens<TData> WithData<TData>(TData data)
             where TData : class?, IHandlerIdentity?
         {
-            return new CodeLens<TData>{Range = Range, Command = Command, Data = data};
+            return new CodeLens<TData>
+            {
+                Range = Range,
+                Command = Command,
+                Data = data
+            };
         }
 
         [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("item")]
@@ -64,24 +69,38 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         /// </summary>
         [Optional]
         public T Data { get => this.GetRawData<T>()!; init => this.SetRawData<T>(value); }
-
         private string DebuggerDisplay => $"{Range}{(Command != null ? $" {Command}" : "")}";
+
         public override string ToString() => DebuggerDisplay;
         public CodeLens<TData> WithData<TData>(TData data)
             where TData : class?, IHandlerIdentity?
         {
-            return new CodeLens<TData>{Range = Range, Command = Command, Data = data};
+            return new CodeLens<TData>
+            {
+                Range = Range,
+                Command = Command,
+                Data = data
+            };
         }
 
         JToken? ICanBeResolved.Data { get; init; }
-
         private JToken? JData { get => this.GetRawData(); init => this.SetRawData(value); }
 
-        public static implicit operator CodeLens<T>(CodeLens value) => new CodeLens<T>{Range = value.Range, Command = value.Command, JData = value.Data};
+        public static implicit operator CodeLens<T>(CodeLens value) => new CodeLens<T>
+        {
+            Range = value.Range,
+            Command = value.Command,
+            JData = value.Data
+        };
         [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("value")]
         public static implicit operator CodeLens? (CodeLens<T>? value) => value switch
         {
-            not null => new CodeLens{Range = value.Range, Command = value.Command, Data = value.JData},
+            not null => new CodeLens
+            {
+                Range = value.Range,
+                Command = value.Command,
+                Data = value.JData
+            },
             _ => null
         };
         [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("item")]
