@@ -47,18 +47,18 @@
         "test": "node ./out/test/runTest.js"
     },
     "devDependencies": {
-        "@types/glob": "^7.2.0",
+        "@types/glob": "^8.1.0",
         "@types/mocha": "^10.0.2",
         "@types/node": "^18.18.0",
         "@types/vscode": "^1.82.0",
         "@vscode/test-electron": "^2.3.4",
-        "glob": "^7.2.3",
+        "glob": "^8.1.0",
         "mocha": "^10.2.0",
         "source-map-support": "^0.5.21",
         "typescript": "^5.2.2"
     },
     "dependencies": {
         "vscode-languageclient": "^9.0.1",
-        "vscode-languageserver-protocol": "^3.16.0-next.6"
+        "vscode-languageserver-protocol": "^3.17.5"
     }
 }
