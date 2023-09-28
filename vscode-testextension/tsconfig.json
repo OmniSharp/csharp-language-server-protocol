@@ -4,9 +4,9 @@
         "module": "commonjs",
         "moduleResolution": "node",
         "outDir": "out",
-        "lib": ["es2016"],
+        "lib": ["es2020"],
         "sourceMap": true,
         "skipLibCheck": true
     },
-    "exclude": ["node_modules", "server"]
+    "exclude": ["node_modules", ".vscode-test"]
 }

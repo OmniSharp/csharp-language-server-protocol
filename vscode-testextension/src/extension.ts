@@ -38,13 +38,13 @@ export async function activate(context: ExtensionContext) {
         // run: { command: serverExe, args: ['-lsp', '-d'] },
         run: {
             command: serverExe,
-            args: ["D:/Development/Omnisharp/csharp-language-server-protocol/sample/SampleServer/bin/Debug/netcoreapp3.1/win7-x64/SampleServer.dll"],
+            args: ["D:/Development/Omnisharp/csharp-language-server-protocol/sample/SampleServer/bin/Debug/net6.0/win7-x64/SampleServer.dll"],
             transport: TransportKind.pipe,
         },
         // debug: { command: serverExe, args: ['-lsp', '-d'] }
         debug: {
             command: serverExe,
-            args: ["D:/Development/Omnisharp/csharp-language-server-protocol/sample/SampleServer/bin/Debug/netcoreapp3.1/win7-x64/SampleServer.dll"],
+            args: ["D:/Development/Omnisharp/csharp-language-server-protocol/sample/SampleServer/bin/Debug/net6.0/win7-x64/SampleServer.dll"],
             transport: TransportKind.pipe,
             runtime: "",
         },
