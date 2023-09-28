@@ -17,11 +17,13 @@ import {
     InitializeParams,
     StreamInfo,
     createServerPipeTransport,
+    Trace
 } from "vscode-languageclient/node";
-import { Trace, createClientPipeTransport } from "vscode-jsonrpc/node";
 import { createConnection } from "net";
 
-export function activate(context: ExtensionContext) {
+let client: LanguageClient;
+
+export async function activate(context: ExtensionContext) {
     // The server is implemented in node
     let serverExe = "dotnet";
 
@@ -81,12 +83,12 @@ export function activate(context: ExtensionContext) {
     };
 
     // Create the language client and start the client.
-    const client = new LanguageClient("languageServerExample", "Language Server Example", serverOptions, clientOptions);
+    client = new LanguageClient("languageServerExample", "Language Server Example", serverOptions, clientOptions);
     client.registerProposedFeatures();
-    client.trace = Trace.Verbose;
-    let disposable = client.start();
+    client.setTrace(Trace.Verbose);
+    await client.start();
+}
 
-    // Push the disposable to the context's subscriptions so that the
-    // client can be deactivated on extension deactivation
-    context.subscriptions.push(disposable);
+export function deactivate() {
+    return client.stop();
 }
