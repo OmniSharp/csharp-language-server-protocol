@@ -6,7 +6,7 @@
     "version": "0.0.1",
     "publisher": "vscode",
     "engines": {
-        "vscode": "^1.8.0"
+        "vscode": "^1.82.0"
     },
     "categories": [
         "Other"
@@ -40,19 +40,25 @@
         }
     },
     "scripts": {
-        "vscode:prepublish": "tsc -p ./",
+        "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
-        "update-vscode": "node ./node_modules/vscode/bin/install",
-        "postinstall": "node ./node_modules/vscode/bin/install"
+        "watch": "tsc -watch -p ./",
+        "pretest": "npm run compile",
+        "test": "node ./out/test/runTest.js"
     },
     "devDependencies": {
-        "@types/mocha": "10.0.2",
-        "@types/node": "18.17.19",
-        "typescript": "5.2.2",
-        "vscode": "1.1.37"
+        "@types/glob": "^8.1.0",
+        "@types/mocha": "^10.0.2",
+        "@types/node": "^18.18.0",
+        "@types/vscode": "^1.82.0",
+        "@vscode/test-electron": "^2.3.4",
+        "glob": "^8.1.0",
+        "mocha": "^10.2.0",
+        "source-map-support": "^0.5.21",
+        "typescript": "^5.2.2"
     },
     "dependencies": {
-        "vscode-languageclient": "^9.0.0",
-        "vscode-languageserver-protocol": "^3.16.0-next.6"
+        "vscode-languageclient": "^9.0.1",
+        "vscode-languageserver-protocol": "^3.17.5"
     }
 }
