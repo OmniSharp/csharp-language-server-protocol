@@ -69,13 +69,13 @@ on:
       - '.github/renovate.json'
 
 jobs:
-  Build:
+  build:
     env:
       NUGET_PACKAGES: '${{ github.workspace }}/.nuget/packages'
     strategy:
       fail-fast: false
       matrix:
-        os: [macOS-latest, windows-latest, ubuntu-latest]
+        os: [macos-latest, windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -83,9 +83,6 @@ jobs:
         with:
           clean: 'false'
           fetch-depth: '0'
-      - name: Fetch all history for all tags and branches
-        run: |
-          git fetch --prune
       - name: NuGet Cache
         uses: actions/cache@v3
         with:
@@ -105,18 +102,29 @@ jobs:
         run: |
           dotnet tool restore
       - name: 🎁 Restore
+        id: restore
         run: |
           dotnet nuke Restore --skip
       - name: ⚙ Build
+        id: build
         run: |
           dotnet nuke Build --skip
       - name: 🚦 Test
+        id: test
         run: |
           dotnet nuke Test TriggerCodeCoverageReports GenerateCodeCoverageReportCobertura GenerateCodeCoverageBadges GenerateCodeCoverageSummary GenerateCodeCoverageReport --skip
       - name: 📦 Pack
+        id: pack
         run: |
           dotnet nuke Pack --skip
+      - name: 🏺 Publish coverage data
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: 'coverage'
+          path: 'coverage/'
       - name: 🐿 Publish Coverage
+        if: (github.event_name != 'pull_request' && github.event_name != 'pull_request_target') || ((github.event_name == 'pull_request' || github.event_name == 'pull_request_target') && github.event.pull_request.user.login != 'renovate[bot]' && github.event.pull_request.user.login != 'dependabot[bot]')
         uses: codecov/codecov-action@v4.0.0-beta.2
         with:
           name: 'actions-${{ matrix.os }}'
@@ -126,12 +134,6 @@ jobs:
         with:
           name: 'logs'
           path: 'artifacts/logs/'
-      - name: 🏺 Publish coverage data
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: 'coverage'
-          path: 'coverage/'
       - name: 🏺 Publish test data
         if: always()
         uses: actions/upload-artifact@v3
@@ -144,8 +146,7 @@ jobs:
         with:
           name: 'nuget'
           path: 'artifacts/nuget/'
-      - name: 🏺 Publish Docs
-        if: always()
+      - name: 🏺 Publish Documentation
         uses: actions/upload-artifact@v3
         with:
           name: 'docs'
@@ -153,7 +154,7 @@ jobs:
   Publish:
     needs:
       - Build
+    uses: RocketSurgeonsGuild/actions/.github/workflows/publish-nuget.yml@v0.3.3
     secrets:
       RSG_NUGET_API_KEY: '${{ secrets.RSG_NUGET_API_KEY }}'
       RSG_AZURE_DEVOPS: '${{ secrets.RSG_AZURE_DEVOPS }}'
-    uses: RocketSurgeonsGuild/actions/.github/workflows/publish-nuget.yml@v0.3.3

@@ -17,6 +17,7 @@ namespace Build;
 [DotNetVerbosityMapping]
 [MSBuildVerbosityMapping]
 [NuGetVerbosityMapping]
+[LocalBuildConventions]
 public sealed partial class Solution : NukeBuild,
                                 ICanRestoreWithDotNetCore,
                                 ICanBuildWithDotNetCore,
@@ -28,6 +29,7 @@ public sealed partial class Solution : NukeBuild,
                                 IGenerateCodeCoverageReport,
                                 IGenerateCodeCoverageSummary,
                                 IGenerateCodeCoverageBadges,
+                                IGenerateDocFx,
                                 IHaveConfiguration<Configuration>
 {
     /// <summary>

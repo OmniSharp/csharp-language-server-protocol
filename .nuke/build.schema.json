@@ -74,6 +74,10 @@
           "type": "string",
           "description": "Root directory during build execution"
         },
+        "Serve": {
+          "type": "boolean",
+          "description": "serve the docs"
+        },
         "Skip": {
           "type": "array",
           "description": "List of targets to be skipped. Empty list skips all dependencies",
@@ -84,6 +88,7 @@
               "BuildVersion",
               "Clean",
               "CoreBuild",
+              "CoreDocs",
               "CorePack",
               "CoreRestore",
               "CoreTest",
@@ -120,6 +125,7 @@
               "BuildVersion",
               "Clean",
               "CoreBuild",
+              "CoreDocs",
               "CorePack",
               "CoreRestore",
               "CoreTest",

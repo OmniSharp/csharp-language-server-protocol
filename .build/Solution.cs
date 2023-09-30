@@ -70,18 +70,15 @@ internal class LocalConstants
 [PrintCIEnvironment]
 [UploadLogs]
 [TitleEvents]
+[ContinuousIntegrationConventions]
 public partial class Solution
 {
     public static RocketSurgeonGitHubActionsConfiguration CiIgnoreMiddleware(
         RocketSurgeonGitHubActionsConfiguration configuration
     )
     {
-        foreach (var item in configuration.DetailedTriggers.OfType<RocketSurgeonGitHubActionsVcsTrigger>())
-        {
-            item.IncludePaths = LocalConstants.PathsIgnore;
-        }
+        configuration.IncludeRepositoryConfigurationFiles();
 
-        configuration.Jobs.RemoveAt(1);
         ( (RocketSurgeonsGithubActionsJob)configuration.Jobs[0] ).Steps = new List<GitHubActionsStep>
         {
             new RunStep("N/A")
@@ -97,104 +94,17 @@ public partial class Solution
         RocketSurgeonGitHubActionsConfiguration configuration
     )
     {
-        foreach (var item in configuration.DetailedTriggers.OfType<RocketSurgeonGitHubActionsVcsTrigger>())
-        {
-            item.ExcludePaths = LocalConstants.PathsIgnore;
-        }
-
-        var buildJob = configuration.Jobs.OfType<RocketSurgeonsGithubActionsJob>().First(z => z.Name == "Build");
-        buildJob.FailFast = false;
-        var checkoutStep = buildJob.Steps.OfType<CheckoutStep>().Single();
-        // For fetch all
-        checkoutStep.FetchDepth = 0;
-        buildJob.Environment["NUGET_PACKAGES"] = "${{ github.workspace }}/.nuget/packages";
-        buildJob.Steps.InsertRange(
-            buildJob.Steps.IndexOf(checkoutStep) + 1,
-            new BaseGitHubActionsStep[]
-            {
-                new RunStep("Fetch all history for all tags and branches")
-                {
-                    Run = "git fetch --prune"
-                },
-                new UsingStep("NuGet Cache")
-                {
-                    Uses = "actions/cache@v2",
-                    With =
-                    {
-                        ["path"] = "${{ github.workspace }}/.nuget/packages",
-                        // keep in mind using central package versioning here
-                        ["key"] =
-                            "${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props') }}-${{ hashFiles('**/Directory.Packages.support.props') }}",
-                        ["restore-keys"] = @"|
-              ${{ runner.os }}-nuget-"
-                    }
-                },
-                new SetupDotNetStep("Use .NET Core 3.1 SDK")
-                {
-                    DotNetVersion = "3.1.x"
-                },
-                new SetupDotNetStep("Use .NET Core 7.0 SDK")
-                {
-                    DotNetVersion = "7.0.x"
-                },
-            }
-        );
-
-        buildJob.Steps.Add(
-            new UsingStep("Publish Coverage")
-            {
-                Uses = "codecov/codecov-action@v1",
-                With = new Dictionary<string, string>
-                {
-                    ["name"] = "actions-${{ matrix.os }}",
-                }
-            }
-        );
-
-        buildJob.Steps.Add(
-            new UploadArtifactStep("Publish logs")
-            {
-                Name = "logs",
-                Path = "artifacts/logs/",
-                If = "always()"
-            }
-        );
-
-        buildJob.Steps.Add(
-            new UploadArtifactStep("Publish coverage data")
-            {
-                Name = "coverage",
-                Path = "coverage/",
-                If = "always()"
-            }
-        );
-
-        buildJob.Steps.Add(
-            new UploadArtifactStep("Publish test data")
-            {
-                Name = "test data",
-                Path = "artifacts/test/",
-                If = "always()"
-            }
-        );
-
-        buildJob.Steps.Add(
-            new UploadArtifactStep("Publish NuGet Packages")
-            {
-                Name = "nuget",
-                Path = "artifacts/nuget/",
-                If = "always()"
-            }
-        );
-
-        buildJob.Steps.Add(
-            new UploadArtifactStep("Publish Docs")
-            {
-                Name = "docs",
-                Path = "artifacts/docs/",
-                If = "always()"
-            }
-        );
+        configuration
+            .ExcludeRepositoryConfigurationFiles()
+            .AddNugetPublish()
+            .Jobs.OfType<RocketSurgeonsGithubActionsJob>()
+            .First(z => z.Name.Equals("Build", StringComparison.OrdinalIgnoreCase))
+            .ConfigureStep<CheckoutStep>(step => step.FetchDepth = 0)
+            .UseDotNetSdks("3.1", "7.0")
+            .AddNuGetCache()
+            .PublishLogs<Solution>()
+            .PublishArtifacts<Solution>()
+            .FailFast = false;
 
         return configuration;
     }
