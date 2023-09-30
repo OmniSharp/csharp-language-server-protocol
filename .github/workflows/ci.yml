@@ -113,6 +113,14 @@ jobs:
         id: test
         run: |
           dotnet nuke Test TriggerCodeCoverageReports GenerateCodeCoverageReportCobertura GenerateCodeCoverageBadges GenerateCodeCoverageSummary GenerateCodeCoverageReport --skip
+      - name: Npm Install
+        id: npmInstall
+        run: |
+          dotnet nuke NpmInstall --skip
+      - name: 🚦 Test Vscode Test Extension
+        id: testVscodeTestExtension
+        run: |
+          dotnet nuke TestVscodeTestExtension --skip
       - name: 📦 Pack
         id: pack
         run: |
