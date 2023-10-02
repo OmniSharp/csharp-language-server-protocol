@@ -49,8 +49,7 @@ public sealed partial class Solution : NukeBuild,
                                   .DependsOn(Restore)
                                   .DependsOn(Build)
                                   .DependsOn(Test)
-                                  .DependsOn(Pack)
-                                  .DependsOn(TestVscodeTestExtension);
+                                  .DependsOn(Pack);
 
     public Target Build => _ => _.Inherit<ICanBuildWithDotNetCore>(x => x.CoreBuild);
 
@@ -69,7 +68,7 @@ public sealed partial class Solution : NukeBuild,
             NpmTasks.NpmCi(s => s
                 .SetProcessWorkingDirectory(VscodeTestExtensionProjectDirectory)));
 
-    public Target TestVscodeTestExtension => _ => _
+    public Target TestVscodeExtension => _ => _
         .DependsOn(NpmInstall)
         .Executes(() =>
             NpmTasks.NpmRun(s => s

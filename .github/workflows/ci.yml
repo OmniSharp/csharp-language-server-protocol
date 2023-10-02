@@ -113,18 +113,20 @@ jobs:
         id: test
         run: |
           dotnet nuke Test TriggerCodeCoverageReports GenerateCodeCoverageReportCobertura GenerateCodeCoverageBadges GenerateCodeCoverageSummary GenerateCodeCoverageReport --skip
-      - name: Npm Install
-        id: npmInstall
-        run: |
-          dotnet nuke NpmInstall --skip
-      - name: 🚦 Test Vscode Test Extension
-        id: testVscodeTestExtension
-        run: |
-          dotnet nuke TestVscodeTestExtension --skip
       - name: 📦 Pack
         id: pack
         run: |
           dotnet nuke Pack --skip
+      - name: Npm install
+        run: |
+          cd vscode-testextension
+          npm ci
+          cd ..
+      - name: 🚦 Vscode extension tests
+        uses: coactions/setup-xvfb@v1
+        with:
+          run: 'npm run test'
+          working-directory: 'vscode-testextension'
       - name: 🏺 Publish coverage data
         if: always()
         uses: actions/upload-artifact@v3

@@ -102,10 +102,32 @@ public partial class Solution
             .ConfigureStep<CheckoutStep>(step => step.FetchDepth = 0)
             .UseDotNetSdks("3.1", "7.0")
             .AddNuGetCache()
+            .AddVscodeExtensionTests()
             .PublishLogs<Solution>()
             .PublishArtifacts<Solution>()
             .FailFast = false;
 
         return configuration;
+    }
+}
+
+public static class Extensions
+{
+    public static RocketSurgeonsGithubActionsJob AddVscodeExtensionTests(this RocketSurgeonsGithubActionsJob job)
+    {
+        return job
+            .AddStep(new RunStep("Npm install") {
+                Run = string.Join(Environment.NewLine, [
+                    "cd vscode-testextension",
+                    "npm ci",
+                    "cd .."
+                ])
+            })
+            .AddStep(new UsingStep("Vscode extension tests") {
+                Uses = "coactions/setup-xvfb@v1",
+                With = {
+                    ["run"] = "npm run test",
+                    ["working-directory"] = "vscode-testextension"
+            }});
     }
 }
