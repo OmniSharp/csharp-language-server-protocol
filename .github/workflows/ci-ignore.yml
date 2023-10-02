@@ -69,7 +69,7 @@ on:
       - '.github/renovate.json'
 
 jobs:
-  Build:
+  build:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest]
