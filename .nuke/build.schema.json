@@ -103,9 +103,11 @@
               "GenerateCodeCoverageReportCobertura",
               "GenerateCodeCoverageSummary",
               "GenerateReadme",
+              "NpmInstall",
               "Pack",
               "Restore",
               "Test",
+              "TestVscodeTestExtension",
               "Trigger_Code_Coverage_Reports",
               "TriggerCodeCoverageReports"
             ]
@@ -140,9 +142,11 @@
               "GenerateCodeCoverageReportCobertura",
               "GenerateCodeCoverageSummary",
               "GenerateReadme",
+              "NpmInstall",
               "Pack",
               "Restore",
               "Test",
+              "TestVscodeTestExtension",
               "Trigger_Code_Coverage_Reports",
               "TriggerCodeCoverageReports"
             ]

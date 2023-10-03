@@ -117,6 +117,16 @@ jobs:
         id: pack
         run: |
           dotnet nuke Pack --skip
+      - name: Npm install
+        run: |
+          cd vscode-testextension
+          npm ci
+          cd ..
+      - name: 🚦 Vscode extension tests
+        uses: coactions/setup-xvfb@v1
+        with:
+          run: 'npm run test'
+          working-directory: 'vscode-testextension'
       - name: 🏺 Publish coverage data
         if: always()
         uses: actions/upload-artifact@v3

@@ -3,9 +3,11 @@ using Nuke.Common;
 using Nuke.Common.Execution;
 using Nuke.Common.Git;
 using Nuke.Common.IO;
+using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Tools.MSBuild;
+using Nuke.Common.Tools.Npm;
 using Rocket.Surgery.Nuke.DotNetCore;
 
 namespace Build;
@@ -61,6 +63,18 @@ public sealed partial class Solution : NukeBuild,
 
     public Target Test => _ => _.Inherit<ICanTestWithDotNetCore>(x => x.CoreTest);
 
+    public Target NpmInstall => _ => _
+        .Executes(() =>
+            NpmTasks.NpmCi(s => s
+                .SetProcessWorkingDirectory(VscodeTestExtensionProjectDirectory)));
+
+    public Target TestVscodeExtension => _ => _
+        .DependsOn(NpmInstall)
+        .Executes(() =>
+            NpmTasks.NpmRun(s => s
+                .SetProcessWorkingDirectory(VscodeTestExtensionProjectDirectory)
+                .SetCommand("test")));
+
     public Target BuildVersion => _ => _.Inherit<IHaveBuildVersion>(x => x.BuildVersion)
                                         .Before(Default)
                                         .Before(Clean);
@@ -68,4 +82,6 @@ public sealed partial class Solution : NukeBuild,
     [Parameter("Configuration to build")] public Configuration Configuration { get; } = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
     AbsolutePath ICanUpdateReadme.ReadmeFilePath => RootDirectory / "README.md";
+
+    private const string VscodeTestExtensionProjectDirectory = "vscode-testextension";
 }
