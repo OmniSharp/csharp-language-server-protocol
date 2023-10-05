@@ -34,7 +34,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
                     var observableQueue =
                         new BehaviorSubject<(RequestProcessType type, ReplaySubject<IObservable<Unit>> observer, Subject<Unit>? contentModifiedSource)>(
-                            ( RequestProcessType.Serial, new ReplaySubject<IObservable<Unit>>(10, Scheduler.Immediate), supportContentModified ? new Subject<Unit>() : null )
+                            ( RequestProcessType.Serial, new ReplaySubject<IObservable<Unit>>(TimeSpan.FromSeconds(6), Scheduler.Immediate), supportContentModified ? new Subject<Unit>() : null )
                         );
 
                     cd.Add(
@@ -52,7 +52,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
                                     logger.LogDebug("Completing existing request process type {Type}", observableQueue.Value.type);
                                     observableQueue.Value.observer.OnCompleted();
-                                    observableQueue.OnNext(( item.type, new ReplaySubject<IObservable<Unit>>(10, Scheduler.Immediate), supportContentModified ? new Subject<Unit>() : null ));
+                                    observableQueue.OnNext(( item.type, new ReplaySubject<IObservable<Unit>>(TimeSpan.FromSeconds(6), Scheduler.Immediate), supportContentModified ? new Subject<Unit>() : null ));
                                 }
 
                                 logger.LogDebug("Queueing {Type}:{Name} request for processing", item.type, item.name);
