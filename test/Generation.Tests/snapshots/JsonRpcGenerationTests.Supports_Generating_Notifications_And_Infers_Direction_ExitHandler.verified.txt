@@ -6,8 +6,6 @@
       Severity: Info,
       WarningLevel: 1,
       Location: Test0.cs: (16,21)-(16,33),
-      Description: ,
-      HelpLink: ,
       MessageFormat: No Response Router Provided for handler {0}, defaulting to {1}.,
       Message: No Response Router Provided for handler {0}, defaulting to {1}.,
       Category: JsonRPC
