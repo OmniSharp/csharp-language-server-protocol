@@ -117,17 +117,15 @@ public static class Extensions
     {
         return job
             .AddStep(new RunStep("Npm install") {
-                Run = string.Join(Environment.NewLine, [
-                    "cd vscode-testextension",
-                    "npm ci",
-                    "cd .."
-                ])
+                Run = "npm ci",
+                WorkingDirectory = Solution.VscodeTestExtensionProjectDirectory
             })
             .AddStep(new UsingStep("Vscode extension tests") {
                 Uses = "coactions/setup-xvfb@v1",
                 With = {
                     ["run"] = "npm run test",
-                    ["working-directory"] = "vscode-testextension"
-            }});
+                    ["working-directory"] = Solution.VscodeTestExtensionProjectDirectory
+                }
+            });
     }
 }

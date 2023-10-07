@@ -118,10 +118,9 @@ jobs:
         run: |
           dotnet nuke Pack --skip
       - name: Npm install
+        working-directory: vscode-testextension
         run: |
-          cd vscode-testextension
           npm ci
-          cd ..
       - name: 🚦 Vscode extension tests
         uses: coactions/setup-xvfb@v1
         with:
