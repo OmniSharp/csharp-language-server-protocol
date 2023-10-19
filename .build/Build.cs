@@ -83,5 +83,5 @@ public sealed partial class Solution : NukeBuild,
 
     AbsolutePath ICanUpdateReadme.ReadmeFilePath => RootDirectory / "README.md";
 
-    private const string VscodeTestExtensionProjectDirectory = "vscode-testextension";
+    internal const string VscodeTestExtensionProjectDirectory = "vscode-testextension";
 }
