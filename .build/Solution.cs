@@ -120,12 +120,9 @@ public static class Extensions
                 Run = "npm ci",
                 WorkingDirectory = Solution.VscodeTestExtensionProjectDirectory
             })
-            .AddStep(new UsingStep("Vscode extension tests") {
-                Uses = "coactions/setup-xvfb@v1",
-                With = {
-                    ["run"] = "npm run test",
-                    ["working-directory"] = Solution.VscodeTestExtensionProjectDirectory
-                }
+            .AddStep(new HeadlessRunStep("Vscode extension tests") {
+                Run = "npm run test",
+                WorkingDirectory = Solution.VscodeTestExtensionProjectDirectory
             });
     }
 }
