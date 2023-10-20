@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -734,7 +734,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// The notebooks to be synced
             /// </summary>
-            NotebookSelector NotebookSelector { get; set; }
+            Container<NotebookSelector> NotebookSelector { get; set; }
         }
 
         /// <summary>
@@ -761,7 +761,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// value is provided it matches against the
             /// notebook type. '*' matches every notebook.
             /// </summary>
-            public NotebookSelector NotebookSelector { get; set; }
+            public Container<NotebookSelector> NotebookSelector { get; set; }
 
             /// <summary>
             /// Whether save notification should be forwarded to

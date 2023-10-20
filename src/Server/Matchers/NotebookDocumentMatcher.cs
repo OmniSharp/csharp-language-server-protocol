@@ -101,14 +101,15 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                 var registrationOptions = descriptor.RegistrationOptions as INotebookDocumentRegistrationOptions;
 
                 _logger.LogTrace("Registration options {OptionsName}", registrationOptions?.GetType().FullName);
-                _logger.LogTrace("Document Selector {NotebookDocumentSelector}", registrationOptions?.NotebookSelector?.ToString() ?? string.Empty);
-                if (registrationOptions?.NotebookSelector is null || registrationOptions.NotebookSelector.IsMatch(attributes))
+                var selector = registrationOptions?.NotebookSelector?.FirstOrDefault(s => s.IsMatch(attributes));
+                _logger.LogTrace("Document Selector {NotebookDocumentSelector}", selector?.ToString());
+                if (registrationOptions?.NotebookSelector is null || selector is not null)
                 {
                     _logger.LogTrace(
                         "Handler Selected: {Handler} {Id} via {NotebookDocumentSelector} (targeting {HandlerInterface})",
                         descriptor.ImplementationType.FullName,
                         descriptor.Handler is ICanBeIdentifiedHandler h ? h.Id.ToString() : string.Empty,
-                        registrationOptions?.NotebookSelector?.ToString(),
+                        selector?.ToString(),
                         descriptor.HandlerType.FullName
                     );
                     yield return descriptor;
