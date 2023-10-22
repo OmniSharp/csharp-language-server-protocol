@@ -94,13 +94,19 @@ namespace Lsp.Integration.Tests
             await client.RequestWillRenameFile(
                 new WillRenameFileParams
                 {
-                    Files = Container<FileRename>.From(new FileRename { Uri = new Uri("file://asdf") })
+                    Files = Container<FileRename>.From(new FileRename {
+                        OldUri = new Uri("file://asdf"),
+                        NewUri = new Uri("file://zxcv"),
+                    })
                 }
             );
             client.DidRenameFile(
                 new DidRenameFileParams
                 {
-                    Files = Container<FileRename>.From(new FileRename { Uri = new Uri("file://asdf") })
+                    Files = Container<FileRename>.From(new FileRename {
+                        OldUri = new Uri("file://asdf"),
+                        NewUri = new Uri("file://zxcv")
+                    })
                 }
             );
 

@@ -83,7 +83,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
         [RegistrationOptions(typeof(DidRenameFileRegistrationOptions))]
         [Capability(typeof(FileOperationsWorkspaceClientCapabilities))]
-        public partial record DidRenameFileParams : FileOperationParams<FileRename>, IRequest
+        public partial record DidRenameFileParams : RenameFileOperationParams, IRequest
         {
             public static implicit operator WillRenameFileParams(DidRenameFileParams @params)
             {
@@ -99,7 +99,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
         [RegistrationOptions(typeof(WillRenameFileRegistrationOptions))]
         [Capability(typeof(FileOperationsWorkspaceClientCapabilities))]
-        public partial record WillRenameFileParams : FileOperationParams<FileRename>, IRequest<WorkspaceEdit?>
+        public partial record WillRenameFileParams : RenameFileOperationParams, IRequest<WorkspaceEdit?>
         {
             public static implicit operator DidRenameFileParams(WillRenameFileParams @params)
             {
@@ -107,8 +107,36 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }
         }
 
-        /// <inheritdoc cref="FileOperationItem" />
-        public partial record FileRename : FileOperationItem;
+        /// <summary>
+        /// The parameters sent in notifications/requests for user-initiated renames
+        /// of files.
+        ///
+        /// @since 3.16.0
+        /// </summary>
+        public abstract record RenameFileOperationParams
+        {
+            /// <summary>
+            /// An array of all files/folders renamed in this operation.
+            /// When a folder is renamed, only the folder will be included, and not its children.
+            /// </summary>
+            public Container<FileRename> Files { get; init; } = null!;
+        }
+
+        /// <summary>
+        /// Represents information on a file/folder rename.
+        /// </summary>
+        public partial record FileRename
+        {
+            /// <summary>
+            /// A file:// URI for the original location of the file/folder being renamed.
+            /// </summary>
+            public Uri OldUri { get; init; } = null!;
+
+            /// <summary>
+            /// A file:// URI for the new location of the file/folder being renamed.
+            /// </summary>
+            public Uri NewUri { get; init; } = null!;
+        }
 
         /// <inheritdoc cref="FileOperationParams{T}" />
         [Parallel]
