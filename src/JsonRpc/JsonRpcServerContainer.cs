@@ -37,7 +37,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     rules => rules.WithUnknownServiceResolvers(
                         request => {
                             var value = outerServiceProvider.GetService(request.ServiceType);
-                            return value == null ? null : (Factory) InstanceFactory.Of(value, Reuse.Transient);
+                            return value == null ? null : (Factory) InstanceFactory.Of(value);
                         }
                     )
                 );
