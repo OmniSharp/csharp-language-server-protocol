@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
+using System.Net.Sockets;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
@@ -145,16 +146,13 @@ namespace OmniSharp.Extensions.JsonRpc
                             await ProcessInputStream(_stopProcessing.Token).ConfigureAwait(false);
                         }
                         catch (IOException e)
+                            when (e.InnerException is SocketException { SocketErrorCode: SocketError.ConnectionReset })
                         {
-                            if (e.InnerException is SocketException se && se.SocketErrorCode == SocketError.ConnectionReset)
-                                _logger.LogInformation(e, "Connection reset by client.");
-                            else
-                                throw;
-
+                            _logger.LogInformation(e, "Connection reset by client.");
                         }
                         catch (Exception e)
                         {
-                            _logger.LogCritical(e, "Unhandled exception");
+                            _logger.LogCritical(e, "Unhandled exception.");
                         }
                     }
                 ).Subscribe(_inputActive)
