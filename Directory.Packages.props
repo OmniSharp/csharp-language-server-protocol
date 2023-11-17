@@ -5,8 +5,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="1.1.1" />
-    <PackageVersion Include="Rocket.Surgery.MSBuild.CI" Version="1.1.4" />
-    <PackageVersion Include="Rocket.Surgery.MSBuild.SourceLink" Version="1.1.4" />
+    <PackageVersion Include="Rocket.Surgery.MSBuild.CI" Version="1.1.5" />
+    <PackageVersion Include="Rocket.Surgery.MSBuild.SourceLink" Version="1.1.5" />
     <PackageVersion Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" />
   </ItemGroup>
   <!-- Samples -->
