@@ -75,7 +75,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// @since 3.16.0
         /// </summary>
         [CapabilityKey(nameof(ClientCapabilities.Window), nameof(WindowClientCapabilities.ShowMessage))]
-        public class ShowMessageRequestClientCapabilities
+        public class ShowMessageRequestClientCapabilities : ICapability
         {
             /// <summary>
             /// Capabilities specific to the `MessageActionItem` type.
