@@ -97,7 +97,7 @@ jobs:
       - name: 🔨 Use .NET Core 7.0 SDK
         uses: actions/setup-dotnet@v3.2.0
         with:
-          dotnet-version: '7.0.x'
+          dotnet-version: '8.0.x'
       - name: 🎁 dotnet tool restore
         run: |
           dotnet tool restore
