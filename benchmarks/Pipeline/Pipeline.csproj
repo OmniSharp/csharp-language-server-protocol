@@ -8,7 +8,7 @@
 
     <ItemGroup>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageReference Include="BenchmarkDotNet" Version="0.13.10" />
+        <PackageReference Include="BenchmarkDotNet" Version="0.13.11" />
         <PackageReference Include="Nerdbank.Streams" Version="2.10.72" />
     </ItemGroup>
 
