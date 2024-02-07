@@ -25,20 +25,20 @@ jobs:
 
       - name: Install GitVersion
         if: ${{ github.event.action == 'opened' }}
-        uses: gittools/actions/gitversion/setup@v0.10.2
+        uses: gittools/actions/gitversion/setup@v0.11.0
         with:
           versionSpec: '5.x'
 
       - name: Install GitReleaseManager
         if: ${{ github.event.action == 'opened' }}
-        uses: gittools/actions/gitreleasemanager/setup@v0.10.2
+        uses: gittools/actions/gitreleasemanager/setup@v0.11.0
         with:
           versionSpec: '0.15.x'
 
       - name: Use GitVersion
         if: ${{ github.event.action == 'opened' }}
         id: gitversion
-        uses: gittools/actions/gitversion/execute@v0.10.2
+        uses: gittools/actions/gitversion/execute@v0.11.0
 
       - name: Create Milestone
         if: ${{ github.event.action == 'opened' }}
