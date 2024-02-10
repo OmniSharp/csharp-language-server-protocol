@@ -46,7 +46,7 @@
     <PackageVersion Include="Serilog.Extensions.Logging" Version="8.0.0" />
     <PackageVersion Include="Serilog.Sinks.Observable" Version="2.0.2" />
     <PackageVersion Include="Serilog.Sinks.XUnit" Version="3.0.5" />
-    <PackageVersion Include="XunitXml.TestLogger" Version="3.1.17" />
+    <PackageVersion Include="XunitXml.TestLogger" Version="3.1.20" />
     <PackageVersion Include="coverlet.collector" Version="6.0.0" />
     <PackageVersion Include="coverlet.msbuild" Version="6.0.0" />
     <PackageVersion Include="System.Reactive" Version="6.0.0" />
