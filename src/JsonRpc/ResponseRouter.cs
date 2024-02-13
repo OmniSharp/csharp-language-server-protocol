@@ -101,10 +101,10 @@ namespace OmniSharp.Extensions.JsonRpc
                 var tcs = new TaskCompletionSource<JToken>();
                 _router.Requests.TryAdd(nextId, ( _method, tcs ));
 
-                cancellationToken.ThrowIfCancellationRequested();
-
                 try
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     _router.OutputHandler.Value.Send(
                         new OutgoingRequest
                         {
@@ -117,6 +117,13 @@ namespace OmniSharp.Extensions.JsonRpc
                         () =>
                         {
                             if (tcs.Task.IsCompleted) return;
+
+                            if (cancellationToken.IsCancellationRequested)
+                            {
+                                tcs.SetCanceled();
+                                return;
+                            }
+
                             _router.CancelRequest(new CancelParams { Id = nextId });
                         }
                     );
