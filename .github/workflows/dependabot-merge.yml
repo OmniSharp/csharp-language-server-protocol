@@ -40,7 +40,7 @@ jobs:
           contains(github.event.pull_request.labels.*.name, ':shipit: merge')
           || contains(github.event.pull_request.labels.*.name, 'javascript')
           || contains(github.event.pull_request.labels.*.name, 'github-actions')
-        uses: alexwilson/enable-github-automerge-action@1.0.0
+        uses: alexwilson/enable-github-automerge-action@1.1.0
         continue-on-error: true
         with:
           github-token: '${{ secrets.OMNISHARP_BOT_TOKEN }}'
