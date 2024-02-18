@@ -84,7 +84,7 @@ jobs:
           clean: 'false'
           fetch-depth: '0'
       - name: NuGet Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: '${{ github.workspace }}/.nuget/packages'
           key: "${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props') }}-${{ hashFiles('**/Directory.Packages.support.props') }}"
