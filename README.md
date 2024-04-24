@@ -101,7 +101,7 @@ This project is supported by the [.NET Foundation](http://www.dotnetfoundation.o
 [azurepipelines-history]: https://dev.azure.com/omnisharp/Builds/_build?definitionId=1&branchName=master
 [azurepipelines-history-badge]: https://buildstats.info/azurepipelines/chart/omnisharp/Builds/1?includeBuildsFromPullRequest=false "Azure Pipelines History"
 [github]: https://github.com/OmniSharp/csharp-language-server-protocol/actions?query=workflow%3Aci
-[github-badge]: https://img.shields.io/github/workflow/status/OmniSharp/csharp-language-server-protocol/ci.svg?label=github&logo=github&color=b845fc&logoColor=b845fc&style=flat "GitHub Actions Status"
+[github-badge]: https://img.shields.io/github/actions/workflow/status/OmniSharp/csharp-language-server-protocol/ci.yml?label=github&logo=github&color=b845fc&logoColor=b845fc&style=flat "GitHub Actions Status"
 [github-history-badge]: https://buildstats.info/github/chart/OmniSharp/csharp-language-server-protocol?includeBuildsFromPullRequest=false "GitHub Actions History"
 [nuget-hefb6om79mfg]: https://www.nuget.org/packages/OmniSharp.Extensions.DebugAdapter/
 [nuget-version-hefb6om79mfg-badge]: https://img.shields.io/nuget/v/OmniSharp.Extensions.DebugAdapter.svg?color=004880&logo=nuget&style=flat-square "NuGet Version"
