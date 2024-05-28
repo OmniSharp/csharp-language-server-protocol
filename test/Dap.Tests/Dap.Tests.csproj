@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net6.0</TargetFrameworks>
+        <TargetFrameworks>net8.0</TargetFrameworks>
         <WarningsAsErrors>true</WarningsAsErrors>
         <PlatformTarget>AnyCPU</PlatformTarget>
     </PropertyGroup>
@@ -16,6 +16,6 @@
         <ProjectReference Include="..\..\src\JsonRpc.Generators\JsonRpc.Generators.csproj" IncludeAssets="analyzers" ExcludeAssets="compile;runtime;native" PrivateAssets="contentfiles;build;buildMultitargeting;buildTransitive" OutputItemType="Analyzer" />
     </ItemGroup>
     <ItemGroup>
-        <Folder Include="obj\Release\net6.0\" />
+        <Folder Include="obj\Release\net8.0\" />
     </ItemGroup>
 </Project>

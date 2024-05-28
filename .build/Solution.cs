@@ -100,7 +100,7 @@ public partial class Solution
             .Jobs.OfType<RocketSurgeonsGithubActionsJob>()
             .First(z => z.Name.Equals("Build", StringComparison.OrdinalIgnoreCase))
             .ConfigureStep<CheckoutStep>(step => step.FetchDepth = 0)
-            .UseDotNetSdks("3.1", "7.0")
+            .UseDotNetSdks("3.1", "6.0", "8.0")
             .AddNuGetCache()
             .AddVscodeExtensionTests()
             .PublishLogs<Solution>()
