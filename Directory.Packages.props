@@ -12,7 +12,7 @@
   <!-- Samples -->
   <ItemGroup>
     <PackageVersion Include="Serilog.Sinks.File" Version="5.0.0" />
-    <PackageVersion Include="Serilog.Sinks.Debug" Version="2.0.0" />
+    <PackageVersion Include="Serilog.Sinks.Debug" Version="3.0.0" />
     <PackageVersion Include="System.IO.FileSystem.Primitives" Version="4.3.0" />
     <PackageVersion Include="System.IO" Version="4.3.0" />
     <PackageVersion Include="System.Runtime.Handles" Version="4.3.0" />
