@@ -167,7 +167,7 @@ jobs:
   Publish:
     needs:
       - Build
-    uses: RocketSurgeonsGuild/actions/.github/workflows/publish-nuget.yml@v0.3.3
+    uses: RocketSurgeonsGuild/actions/.github/workflows/publish-nuget.yml@v0.3.10
     secrets:
       RSG_NUGET_API_KEY: '${{ secrets.RSG_NUGET_API_KEY }}'
       RSG_AZURE_DEVOPS: '${{ secrets.RSG_AZURE_DEVOPS }}'
