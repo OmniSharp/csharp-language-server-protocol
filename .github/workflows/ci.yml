@@ -108,7 +108,7 @@ jobs:
       - name: 🎁 Restore
         id: restore
         run: |
-          dotnet nuke Restore --skip
+          dotnet nuke Restore --skip --verbosity Verbose
       - name: ⚙ Build
         id: build
         run: |
