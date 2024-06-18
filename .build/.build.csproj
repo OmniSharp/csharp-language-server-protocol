@@ -12,7 +12,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="GitVersion.Tool" ExcludeAssets="All" />
         <PackageReference Include="ReportGenerator" ExcludeAssets="All" />
         <PackageReference Include="Rocket.Surgery.Nuke" />
     </ItemGroup>
