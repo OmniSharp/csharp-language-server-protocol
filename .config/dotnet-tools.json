@@ -8,6 +8,12 @@
                 "dotnet-outdated"
             ]
         },
+        "gitversion.tool": {
+            "version": "5.12.0",
+            "commands": [
+                "dotnet-gitversion"
+            ]
+        },
         "dotnet-reportgenerator-globaltool": {
             "version": "5.3.6",
             "commands": [
