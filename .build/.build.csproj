@@ -12,7 +12,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="GitVersion.Tool" ExcludeAssets="All" />
         <PackageReference Include="ReportGenerator" ExcludeAssets="All" />
         <PackageReference Include="Rocket.Surgery.Nuke" />
     </ItemGroup>
@@ -21,6 +20,10 @@
         <NukeSpecificationFiles Include="**\*.json" Exclude="bin\**;obj\**" />
         <NukeExternalFiles Include="**\*.*.ext" Exclude="bin\**;obj\**" />
         <None Remove="*.csproj.DotSettings;*.ref.*.txt" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageDownload Include="GitVersion.Tool" Version="[5.12.0]" />
     </ItemGroup>
 
 </Project>

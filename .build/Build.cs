@@ -56,7 +56,7 @@ public sealed partial class Solution : NukeBuild,
     public Target Pack => _ => _.Inherit<ICanPackWithDotNetCore>(x => x.CorePack)
                                 .DependsOn(Clean);
 
-    [ComputedGitVersion] public GitVersion GitVersion { get; } = null!;
+    [GitVersion(NoFetch = true)] public GitVersion GitVersion { get; } = null!;
 
     public Target Clean => _ => _.Inherit<ICanClean>(x => x.Clean);
     public Target Restore => _ => _.Inherit<ICanRestoreWithDotNetCore>(x => x.CoreRestore);
