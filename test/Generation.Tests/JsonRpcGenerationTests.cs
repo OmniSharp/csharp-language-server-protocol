@@ -7,7 +7,6 @@ using static Generation.Tests.GenerationHelpers;
 
 namespace Generation.Tests
 {
-    [UsesVerify]
     public class JsonRpcGenerationTests
     {
         [Fact]
