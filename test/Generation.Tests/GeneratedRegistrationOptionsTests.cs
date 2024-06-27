@@ -4,7 +4,6 @@ using Xunit;
 
 namespace Generation.Tests
 {
-    [UsesVerify]
     public class GeneratedRegistrationOptionsTests
     {
         [Fact]
