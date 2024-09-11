@@ -40,8 +40,8 @@
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
     <PackageVersion Include="xunit" Version="2.9.0" />
     <PackageVersion Include="FluentAssertions" Version="6.12.1" />
-    <PackageVersion Include="Verify.Xunit" Version="26.4.3" />
-    <PackageVersion Include="Verify.SourceGenerators" Version="2.4.0" />
+    <PackageVersion Include="Verify.Xunit" Version="26.4.4" />
+    <PackageVersion Include="Verify.SourceGenerators" Version="2.4.1" />
     <PackageVersion Include="NSubstitute" Version="5.1.0" />
     <PackageVersion Include="Serilog.Extensions.Logging" Version="8.0.0" />
     <PackageVersion Include="Serilog.Sinks.Observable" Version="2.0.2" />
