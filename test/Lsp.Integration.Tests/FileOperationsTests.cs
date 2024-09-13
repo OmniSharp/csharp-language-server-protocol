@@ -17,24 +17,24 @@ using Xunit.Abstractions;
 
 namespace Lsp.Integration.Tests
 {
-    public class FileOperationTests : LanguageProtocolTestBase
+    public class FileOperationsTests : LanguageProtocolTestBase
     {
-        private readonly Action<DidCreateFileParams> _didCreateFileHandler = Substitute.For<Action<DidCreateFileParams>>();
+        private readonly Action<DidCreateFilesParams> _didCreateFileHandler = Substitute.For<Action<DidCreateFilesParams>>();
 
-        private readonly Func<WillCreateFileParams, Task<WorkspaceEdit?>> _willCreateFileHandler =
-            Substitute.For<Func<WillCreateFileParams, Task<WorkspaceEdit?>>>();
+        private readonly Func<WillCreateFilesParams, Task<WorkspaceEdit?>> _willCreateFileHandler =
+            Substitute.For<Func<WillCreateFilesParams, Task<WorkspaceEdit?>>>();
 
-        private readonly Action<DidRenameFileParams> _didRenameFileHandler = Substitute.For<Action<DidRenameFileParams>>();
+        private readonly Action<DidRenameFilesParams> _didRenameFileHandler = Substitute.For<Action<DidRenameFilesParams>>();
 
-        private readonly Func<WillRenameFileParams, Task<WorkspaceEdit?>> _willRenameFileHandler =
-            Substitute.For<Func<WillRenameFileParams, Task<WorkspaceEdit?>>>();
+        private readonly Func<WillRenameFilesParams, Task<WorkspaceEdit?>> _willRenameFileHandler =
+            Substitute.For<Func<WillRenameFilesParams, Task<WorkspaceEdit?>>>();
 
-        private readonly Action<DidDeleteFileParams> _didDeleteFileHandler = Substitute.For<Action<DidDeleteFileParams>>();
+        private readonly Action<DidDeleteFilesParams> _didDeleteFileHandler = Substitute.For<Action<DidDeleteFilesParams>>();
 
-        private readonly Func<WillDeleteFileParams, Task<WorkspaceEdit?>> _willDeleteFileHandler =
-            Substitute.For<Func<WillDeleteFileParams, Task<WorkspaceEdit?>>>();
+        private readonly Func<WillDeleteFilesParams, Task<WorkspaceEdit?>> _willDeleteFileHandler =
+            Substitute.For<Func<WillDeleteFilesParams, Task<WorkspaceEdit?>>>();
 
-        public FileOperationTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper, LogEventLevel.Verbose))
+        public FileOperationsTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper, LogEventLevel.Verbose))
         {
         }
 
@@ -43,14 +43,14 @@ namespace Lsp.Integration.Tests
         {
             var (client, server) = await Initialize(Configure, Configure);
 
-            await client.RequestWillCreateFile(
-                new WillCreateFileParams
+            await client.RequestWillCreateFiles(
+                new WillCreateFilesParams
                 {
                     Files = Container<FileCreate>.From(new FileCreate { Uri = new Uri("file://asdf") })
                 }
             );
-            client.DidCreateFile(
-                new DidCreateFileParams
+            client.DidCreateFiles(
+                new DidCreateFilesParams
                 {
                     Files = Container<FileCreate>.From(new FileCreate { Uri = new Uri("file://asdf") })
                 }
@@ -91,16 +91,22 @@ namespace Lsp.Integration.Tests
         {
             var (client, server) = await Initialize(Configure, Configure);
 
-            await client.RequestWillRenameFile(
-                new WillRenameFileParams
+            await client.RequestWillRenameFiles(
+                new WillRenameFilesParams
                 {
-                    Files = Container<FileRename>.From(new FileRename { Uri = new Uri("file://asdf") })
+                    Files = Container<FileRename>.From(new FileRename {
+                        OldUri = new Uri("file://asdf"),
+                        NewUri = new Uri("file://zxcv"),
+                    })
                 }
             );
-            client.DidRenameFile(
-                new DidRenameFileParams
+            client.DidRenameFiles(
+                new DidRenameFilesParams
                 {
-                    Files = Container<FileRename>.From(new FileRename { Uri = new Uri("file://asdf") })
+                    Files = Container<FileRename>.From(new FileRename {
+                        OldUri = new Uri("file://asdf"),
+                        NewUri = new Uri("file://zxcv")
+                    })
                 }
             );
 
@@ -139,14 +145,14 @@ namespace Lsp.Integration.Tests
         {
             var (client, server) = await Initialize(Configure, Configure);
 
-            await client.RequestWillDeleteFile(
-                new WillDeleteFileParams
+            await client.RequestWillDeleteFiles(
+                new WillDeleteFilesParams
                 {
                     Files = Container<FileDelete>.From(new FileDelete { Uri = new Uri("file://asdf") })
                 }
             );
-            client.DidDeleteFile(
-                new DidDeleteFileParams
+            client.DidDeleteFiles(
+                new DidDeleteFilesParams
                 {
                     Files = Container<FileDelete>.From(new FileDelete { Uri = new Uri("file://asdf") })
                 }
@@ -213,12 +219,12 @@ namespace Lsp.Integration.Tests
                     }
                 }
             );
-            options.OnDidCreateFile(_didCreateFileHandler, (capability, capabilities) => new() { Filters = filters });
-            options.OnWillCreateFile(_willCreateFileHandler, (capability, capabilities) => new() { Filters = filters });
-            options.OnDidRenameFile(_didRenameFileHandler, (capability, capabilities) => new() { Filters = filters });
-            options.OnWillRenameFile(_willRenameFileHandler, (capability, capabilities) => new() { Filters = filters });
-            options.OnDidDeleteFile(_didDeleteFileHandler, (capability, capabilities) => new() { Filters = filters });
-            options.OnWillDeleteFile(_willDeleteFileHandler, (capability, capabilities) => new() { Filters = filters });
+            options.OnDidCreateFiles(_didCreateFileHandler, (capability, capabilities) => new() { Filters = filters });
+            options.OnWillCreateFiles(_willCreateFileHandler, (capability, capabilities) => new() { Filters = filters });
+            options.OnDidRenameFiles(_didRenameFileHandler, (capability, capabilities) => new() { Filters = filters });
+            options.OnWillRenameFiles(_willRenameFileHandler, (capability, capabilities) => new() { Filters = filters });
+            options.OnDidDeleteFiles(_didDeleteFileHandler, (capability, capabilities) => new() { Filters = filters });
+            options.OnWillDeleteFiles(_willDeleteFileHandler, (capability, capabilities) => new() { Filters = filters });
         }
     }
 }
