@@ -21,7 +21,7 @@
     <PackageVersion Include="System.Threading.Tasks" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
-    <PackageVersion Include="GitVersion.Tool" Version="6.0.2" />
+    <PackageVersion Include="GitVersion.Tool" Version="6.0.3" />
     <PackageVersion Include="JetBrains.ReSharper.CommandLineTools" Version="2024.2.6" />
     <PackageVersion Include="ReportGenerator" Version="5.3.11" />
     <PackageVersion Include="Rocket.Surgery.Nuke" Version="1.7.4" />
