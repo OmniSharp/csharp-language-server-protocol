@@ -33,7 +33,7 @@
             ]
         },
         "jetbrains.resharper.globaltools": {
-            "version": "2024.2.6",
+            "version": "2024.2.7",
             "commands": [
                 "jb"
             ]
