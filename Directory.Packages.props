@@ -56,7 +56,7 @@
     <PackageVersion Include="MediatR" Version="9.0.0" />
     <PackageVersion Include="Bogus" Version="35.6.1" />
     <PackageVersion Include="Snapper" Version="2.4.1" />
-    <PackageVersion Include="Xunit.SkippableFact" Version="1.4.13" />
+    <PackageVersion Include="Xunit.SkippableFact" Version="1.5.23" />
     <PackageVersion Include="Nerdbank.Streams" Version="2.11.79" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.11.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" />
