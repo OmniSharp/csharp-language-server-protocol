@@ -79,7 +79,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.4
+        uses: actions/checkout@v4.2.2
         with:
           clean: 'false'
           fetch-depth: '0'
@@ -91,13 +91,21 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
       - name: 🔨 Use .NET Core 3.1 SDK
-        uses: actions/setup-dotnet@v4.0.0
+        uses: actions/setup-dotnet@v4.2.0
         with:
           dotnet-version: '3.1.x'
-      - name: 🔨 Use .NET Core 7.0 SDK
-        uses: actions/setup-dotnet@v4.0.0
+      - name: 🔨 Use .NET Core 6.0 SDK
+        uses: actions/setup-dotnet@v4.2.0
+        with:
+          dotnet-version: '6.0.x'
+      - name: 🔨 Use .NET Core 8.0 SDK
+        uses: actions/setup-dotnet@v4.2.0
         with:
           dotnet-version: '8.0.x'
+      - name: 🔨 Use .NET Core 9.0 SDK
+        uses: actions/setup-dotnet@v4.2.0
+        with:
+          dotnet-version: '9.0.x'
       - name: 🎁 dotnet tool restore
         run: |
           dotnet tool restore
