@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -14,9 +14,9 @@ namespace OmniSharp.Extensions.JsonRpc
             where TParams : IRequest<TResult> => new(HandlerAdapter.Adapt(handler));
 
         public static DelegatingHandlers.Request<TParams> For<TParams>(Func<TParams, CancellationToken, Task> handler)
-            where TParams : IRequest => new(HandlerAdapter.Adapt(handler));
+            where TParams : IRequest<Unit> => new(HandlerAdapter.Adapt(handler));
 
         public static DelegatingHandlers.Request<TParams> For<TParams>(Func<TParams, Task> handler)
-            where TParams : IRequest => new(HandlerAdapter.Adapt(handler));
+            where TParams : IRequest<Unit> => new(HandlerAdapter.Adapt(handler));
     }
 }

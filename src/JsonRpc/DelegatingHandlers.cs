@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -22,7 +22,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public class Request<TParams> :
             IJsonRpcRequestHandler<TParams>
-            where TParams : IRequest
+            where TParams : IRequest<Unit>
         {
             private readonly Func<TParams, CancellationToken, Task> _handler;
 
@@ -37,7 +37,7 @@ namespace OmniSharp.Extensions.JsonRpc
         }
 
         public class Notification<TParams> : IJsonRpcRequestHandler<TParams>
-            where TParams : IRequest
+            where TParams : IRequest<Unit>
         {
             private readonly Func<TParams, CancellationToken, Task> _handler;
 

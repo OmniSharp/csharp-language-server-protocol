@@ -17,9 +17,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             symbol.BaseList?.Types
                   .Any(
                        z =>
-                           z.Type is SimpleNameSyntax and (
-                               { Identifier: { Text: "IJsonRpcNotificationHandler" }, Arity: 0 or 1 }
-                               or { Identifier: { Text: "IRequest" }, Arity: 0 }
+                           z.Type is SimpleNameSyntax simpleNameSyntax && (
+                                  (simpleNameSyntax.Identifier.Text == "IJsonRpcNotificationHandler" && (simpleNameSyntax.Arity == 0 || simpleNameSyntax.Arity == 1))
+                               || (simpleNameSyntax.Identifier.Text == "IRequest" && simpleNameSyntax.Arity == 0)
+                               || (simpleNameSyntax.Identifier.Text == "IRequest" && simpleNameSyntax.Arity == 1 && IsUnitRequest(z.Type))
                                )
                    ) == true;
 
@@ -27,15 +28,19 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             symbol.BaseList?.Types
                   .Any(
                        z =>
-                           z.Type is SimpleNameSyntax and (
-                               { Identifier: { Text: "IJsonRpcRequestHandler" }, Arity: 1 or 2 }
-                               or { Identifier: { Text: "ICanBeResolvedHandler" }, Arity: 1 }
-                               or { Identifier: { Text: "IPartialItemRequest" or "IPartialItemWithInitialValueRequest" }, Arity: 2 }
-                               or { Identifier: { Text: "IPartialItemsRequest" or "IPartialItemsWithInitialValueRequest" }, Arity: 2 }
-                               or { Identifier: { Text: "IRequest" }, Arity: 1 }
-                               or { Identifier: { Text: "IJsonRpcRequest" }, Arity: 0 }
+                           z.Type is SimpleNameSyntax simpleNameSyntax && (
+                                  (simpleNameSyntax.Identifier.Text == "IJsonRpcRequestHandler" && (simpleNameSyntax.Arity is 1 or 2))
+                               || ( simpleNameSyntax.Identifier.Text == "ICanBeResolvedHandler" && simpleNameSyntax.Arity == 1 )
+                               || ( simpleNameSyntax.Identifier.Text is "IPartialItemRequest" or "IPartialItemWithInitialValueRequest" && simpleNameSyntax.Arity == 2 )
+                               || ( simpleNameSyntax.Identifier.Text is "IPartialItemsRequest" or "IPartialItemsWithInitialValueRequest" && simpleNameSyntax.Arity == 2 )
+                               || ( simpleNameSyntax.Identifier.Text == "IRequest" && simpleNameSyntax.Arity == 1 && !IsUnitRequest(simpleNameSyntax))
+                               || ( simpleNameSyntax.Identifier.Text == "IJsonRpcRequest" && simpleNameSyntax.Arity == 0 )
                                )
                    ) == true;
+
+        private static bool IsUnitRequest(TypeSyntax type) =>
+            type is GenericNameSyntax gns && gns.Identifier.Text == "IRequest" && gns.TypeArgumentList.Arguments.Count == 1 &&
+            gns.TypeArgumentList.Arguments[0] is SimpleNameSyntax sns && sns.Identifier.Text == "Unit";
 
         public static ExpressionSyntax GetJsonRpcMethodName(TypeDeclarationSyntax interfaceSyntax)
         {

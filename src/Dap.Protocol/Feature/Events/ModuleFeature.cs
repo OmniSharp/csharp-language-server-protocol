@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
@@ -13,7 +13,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         [GenerateHandler]
         [GenerateHandlerMethods]
         [GenerateRequestMethods]
-        public record ModuleEvent : IRequest
+        public record ModuleEvent : IRequest<Unit>
         {
             /// <summary>
             /// The reason for the event.

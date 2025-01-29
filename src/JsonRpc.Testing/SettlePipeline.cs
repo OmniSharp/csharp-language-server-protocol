@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 
@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
 
         public SettlePipeline(IRequestSettler settler) => _settler = settler;
 
-        async Task<TR> IPipelineBehavior<T, TR>.Handle(T request, CancellationToken cancellationToken, RequestHandlerDelegate<TR> next)
+        async Task<TR> IPipelineBehavior<T, TR>.Handle(T request, RequestHandlerDelegate<TR> next, CancellationToken cancellationToken)
         {
             _settler.OnStartRequest();
             try

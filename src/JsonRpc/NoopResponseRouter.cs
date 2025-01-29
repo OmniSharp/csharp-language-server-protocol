@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.JsonRpc
         {
         }
 
-        public void SendNotification(IRequest request)
+        public void SendNotification(IRequest<Unit> request)
         {
         }
 

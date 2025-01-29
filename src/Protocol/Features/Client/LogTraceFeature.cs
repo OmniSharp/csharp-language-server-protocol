@@ -14,7 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Client")]
         [GenerateHandlerMethods]
         [GenerateRequestMethods(typeof(IClientLanguageServer), typeof(ILanguageServer))]
-        public record LogTraceParams : IRequest
+        public record LogTraceParams : IRequest<Unit>
         {
             /// <summary>
             /// The message to be logged.

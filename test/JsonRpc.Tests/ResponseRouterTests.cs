@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -82,12 +82,12 @@ namespace JsonRpc.Tests
         }
 
         [Method("unit")]
-        public class UnitParams : IRequest
+        public class UnitParams : IRequest<Unit>
         {
         }
 
         [Method("notification")]
-        public class NotificationParams : IRequest
+        public class NotificationParams : IRequest<Unit>
         {
         }
     }

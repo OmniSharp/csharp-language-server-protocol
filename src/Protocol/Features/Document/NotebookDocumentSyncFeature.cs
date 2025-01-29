@@ -37,7 +37,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateRequestMethods(typeof(INotebookDocumentLanguageClient), typeof(ILanguageClient))]
         [RegistrationOptions(typeof(NotebookDocumentSyncOptions))]
         [Capability(typeof(NotebookDocumentSyncClientCapabilities))]
-        public partial class DidOpenNotebookDocumentParams : IRequest
+        public partial class DidOpenNotebookDocumentParams : IRequest<Unit>
         {
             /// <summary>
             /// The notebook document that got opened.
@@ -63,7 +63,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateRequestMethods(typeof(INotebookDocumentLanguageClient), typeof(ILanguageClient))]
         [RegistrationOptions(typeof(NotebookDocumentSyncOptions))]
         [Capability(typeof(NotebookDocumentSyncClientCapabilities))]
-        public partial record DidChangeNotebookDocumentParams : IRequest
+        public partial record DidChangeNotebookDocumentParams : IRequest<Unit>
         {
             /// <summary>
             /// The notebook document that did change. The version number points
@@ -94,7 +94,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateRequestMethods(typeof(INotebookDocumentLanguageClient), typeof(ILanguageClient))]
         [RegistrationOptions(typeof(NotebookDocumentSyncOptions))]
         [Capability(typeof(NotebookDocumentSyncClientCapabilities))]
-        public partial class DidSaveNotebookDocumentParams : INotebookDocumentIdentifierParams, IRequest
+        public partial class DidSaveNotebookDocumentParams : INotebookDocumentIdentifierParams, IRequest<Unit>
         {
             /// <summary>
             /// The notebook document that got saved.
@@ -109,7 +109,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateRequestMethods(typeof(INotebookDocumentLanguageClient), typeof(ILanguageClient))]
         [RegistrationOptions(typeof(NotebookDocumentSyncOptions))]
         [Capability(typeof(NotebookDocumentSyncClientCapabilities))]
-        public partial class DidCloseNotebookDocumentParams : INotebookDocumentIdentifierParams, IRequest
+        public partial class DidCloseNotebookDocumentParams : INotebookDocumentIdentifierParams, IRequest<Unit>
         {
             /// <summary>
             /// The notebook document that got closed.

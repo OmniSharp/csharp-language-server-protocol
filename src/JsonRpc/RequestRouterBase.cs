@@ -216,7 +216,7 @@ namespace OmniSharp.Extensions.JsonRpc
         }
 
         private static Task SendRequest<T>(IMediator mediator, T request, CancellationToken token)
-            where T : IRequest =>
+            where T : IRequest<Unit> =>
             mediator.Send(request, token);
 
         private static Task<TResponse> SendRequest<T, TResponse>(IMediator mediator, T request, CancellationToken token)

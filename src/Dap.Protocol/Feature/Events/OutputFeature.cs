@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
@@ -15,7 +15,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         [GenerateHandler]
         [GenerateHandlerMethods]
         [GenerateRequestMethods]
-        public record OutputEvent : IRequest
+        public record OutputEvent : IRequest<Unit>
         {
             /// <summary>
             /// The output category. If not specified, 'console' is assumed.

@@ -21,7 +21,7 @@ namespace JsonRpc.Tests
         {
         }
 
-        public class CancelParams : IRequest
+        public class CancelParams : IRequest<Unit>
         {
             public object Id { get; set; } = null!;
         }
