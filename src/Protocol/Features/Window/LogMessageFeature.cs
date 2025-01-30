@@ -14,7 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Window")]
         [GenerateHandlerMethods]
         [GenerateRequestMethods(typeof(IWindowLanguageServer), typeof(ILanguageServer))]
-        public record LogMessageParams : IRequest
+        public record LogMessageParams : IRequest<Unit>
         {
             /// <summary>
             /// The message type. See {@link MessageType}

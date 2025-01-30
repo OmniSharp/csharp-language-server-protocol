@@ -39,7 +39,7 @@ namespace Lsp.Tests.Integration.Fixtures
         GenerateRequestMethods(typeof(ILanguageClient))
     ]
     [RegistrationOptions(typeof(UnitTestRegistrationOptions)), Capability(typeof(UnitTestCapability))]
-    public partial class UnitTest : IRequest
+    public partial class UnitTest : IRequest<Unit>
     {
         public string Name { get; set; } = null!;
     }
@@ -587,7 +587,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         [GenerateHandlerMethods]
         [GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
         [Capability(typeof(SubLensWorkspaceClientCapabilities))]
-        public partial record SubLensRefreshParams : IRequest;
+        public partial record SubLensRefreshParams : IRequest<Unit>;
     }
 
     namespace Client.Capabilities

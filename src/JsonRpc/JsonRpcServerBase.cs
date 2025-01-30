@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -27,7 +27,7 @@ namespace OmniSharp.Extensions.JsonRpc
             ResponseRouter.SendNotification(method, @params);
         }
 
-        public void SendNotification(IRequest @params)
+        public void SendNotification(IRequest<Unit> @params)
         {
             ResponseRouter.SendNotification(@params);
         }

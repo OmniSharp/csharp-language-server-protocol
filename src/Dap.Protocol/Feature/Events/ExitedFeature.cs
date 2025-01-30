@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 
@@ -14,7 +14,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public record ExitedEvent : IRequest
+        public record ExitedEvent : IRequest<Unit>
         {
             /// <summary>
             /// The exit code returned from the debuggee.

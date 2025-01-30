@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.JsonRpc;
@@ -238,7 +238,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         [GenerateHandler]
         [GenerateHandlerMethods]
         [GenerateRequestMethods]
-        public record CapabilitiesEvent : IRequest
+        public record CapabilitiesEvent : IRequest<Unit>
         {
             /// <summary>
             /// The set of updated capabilities.

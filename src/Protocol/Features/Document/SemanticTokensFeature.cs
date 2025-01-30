@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
@@ -99,7 +99,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateHandlerMethods]
         [GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
         [Capability(typeof(SemanticTokensWorkspaceCapability))]
-        public partial record SemanticTokensRefreshParams : IRequest;
+        public partial record SemanticTokensRefreshParams : IRequest<Unit>;
 
         public interface ISemanticTokenResult
         {

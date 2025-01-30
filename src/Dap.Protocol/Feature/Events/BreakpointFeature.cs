@@ -83,7 +83,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         [GenerateHandler]
         [GenerateHandlerMethods]
         [GenerateRequestMethods]
-        public record BreakpointEvent : IRequest
+        public record BreakpointEvent : IRequest<Unit>
         {
             /// <summary>
             /// The reason for the event.
