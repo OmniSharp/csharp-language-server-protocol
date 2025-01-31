@@ -5,5 +5,3 @@ branches:
   main:
     mode: ContinuousDeployment
     label: alpha
-    source-branches:
-      - master
