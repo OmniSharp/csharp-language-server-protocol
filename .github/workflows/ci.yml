@@ -113,7 +113,7 @@ jobs:
         run: |
           dotnet nuke Restore --skip
       - name: Update NuGet Cache
-        if: always() && steps.restore-nuget-cacheoutputs.cache-hit != 'true'
+        if: always() && steps.restore-nuget-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
           key: ${{ steps.restore-nuget-cache.outputs.cache-primary-key }}
