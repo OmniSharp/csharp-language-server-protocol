@@ -2,4 +2,5 @@ assembly-versioning-scheme: MajorMinorPatch
 mode: ContinuousDeployment
 branches:
   master:
+    regex: ^master$|^main$
     label: alpha
