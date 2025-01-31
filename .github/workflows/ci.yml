@@ -83,13 +83,12 @@ jobs:
         with:
           clean: 'false'
           fetch-depth: '0'
-      - name: NuGet Cache
+      - name: Restore NuGet Cache
+        id: restore-nuget-cache
         uses: actions/cache@v4
         with:
           path: '${{ github.workspace }}/.nuget/packages'
           key: "${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props') }}-${{ hashFiles('**/dotnet-tools.json') }}"
-          restore-keys: |
-            ${{ runner.os }}-nuget-
       - name: 🔨 Use .NET Core 3.1 SDK
         uses: actions/setup-dotnet@v4.3.0
         with:
@@ -113,6 +112,12 @@ jobs:
         id: restore
         run: |
           dotnet nuke Restore --skip
+      - name: Update NuGet Cache
+        if: always() && steps.restore-nuget-cacheoutputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          key: ${{ steps.restore-nuget-cache.outputs.cache-primary-key }}
+          path: '${{ github.workspace }}/.nuget/packages'
       - name: ⚙ Build
         id: build
         run: |
