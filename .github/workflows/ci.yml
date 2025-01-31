@@ -87,7 +87,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: '${{ github.workspace }}/.nuget/packages'
-          key: "${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props') }}-${{ hashFiles('**/Directory.Packages.support.props') }}"
+          key: "${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props') }}-${{ hashFiles('**/Directory.Packages.support.props') }}-${{ hashFiles('**/dotnet-tools.json') }}"
           restore-keys: |
             ${{ runner.os }}-nuget-
       - name: 🔨 Use .NET Core 3.1 SDK
