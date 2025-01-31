@@ -1,10 +1,10 @@
-﻿using FluentAssertions.Equivalency;
+using FluentAssertions.Equivalency;
 
 namespace TestingUtils
 {
     public static class RecordExtensions
     {
-        public static EquivalencyAssertionOptions<TExpectation> UsingStructuralRecordEquality<TExpectation>(this EquivalencyAssertionOptions<TExpectation> options)
+        public static EquivalencyOptions<TExpectation> UsingStructuralRecordEquality<TExpectation>(this EquivalencyOptions<TExpectation> options)
         {
             return options.Using(new RecordStructuralEqualityEquivalencyStep());
         }

@@ -5,9 +5,9 @@ namespace TestingUtils
 {
     public class RecordStructuralEqualityEquivalencyStep : StructuralEqualityEquivalencyStep, IEquivalencyStep
     {
-        EquivalencyResult IEquivalencyStep.Handle(Comparands comparands, IEquivalencyValidationContext context, IEquivalencyValidator nestedValidator)
+        EquivalencyResult IEquivalencyStep.Handle(Comparands comparands, IEquivalencyValidationContext context, IValidateChildNodeEquivalency nestedValidator)
         {
-            return comparands.Subject?.GetType()?.GetMethod("<Clone>$") != null ? EquivalencyResult.AssertionCompleted : EquivalencyResult.ContinueWithNext;
+            return comparands.Subject?.GetType()?.GetMethod("<Clone>$") != null ? EquivalencyResult.EquivalencyProven : EquivalencyResult.ContinueWithNext;
         }
     }
 }
