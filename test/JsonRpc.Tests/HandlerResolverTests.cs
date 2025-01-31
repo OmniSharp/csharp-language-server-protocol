@@ -11,7 +11,7 @@ namespace JsonRpc.Tests
 {
     public class HandlerResolverTests
     {
-        public class Request : IRequest, IRequest<Response>
+        public class Request : IRequest<Unit>, IRequest<Response>
         {
         }
 
@@ -19,7 +19,7 @@ namespace JsonRpc.Tests
         {
         }
 
-        public class Notification : IRequest
+        public class Notification : IRequest<Unit>
         {
         }
 

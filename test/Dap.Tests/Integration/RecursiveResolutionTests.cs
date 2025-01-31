@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
@@ -185,7 +185,7 @@ namespace Dap.Tests.Integration
         }
 
         [Method(nameof(ClassRequest))]
-        public class ClassRequest : IRequest
+        public class ClassRequest : IRequest<Unit>
         {
         }
 
@@ -204,7 +204,7 @@ namespace Dap.Tests.Integration
         }
 
         [Method(nameof(InterfaceRequest))]
-        public class InterfaceRequest : IRequest
+        public class InterfaceRequest : IRequest<Unit>
         {
         }
 

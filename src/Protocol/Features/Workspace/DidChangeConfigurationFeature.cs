@@ -15,7 +15,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Method(WorkspaceNames.DidChangeConfiguration, Direction.ClientToServer)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace"), GenerateHandlerMethods, GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
         [Capability(typeof(DidChangeConfigurationCapability))]
-        public partial record DidChangeConfigurationParams : IRequest
+        public partial record DidChangeConfigurationParams : IRequest<Unit>
         {
             /// <summary>
             /// The actual changed settings

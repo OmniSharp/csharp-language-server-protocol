@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.JsonRpc;
@@ -28,7 +28,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         [GenerateHandler]
         [GenerateHandlerMethods]
         [GenerateRequestMethods]
-        public record ProgressStartEvent : ProgressEvent, IRequest
+        public record ProgressStartEvent : ProgressEvent, IRequest<Unit>
         {
             /// <summary>
             /// Mandatory (short) title of the progress reporting. Shown in the UI to describe the long running operation.
@@ -63,7 +63,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         [GenerateHandler]
         [GenerateHandlerMethods]
         [GenerateRequestMethods]
-        public record ProgressUpdateEvent : ProgressEvent, IRequest
+        public record ProgressUpdateEvent : ProgressEvent, IRequest<Unit>
         {
             /// <summary>
             /// Optional progress percentage to display (value range: 0 to 100). If omitted no percentage will be shown.
@@ -77,6 +77,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         [GenerateHandler]
         [GenerateHandlerMethods]
         [GenerateRequestMethods]
-        public record ProgressEndEvent : ProgressEvent, IRequest;
+        public record ProgressEndEvent : ProgressEvent, IRequest<Unit>;
     }
 }

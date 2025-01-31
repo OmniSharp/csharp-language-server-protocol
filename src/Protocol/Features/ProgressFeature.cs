@@ -24,7 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol")]
         [GenerateHandlerMethods]
         [GenerateRequestMethods(typeof(IGeneralLanguageClient), typeof(ILanguageClient), typeof(IGeneralLanguageServer), typeof(ILanguageServer))]
-        public record ProgressParams : IRequest
+        public record ProgressParams : IRequest<Unit>
         {
             public static ProgressParams Create<T>(ProgressToken token, T value, JsonSerializer jsonSerializer)
             {

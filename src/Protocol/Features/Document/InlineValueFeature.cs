@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -70,7 +70,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateHandlerMethods]
         [GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
         [Capability(typeof(InlineValueWorkspaceClientCapabilities))]
-        public partial record InlineValueRefreshParams : IRequest;
+        public partial record InlineValueRefreshParams : IRequest<Unit>;
 
         [JsonConverter(typeof(Converter))]
         public abstract partial record InlineValueBase

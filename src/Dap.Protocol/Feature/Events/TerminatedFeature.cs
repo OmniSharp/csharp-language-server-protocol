@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
@@ -17,7 +17,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public record TerminatedEvent : IRequest
+        public record TerminatedEvent : IRequest<Unit>
         {
             /// <summary>
             /// A debug adapter may set 'restart' to true (or to an arbitrary object) to request that the front end restarts the session.

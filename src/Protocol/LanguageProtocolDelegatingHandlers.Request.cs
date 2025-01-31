@@ -58,7 +58,7 @@ public static partial class LanguageProtocolDelegatingHandlers
         AbstractHandlers.Base<TRegistrationOptions, TCapability>,
         IJsonRpcRequestHandler<TParams>,
         ICanBeIdentifiedHandler
-        where TParams : IRequest
+        where TParams : IRequest<Unit>
         where TRegistrationOptions : class, new()
         where TCapability : ICapability
     {
@@ -136,7 +136,7 @@ public static partial class LanguageProtocolDelegatingHandlers
         AbstractHandlers.Base<TRegistrationOptions>,
         IJsonRpcRequestHandler<TParams>,
         ICanBeIdentifiedHandler
-        where TParams : IRequest
+        where TParams : IRequest<Unit>
         where TRegistrationOptions : class, new()
     {
         private readonly Func<TParams, CancellationToken, Task> _handler;
@@ -202,7 +202,7 @@ public static partial class LanguageProtocolDelegatingHandlers
         AbstractHandlers.BaseCapability<TCapability>,
         IJsonRpcRequestHandler<TParams>,
         ICanBeIdentifiedHandler
-        where TParams : IRequest
+        where TParams : IRequest<Unit>
         where TCapability : ICapability
     {
         private readonly Func<TParams, TCapability, CancellationToken, Task> _handler;

@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.JsonRpc;
@@ -16,7 +16,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods
         ]
-        public record InvalidatedEvent : IRequest
+        public record InvalidatedEvent : IRequest<Unit>
         {
             /// <summary>
             /// Optional set of logical areas that got invalidated. This property has a

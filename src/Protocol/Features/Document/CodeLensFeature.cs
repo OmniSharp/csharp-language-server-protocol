@@ -118,7 +118,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateHandlerMethods]
         [GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
         [Capability(typeof(CodeLensWorkspaceClientCapabilities))]
-        public partial record CodeLensRefreshParams : IRequest;
+        public partial record CodeLensRefreshParams : IRequest<Unit>;
     }
 
     namespace Client.Capabilities

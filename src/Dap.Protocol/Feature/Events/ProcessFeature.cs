@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
@@ -13,7 +13,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         [GenerateHandler]
         [GenerateHandlerMethods]
         [GenerateRequestMethods]
-        public record ProcessEvent : IRequest
+        public record ProcessEvent : IRequest<Unit>
         {
             /// <summary>
             /// The logical name of the process. This is usually the full path to process's executable file. Example: /home/example/myproj/program.js.

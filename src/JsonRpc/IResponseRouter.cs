@@ -10,7 +10,7 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         void SendNotification(string method);
         void SendNotification<T>(string method, T @params);
-        void SendNotification(IRequest request);
+        void SendNotification(IRequest<Unit> request);
         IResponseRouterReturns SendRequest<T>(string method, T @params);
         IResponseRouterReturns SendRequest(string method);
         Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken);
