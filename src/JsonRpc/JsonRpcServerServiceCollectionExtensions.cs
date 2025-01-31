@@ -100,7 +100,8 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             container.RegisterMany(new[] { typeof(IMediator).GetAssembly() }, Registrator.Interfaces, Reuse.ScopedOrSingleton);
             container.RegisterMany<RequestContext>(Reuse.Scoped);
-            container.RegisterDelegate<ServiceFactory>(context => context.Resolve, Reuse.ScopedOrSingleton);
+            // Select the desired constructor
+            container.Register<IMediator, Mediator>(made: Made.Of(() => new Mediator(Arg.Of<IServiceProvider>())));
             container.Register(typeof(IRequestHandler<,>), typeof(RequestHandler<,>));
             container.Register(typeof(IRequestHandler<,>), typeof(RequestHandlerDecorator<,>), setup: Setup.Decorator);
 

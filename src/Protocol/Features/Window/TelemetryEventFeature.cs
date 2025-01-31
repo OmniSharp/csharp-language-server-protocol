@@ -17,7 +17,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods(typeof(IWindowLanguageServer), typeof(ILanguageServer))
         ]
-        public record TelemetryEventParams : IRequest
+        public record TelemetryEventParams : IRequest<Unit>
         {
             [JsonExtensionData] public IDictionary<string, object> ExtensionData { get; init; } = new Dictionary<string, object>();
         }

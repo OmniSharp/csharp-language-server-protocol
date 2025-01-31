@@ -30,7 +30,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
         [RegistrationOptions(typeof(TextDocumentChangeRegistrationOptions))]
         [Capability(typeof(TextSynchronizationCapability))]
-        public partial record DidChangeTextDocumentParams : IRequest
+        public partial record DidChangeTextDocumentParams : IRequest<Unit>
         {
             /// <summary>
             /// The document that did change. The version number points
@@ -111,7 +111,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
         [RegistrationOptions(typeof(TextDocumentOpenRegistrationOptions))]
         [Capability(typeof(TextSynchronizationCapability))]
-        public partial class DidOpenTextDocumentParams : IRequest
+        public partial class DidOpenTextDocumentParams : IRequest<Unit>
         {
             /// <summary>
             /// The document that was opened.
@@ -131,7 +131,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
         [RegistrationOptions(typeof(TextDocumentCloseRegistrationOptions))]
         [Capability(typeof(TextSynchronizationCapability))]
-        public partial class DidCloseTextDocumentParams : ITextDocumentIdentifierParams, IRequest
+        public partial class DidCloseTextDocumentParams : ITextDocumentIdentifierParams, IRequest<Unit>
         {
             /// <summary>
             /// The document that was closed.
@@ -151,7 +151,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
         [RegistrationOptions(typeof(TextDocumentSaveRegistrationOptions))]
         [Capability(typeof(TextSynchronizationCapability))]
-        public partial class DidSaveTextDocumentParams : ITextDocumentIdentifierParams, IRequest
+        public partial class DidSaveTextDocumentParams : ITextDocumentIdentifierParams, IRequest<Unit>
         {
             /// <summary>
             /// The document that was saved.
@@ -515,7 +515,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
         [RegistrationOptions(typeof(TextDocumenWillSaveRegistrationOptions))]
         [Capability(typeof(TextSynchronizationCapability))]
-        public partial class WillSaveTextDocumentParams : IRequest
+        public partial class WillSaveTextDocumentParams : IRequest<Unit>
         {
             /// <summary>
             /// The document that will be saved.

@@ -21,7 +21,7 @@ namespace JsonRpc.Tests
         {
         }
 
-        public class ExecuteCommandParams : IRequest
+        public class ExecuteCommandParams : IRequest<Unit>
         {
             public string Command { get; set; } = null!;
         }

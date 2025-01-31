@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -348,7 +348,7 @@ namespace Lsp.Integration.Tests
         }
 
         [Method(nameof(ClassRequest))]
-        public class ClassRequest : IRequest
+        public class ClassRequest : IRequest<Unit>
         {
         }
 
@@ -370,7 +370,7 @@ namespace Lsp.Integration.Tests
         }
 
         [Method(nameof(InterfaceRequest))]
-        public class InterfaceRequest : IRequest
+        public class InterfaceRequest : IRequest<Unit>
         {
         }
 
@@ -392,7 +392,7 @@ namespace Lsp.Integration.Tests
         }
 
         [Method(nameof(NestedRequest))]
-        public class NestedRequest : IRequest
+        public class NestedRequest : IRequest<Unit>
         {
         }
 

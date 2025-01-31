@@ -48,7 +48,7 @@ namespace OmniSharp.Extensions.JsonRpc
             );
         }
 
-        public void SendNotification(IRequest @params)
+        public void SendNotification(IRequest<Unit> @params)
         {
             SendNotification(GetMethodName(@params.GetType()), @params);
         }

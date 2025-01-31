@@ -15,7 +15,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Method(WindowNames.WorkDoneProgressCreate, Direction.ServerToClient)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Window"), GenerateHandlerMethods,
          GenerateRequestMethods(typeof(IWindowLanguageServer), typeof(ILanguageServer))]
-        public partial record WorkDoneProgressCreateParams : IRequest
+        public partial record WorkDoneProgressCreateParams : IRequest<Unit>
         {
             /// <summary>
             /// The token to be used to report progress.
@@ -27,7 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Method(WindowNames.WorkDoneProgressCancel, Direction.ClientToServer)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Window"), GenerateHandlerMethods,
          GenerateRequestMethods(typeof(IWindowLanguageClient), typeof(ILanguageClient))]
-        public partial record WorkDoneProgressCancelParams : IRequest
+        public partial record WorkDoneProgressCancelParams : IRequest<Unit>
         {
             /// <summary>
             /// The token to be used to report progress.

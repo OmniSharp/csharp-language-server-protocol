@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,7 +39,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             _responseRouter.SendNotification(method, @params);
         }
 
-        public void SendNotification(IRequest request)
+        public void SendNotification(IRequest<Unit> request)
         {
             _responseRouter.SendNotification(request);
         }

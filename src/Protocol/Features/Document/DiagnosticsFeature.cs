@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using MediatR;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
@@ -73,7 +73,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateHandlerMethods]
         [GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
         [Capability(typeof(CodeLensWorkspaceClientCapabilities))]
-        public partial record DiagnosticRefreshParams : IRequest;
+        public partial record DiagnosticRefreshParams : IRequest<Unit>;
 
         public interface IDiagnosticReport
         {
