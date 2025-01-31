@@ -52,8 +52,8 @@
         "@types/node": "^20.8.0",
         "@types/vscode": "^1.82.0",
         "@vscode/test-electron": "^2.3.4",
-        "glob": "^10.3.10",
-        "mocha": "^10.2.0",
+        "glob": "^11.0.0",
+        "mocha": "^11.0.0",
         "source-map-support": "^0.5.21",
         "tmp-promise": "^3.0.3",
         "typescript": "^5.2.2"

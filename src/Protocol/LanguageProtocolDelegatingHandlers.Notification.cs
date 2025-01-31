@@ -20,7 +20,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             AbstractHandlers.Base<TRegistrationOptions, TCapability>,
             IJsonRpcNotificationHandler<TParams>,
             ICanBeIdentifiedHandler
-            where TParams : IRequest
+            where TParams : IRequest<Unit>
             where TRegistrationOptions : class, new()
             where TCapability : ICapability
         {
@@ -59,7 +59,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             AbstractHandlers.Base<TRegistrationOptions>,
             IJsonRpcNotificationHandler<TParams>,
             ICanBeIdentifiedHandler
-            where TParams : IRequest
+            where TParams : IRequest<Unit>
             where TRegistrationOptions : class, new()
         {
             private readonly Func<TParams, CancellationToken, Task> _handler;
@@ -92,7 +92,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             AbstractHandlers.BaseCapability<TCapability>,
             IJsonRpcNotificationHandler<TParams>,
             ICanBeIdentifiedHandler
-            where TParams : IRequest
+            where TParams : IRequest<Unit>
             where TCapability : ICapability
         {
             private readonly Func<TParams, TCapability, CancellationToken, Task> _handler;

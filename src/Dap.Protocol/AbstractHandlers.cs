@@ -15,7 +15,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         }
 
         public abstract class Notification<TParams> : IJsonRpcRequestHandler<TParams>
-            where TParams : IRequest
+            where TParams : IRequest<Unit>
         {
             public abstract Task<Unit> Handle(TParams request, CancellationToken cancellationToken);
         }

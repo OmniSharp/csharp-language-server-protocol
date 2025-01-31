@@ -21,7 +21,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(DidChangeWorkspaceFolderRegistrationOptions))]
-        public partial record DidChangeWorkspaceFoldersParams : IRequest
+        public partial record DidChangeWorkspaceFoldersParams : IRequest<Unit>
         {
             /// <summary>
             /// The actual workspace folder change event.

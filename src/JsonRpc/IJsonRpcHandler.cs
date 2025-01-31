@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.JsonRpc
     /// <summary>
     ///  Marker interface for source generation to properly know that this IRequest is a real request and not a notification
     /// </summary>
-    public interface IJsonRpcRequest : IRequest
+    public interface IJsonRpcRequest : IRequest<Unit>
     {
 
     }
