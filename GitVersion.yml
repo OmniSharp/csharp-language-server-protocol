@@ -2,4 +2,4 @@ assembly-versioning-scheme: MajorMinorPatch
 mode: ContinuousDeployment
 branches:
   master:
-    tag: alpha
+    label: alpha
