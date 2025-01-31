@@ -91,19 +91,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
       - name: 🔨 Use .NET Core 3.1 SDK
-        uses: actions/setup-dotnet@v4.2.0
+        uses: actions/setup-dotnet@v4.3.0
         with:
           dotnet-version: '3.1.x'
       - name: 🔨 Use .NET Core 6.0 SDK
-        uses: actions/setup-dotnet@v4.2.0
+        uses: actions/setup-dotnet@v4.3.0
         with:
           dotnet-version: '6.0.x'
       - name: 🔨 Use .NET Core 8.0 SDK
-        uses: actions/setup-dotnet@v4.2.0
+        uses: actions/setup-dotnet@v4.3.0
         with:
           dotnet-version: '8.0.x'
       - name: 🔨 Use .NET Core 9.0 SDK
-        uses: actions/setup-dotnet@v4.2.0
+        uses: actions/setup-dotnet@v4.3.0
         with:
           dotnet-version: '9.0.x'
       - name: 🎁 dotnet tool restore
@@ -168,10 +168,18 @@ jobs:
         with:
           name: 'docs-${{ matrix.os }}'
           path: 'artifacts/docs/'
+  Merge:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Merge Artifacts
+        uses: actions/upload-artifact/merge@v4
+        with:
+          name: nuget
+          pattern: nuget-*
   Publish:
-    needs:
-      - Build
-    uses: RocketSurgeonsGuild/actions/.github/workflows/publish-nuget.yml@v0.3.3
+    needs: Merge
+    uses: RocketSurgeonsGuild/actions/.github/workflows/publish-nuget.yml@v0.3.15
     secrets:
       RSG_NUGET_API_KEY: '${{ secrets.RSG_NUGET_API_KEY }}'
       RSG_AZURE_DEVOPS: '${{ secrets.RSG_AZURE_DEVOPS }}'
