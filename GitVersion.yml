@@ -1,6 +1,9 @@
-assembly-versioning-scheme: MajorMinorPatch
-mode: ContinuousDeployment
+workflow: GitHubFlow/v1
+semantic-version-format: Loose
+
 branches:
-  master:
-    regex: ^master$|^main$
+  main:
+    mode: ContinuousDeployment
     label: alpha
+    source-branches:
+      - master
