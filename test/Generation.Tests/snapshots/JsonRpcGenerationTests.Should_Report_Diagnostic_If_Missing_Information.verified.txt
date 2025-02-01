@@ -1,24 +1,42 @@
 ﻿{
   Diagnostics: [
     {
-      Id: JRPC1003,
-      Title: Cannot infer request router(s),
-      Severity: Error,
-      WarningLevel: 0,
-      Location: Test0.cs: (15,66)-(15,88),
-      MessageFormat: Could not infer the request router(s) to use, please specify the target interface(s).,
+      Location: /*
+{
+    [Serial, Method(GeneralNames.Exit, Direction.ClientToServer), GenerateHandlerMethods, GenerateRequestMethods]
+                                                                  ^^^^^^^^^^^^^^^^^^^^^^
+    public interface IExitHandler : IJsonRpcNotificationHandler<ExitParams>
+*/
+ Test0.cs: (15,66)-(15,88),
       Message: Could not infer the request router(s) to use, please specify the target interface(s).,
-      Category: JsonRPC
+      Severity: Error,
+      Descriptor: {
+        Id: JRPC1003,
+        Title: Cannot infer request router(s),
+        MessageFormat: Could not infer the request router(s) to use, please specify the target interface(s).,
+        Category: JsonRPC,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
     },
     {
-      Id: JRPC1003,
-      Title: Cannot infer request router(s),
-      Severity: Error,
-      WarningLevel: 0,
-      Location: Test0.cs: (15,90)-(15,112),
-      MessageFormat: Could not infer the request router(s) to use, please specify the target interface(s).,
+      Location: /*
+{
+    [Serial, Method(GeneralNames.Exit, Direction.ClientToServer), GenerateHandlerMethods, GenerateRequestMethods]
+                                                                                          ^^^^^^^^^^^^^^^^^^^^^^
+    public interface IExitHandler : IJsonRpcNotificationHandler<ExitParams>
+*/
+ Test0.cs: (15,90)-(15,112),
       Message: Could not infer the request router(s) to use, please specify the target interface(s).,
-      Category: JsonRPC
+      Severity: Error,
+      Descriptor: {
+        Id: JRPC1003,
+        Title: Cannot infer request router(s),
+        MessageFormat: Could not infer the request router(s) to use, please specify the target interface(s).,
+        Category: JsonRPC,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
     }
   ]
 }
