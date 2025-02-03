@@ -19,12 +19,13 @@ jobs:
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v3.1.11
         with:
-          versionSpec: '5.x'
+          versionSpec: '6.0.x'
+          preferLatestVersion: true
 
       - name: Install GitReleaseManager
         uses: gittools/actions/gitreleasemanager/setup@v3.1.11
         with:
-          versionSpec: '0.15.x'
+          versionSpec: '0.18.x'
 
       - name: Use GitVersion
         id: gitversion
