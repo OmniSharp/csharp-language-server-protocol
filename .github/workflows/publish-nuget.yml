@@ -21,7 +21,7 @@ jobs:
 
       - uses: nuget/setup-nuget@v2
         with:
-          nuget-version: '5.x'
+          nuget-version: '6.x'
 
       - uses: actions/download-artifact@v4
         with:
