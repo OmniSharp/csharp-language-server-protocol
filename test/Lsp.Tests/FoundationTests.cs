@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Pipelines;
@@ -262,13 +262,13 @@ namespace Lsp.Tests
             {
                 registries
                    .Where(z => typeof(ILanguageClientProxy).IsAssignableFrom(z) || typeof(ILanguageServerRegistry).IsAssignableFrom(z))
-                   .Should().HaveCountGreaterOrEqualTo(
+                   .Should().HaveCountGreaterThanOrEqualTo(
                         1,
                         $"{descriptor.HandlerType.FullName} there should be methods for both handing the event and sending the event"
                     );
                 registries
                    .Where(z => typeof(ILanguageServerProxy).IsAssignableFrom(z) || typeof(ILanguageClientRegistry).IsAssignableFrom(z))
-                   .Should().HaveCountGreaterOrEqualTo(
+                   .Should().HaveCountGreaterThanOrEqualTo(
                         1,
                         $"{descriptor.HandlerType.FullName} there should be methods for both handing the event and sending the event"
                     );
@@ -277,7 +277,7 @@ namespace Lsp.Tests
             {
                 registries
                    .Where(z => typeof(ILanguageServerProxy).IsAssignableFrom(z) || typeof(ILanguageClientRegistry).IsAssignableFrom(z))
-                   .Should().HaveCountGreaterOrEqualTo(
+                   .Should().HaveCountGreaterThanOrEqualTo(
                         1,
                         $"{descriptor.HandlerType.FullName} there should be methods for both handing the event and sending the event"
                     );
@@ -289,7 +289,7 @@ namespace Lsp.Tests
             {
                 registries
                    .Where(z => typeof(ILanguageClientProxy).IsAssignableFrom(z) || typeof(ILanguageServerRegistry).IsAssignableFrom(z))
-                   .Should().HaveCountGreaterOrEqualTo(
+                   .Should().HaveCountGreaterThanOrEqualTo(
                         1,
                         $"{descriptor.HandlerType.FullName} there should be methods for both handing the event and sending the event"
                     );
@@ -341,7 +341,7 @@ namespace Lsp.Tests
                 extensionClass.GetMethods(BindingFlags.Static | BindingFlags.Public)
                               .Where(z => z.Name == onMethodName)
                               .Where(z => item.matcher(z.GetParameters()[0]))
-                              .Should().HaveCountGreaterOrEqualTo(1, $"{descriptor.HandlerType.FullName} is missing a registry implementation for {item.type}");
+                              .Should().HaveCountGreaterThanOrEqualTo(1, $"{descriptor.HandlerType.FullName} is missing a registry implementation for {item.type}");
             }
 
             foreach (var item in expectedRequestHandlers)
@@ -349,7 +349,7 @@ namespace Lsp.Tests
                 extensionClass.GetMethods(BindingFlags.Static | BindingFlags.Public)
                               .Where(z => z.Name == sendMethodName)
                               .Where(z => item.matcher(z.GetParameters()[0]))
-                              .Should().HaveCountGreaterOrEqualTo(1, $"{descriptor.HandlerType.FullName} is missing a request implementation for {item.type}");
+                              .Should().HaveCountGreaterThanOrEqualTo(1, $"{descriptor.HandlerType.FullName} is missing a request implementation for {item.type}");
             }
         }
 
@@ -386,7 +386,7 @@ namespace Lsp.Tests
                 }
 
                 var containsCancellationToken = ForAnyParameter(
-                    info => info.ParameterType.GetGenericArguments().Reverse().Take(2).Any(x => x == typeof(CancellationToken))
+                    info => info.ParameterType.GetGenericArguments().AsEnumerable().Reverse().Take(2).Any(x => x == typeof(CancellationToken))
                 );
                 var returnType = descriptor.HasResponseType ? typeof(Task<>).MakeGenericType(descriptor.ResponseType!) : typeof(Task);
                 var returns = ForAnyParameter(info => info.ParameterType.GetGenericArguments().LastOrDefault() == returnType);
@@ -517,7 +517,7 @@ namespace Lsp.Tests
             {
                 var matcher = new MethodMatcher(sendMethodRegistries, descriptor, extensionClass);
                 Func<MethodInfo, bool> containsCancellationToken =
-                    info => info.GetParameters().Reverse().Take(2).Any(x => x.ParameterType == typeof(CancellationToken));
+                    info => info.GetParameters().AsEnumerable().Reverse().Take(2).Any(x => x.ParameterType == typeof(CancellationToken));
                 var returnType = descriptor.HasResponseType ? typeof(Task<>).MakeGenericType(descriptor.ResponseType!) : typeof(Task);
                 Func<MethodInfo, bool> returns = info => info.ReturnType == returnType;
                 Func<MethodInfo, bool> isAction = info => info.ReturnType.Name == "Void";
