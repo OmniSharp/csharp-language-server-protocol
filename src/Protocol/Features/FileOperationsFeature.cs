@@ -48,7 +48,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
         [RegistrationOptions(typeof(DidCreateFilesRegistrationOptions))]
         [Capability(typeof(FileOperationsWorkspaceClientCapabilities))]
-        public partial record DidCreateFilesParams : FileOperationsParams<FileCreate>, IRequest
+        public partial record DidCreateFilesParams : FileOperationsParams<FileCreate>, IRequest<Unit>
         {
             public static implicit operator WillCreateFilesParams(DidCreateFilesParams @params)
             {
@@ -83,7 +83,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
         [RegistrationOptions(typeof(DidRenameFilesRegistrationOptions))]
         [Capability(typeof(FileOperationsWorkspaceClientCapabilities))]
-        public partial record DidRenameFilesParams : RenameFilesOperationParams, IRequest
+        public partial record DidRenameFilesParams : RenameFilesOperationParams, IRequest<Unit>
         {
             public static implicit operator WillRenameFilesParams(DidRenameFilesParams @params)
             {
@@ -146,7 +146,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
         [RegistrationOptions(typeof(DidDeleteFilesRegistrationOptions))]
         [Capability(typeof(FileOperationsWorkspaceClientCapabilities))]
-        public partial record DidDeleteFilesParams : FileOperationsParams<FileDelete>, IRequest
+        public partial record DidDeleteFilesParams : FileOperationsParams<FileDelete>, IRequest<Unit>
         {
             public static implicit operator WillDeleteFilesParams(DidDeleteFilesParams @params)
             {

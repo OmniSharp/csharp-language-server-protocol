@@ -8,12 +8,6 @@
                 "dotnet-outdated"
             ]
         },
-        "gitversion.tool": {
-            "version": "6.1.0",
-            "commands": [
-                "dotnet-gitversion"
-            ]
-        },
         "dotnet-reportgenerator-globaltool": {
             "version": "5.4.3",
             "commands": [
@@ -21,7 +15,7 @@
             ]
         },
         "nuke.globaltool": {
-            "version": "8.1.4",
+            "version": "9.0.4",
             "commands": [
                 "nuke"
             ]
@@ -36,12 +30,6 @@
             "version": "2024.3.4",
             "commands": [
                 "jb"
-            ]
-        },
-        "dotnet-format": {
-            "version": "5.1.250801",
-            "commands": [
-                "dotnet-format"
             ]
         },
         "nukeeper": {

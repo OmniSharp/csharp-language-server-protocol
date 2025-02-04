@@ -20,7 +20,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageServer), typeof(ILanguageServer))
         ]
         [Capability(typeof(PublishDiagnosticsCapability))]
-        public record PublishDiagnosticsParams : IRequest
+        public record PublishDiagnosticsParams : IRequest<Unit>
         {
             /// <summary>
             /// The URI for which diagnostic information is reported.

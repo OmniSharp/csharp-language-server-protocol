@@ -21,11 +21,13 @@ jobs:
 
       - uses: nuget/setup-nuget@v2
         with:
-          nuget-version: '5.x'
+          nuget-version: '6.x'
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: nuget
+          path: nuget
+          pattern: nuget-*
+          merge-multiple: true
 
       - name: nuget.org
         # continue-on-error: true

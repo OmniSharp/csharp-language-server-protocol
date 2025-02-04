@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 
@@ -12,6 +12,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         [GenerateHandler(Name = "DebugAdapterInitialized")]
         [GenerateHandlerMethods]
         [GenerateRequestMethods]
-        public record InitializedEvent : IRequest;
+        public record InitializedEvent : IRequest<Unit>;
     }
 }

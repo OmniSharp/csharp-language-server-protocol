@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using MediatR;
 using Newtonsoft.Json;
@@ -272,7 +272,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateHandlerMethods]
         [GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
         [Capability(typeof(InlayHintWorkspaceClientCapabilities))]
-        public partial record InlayHintRefreshParams : IRequest;
+        public partial record InlayHintRefreshParams : IRequest<Unit>;
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.InlayHintProvider))]
         [RegistrationOptionsConverter(typeof(InlayHintRegistrationOptionsConverter))]

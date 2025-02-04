@@ -14,7 +14,7 @@ namespace JsonRpc.Tests
     public class MediatorTestsNotificationHandler : AutoTestBase
     {
         [Method("exit")]
-        public class ExitParams : IRequest
+        public class ExitParams : IRequest<Unit>
         {
         }
 

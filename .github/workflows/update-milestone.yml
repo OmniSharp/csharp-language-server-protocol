@@ -27,13 +27,14 @@ jobs:
         if: ${{ github.event.action == 'opened' }}
         uses: gittools/actions/gitversion/setup@v3.1.11
         with:
-          versionSpec: '5.x'
+          versionSpec: '6.0.x'
+          preferLatestVersion: true
 
       - name: Install GitReleaseManager
         if: ${{ github.event.action == 'opened' }}
         uses: gittools/actions/gitreleasemanager/setup@v3.1.11
         with:
-          versionSpec: '0.15.x'
+          versionSpec: '0.18.x'
 
       - name: Use GitVersion
         if: ${{ github.event.action == 'opened' }}
@@ -50,7 +51,7 @@ jobs:
         continue-on-error: true
 
       - name: sync milestones
-        uses: RocketSurgeonsGuild/actions/sync-milestone@v0.3.3
+        uses: RocketSurgeonsGuild/actions/sync-milestone@v0.3.15
         with:
           default-label: 'mysterious'
           github-token: ${{ secrets.GITHUB_TOKEN }}

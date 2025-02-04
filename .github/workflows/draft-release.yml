@@ -29,7 +29,8 @@ jobs:
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v3.1.11
         with:
-          versionSpec: '5.x'
+          versionSpec: '6.0.x'
+          preferLatestVersion: true
 
       - name: Use GitVersion
         id: gitversion
@@ -44,7 +45,7 @@ jobs:
         continue-on-error: true
 
       - name: sync milestones
-        uses: RocketSurgeonsGuild/actions/sync-milestone@v0.3.3
+        uses: RocketSurgeonsGuild/actions/sync-milestone@v0.3.15
         with:
           default-label: 'mysterious'
           github-token: ${{ secrets.GITHUB_TOKEN }}

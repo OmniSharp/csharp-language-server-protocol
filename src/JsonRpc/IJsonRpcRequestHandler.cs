@@ -24,8 +24,8 @@ namespace OmniSharp.Extensions.JsonRpc
     ///
     /// </summary>
     /// <typeparam name="TRequest"></typeparam>
-    public interface IJsonRpcRequestHandler<in TRequest> : IRequestHandler<TRequest>, IJsonRpcHandler
-        where TRequest : IRequest
+    public interface IJsonRpcRequestHandler<in TRequest> : IRequestHandler<TRequest, Unit>, IJsonRpcHandler
+        where TRequest : IRequest<Unit>
     {
     }
 }

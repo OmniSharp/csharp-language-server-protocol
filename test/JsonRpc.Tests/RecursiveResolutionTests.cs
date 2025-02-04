@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
@@ -110,7 +110,7 @@ namespace JsonRpc.Tests
         }
 
         [Method(nameof(ClassRequest))]
-        public class ClassRequest : IRequest
+        public class ClassRequest : IRequest<Unit>
         {
         }
 
@@ -132,7 +132,7 @@ namespace JsonRpc.Tests
         }
 
         [Method(nameof(InterfaceRequest))]
-        public class InterfaceRequest : IRequest
+        public class InterfaceRequest : IRequest<Unit>
         {
         }
 
