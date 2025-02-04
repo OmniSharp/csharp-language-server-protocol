@@ -180,8 +180,8 @@ jobs:
           name: 'test data-${{ matrix.os }}'
           path: 'artifacts/test/'
       - name: 🚀 Publish Test Results
-        if: always()
-        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always() && matrix.os == 'macos-latest'
+        uses: EnricoMi/publish-unit-test-result-action/macos@v2
         with:
           files: 'artifacts/test/**/*.trx'
       - name: 🏺 Publish coverage data (${{ matrix.os }})
