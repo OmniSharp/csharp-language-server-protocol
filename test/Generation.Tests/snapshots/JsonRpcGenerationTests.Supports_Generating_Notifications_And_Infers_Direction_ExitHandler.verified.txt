@@ -1,14 +1,24 @@
 ﻿{
   Diagnostics: [
     {
-      Id: JRPC1001,
-      Title: No Response Router Provided,
+      Location: /*
+    [Serial, Method(GeneralNames.Exit, Direction.ClientToServer), GenerateHandlerMethods, GenerateRequestMethods]
+    public interface IExitHandler : IJsonRpcNotificationHandler<ExitParams>
+                     ^^^^^^^^^^^^
+    {
+*/
+ Test0.cs: (16,21)-(16,33),
+      Message: No Response Router Provided for handler {0}, defaulting to {1}.,
       Severity: Info,
       WarningLevel: 1,
-      Location: Test0.cs: (16,21)-(16,33),
-      MessageFormat: No Response Router Provided for handler {0}, defaulting to {1}.,
-      Message: No Response Router Provided for handler {0}, defaulting to {1}.,
-      Category: JsonRPC
+      Descriptor: {
+        Id: JRPC1001,
+        Title: No Response Router Provided,
+        MessageFormat: No Response Router Provided for handler {0}, defaulting to {1}.,
+        Category: JsonRPC,
+        DefaultSeverity: Info,
+        IsEnabledByDefault: true
+      }
     }
   ]
 }
