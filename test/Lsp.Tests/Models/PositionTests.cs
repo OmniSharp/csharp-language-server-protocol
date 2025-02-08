@@ -34,8 +34,8 @@ namespace Lsp.Tests.Models
 
             a.CompareTo(c).Should().Be(0);
 
-            a.Should().BeLessOrEqualTo(c);
-            a.Should().BeGreaterOrEqualTo(c);
+            a.Should().BeLessThanOrEqualTo(c);
+            a.Should().BeGreaterThanOrEqualTo(c);
         }
 
         [Fact]
@@ -50,8 +50,8 @@ namespace Lsp.Tests.Models
 
             a.CompareTo(c).Should().Be(0);
 
-            a.Should().BeLessOrEqualTo(c);
-            a.Should().BeGreaterOrEqualTo(c);
+            a.Should().BeLessThanOrEqualTo(c);
+            a.Should().BeGreaterThanOrEqualTo(c);
         }
 
         [Fact]

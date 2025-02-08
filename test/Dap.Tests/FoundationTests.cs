@@ -249,7 +249,7 @@ namespace Dap.Tests
                 extensionClass.GetMethods(BindingFlags.Static | BindingFlags.Public)
                               .Where(z => z.Name == onMethodName)
                               .Where(z => item.matcher(z.GetParameters()[0]))
-                              .Should().HaveCountGreaterOrEqualTo(1, $"{descriptor.HandlerType.FullName} is missing a registry implementation for {item.type}");
+                              .Should().HaveCountGreaterThanOrEqualTo(1, $"{descriptor.HandlerType.FullName} is missing a registry implementation for {item.type}");
             }
 
             foreach (var item in expectedRequestHandlers)
@@ -257,7 +257,7 @@ namespace Dap.Tests
                 extensionClass.GetMethods(BindingFlags.Static | BindingFlags.Public)
                               .Where(z => z.Name == sendMethodName)
                               .Where(z => item.matcher(z.GetParameters()[0]))
-                              .Should().HaveCountGreaterOrEqualTo(1, $"{descriptor.HandlerType.FullName} is missing a request implementation for {item.type}");
+                              .Should().HaveCountGreaterThanOrEqualTo(1, $"{descriptor.HandlerType.FullName} is missing a request implementation for {item.type}");
             }
 
             {
@@ -268,7 +268,7 @@ namespace Dap.Tests
                     return info => m(info.GetParameters()[index]);
                 }
 
-                var containsCancellationToken = ForParameter(1, info => info.ParameterType.GetGenericArguments().Reverse().Take(2).Any(x => x == typeof(CancellationToken)));
+                var containsCancellationToken = ForParameter(1, info => info.ParameterType.GetGenericArguments().AsEnumerable().Reverse().Take(2).Any(x => x == typeof(CancellationToken)));
                 var returnType = descriptor.HasResponseType ? typeof(Task<>).MakeGenericType(descriptor.ResponseType!) : typeof(Task);
                 var returns = ForParameter(1, info => info.ParameterType.GetGenericArguments().LastOrDefault() == returnType);
                 var isAction = ForParameter(1, info => info.ParameterType.Name.StartsWith(nameof(Action)));
@@ -291,7 +291,7 @@ namespace Dap.Tests
             }
             {
                 var matcher = new MethodMatcher(sendMethodRegistries, descriptor, extensionClass, sendMethodName);
-                Func<MethodInfo, bool> containsCancellationToken = info => info.GetParameters().Reverse().Take(2).Any(x => x.ParameterType == typeof(CancellationToken));
+                Func<MethodInfo, bool> containsCancellationToken = info => info.GetParameters().AsEnumerable().Reverse().Take(2).Any(x => x.ParameterType == typeof(CancellationToken));
                 var returnType = descriptor.HasResponseType ? typeof(Task<>).MakeGenericType(descriptor.ResponseType!) : typeof(Task);
                 Func<MethodInfo, bool> returns = info => info.ReturnType == returnType;
                 Func<MethodInfo, bool> isAction = info => info.ReturnType.Name == "Void";
