@@ -172,31 +172,31 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: 'logs-${{ matrix.os }}'
-          path: 'artifacts/logs/'
+          path: '${{ github.workspace }}/artifacts/logs/'
       - name: 🏺 Publish test data (${{ matrix.os }})
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: 'test data-${{ matrix.os }}'
-          path: 'artifacts/test/'
+          path: '${{ github.workspace }}/artifacts/test/'
       - name: 🚀 Publish Test Results
         if: always() && matrix.os == 'macos-latest'
         uses: EnricoMi/publish-unit-test-result-action/macos@v2
         with:
-          files: 'artifacts/test/**/*.trx'
+          files: '${{ github.workspace }}/artifacts/test/**/*.trx'
       - name: 🏺 Publish coverage data (${{ matrix.os }})
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: 'coverage-${{ matrix.os }}'
-          path: 'coverage/'
+          path: '${{ github.workspace }}/coverage/'
       - name: 🚀 Publish Coverage Comment
         if: always() && github.event_name == 'pull_request'
         continue-on-error: true
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: 'Coverage'
-          path: 'coverage/summary/SummaryGithub.md'
+          path: '${{ github.workspace }}/coverage/summary/SummaryGithub.md'
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
       - name: 🚀 Publish Codecov Coverage
         if: always() && (github.event_name != 'pull_request' && github.event_name != 'pull_request_target') || ((github.event_name == 'pull_request' || github.event_name == 'pull_request_target') && github.event.pull_request.user.login != 'renovate[bot]' && github.event.pull_request.user.login != 'dependabot[bot]')
@@ -209,7 +209,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: 'nuget-${{ matrix.os }}'
-          path: 'artifacts/nuget/'
+          path: '${{ github.workspace }}/artifacts/nuget/'
   Merge:
     runs-on: ubuntu-latest
     needs: build
