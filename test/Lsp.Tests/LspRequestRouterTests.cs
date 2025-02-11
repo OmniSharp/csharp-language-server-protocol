@@ -27,6 +27,8 @@ using Xunit.Abstractions;
 using Arg = NSubstitute.Arg;
 using Request = OmniSharp.Extensions.JsonRpc.Server.Request;
 
+#nullable disable
+
 namespace Lsp.Tests
 {
     public class TestLanguageServerRegistry : JsonRpcOptionsRegistryBase<ILanguageServerRegistry>, ILanguageServerRegistry

@@ -23,6 +23,8 @@ using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
+#nullable disable
+
 namespace Lsp.Integration.Tests
 {
     public class LanguageServerConfigurationTests : LanguageProtocolTestBase
@@ -54,7 +56,7 @@ namespace Lsp.Integration.Tests
                 options =>
                 {
                     options.WithCapability(new DidChangeConfigurationCapability());
-                    options.OnConfiguration(@params => Task.FromResult(new Container<JToken>(@params.Items.Select(z => (JToken?)null))));
+                    options.OnConfiguration(@params => Task.FromResult(new Container<JToken>(@params.Items.Select(z => (JToken)null))));
                     ConfigureClient(options);
                 }, ConfigureServer
             );

@@ -20,6 +20,8 @@ using Serilog.Events;
 using Xunit;
 using Xunit.Abstractions;
 
+#nullable disable
+
 namespace Lsp.Integration.Tests
 {
     public class WorkspaceFolderTests : LanguageProtocolTestBase
@@ -78,7 +80,7 @@ namespace Lsp.Integration.Tests
                 options =>
                 {
                     ConfigureClient(options);
-                    options.OnWorkspaceFolders(@params => Task.FromResult<Container<WorkspaceFolder>?>(null));
+                    options.OnWorkspaceFolders(@params => Task.FromResult<Container<WorkspaceFolder>>(null));
                 }, ConfigureServer
             );
 
@@ -185,7 +187,7 @@ namespace Lsp.Integration.Tests
                     WorkspaceFolders = null
                 }
             );
-            languageServer.SendRequest(Arg.Any<WorkspaceFolderParams>(), Arg.Any<CancellationToken>()).Returns((Container<WorkspaceFolder>?)null);
+            languageServer.SendRequest(Arg.Any<WorkspaceFolderParams>(), Arg.Any<CancellationToken>()).Returns((Container<WorkspaceFolder>)null);
             var workspaceFolders = new LanguageServerWorkspaceFolderManager(workspaceLanguageServer);
             ( (IRegistration<DidChangeWorkspaceFolderRegistrationOptions>)workspaceFolders ).GetRegistrationOptions(
                 languageServer!.ClientSettings!.Capabilities!

@@ -25,6 +25,8 @@ using Arg = NSubstitute.Arg;
 using Request = OmniSharp.Extensions.JsonRpc.Server.Request;
 #pragma warning disable CS0162
 
+#nullable disable
+
 namespace Lsp.Tests
 {
     public class MediatorTestsRequestHandlerOfTRequestTResponse : AutoTestBase

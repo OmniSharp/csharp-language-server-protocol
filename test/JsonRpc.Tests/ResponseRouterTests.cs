@@ -11,6 +11,8 @@ using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Serialization;
 using Xunit;
 
+#nullable disable
+
 namespace JsonRpc.Tests
 {
     public class ResponseRouterTests
@@ -61,7 +63,7 @@ namespace JsonRpc.Tests
         }
 
         [Fact]
-        public async Task WorksWithNotification()
+        public void WorksWithNotification()
         {
             var outputHandler = Substitute.For<IOutputHandler>();
             var router = new ResponseRouter(new Lazy<IOutputHandler>(() => outputHandler), new JsonRpcSerializer(), new AssemblyScanningHandlerTypeDescriptorProvider(new [] { typeof(AssemblyScanningHandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));

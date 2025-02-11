@@ -15,24 +15,26 @@ using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
+#nullable disable
+
 namespace Lsp.Integration.Tests
 {
     public class FileOperationsTests : LanguageProtocolTestBase
     {
         private readonly Action<DidCreateFilesParams> _didCreateFileHandler = Substitute.For<Action<DidCreateFilesParams>>();
 
-        private readonly Func<WillCreateFilesParams, Task<WorkspaceEdit?>> _willCreateFileHandler =
-            Substitute.For<Func<WillCreateFilesParams, Task<WorkspaceEdit?>>>();
+        private readonly Func<WillCreateFilesParams, Task<WorkspaceEdit>> _willCreateFileHandler =
+            Substitute.For<Func<WillCreateFilesParams, Task<WorkspaceEdit>>>();
 
         private readonly Action<DidRenameFilesParams> _didRenameFileHandler = Substitute.For<Action<DidRenameFilesParams>>();
 
-        private readonly Func<WillRenameFilesParams, Task<WorkspaceEdit?>> _willRenameFileHandler =
-            Substitute.For<Func<WillRenameFilesParams, Task<WorkspaceEdit?>>>();
+        private readonly Func<WillRenameFilesParams, Task<WorkspaceEdit>> _willRenameFileHandler =
+            Substitute.For<Func<WillRenameFilesParams, Task<WorkspaceEdit>>>();
 
         private readonly Action<DidDeleteFilesParams> _didDeleteFileHandler = Substitute.For<Action<DidDeleteFilesParams>>();
 
-        private readonly Func<WillDeleteFilesParams, Task<WorkspaceEdit?>> _willDeleteFileHandler =
-            Substitute.For<Func<WillDeleteFilesParams, Task<WorkspaceEdit?>>>();
+        private readonly Func<WillDeleteFilesParams, Task<WorkspaceEdit>> _willDeleteFileHandler =
+            Substitute.For<Func<WillDeleteFilesParams, Task<WorkspaceEdit>>>();
 
         public FileOperationsTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper, LogEventLevel.Verbose))
         {

@@ -23,6 +23,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <!-- Remove once we drop the net6.0 tfm -->
         <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
+        <NoWarn>$(NoWarn);CS4014</NoWarn>
     </PropertyGroup>
     <PropertyGroup>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>

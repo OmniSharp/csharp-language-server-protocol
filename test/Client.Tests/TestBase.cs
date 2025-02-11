@@ -8,6 +8,8 @@ using OmniSharp.Extensions.LanguageServer.Client.Tests.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
+#nullable disable
+
 namespace OmniSharp.Extensions.LanguageServer.Client.Tests
 {
     /// <summary>

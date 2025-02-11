@@ -20,6 +20,8 @@ using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
+#nullable disable
+
 namespace Lsp.Integration.Tests
 {
     public class ExtensionTests : LanguageProtocolTestBase

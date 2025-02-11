@@ -27,6 +27,8 @@ using OmniSharp.Extensions.LanguageServer.Server;
 using Xunit;
 using Xunit.Abstractions;
 
+#nullable disable
+
 namespace Lsp.Tests
 {
     public class FoundationTests
@@ -565,11 +567,11 @@ namespace Lsp.Tests
             private readonly IEnumerable<Type> _registries;
             private readonly ILspHandlerTypeDescriptor _descriptor;
             private readonly Type _extensionClass;
-            private readonly string? _methodName;
+            private readonly string _methodName;
 
             public MethodMatcher(
                 IEnumerable<Type> registries,
-                ILspHandlerTypeDescriptor descriptor, Type extensionClass, string? methodName = null
+                ILspHandlerTypeDescriptor descriptor, Type extensionClass, string methodName = null
             )
             {
                 _registries = registries;

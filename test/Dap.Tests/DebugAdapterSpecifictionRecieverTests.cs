@@ -17,8 +17,10 @@ namespace Dap.Tests
         public void ShouldRespond_AsExpected(string json, Renor[] request)
         {
             var receiver = new DapReceiver();
+            #pragma warning disable CS0618
             var inSerializer = new DapProtocolSerializer();
             var outSerializer = new DapProtocolSerializer();
+            #pragma warning restore CS0618
             var (requests, _) = receiver.GetRequests(JToken.Parse(json));
             var result = requests.ToArray();
             request.Length.Should().Be(result.Length);
@@ -36,7 +38,9 @@ namespace Dap.Tests
         [Fact]
         public void Should_Camel_Case_As_Expected()
         {
+            #pragma warning disable CS0618
             var serializer = new DapProtocolSerializer();
+            #pragma warning restore CS0618
             var response = serializer.SerializeObject(
                 new InitializeResponse
                 {

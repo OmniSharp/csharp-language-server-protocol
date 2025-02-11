@@ -13,6 +13,8 @@ using OmniSharp.Extensions.LanguageServer.Server;
 using Xunit;
 using Xunit.Abstractions;
 
+#nullable disable
+
 namespace Lsp.Integration.Tests
 {
     public class ErroringHandlingTests : LanguageProtocolTestBase

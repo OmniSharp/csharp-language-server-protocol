@@ -5,6 +5,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 using Xunit;
 using Xunit.Abstractions;
 
+#nullable disable
+
 namespace Lsp.Tests
 {
     public class AbsoluteUriConverterTests

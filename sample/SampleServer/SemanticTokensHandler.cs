@@ -10,6 +10,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
+#nullable disable
+
 namespace SampleServer
 {
 #pragma warning disable 618
@@ -22,7 +24,7 @@ namespace SampleServer
             _logger = logger;
         }
 
-        public override async Task<SemanticTokens?> Handle(
+        public override async Task<SemanticTokens> Handle(
             SemanticTokensParams request, CancellationToken cancellationToken
         )
         {
@@ -30,7 +32,7 @@ namespace SampleServer
             return result;
         }
 
-        public override async Task<SemanticTokens?> Handle(
+        public override async Task<SemanticTokens> Handle(
             SemanticTokensRangeParams request, CancellationToken cancellationToken
         )
         {
@@ -38,7 +40,7 @@ namespace SampleServer
             return result;
         }
 
-        public override async Task<SemanticTokensFullOrDelta?> Handle(
+        public override async Task<SemanticTokensFullOrDelta> Handle(
             SemanticTokensDeltaParams request,
             CancellationToken cancellationToken
         )
