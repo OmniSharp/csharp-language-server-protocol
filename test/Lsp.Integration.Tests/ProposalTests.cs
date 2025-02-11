@@ -9,6 +9,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using Xunit;
 using Xunit.Abstractions;
 
+#pragma warning disable CS0618 // Obsolete
+
 namespace Lsp.Integration.Tests
 {
     public class ProposalTests : LanguageProtocolTestBase

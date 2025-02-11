@@ -92,7 +92,7 @@ namespace Lsp.Integration.Tests
                         action.Received(1).Invoke(Arg.Any<DidChangeWorkspaceFoldersParams>());
                         return true;
                     }
-                    catch (ReceivedCallsException e)
+                    catch (ReceivedCallsException)
                     {
                         return false;
                     }
@@ -144,7 +144,7 @@ namespace Lsp.Integration.Tests
                         action.Received(1).Invoke(Arg.Is<DidChangeConfigurationParams>(z => Equals(z.Settings, JValue.CreateNull())));
                         return true;
                     }
-                    catch (ReceivedCallsException e)
+                    catch (ReceivedCallsException)
                     {
                         return false;
                     }

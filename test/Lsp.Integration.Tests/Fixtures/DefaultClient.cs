@@ -2,6 +2,8 @@
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
+#nullable disable
+
 namespace Lsp.Integration.Tests.Fixtures
 {
     public sealed class DefaultClient : IConfigureLanguageClientOptions

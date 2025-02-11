@@ -11,6 +11,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
+#nullable disable
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Tests
 {
@@ -686,8 +687,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
 
             var receivedDiagnosticsNotification = new TaskCompletionSource<object>();
 
-            DocumentUri? actualDocumentUri = null;
-            List<Diagnostic>? actualDiagnostics = null;
+            DocumentUri actualDocumentUri = null;
+            List<Diagnostic> actualDiagnostics = null;
 
             var (_, server) = await Initialize(
                 clientOptions =>

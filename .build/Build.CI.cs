@@ -3,44 +3,21 @@ using Nuke.Common.CI.GitHubActions.Configuration;
 using Rocket.Surgery.Nuke.ContinuousIntegration;
 using Rocket.Surgery.Nuke.DotNetCore;
 using Rocket.Surgery.Nuke.GithubActions;
+using Rocket.Surgery.Nuke.Jobs;
 
-namespace Build;
-
-internal class LocalConstants
-{
-    public static string[] PathsIgnore => new[]
-    {
-        ".codecov.yml",
-        ".editorconfig",
-        ".gitattributes",
-        ".gitignore",
-        ".gitmodules",
-        ".lintstagedrc.js",
-        ".prettierignore",
-        ".prettierrc",
-        "LICENSE",
-        "nukeeper.settings.json",
-        "omnisharp.json",
-        "package-lock.json",
-        "package.json",
-        "Readme.md",
-        ".github/dependabot.yml",
-        ".github/labels.yml",
-        ".github/release.yml",
-        ".github/renovate.json",
-    };
-}
+#pragma warning disable CA1050
 
 [GitHubActionsSteps(
     "ci-ignore",
+    GitHubActionsImage.MacOsLatest,
     GitHubActionsImage.WindowsLatest,
     GitHubActionsImage.UbuntuLatest,
     AutoGenerate = false,
-    On = new[] { RocketSurgeonGitHubActionsTrigger.Push },
-    OnPushTags = new[] { "v*" },
-    OnPushBranches = new[] { "master", "main", "next" },
-    OnPullRequestBranches = new[] { "master", "main", "next" },
-    Enhancements = new[] { nameof(CiIgnoreMiddleware) }
+    On = [RocketSurgeonGitHubActionsTrigger.Push],
+    OnPushTags = ["v*"],
+    OnPushBranches = ["master", "main", "next"],
+    OnPullRequestBranches = ["master", "main", "next"],
+    Enhancements = [nameof(CiIgnoreMiddleware)]
 )]
 [GitHubActionsSteps(
     "ci",
@@ -48,37 +25,36 @@ internal class LocalConstants
     GitHubActionsImage.WindowsLatest,
     GitHubActionsImage.UbuntuLatest,
     AutoGenerate = false,
-    On = new[] { RocketSurgeonGitHubActionsTrigger.Push },
-    OnPushTags = new[] { "v*" },
-    OnPushBranches = new[] { "master", "main", "next" },
-    OnPullRequestBranches = new[] { "master", "main", "next" },
-    InvokedTargets = new[] { nameof(Default) },
-    NonEntryTargets = new[]
-    {
+    On = [RocketSurgeonGitHubActionsTrigger.Push],
+    OnPushTags = ["v*"],
+    OnPushBranches = ["master", "main", "next"],
+    OnPullRequestBranches = ["master", "main", "next"],
+    InvokedTargets = [nameof(Default)],
+    NonEntryTargets = [
         nameof(ICIEnvironment.CIEnvironment),
-        nameof(ITriggerCodeCoverageReports.TriggerCodeCoverageReports),
         nameof(ITriggerCodeCoverageReports.GenerateCodeCoverageReportCobertura),
         nameof(IGenerateCodeCoverageBadges.GenerateCodeCoverageBadges),
         nameof(IGenerateCodeCoverageReport.GenerateCodeCoverageReport),
         nameof(IGenerateCodeCoverageSummary.GenerateCodeCoverageSummary),
-        nameof(Default)
-    },
-    ExcludedTargets = new[] { nameof(ICanClean.Clean), nameof(ICanRestoreWithDotNetCore.DotnetToolRestore) },
-    Enhancements = new[] { nameof(CiMiddleware) }
+        nameof(Default),
+    ],
+    ExcludedTargets = [nameof(ICanClean.Clean), nameof(ICanRestoreWithDotNetCore.DotnetToolRestore)],
+    Enhancements = [nameof(CiMiddleware)]
 )]
+[CloseMilestoneJob(AutoGenerate = false)]
+[DraftReleaseJob(AutoGenerate = false)]
+[UpdateMilestoneJob(AutoGenerate = false)]
 [PrintBuildVersion]
 [PrintCIEnvironment]
 [UploadLogs]
 [TitleEvents]
 [ContinuousIntegrationConventions]
-public partial class Solution
+internal sealed partial class Pipeline
 {
     public static RocketSurgeonGitHubActionsConfiguration CiIgnoreMiddleware(
         RocketSurgeonGitHubActionsConfiguration configuration
     )
     {
-        configuration.IncludeRepositoryConfigurationFiles();
-
         ( (RocketSurgeonsGithubActionsJob)configuration.Jobs[0] ).Steps = new List<GitHubActionsStep>
         {
             new RunStep("N/A")
@@ -87,7 +63,7 @@ public partial class Solution
             }
         };
 
-        return configuration;
+        return configuration.IncludeRepositoryConfigurationFiles();
     }
 
     public static RocketSurgeonGitHubActionsConfiguration CiMiddleware(
@@ -96,33 +72,32 @@ public partial class Solution
     {
         configuration
             .ExcludeRepositoryConfigurationFiles()
-            .AddNugetPublish()
             .Jobs.OfType<RocketSurgeonsGithubActionsJob>()
             .First(z => z.Name.Equals("Build", StringComparison.OrdinalIgnoreCase))
             .ConfigureStep<CheckoutStep>(step => step.FetchDepth = 0)
-            .UseDotNetSdks("3.1", "6.0", "8.0", "9.0")
+            .UseDotNetSdks("6.0", "8.0", "9.0")
             .AddNuGetCache()
             .AddVscodeExtensionTests()
-            .PublishLogs<Solution>()
-            .PublishArtifacts<Solution>()
+            .PublishLogs<Pipeline>()
+            .PublishArtifacts<Pipeline>()
             .FailFast = false;
 
         return configuration;
     }
 }
 
-public static class Extensions
+public static class JobExtensions
 {
     public static RocketSurgeonsGithubActionsJob AddVscodeExtensionTests(this RocketSurgeonsGithubActionsJob job)
     {
         return job
             .AddStep(new RunStep("Npm install") {
                 Run = "npm ci",
-                WorkingDirectory = Solution.VscodeTestExtensionProjectDirectory
+                WorkingDirectory = Pipeline.VscodeTestExtensionProjectDirectory
             })
             .AddStep(new HeadlessRunStep("Vscode extension tests") {
                 Run = "npm run test",
-                WorkingDirectory = Solution.VscodeTestExtensionProjectDirectory
+                WorkingDirectory = Pipeline.VscodeTestExtensionProjectDirectory
             });
     }
 }

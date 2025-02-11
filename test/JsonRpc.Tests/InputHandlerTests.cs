@@ -18,6 +18,8 @@ using OmniSharp.Extensions.JsonRpc.Server;
 using Xunit;
 using Xunit.Abstractions;
 
+#nullable disable
+
 namespace JsonRpc.Tests
 {
     [Collection("InputHandlers")]
@@ -35,7 +37,7 @@ namespace JsonRpc.Tests
             PipeReader inputStream,
             IOutputHandler outputHandler,
             IReceiver receiver,
-            IRequestRouter<IHandlerDescriptor?> requestRouter,
+            IRequestRouter<IHandlerDescriptor> requestRouter,
             ILoggerFactory loggerFactory,
             IResponseRouter responseRouter,
             RequestInvoker requestInvoker
@@ -64,7 +66,7 @@ namespace JsonRpc.Tests
 
             using var handler = NewHandler(
                 pipe.Reader, outputHandler, receiver,
-                Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
+                Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
                 _loggerFactory, Substitute.For<IResponseRouter>(),
                 Substitute.For<RequestInvoker>()
             );
@@ -90,7 +92,7 @@ namespace JsonRpc.Tests
 
             using var handler = NewHandler(
                 pipe.Reader, outputHandler, receiver,
-                Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
+                Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
                 _loggerFactory, Substitute.For<IResponseRouter>(),
                 Substitute.For<RequestInvoker>()
             );
@@ -132,7 +134,7 @@ namespace JsonRpc.Tests
 
             using var handler = NewHandler(
                 pipe.Reader, outputHandler, receiver,
-                Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
+                Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
                 _loggerFactory, Substitute.For<IResponseRouter>(),
                 Substitute.For<RequestInvoker>()
             );
@@ -160,7 +162,7 @@ namespace JsonRpc.Tests
 
             using var handler = NewHandler(
                 pipe.Reader, outputHandler, receiver,
-                Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
+                Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
                 _loggerFactory, Substitute.For<IResponseRouter>(),
                 Substitute.For<RequestInvoker>()
             );
@@ -193,7 +195,7 @@ namespace JsonRpc.Tests
 
             using var handler = NewHandler(
                 pipe.Reader, outputHandler, receiver,
-                Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
+                Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
                 _loggerFactory, Substitute.For<IResponseRouter>(),
                 Substitute.For<RequestInvoker>()
             );
@@ -236,7 +238,7 @@ namespace JsonRpc.Tests
 
             using var handler = NewHandler(
                 pipe.Reader, outputHandler, receiver,
-                Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
+                Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
                 _loggerFactory, Substitute.For<IResponseRouter>(),
                 Substitute.For<RequestInvoker>()
             );
@@ -271,7 +273,7 @@ namespace JsonRpc.Tests
 
             using var handler = NewHandler(
                 pipe.Reader, outputHandler, receiver,
-                Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
+                Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
                 _loggerFactory, Substitute.For<IResponseRouter>(),
                 Substitute.For<RequestInvoker>()
             );
@@ -324,7 +326,7 @@ namespace JsonRpc.Tests
 
             using var handler = NewHandler(
                 pipe.Reader, outputHandler, receiver,
-                Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
+                Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
                 _loggerFactory, Substitute.For<IResponseRouter>(),
                 Substitute.For<RequestInvoker>()
             );
@@ -361,7 +363,7 @@ namespace JsonRpc.Tests
 
             var reader = createPipeReader();
             var receiver = new Receiver();
-            var incomingRequestRouter = Substitute.For<IRequestRouter<IHandlerDescriptor?>>();
+            var incomingRequestRouter = Substitute.For<IRequestRouter<IHandlerDescriptor>>();
             var outputHandler = Substitute.For<IOutputHandler>();
             var responseRouter = Substitute.For<IResponseRouter>();
             var requestInvoker = Substitute.For<RequestInvoker>();

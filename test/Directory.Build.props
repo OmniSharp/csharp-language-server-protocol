@@ -5,6 +5,7 @@
         <PreserveCompilationContext>true</PreserveCompilationContext>
         <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <NoWarn>$(NoWarn);CS1998</NoWarn>
 
         <Include>[Omnisharp.*]*</Include>
 

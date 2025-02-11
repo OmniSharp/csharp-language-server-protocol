@@ -1,6 +1,8 @@
 using System;
 using Microsoft.Extensions.Logging;
 
+#nullable disable
+
 // ReSharper disable once CheckNamespace
 namespace NSubstitute
 {

@@ -16,6 +16,8 @@ using Serilog.Events;
 using Xunit;
 using Xunit.Abstractions;
 
+#nullable disable
+
 namespace Lsp.Integration.Tests
 {
     public class TypedCompletionTests : LanguageProtocolTestBase
@@ -195,12 +197,6 @@ namespace Lsp.Integration.Tests
                             completionItem.Data!.Child.Should().NotBeNull();
                             completionItem.Data!.Name.Should().Be("name");
                             return Task.FromResult(completionItem with { Detail = "resolved" });
-                            return Task.FromResult(
-                                completionItem with
-                                {
-                                    Detail = "resolved"
-                                }
-                            );
                         },
                         (_, _) => new CompletionRegistrationOptions()
                     );

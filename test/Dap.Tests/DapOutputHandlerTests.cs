@@ -19,7 +19,9 @@ namespace Dap.Tests
         private static OutputHandler NewHandler(PipeWriter writer)
         {
             return new OutputHandler(
+                #pragma warning disable CS0618
                 writer, new DapProtocolSerializer(), new[] { new AlwaysOutputFilter() }, Scheduler.Immediate, NullLogger<OutputHandler>.Instance
+                #pragma warning restore CS0618
             );
         }
 

@@ -3,6 +3,8 @@ using System.Diagnostics.CodeAnalysis;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Shared;
 
+#nullable disable
+
 namespace Lsp.Tests
 {
     public class SupportedCapabilitiesFixture
@@ -24,7 +26,7 @@ namespace Lsp.Tests
                 return true;
             }
 
-            protected override bool TryGetCapability(Type capabilityType, [NotNullWhen(true)] out object? capability)
+            protected override bool TryGetCapability(Type capabilityType, [NotNullWhen(true)] out object capability)
             {
                 capability = Activator.CreateInstance(capabilityType);
                 return true;
@@ -45,7 +47,7 @@ namespace Lsp.Tests
                 return false;
             }
 
-            protected override bool TryGetCapability(Type capabilityType, [NotNullWhen(true)] out object? capability)
+            protected override bool TryGetCapability(Type capabilityType, [NotNullWhen(true)] out object capability)
             {
                 capability = null;
                 return false;
