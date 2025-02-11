@@ -2,9 +2,9 @@
 <RunSettings>
   <DataCollectionRunSettings>
     <DataCollectors>
-      <DataCollector friendlyName="code coverage">
+      <DataCollector friendlyName="Code Coverage">
         <Configuration>
-          <Format>json,lcov,cobertura,opencover</Format>
+          <Format>Cobertura</Format>
           <Exclude>[Bogus*]*,[Autofac*]*,[FakeItEasy*]*,[Moq*]*,[xunit*]*,[Microsoft.*]*,[XunitXml*]*,[coverlet.*]*,[System.*]*,[*]JetBrains.Annotations*</Exclude>
           <Include>[OmniSharp.*]*</Include>
           <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute</ExcludeByAttribute>
