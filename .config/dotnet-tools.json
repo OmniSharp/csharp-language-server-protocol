@@ -23,13 +23,6 @@
       ],
       "rollForward": false
     },
-    "codecov.tool": {
-      "version": "1.13.0",
-      "commands": [
-        "codecov"
-      ],
-      "rollForward": false
-    },
     "jetbrains.resharper.globaltools": {
       "version": "2024.3.5",
       "commands": [
