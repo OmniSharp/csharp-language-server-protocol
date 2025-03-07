@@ -29,13 +29,6 @@
         "jb"
       ],
       "rollForward": false
-    },
-    "nukeeper": {
-      "version": "0.35.0",
-      "commands": [
-        "nukeeper"
-      ],
-      "rollForward": false
     }
   }
 }
