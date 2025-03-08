@@ -4,6 +4,8 @@ using System.Collections.Concurrent;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
+#nullable disable
+
 namespace TestingUtils
 {
     /// <summary>

@@ -1,4 +1,5 @@
 {
   "$schema": "./build.schema.json",
-  "Solution": "LSP.sln"
+  "Solution": "LSP.sln",
+  "Host": "GitHubActions"
 }

@@ -8,6 +8,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog;
 
+#nullable disable
+
 // ReSharper disable UnusedParameter.Local
 
 namespace SampleServer

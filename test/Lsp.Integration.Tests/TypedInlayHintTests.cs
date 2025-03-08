@@ -16,6 +16,8 @@ using Serilog.Events;
 using Xunit;
 using Xunit.Abstractions;
 
+#nullable disable
+
 namespace Lsp.Integration.Tests
 {
     public class TypedInlayHintTests : LanguageProtocolTestBase
@@ -39,7 +41,7 @@ namespace Lsp.Integration.Tests
                     options.OnInlayHints(
                         inlayHintParams =>
                         {
-                            return Task.FromResult<InlayHintContainer<Data>?>(
+                            return Task.FromResult<InlayHintContainer<Data>>(
                                 new InlayHintContainer<Data>(
                                     new InlayHint<Data>
                                     {
@@ -82,7 +84,7 @@ namespace Lsp.Integration.Tests
                     options.OnInlayHints(
                         inlayHintParams =>
                         {
-                            return Task.FromResult<InlayHintContainer?>(
+                            return Task.FromResult<InlayHintContainer>(
                                 new InlayHintContainer<Nested>(
                                     new InlayHint<Nested>
                                     {
@@ -124,7 +126,7 @@ namespace Lsp.Integration.Tests
                     options.OnInlayHints(
                         inlayHintParams =>
                         {
-                            return Task.FromResult<InlayHintContainer?>(
+                            return Task.FromResult<InlayHintContainer>(
                                 new InlayHintContainer(
                                     new InlayHint
                                     {
@@ -163,7 +165,7 @@ namespace Lsp.Integration.Tests
                     options.OnInlayHints(
                         inlayHintParams =>
                         {
-                            return Task.FromResult<InlayHintContainer?>(
+                            return Task.FromResult<InlayHintContainer>(
                                 new InlayHintContainer(
                                     new InlayHint
                                     {
@@ -216,7 +218,7 @@ namespace Lsp.Integration.Tests
                     options.OnInlayHints(
                         (InlayHintParams, capability, token) =>
                         {
-                            return Task.FromResult<InlayHintContainer<Data>?>(
+                            return Task.FromResult<InlayHintContainer<Data>>(
                                 new InlayHintContainer<Data>(
                                     new InlayHint<Data>
                                     {

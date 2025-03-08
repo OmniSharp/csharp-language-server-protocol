@@ -15,6 +15,8 @@ using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
+#nullable disable
+
 namespace Lsp.Integration.Tests
 {
     public class ProgressTests : LanguageProtocolFixtureTest<DefaultOptions, DefaultClient, DefaultServer>
@@ -37,7 +39,9 @@ namespace Lsp.Integration.Tests
 
             using var observer = Client.ProgressManager.For<Data>(token, CancellationToken);
             var workDoneObservable = Server.ProgressManager.Monitor(
+                #pragma warning disable CS0618
                 token, x => x.ToObject<Data>(Server.Services.GetRequiredService<ISerializer>().JsonSerializer)
+                #pragma warning restore CS0618
             );
             var observable = workDoneObservable.Replay();
             using var _ = observable.Connect();
@@ -95,7 +99,9 @@ namespace Lsp.Integration.Tests
 
             using var observer = Server.ProgressManager.For<Data>(token, CancellationToken);
             var workDoneObservable = Client.ProgressManager.Monitor(
+                #pragma warning disable CS0618
                 token, x => x.ToObject<Data>(Client.Services.GetRequiredService<ISerializer>().JsonSerializer)
+                #pragma warning restore CS0618
             );
             var observable = workDoneObservable.Replay();
             using var _ = observable.Connect();
