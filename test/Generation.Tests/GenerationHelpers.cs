@@ -20,6 +20,8 @@ using Xunit;
 //using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 //using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
+#nullable disable
+
 namespace Generation.Tests
 {
     public static class GenerationHelpers
@@ -227,7 +229,7 @@ namespace Generation.Tests
             _syntaxReceiver = syntaxReceiver;
         }
 
-        public override void Visit(SyntaxNode? node)
+        public override void Visit(SyntaxNode node)
         {
             if (node == null) return;
             _syntaxReceiver.OnVisitSyntaxNode(node);

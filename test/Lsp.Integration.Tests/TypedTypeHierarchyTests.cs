@@ -16,6 +16,8 @@ using Serilog.Events;
 using Xunit;
 using Xunit.Abstractions;
 
+#nullable disable
+
 namespace Lsp.Integration.Tests
 {
     public class TypedTypeHierarchyTests : LanguageProtocolTestBase
@@ -27,10 +29,10 @@ namespace Lsp.Integration.Tests
         [Fact]
         public async Task Should_Aggregate_With_All_Related_Handlers()
         {
-            var subtypeHandlerA = Substitute.For<Func<TypeHierarchySubtypesParams<Data>, Task<Container<TypeHierarchyItem>?>>>();
-            var subtypeHandlerB = Substitute.For<Func<TypeHierarchySubtypesParams<Nested>, Task<Container<TypeHierarchyItem>?>>>();
-            var supertypeHandlerA = Substitute.For<Func<TypeHierarchySupertypesParams<Data>, Task<Container<TypeHierarchyItem>?>>>();
-            var supertypeHandlerB = Substitute.For<Func<TypeHierarchySupertypesParams<Nested>, Task<Container<TypeHierarchyItem>?>>>();
+            var subtypeHandlerA = Substitute.For<Func<TypeHierarchySubtypesParams<Data>, Task<Container<TypeHierarchyItem>>>>();
+            var subtypeHandlerB = Substitute.For<Func<TypeHierarchySubtypesParams<Nested>, Task<Container<TypeHierarchyItem>>>>();
+            var supertypeHandlerA = Substitute.For<Func<TypeHierarchySupertypesParams<Data>, Task<Container<TypeHierarchyItem>>>>();
+            var supertypeHandlerB = Substitute.For<Func<TypeHierarchySupertypesParams<Nested>, Task<Container<TypeHierarchyItem>>>>();
             var (client, _) = await Initialize(
                 options => { options.EnableAllCapabilities(); }, options =>
                 {
@@ -42,7 +44,7 @@ namespace Lsp.Integration.Tests
 
                     options.OnTypeHierarchy(
                         @params => Task.FromResult(
-                            new Container<TypeHierarchyItem<Data>?>(
+                            new Container<TypeHierarchyItem<Data>>(
                                 new TypeHierarchyItem<Data>
                                 {
                                     Name = "Test",
@@ -69,7 +71,7 @@ namespace Lsp.Integration.Tests
 
                     options.OnTypeHierarchy(
                         @params => Task.FromResult(
-                            new Container<TypeHierarchyItem<Nested>?>(
+                            new Container<TypeHierarchyItem<Nested>>(
                                 new TypeHierarchyItem<Nested>
                                 {
                                     Name = "Test Nested",
@@ -116,14 +118,14 @@ namespace Lsp.Integration.Tests
         [Fact]
         public async Task Should_Resolve_With_Data_Capability()
         {
-            var subtypeHandler = Substitute.For<Func<TypeHierarchySubtypesParams<Data>, Task<Container<TypeHierarchyItem>?>>>();
-            var supertypeHandler = Substitute.For<Func<TypeHierarchySupertypesParams<Data>, Task<Container<TypeHierarchyItem>?>>>();
+            var subtypeHandler = Substitute.For<Func<TypeHierarchySubtypesParams<Data>, Task<Container<TypeHierarchyItem>>>>();
+            var supertypeHandler = Substitute.For<Func<TypeHierarchySupertypesParams<Data>, Task<Container<TypeHierarchyItem>>>>();
             var (client, _) = await Initialize(
                 options => { options.EnableAllCapabilities(); }, options =>
                 {
                     options.OnTypeHierarchy(
                         @params => Task.FromResult(
-                            new Container<TypeHierarchyItem<Data>?>(
+                            new Container<TypeHierarchyItem<Data>>(
                                 new TypeHierarchyItem<Data>
                                 {
                                     Name = "Test",
@@ -176,8 +178,8 @@ namespace Lsp.Integration.Tests
                     options.OnTypeHierarchy<Data>(
                         (completionParams, observer) =>
                         {
-                            var a = new Container<TypeHierarchyItem<Data>?>(
-                                new Container<TypeHierarchyItem<Data>?>(
+                            var a = new Container<TypeHierarchyItem<Data>>(
+                                new Container<TypeHierarchyItem<Data>>(
                                     new TypeHierarchyItem<Data>
                                     {
                                         Name = "Test",

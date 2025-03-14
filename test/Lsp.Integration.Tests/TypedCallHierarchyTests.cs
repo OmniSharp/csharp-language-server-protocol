@@ -16,6 +16,8 @@ using Serilog.Events;
 using Xunit;
 using Xunit.Abstractions;
 
+#nullable disable
+
 namespace Lsp.Integration.Tests
 {
     public class TypedCallHierarchyTests : LanguageProtocolTestBase
@@ -27,10 +29,10 @@ namespace Lsp.Integration.Tests
         [Fact]
         public async Task Should_Aggregate_With_All_Related_Handlers()
         {
-            var incomingHandlerA = Substitute.For<Func<CallHierarchyIncomingCallsParams<Data>, Task<Container<CallHierarchyIncomingCall>?>>>();
-            var incomingHandlerB = Substitute.For<Func<CallHierarchyIncomingCallsParams<Nested>, Task<Container<CallHierarchyIncomingCall>?>>>();
-            var outgoingHandlerA = Substitute.For<Func<CallHierarchyOutgoingCallsParams<Data>, Task<Container<CallHierarchyOutgoingCall>?>>>();
-            var outgoingHandlerB = Substitute.For<Func<CallHierarchyOutgoingCallsParams<Nested>, Task<Container<CallHierarchyOutgoingCall>?>>>();
+            var incomingHandlerA = Substitute.For<Func<CallHierarchyIncomingCallsParams<Data>, Task<Container<CallHierarchyIncomingCall>>>>();
+            var incomingHandlerB = Substitute.For<Func<CallHierarchyIncomingCallsParams<Nested>, Task<Container<CallHierarchyIncomingCall>>>>();
+            var outgoingHandlerA = Substitute.For<Func<CallHierarchyOutgoingCallsParams<Data>, Task<Container<CallHierarchyOutgoingCall>>>>();
+            var outgoingHandlerB = Substitute.For<Func<CallHierarchyOutgoingCallsParams<Nested>, Task<Container<CallHierarchyOutgoingCall>>>>();
             var (client, _) = await Initialize(
                 options => { options.EnableAllCapabilities(); }, options =>
                 {
@@ -42,7 +44,7 @@ namespace Lsp.Integration.Tests
 
                     options.OnCallHierarchy(
                         @params => Task.FromResult(
-                            new Container<CallHierarchyItem<Data>?>(
+                            new Container<CallHierarchyItem<Data>>(
                                 new CallHierarchyItem<Data>
                                 {
                                     Name = "Test",
@@ -69,7 +71,7 @@ namespace Lsp.Integration.Tests
 
                     options.OnCallHierarchy(
                         @params => Task.FromResult(
-                            new Container<CallHierarchyItem<Nested>?>(
+                            new Container<CallHierarchyItem<Nested>>(
                                 new CallHierarchyItem<Nested>
                                 {
                                     Name = "Test Nested",
@@ -116,14 +118,14 @@ namespace Lsp.Integration.Tests
         [Fact]
         public async Task Should_Resolve_With_Data_Capability()
         {
-            var incomingHandler = Substitute.For<Func<CallHierarchyIncomingCallsParams<Data>, Task<Container<CallHierarchyIncomingCall>?>>>();
-            var outgoingHandler = Substitute.For<Func<CallHierarchyOutgoingCallsParams<Data>, Task<Container<CallHierarchyOutgoingCall>?>>>();
+            var incomingHandler = Substitute.For<Func<CallHierarchyIncomingCallsParams<Data>, Task<Container<CallHierarchyIncomingCall>>>>();
+            var outgoingHandler = Substitute.For<Func<CallHierarchyOutgoingCallsParams<Data>, Task<Container<CallHierarchyOutgoingCall>>>>();
             var (client, _) = await Initialize(
                 options => { options.EnableAllCapabilities(); }, options =>
                 {
                     options.OnCallHierarchy(
                         @params => Task.FromResult(
-                            new Container<CallHierarchyItem<Data>?>(
+                            new Container<CallHierarchyItem<Data>>(
                                 new CallHierarchyItem<Data>
                                 {
                                     Name = "Test",
@@ -176,8 +178,8 @@ namespace Lsp.Integration.Tests
                     options.OnCallHierarchy<Data>(
                         (completionParams, observer) =>
                         {
-                            var a = new Container<CallHierarchyItem<Data>?>(
-                                new Container<CallHierarchyItem<Data>?>(
+                            var a = new Container<CallHierarchyItem<Data>>(
+                                new Container<CallHierarchyItem<Data>>(
                                     new CallHierarchyItem<Data>
                                     {
                                         Name = "Test",

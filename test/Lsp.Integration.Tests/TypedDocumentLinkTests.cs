@@ -15,6 +15,8 @@ using Serilog.Events;
 using Xunit;
 using Xunit.Abstractions;
 
+#nullable disable
+
 namespace Lsp.Integration.Tests
 {
     public partial class TypedDocumentLinkTests : LanguageProtocolTestBase
@@ -66,7 +68,7 @@ namespace Lsp.Integration.Tests
                     options.OnDocumentLink(
                         codeLensParams =>
                         {
-                            return Task.FromResult<DocumentLinkContainer<Nested>?>(
+                            return Task.FromResult<DocumentLinkContainer<Nested>>(
                                 new DocumentLinkContainer<Nested>(
                                     new DocumentLink<Nested>
                                     {

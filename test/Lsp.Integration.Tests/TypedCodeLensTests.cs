@@ -16,6 +16,8 @@ using Serilog.Events;
 using Xunit;
 using Xunit.Abstractions;
 
+#nullable disable
+
 namespace Lsp.Integration.Tests
 {
     public class TypedCodeLensTests : LanguageProtocolTestBase
@@ -39,7 +41,7 @@ namespace Lsp.Integration.Tests
                     options.OnCodeLens(
                         codeLensParams =>
                         {
-                            return Task.FromResult<CodeLensContainer?>(
+                            return Task.FromResult<CodeLensContainer>(
                                 new CodeLensContainer<Data>(
                                     new CodeLens<Data>
                                     {
@@ -71,7 +73,7 @@ namespace Lsp.Integration.Tests
                     options.OnCodeLens(
                         codeLensParams =>
                         {
-                            return Task.FromResult<CodeLensContainer?>(
+                            return Task.FromResult<CodeLensContainer>(
                                 new CodeLensContainer<Nested>(
                                     new CodeLens<Nested>
                                     {
@@ -98,7 +100,7 @@ namespace Lsp.Integration.Tests
                     options.OnCodeLens(
                         codeLensParams =>
                         {
-                            return Task.FromResult<CodeLensContainer?>(
+                            return Task.FromResult<CodeLensContainer>(
                                 new CodeLensContainer(
                                     new CodeLens
                                     {
@@ -121,7 +123,7 @@ namespace Lsp.Integration.Tests
                     options.OnCodeLens(
                         codeLensParams =>
                         {
-                            return Task.FromResult<CodeLensContainer?>(
+                            return Task.FromResult<CodeLensContainer>(
                                 new CodeLensContainer(
                                     new CodeLens
                                     {
@@ -167,7 +169,7 @@ namespace Lsp.Integration.Tests
                     options.OnCodeLens(
                         (codeLensParams, capability, token) =>
                         {
-                            return Task.FromResult<CodeLensContainer<Data>?>(
+                            return Task.FromResult<CodeLensContainer<Data>>(
                                 new CodeLensContainer<Data>(
                                     new CodeLens<Data>
                                     {
@@ -195,7 +197,6 @@ namespace Lsp.Integration.Tests
                             lens.Data.Child.Should().NotBeNull();
                             lens.Data.Name.Should().Be("name");
                             return Task.FromResult(lens with { Command = lens.Command with { Name = "resolved" } });
-                            return Task.FromResult(lens);
                         },
                         (_, _) => new CodeLensRegistrationOptions()
                     );
@@ -248,7 +249,6 @@ namespace Lsp.Integration.Tests
                             codeLens.Data.Child.Should().NotBeNull();
                             codeLens.Data.Name.Should().Be("name");
                             return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
-                            return Task.FromResult(codeLens);
                         },
                         (_, _) => new CodeLensRegistrationOptions()
                     );
@@ -270,7 +270,7 @@ namespace Lsp.Integration.Tests
                     options.OnCodeLens(
                         (codeLensParams, token) =>
                         {
-                            return Task.FromResult<CodeLensContainer<Data>?>(
+                            return Task.FromResult<CodeLensContainer<Data>>(
                                 new CodeLensContainer<Data>(
                                     new CodeLens<Data>
                                     {
@@ -298,7 +298,6 @@ namespace Lsp.Integration.Tests
                             codeLens.Data.Child.Should().NotBeNull();
                             codeLens.Data.Name.Should().Be("name");
                             return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
-                            return Task.FromResult(codeLens);
                         },
                         (_, _) => new CodeLensRegistrationOptions()
                     );
@@ -351,7 +350,6 @@ namespace Lsp.Integration.Tests
                             codeLens.Data.Child.Should().NotBeNull();
                             codeLens.Data.Name.Should().Be("name");
                             return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
-                            return Task.FromResult(codeLens);
                         },
                         (_, _) => new CodeLensRegistrationOptions()
                     );
@@ -401,7 +399,6 @@ namespace Lsp.Integration.Tests
                             codeLens.Data.Child.Should().NotBeNull();
                             codeLens.Data.Name.Should().Be("name");
                             return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
-                            return Task.FromResult(codeLens);
                         },
                         (_, _) => new CodeLensRegistrationOptions()
                     );
@@ -454,7 +451,6 @@ namespace Lsp.Integration.Tests
                             codeLens.Data.Child.Should().NotBeNull();
                             codeLens.Data.Name.Should().Be("name");
                             return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
-                            return Task.FromResult(codeLens);
                         },
                         (_, _) => new CodeLensRegistrationOptions()
                     );
@@ -493,7 +489,6 @@ namespace Lsp.Integration.Tests
                         (codeLens, capability, token) =>
                         {
                             return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
-                            return Task.FromResult(codeLens);
                         },
                         (_, _) => new CodeLensRegistrationOptions()
                     );
@@ -534,7 +529,6 @@ namespace Lsp.Integration.Tests
                         (codeLens, capability, token) =>
                         {
                             return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
-                            return Task.FromResult(codeLens);
                         },
                         (_, _) => new CodeLensRegistrationOptions()
                     );
@@ -572,7 +566,6 @@ namespace Lsp.Integration.Tests
                         (codeLens, token) =>
                         {
                             return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
-                            return Task.FromResult(codeLens);
                         },
                         (_, _) => new CodeLensRegistrationOptions()
                     );
@@ -613,7 +606,6 @@ namespace Lsp.Integration.Tests
                         (codeLens, token) =>
                         {
                             return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
-                            return Task.FromResult(codeLens);
                         },
                         (_, _) => new CodeLensRegistrationOptions()
                     );
@@ -651,7 +643,6 @@ namespace Lsp.Integration.Tests
                         codeLens =>
                         {
                             return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
-                            return Task.FromResult(codeLens);
                         },
                         (_, _) => new CodeLensRegistrationOptions()
                     );
@@ -692,7 +683,6 @@ namespace Lsp.Integration.Tests
                         codeLens =>
                         {
                             return Task.FromResult(codeLens with { Command = codeLens.Command with { Name = "resolved" } });
-                            return Task.FromResult(codeLens);
                         },
                         (_, _) => new CodeLensRegistrationOptions()
                     );

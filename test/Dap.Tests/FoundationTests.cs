@@ -21,6 +21,8 @@ using OmniSharp.Extensions.JsonRpc;
 using Xunit;
 using Xunit.Abstractions;
 
+#nullable disable
+
 namespace Dap.Tests
 {
     public class FoundationTests

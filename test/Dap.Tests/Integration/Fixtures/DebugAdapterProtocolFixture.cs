@@ -10,6 +10,8 @@ using OmniSharp.Extensions.JsonRpc.Testing;
 using Xunit;
 using Xunit.Abstractions;
 
+#nullable disable
+
 namespace Dap.Tests.Integration.Fixtures
 {
     public class DebugAdapterProtocolFixture<TConfigureFixture, TConfigureClient, TConfigureServer> : DebugAdapterProtocolTestBase, IAsyncLifetime

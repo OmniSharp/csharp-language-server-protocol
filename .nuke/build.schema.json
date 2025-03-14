@@ -1,55 +1,82 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "$ref": "#/definitions/build",
-  "title": "Build Schema",
   "definitions": {
-    "build": {
-      "type": "object",
+    "Host": {
+      "type": "string",
+      "enum": [
+        "AppVeyor",
+        "AzurePipelines",
+        "Bamboo",
+        "Bitbucket",
+        "Bitrise",
+        "GitHubActions",
+        "GitLab",
+        "Jenkins",
+        "Rider",
+        "SpaceAutomation",
+        "TeamCity",
+        "Terminal",
+        "TravisCI",
+        "VisualStudio",
+        "VSCode"
+      ]
+    },
+    "ExecutableTarget": {
+      "type": "string",
+      "enum": [
+        "Build",
+        "BuildVersion",
+        "Clean",
+        "CleanWellKnownTemporaryFiles",
+        "CollectCodeCoverage",
+        "Default",
+        "DotnetCoreBuild",
+        "DotnetCorePack",
+        "DotnetCoreRestore",
+        "DotnetCoreTest",
+        "DotnetToolRestore",
+        "GenerateCodeCoverageBadges",
+        "GenerateCodeCoverageReport",
+        "GenerateCodeCoverageReportCobertura",
+        "GenerateCodeCoverageSummary",
+        "HuskyLint",
+        "Lint",
+        "LintFiles",
+        "LintGitAdd",
+        "LintPublicApiAnalyzers",
+        "MoveUnshippedToShipped",
+        "NpmInstall",
+        "Pack",
+        "PostLint",
+        "Restore",
+        "ShipPublicApis",
+        "Test",
+        "TestVscodeExtension"
+      ]
+    },
+    "Verbosity": {
+      "type": "string",
+      "description": "",
+      "enum": [
+        "Verbose",
+        "Normal",
+        "Minimal",
+        "Quiet"
+      ]
+    },
+    "NukeBuild": {
       "properties": {
-        "Artifacts": {
-          "type": "string",
-          "description": "The directory where artifacts are to be dropped"
-        },
-        "Configuration": {
-          "type": "string",
-          "description": "Configuration to build",
-          "enum": [
-            "Debug",
-            "Release"
-          ]
-        },
         "Continue": {
           "type": "boolean",
           "description": "Indicates to continue a previously failed build attempt"
-        },
-        "Coverage": {
-          "type": "string",
-          "description": "The directory where coverage artifacts are to be dropped"
         },
         "Help": {
           "type": "boolean",
           "description": "Shows the help text for this build assembly"
         },
         "Host": {
-          "type": "string",
           "description": "Host for execution. Default is 'automatic'",
-          "enum": [
-            "AppVeyor",
-            "AzurePipelines",
-            "Bamboo",
-            "Bitbucket",
-            "Bitrise",
-            "GitHubActions",
-            "GitLab",
-            "Jenkins",
-            "Rider",
-            "SpaceAutomation",
-            "TeamCity",
-            "Terminal",
-            "TravisCI",
-            "VisualStudio",
-            "VSCode"
-          ]
+          "$ref": "#/definitions/Host"
         },
         "NoLogo": {
           "type": "boolean",
@@ -74,95 +101,61 @@
           "type": "string",
           "description": "Root directory during build execution"
         },
-        "Serve": {
-          "type": "boolean",
-          "description": "serve the docs"
-        },
         "Skip": {
           "type": "array",
           "description": "List of targets to be skipped. Empty list skips all dependencies",
           "items": {
-            "type": "string",
-            "enum": [
-              "Build",
-              "BuildVersion",
-              "Clean",
-              "CoreBuild",
-              "CoreDocs",
-              "CorePack",
-              "CoreRestore",
-              "CoreTest",
-              "Default",
-              "DotnetToolRestore",
-              "Generate_Code_Coverage_Badges",
-              "Generate_Code_Coverage_Report",
-              "Generate_Code_Coverage_Report_Cobertura",
-              "Generate_Code_Coverage_Summary",
-              "GenerateCodeCoverageBadges",
-              "GenerateCodeCoverageReport",
-              "GenerateCodeCoverageReportCobertura",
-              "GenerateCodeCoverageSummary",
-              "GenerateReadme",
-              "NpmInstall",
-              "Pack",
-              "Restore",
-              "Test",
-              "TestVscodeTestExtension",
-              "Trigger_Code_Coverage_Reports",
-              "TriggerCodeCoverageReports"
-            ]
+            "$ref": "#/definitions/ExecutableTarget"
           }
-        },
-        "Solution": {
-          "type": "string",
-          "description": "Path to a solution file that is automatically loaded"
         },
         "Target": {
           "type": "array",
           "description": "List of targets to be invoked. Default is '{default_target}'",
           "items": {
-            "type": "string",
-            "enum": [
-              "Build",
-              "BuildVersion",
-              "Clean",
-              "CoreBuild",
-              "CoreDocs",
-              "CorePack",
-              "CoreRestore",
-              "CoreTest",
-              "Default",
-              "DotnetToolRestore",
-              "Generate_Code_Coverage_Badges",
-              "Generate_Code_Coverage_Report",
-              "Generate_Code_Coverage_Report_Cobertura",
-              "Generate_Code_Coverage_Summary",
-              "GenerateCodeCoverageBadges",
-              "GenerateCodeCoverageReport",
-              "GenerateCodeCoverageReportCobertura",
-              "GenerateCodeCoverageSummary",
-              "GenerateReadme",
-              "NpmInstall",
-              "Pack",
-              "Restore",
-              "Test",
-              "TestVscodeTestExtension",
-              "Trigger_Code_Coverage_Reports",
-              "TriggerCodeCoverageReports"
-            ]
+            "$ref": "#/definitions/ExecutableTarget"
           }
         },
         "Verbosity": {
-          "type": "string",
           "description": "Logging verbosity during build execution. Default is 'Normal'",
-          "enum": [
-            "Minimal",
-            "Normal",
-            "Quiet",
-            "Verbose"
-          ]
+          "$ref": "#/definitions/Verbosity"
         }
       }
     }
-  }
+  },
+  "allOf": [
+    {
+      "properties": {
+        "Artifacts": {
+          "type": "string",
+          "description": "The directory where artifacts are to be dropped"
+        },
+        "Configuration": {
+          "type": "string",
+          "description": "Configuration to build",
+          "enum": [
+            "Debug",
+            "Release"
+          ]
+        },
+        "Coverage": {
+          "type": "string",
+          "description": "The directory where coverage artifacts are to be dropped"
+        },
+        "lint-files": {
+          "type": "array",
+          "description": "The files to lint, if not given lints all files",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Solution": {
+          "type": "string",
+          "description": "Path to a solution file that is automatically loaded"
+        }
+      }
+    },
+    {
+      "$ref": "#/definitions/NukeBuild"
+    }
+  ]
 }

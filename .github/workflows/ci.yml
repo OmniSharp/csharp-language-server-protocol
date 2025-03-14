@@ -67,11 +67,39 @@ on:
       - '.github/labels.yml'
       - '.github/release.yml'
       - '.github/renovate.json'
+permissions:
+  actions: read
+  checks: read
+  contents: read
+  deployments: read
+  id-token: none
+  issues: write
+  discussions: none
+  packages: none
+  pages: none
+  pull-requests: write
+  repository-projects: none
+  security-events: none
+  statuses: write
 
 jobs:
   build:
     env:
       NUGET_PACKAGES: '${{ github.workspace }}/.nuget/packages'
+    permissions:
+      actions: read
+      checks: write
+      contents: read
+      deployments: read
+      id-token: none
+      issues: write
+      discussions: none
+      packages: none
+      pages: none
+      pull-requests: write
+      repository-projects: none
+      security-events: none
+      statuses: write
     strategy:
       fail-fast: false
       matrix:
@@ -89,10 +117,6 @@ jobs:
         with:
           path: '${{ github.workspace }}/.nuget/packages'
           key: "${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props') }}-${{ hashFiles('**/dotnet-tools.json') }}"
-      - name: 🔨 Use .NET Core 3.1 SDK
-        uses: actions/setup-dotnet@v4.3.0
-        with:
-          dotnet-version: '3.1.x'
       - name: 🔨 Use .NET Core 6.0 SDK
         uses: actions/setup-dotnet@v4.3.0
         with:
@@ -105,74 +129,87 @@ jobs:
         uses: actions/setup-dotnet@v4.3.0
         with:
           dotnet-version: '9.0.x'
-      - name: 🎁 dotnet tool restore
+      - name: 🚒 dotnet workload restore
+        continue-on-error: true
+        run: |
+          dotnet workload restore
+      - name: ⚒️ dotnet tool restore
         run: |
           dotnet tool restore
       - name: 🎁 Restore
         id: restore
         run: |
-          dotnet nuke Restore --skip
+          dotnet nuke --target DotnetCoreRestore Restore
       - name: Update NuGet Cache
         if: always() && steps.restore-nuget-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
           key: "${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props') }}-${{ hashFiles('**/dotnet-tools.json') }}"
           path: '${{ github.workspace }}/.nuget/packages'
-      - name: ⚙ Build
+      - name: ⚙️ Build
         id: build
         run: |
-          dotnet nuke Build --skip
-      - name: 🚦 Test
+          dotnet .build/bin/Debug/.build.dll --target DotnetCoreBuild Build
+      - name: 💨 Test
         id: test
         run: |
-          dotnet nuke Test TriggerCodeCoverageReports GenerateCodeCoverageReportCobertura GenerateCodeCoverageBadges GenerateCodeCoverageSummary GenerateCodeCoverageReport --skip
+          dotnet .build/bin/Debug/.build.dll --target DotnetCoreTest Test CollectCodeCoverage GenerateCodeCoverageReportCobertura GenerateCodeCoverageBadges GenerateCodeCoverageSummary GenerateCodeCoverageReport
       - name: 📦 Pack
         id: pack
         run: |
-          dotnet nuke Pack --skip
+          dotnet .build/bin/Debug/.build.dll --target DotnetCorePack Pack --skip Build
       - name: Npm install
         working-directory: vscode-testextension
         run: |
           npm ci
-      - name: 🚦 Vscode extension tests
+      - name: 💨 Vscode extension tests
         uses: coactions/setup-xvfb@v1
         with:
           run: 'npm run test'
           working-directory: 'vscode-testextension'
-      - name: 🏺 Publish coverage data
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: 'coverage-${{ matrix.os }}'
-          path: 'coverage/'
-      - name: 🐿 Publish Coverage
-        if: (github.event_name != 'pull_request' && github.event_name != 'pull_request_target') || ((github.event_name == 'pull_request' || github.event_name == 'pull_request_target') && github.event.pull_request.user.login != 'renovate[bot]' && github.event.pull_request.user.login != 'dependabot[bot]')
-        uses: codecov/codecov-action@v4.0.0-beta.2
-        with:
-          name: 'actions-${{ matrix.os }}'
-      - name: 🏺 Publish logs
+      - name: 🏺 Publish logs (${{ matrix.os }})
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: 'logs-${{ matrix.os }}'
-          path: 'artifacts/logs/'
-      - name: 🏺 Publish test data
+          path: '${{ github.workspace }}/artifacts/logs/'
+      - name: 🏺 Publish test data (${{ matrix.os }})
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: 'test data-${{ matrix.os }}'
-          path: 'artifacts/test/'
-      - name: 🏺 Publish NuGet Packages
+          path: '${{ github.workspace }}/artifacts/test/'
+      - name: 🚀 Publish Test Results
+        if: always() && matrix.os == 'macos-latest'
+        uses: EnricoMi/publish-unit-test-result-action/macos@v2
+        with:
+          files: '${{ github.workspace }}/artifacts/test/**/*.trx'
+      - name: 🏺 Publish coverage data (${{ matrix.os }})
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: 'nuget-${{ matrix.os }}'
-          path: 'artifacts/nuget/'
-      - name: 🏺 Publish Documentation
+          name: 'coverage-${{ matrix.os }}'
+          path: '${{ github.workspace }}/coverage/'
+      - name: 🚀 Publish Coverage Comment
+        if: always() && github.event_name == 'pull_request'
+        continue-on-error: true
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: 'Coverage'
+          path: '${{ github.workspace }}/coverage/summary/SummaryGithub.md'
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+      - name: 🚀 Publish Codecov Coverage
+        if: always() && (github.event_name != 'pull_request' && github.event_name != 'pull_request_target') || ((github.event_name == 'pull_request' || github.event_name == 'pull_request_target') && github.event.pull_request.user.login != 'renovate[bot]' && github.event.pull_request.user.login != 'dependabot[bot]')
+        continue-on-error: true
+        uses: codecov/codecov-action@v4.0.0-beta.2
+        with:
+          name: 'actions-${{ matrix.os }}'
+      - name: 🏺 Publish NuGet Packages (${{ matrix.os }})
+        if: always() 
         uses: actions/upload-artifact@v4
         with:
-          name: 'docs-${{ matrix.os }}'
-          path: 'artifacts/docs/'
+          name: 'nuget-${{ matrix.os }}'
+          path: '${{ github.workspace }}/artifacts/nuget/'
   Merge:
     runs-on: ubuntu-latest
     needs: build

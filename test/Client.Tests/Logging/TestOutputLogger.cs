@@ -3,6 +3,8 @@ using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
+#nullable disable
+
 namespace OmniSharp.Extensions.LanguageServer.Client.Tests.Logging
 {
     /// <summary>
@@ -101,7 +103,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests.Logging
         /// <param name="formatter">
         /// A delegate that formats the log message.
         /// </param>
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
             if (logLevel < _minimumLevel)
                 return;

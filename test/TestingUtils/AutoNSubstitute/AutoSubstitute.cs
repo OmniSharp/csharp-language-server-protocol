@@ -47,7 +47,7 @@ namespace NSubstitute.Internals
         /// </summary>
         /// <typeparam name="T">The type of the service.</typeparam>
         /// <returns>The service.</returns>
-        public T Resolve<T>() => Container.GetRequiredService<T>();
+        public T Resolve<T>() where T : notnull => Container.GetRequiredService<T>();
 
         /// <summary>
         /// Resolve the specified type in the container (register specified instance if needed).

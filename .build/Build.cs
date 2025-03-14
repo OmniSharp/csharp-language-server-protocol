@@ -1,8 +1,8 @@
 using JetBrains.Annotations;
 using Nuke.Common;
+using Nuke.Common.CI;
 using Nuke.Common.Execution;
 using Nuke.Common.Git;
-using Nuke.Common.IO;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
@@ -10,28 +10,26 @@ using Nuke.Common.Tools.MSBuild;
 using Nuke.Common.Tools.Npm;
 using Rocket.Surgery.Nuke.DotNetCore;
 
-namespace Build;
+#pragma warning disable CA1050
 
 [PublicAPI]
 [UnsetVisualStudioEnvironmentVariables]
 [PackageIcon("http://www.omnisharp.net/images/logo.png")]
-[EnsureReadmeIsUpdated]
 [DotNetVerbosityMapping]
 [MSBuildVerbosityMapping]
 [NuGetVerbosityMapping]
+[ShutdownDotNetAfterServerBuild]
 [LocalBuildConventions]
-public sealed partial class Solution : NukeBuild,
+internal sealed partial class Pipeline : NukeBuild,
                                 ICanRestoreWithDotNetCore,
                                 ICanBuildWithDotNetCore,
                                 ICanTestWithDotNetCore,
                                 ICanPackWithDotNetCore,
-                                IHaveDataCollector,
                                 ICanClean,
-                                ICanUpdateReadme,
+                                IHavePublicApis,
                                 IGenerateCodeCoverageReport,
                                 IGenerateCodeCoverageSummary,
                                 IGenerateCodeCoverageBadges,
-                                IGenerateDocFx,
                                 IHaveConfiguration<Configuration>
 {
     /// <summary>
@@ -41,29 +39,39 @@ public sealed partial class Solution : NukeBuild,
     /// - Microsoft VisualStudio     https://nuke.build/visualstudio
     /// - Microsoft VSCode           https://nuke.build/vscode
     /// </summary>
-    public static int Main() => Execute<Solution>(x => x.Default);
+    public static int Main() => Execute<Pipeline>(x => x.Default);
 
-    [OptionalGitRepository] public GitRepository? GitRepository { get; }
+    public Target Build => _ => _;
 
+    public Target Clean => _ => _;
+
+    [Parameter("Configuration to build")]
+    public Configuration Configuration { get; } = IsLocalBuild ? Configuration.Debug : Configuration.Release;
+
+    [OptionalGitRepository]
+    public GitRepository? GitRepository { get; }
+
+    [GitVersion(NoFetch = true, NoCache = false)]
+    public GitVersion GitVersion { get; } = null!;
+
+    public Target Lint => _ => _;
+
+    public Target Pack => _ => _.DependsOn(Clean);
+
+    public Target Restore => _ => _;
+
+    public Target Test => _ => _;
+
+    [NonEntryTarget]
     private Target Default => _ => _
                                   .DependsOn(Restore)
                                   .DependsOn(Build)
                                   .DependsOn(Test)
                                   .DependsOn(Pack);
 
-    public Target Build => _ => _.Inherit<ICanBuildWithDotNetCore>(x => x.CoreBuild);
-
-    public Target Pack => _ => _.Inherit<ICanPackWithDotNetCore>(x => x.CorePack)
-                                .DependsOn(Clean);
-
-    [ComputedGitVersion] public GitVersion GitVersion { get; } = null!;
-
-    public Target Clean => _ => _.Inherit<ICanClean>(x => x.Clean);
-    public Target Restore => _ => _.Inherit<ICanRestoreWithDotNetCore>(x => x.CoreRestore);
-
-    public Target Test => _ => _.Inherit<ICanTestWithDotNetCore>(x => x.CoreTest);
-
+#pragma warning disable CA1822 
     public Target NpmInstall => _ => _
+#pragma warning restore CA1822 // Member 'NpmInstall' does not access instance data and can be marked as static
         .Executes(() =>
             NpmTasks.NpmCi(s => s
                 .SetProcessWorkingDirectory(VscodeTestExtensionProjectDirectory)));
@@ -75,13 +83,7 @@ public sealed partial class Solution : NukeBuild,
                 .SetProcessWorkingDirectory(VscodeTestExtensionProjectDirectory)
                 .SetCommand("test")));
 
-    public Target BuildVersion => _ => _.Inherit<IHaveBuildVersion>(x => x.BuildVersion)
-                                        .Before(Default)
-                                        .Before(Clean);
-
-    [Parameter("Configuration to build")] public Configuration Configuration { get; } = IsLocalBuild ? Configuration.Debug : Configuration.Release;
-
-    AbsolutePath ICanUpdateReadme.ReadmeFilePath => RootDirectory / "README.md";
+    public Target BuildVersion => _ => _.Before(Default).Before(Clean);
 
     internal const string VscodeTestExtensionProjectDirectory = "vscode-testextension";
 }

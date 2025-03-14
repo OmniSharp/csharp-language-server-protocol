@@ -16,6 +16,8 @@ using Serilog.Events;
 using Xunit;
 using Xunit.Abstractions;
 
+#nullable disable
+
 namespace Lsp.Integration.Tests
 {
     public class TypedCodeActionTests : LanguageProtocolTestBase

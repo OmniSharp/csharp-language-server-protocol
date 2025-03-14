@@ -15,6 +15,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using Xunit;
 using Xunit.Abstractions;
 
+#nullable disable
+
 namespace Lsp.Integration.Tests
 {
     public class OverrideHandlerTests : LanguageProtocolTestBase
@@ -76,7 +78,7 @@ namespace Lsp.Integration.Tests
                                                IRegistration<ExecuteCommandRegistrationOptions, ExecuteCommandCapability>
     {
         // ReSharper disable once NotAccessedField.Local
-        private ExecuteCommandCapability? _capability;
+        private ExecuteCommandCapability _capability;
 
         private readonly ExecuteCommandRegistrationOptions _executeCommandRegistrationOptions = new ExecuteCommandRegistrationOptions
         {
@@ -108,6 +110,6 @@ namespace Lsp.Integration.Tests
         /// Arguments that the command should be invoked with.
         /// </summary>
         [Optional]
-        public JArray? Arguments { get; init; }
+        public JArray Arguments { get; init; }
     }
 }
