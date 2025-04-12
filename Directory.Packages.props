@@ -54,7 +54,7 @@
     <PackageVersion Include="System.Threading.Channels" Version="9.0.4" />
     <PackageVersion Include="Microsoft.Reactive.Testing" Version="6.0.1" />
     <PackageVersion Include="MediatR" Version="12.4.1" />
-    <PackageVersion Include="Bogus" Version="35.6.2" />
+    <PackageVersion Include="Bogus" Version="35.6.3" />
     <PackageVersion Include="Snapper" Version="2.4.1" />
     <PackageVersion Include="Xunit.SkippableFact" Version="1.5.23" />
     <PackageVersion Include="Nerdbank.Streams" Version="2.11.92" />
