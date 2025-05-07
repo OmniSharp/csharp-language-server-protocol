@@ -34,7 +34,7 @@ jobs:
         if: ${{ github.event.action == 'opened' }}
         uses: gittools/actions/gitreleasemanager/setup@v3.2.1
         with:
-          versionSpec: '0.18.x'
+          versionSpec: '0.20.x' # Updated versionSpec
 
       - name: Use GitVersion
         if: ${{ github.event.action == 'opened' }}
