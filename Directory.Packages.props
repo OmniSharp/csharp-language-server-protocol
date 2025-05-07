@@ -24,7 +24,7 @@
     <PackageVersion Include="GitVersion.Tool" Version="6.3.0" />
     <PackageVersion Include="JetBrains.ReSharper.CommandLineTools" Version="2025.1.2" />
     <PackageVersion Include="ReportGenerator" Version="5.4.6" />
-    <PackageVersion Include="Rocket.Surgery.Nuke" Version="1.8.36" />
+    <PackageVersion Include="Rocket.Surgery.Nuke" Version="2.9.11" />
   </ItemGroup>
   <ItemGroup>
     <!-- backwards compat is maintained in Directory.Packages.supports.props -->
