@@ -1,0 +1,70 @@
+name: .NET CI/CD Workflow
+
+on:
+  # กำหนด Trigger ให้ Workflow ทำงานเมื่อมีการ Push หรือ Pull Request
+  push:
+    branches:
+      - master
+      - develop # เพิ่มสาขาที่ต้องการ
+  pull_request:
+    branches:
+      - master
+      - develop
+
+jobs:
+  build-and-test:
+    name: Build and Test .NET Project
+    runs-on: ubuntu-latest
+
+    steps:
+      # ขั้นตอนที่ 1: Checkout โค้ดจาก Repository
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # ขั้นตอนที่ 2: ตั้งค่า .NET SDK
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x' # รองรับ .NET SDK 8.0.x
+
+      # ขั้นตอนที่ 3: Cache Dependencies เพื่อลดเวลาในการ Build
+      - name: Cache Dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      # ขั้นตอนที่ 4: Restore Dependencies
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      # ขั้นตอนที่ 5: Build Project
+      - name: Build Project
+        run: dotnet build --no-restore
+
+      # ขั้นตอนที่ 6: Run Tests
+      - name: Run Tests
+        run: dotnet test --no-build --verbosity normal
+
+  deploy:
+    name: Deploy to Production
+    needs: build-and-test # Job นี้จะเริ่มทำงานเมื่อ build-and-test สำเร็จ
+    runs-on: ubuntu-latest
+
+    steps:
+      # ขั้นตอนที่ 1: Checkout โค้ดจาก Repository
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # ขั้นตอนที่ 2: Deploy แอปพลิเคชัน
+      - name: Deploy Application
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }} # ใช้ Secrets สำหรับความปลอดภัย
+        run: |
+          echo "Starting Deployment..."
+          # ตัวอย่างคำสั่ง Deploy
+          # เช่น ใช้ rsync, scp หรือคำสั่ง CLI ของ Cloud Provider
+          ssh user@your-server 'bash -s' < deploy-script.sh
+          echo "Deployment Completed!"
