@@ -1,57 +1,23 @@
 name: Update Milestone
 
 on:
-  pull_request_target:
-    types:
-      - closed
-      - opened
-      - reopened
-      - synchronize
+  push:
+    branches:
+      - main
 
 jobs:
-  update_milestone:
+  update-milestone:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4.2.2
-        with:
-          ref: ${{ github.sha }}
-          fetch-depth: 0
-
-      - uses: actions/setup-dotnet@v4
-
-      - name: Fetch all history for all tags and branches
-        run: git fetch --prune
-
-      - name: Install GitVersion
-        if: ${{ github.event.action == 'opened' }}
-        uses: gittools/actions/gitversion/setup@v3.2.1
-        with:
-          versionSpec: '6.0.x'
-          preferLatestVersion: true
-
-      - name: Install GitReleaseManager
-        if: ${{ github.event.action == 'opened' }}
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      
+      - name: Setup GitReleaseManager.Tool
         uses: gittools/actions/gitreleasemanager/setup@v3.2.1
         with:
-          versionSpec: '0.18.x'
+          version: 0.19.x
 
-      - name: Use GitVersion
-        if: ${{ github.event.action == 'opened' }}
-        id: gitversion
-        uses: gittools/actions/gitversion/execute@v3.2.1
-
-      - name: Create Milestone
-        if: ${{ github.event.action == 'opened' }}
-        uses: WyriHaximus/github-action-create-milestone@v1
-        with:
-          title: v${{ steps.gitversion.outputs.majorMinorPatch }}
-        env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-        continue-on-error: true
-
-      - name: sync milestones
-        uses: RocketSurgeonsGuild/actions/sync-milestone@v0.3.15
-        with:
-          default-label: 'mysterious'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Update Milestone
+        run: |
+          gitreleasemanager milestone --update --milestone=1.0.0
