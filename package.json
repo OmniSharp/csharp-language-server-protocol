@@ -1,7 +1,7 @@
 {
     "private": true,
     "devDependencies": {
-        "@prettier/plugin-xml": "3.4.1",
+        "@prettier/plugin-xml": "3.4.2",
         "husky": "9.1.7",
         "lint-staged": "15.4.3",
         "prettier": "3.5.3"
