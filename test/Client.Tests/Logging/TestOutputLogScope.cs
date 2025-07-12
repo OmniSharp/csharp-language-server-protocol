@@ -1,6 +1,3 @@
-using System;
-using System.Threading;
-
 namespace OmniSharp.Extensions.LanguageServer.Client.Tests.Logging
 {
     /// <summary>

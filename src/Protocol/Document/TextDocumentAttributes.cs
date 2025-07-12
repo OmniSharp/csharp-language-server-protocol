@@ -1,5 +1,3 @@
-using System;
-
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 {
     public class TextDocumentAttributes : IEquatable<TextDocumentAttributes>

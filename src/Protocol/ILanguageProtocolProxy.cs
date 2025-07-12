@@ -1,5 +1,4 @@
-﻿using System;
-using OmniSharp.Extensions.JsonRpc;
+﻿using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 

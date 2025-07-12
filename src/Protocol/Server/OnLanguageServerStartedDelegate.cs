@@ -1,7 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
+﻿namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     /// <summary>
     /// Gives your class or handler an opportunity to interact with

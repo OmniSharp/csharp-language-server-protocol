@@ -1,8 +1,5 @@
-using System;
-using System.IO;
 using System.IO.Pipelines;
 using System.Reactive.Concurrency;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
@@ -11,7 +8,6 @@ using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Serialization;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
-using Xunit;
 
 namespace JsonRpc.Tests
 {

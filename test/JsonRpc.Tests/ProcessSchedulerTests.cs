@@ -1,15 +1,10 @@
-using System;
-using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Reactive.Testing;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
-using Xunit;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 using static Microsoft.Reactive.Testing.ReactiveTest;
 
 namespace JsonRpc.Tests

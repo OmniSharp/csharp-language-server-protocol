@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OmniSharp.Extensions.JsonRpc.Generators
+﻿namespace OmniSharp.Extensions.JsonRpc.Generators
 {
     public static class Preamble {
         /// <summary>

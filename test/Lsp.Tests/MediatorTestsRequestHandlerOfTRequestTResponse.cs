@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using DryIoc;
 using FluentAssertions;
 using MediatR;
@@ -18,7 +14,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Shared;
-using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 using Arg = NSubstitute.Arg;

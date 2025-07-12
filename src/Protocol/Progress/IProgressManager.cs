@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Reactive.Concurrency;
-using System.Threading;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 

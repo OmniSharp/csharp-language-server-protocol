@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Threading.Tasks;
+﻿using System.Reactive.Linq;
 using FluentAssertions;
 using NSubstitute;
 using OmniSharp.Extensions.DebugAdapter.Client;
@@ -11,7 +7,6 @@ using OmniSharp.Extensions.DebugAdapter.Server;
 using OmniSharp.Extensions.DebugAdapter.Testing;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using TestingUtils;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Dap.Tests.Integration

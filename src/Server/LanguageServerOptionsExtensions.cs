@@ -1,4 +1,3 @@
-using System;
 using System.Reactive.Concurrency;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

@@ -1,7 +1,5 @@
-﻿using System;
-using System.Reactive;
+﻿using System.Reactive;
 using System.Runtime.CompilerServices;
-using System.Threading;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 {

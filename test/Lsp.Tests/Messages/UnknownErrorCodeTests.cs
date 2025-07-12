@@ -4,7 +4,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Server.Messages;
 using TestingUtils;
-using Xunit;
 
 namespace Lsp.Tests.Messages
 {

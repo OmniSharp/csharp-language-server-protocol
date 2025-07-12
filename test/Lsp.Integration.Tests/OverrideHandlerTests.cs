@@ -1,5 +1,3 @@
-using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MediatR;
 using Newtonsoft.Json.Linq;
@@ -12,7 +10,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Lsp.Integration.Tests

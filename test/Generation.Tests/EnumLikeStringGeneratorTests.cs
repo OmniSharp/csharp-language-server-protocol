@@ -1,7 +1,3 @@
-using System.Threading.Tasks;
-using OmniSharp.Extensions.JsonRpc.Generators;
-using Xunit;
-
 namespace Generation.Tests
 {
     public class EnumLikeStringGeneratorTests

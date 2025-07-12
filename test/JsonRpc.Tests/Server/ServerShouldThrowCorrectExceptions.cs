@@ -1,10 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Testing;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace JsonRpc.Tests.Server

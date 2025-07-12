@@ -1,11 +1,8 @@
-using System;
 using System.Reactive.Disposables;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Threading;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Client.Tests.Logging;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Tests

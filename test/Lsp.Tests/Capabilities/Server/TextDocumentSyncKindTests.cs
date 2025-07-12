@@ -2,7 +2,6 @@ using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
-using Xunit;
 
 namespace Lsp.Tests.Capabilities.Server
 {

@@ -1,10 +1,7 @@
-﻿using System;
-using System.IO.Pipes;
-using System.Threading.Tasks;
+﻿using System.IO.Pipes;
 using Nerdbank.Streams;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Testing;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace JsonRpc.Tests

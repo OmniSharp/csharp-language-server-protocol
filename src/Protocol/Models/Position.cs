@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     public partial record Position : IComparable<Position>, IComparable
