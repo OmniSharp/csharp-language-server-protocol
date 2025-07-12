@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OmniSharp.Extensions.JsonRpc
+﻿namespace OmniSharp.Extensions.JsonRpc
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
     public class ProcessAttribute : Attribute

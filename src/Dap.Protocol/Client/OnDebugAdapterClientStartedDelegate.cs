@@ -1,7 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-
-namespace OmniSharp.Extensions.DebugAdapter.Protocol.Client
+﻿namespace OmniSharp.Extensions.DebugAdapter.Protocol.Client
 {
     /// <summary>
     /// Gives your class or handler an opportunity to interact with

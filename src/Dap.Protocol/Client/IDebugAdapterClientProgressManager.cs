@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OmniSharp.Extensions.DebugAdapter.Protocol.Client
+﻿namespace OmniSharp.Extensions.DebugAdapter.Protocol.Client
 {
     public interface IDebugAdapterClientProgressManager
     {

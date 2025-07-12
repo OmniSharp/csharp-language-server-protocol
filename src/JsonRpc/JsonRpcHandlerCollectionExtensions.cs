@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using DryIoc;
 
 namespace OmniSharp.Extensions.JsonRpc

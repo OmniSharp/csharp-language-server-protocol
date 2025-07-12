@@ -1,13 +1,9 @@
-﻿using System;
-using System.Reactive;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Reactive;
 using NSubstitute;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
 using OmniSharp.Extensions.DebugAdapter.Testing;
 using OmniSharp.Extensions.JsonRpc.Testing;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Dap.Tests.Integration.Fixtures

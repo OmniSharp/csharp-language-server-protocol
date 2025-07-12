@@ -1,5 +1,4 @@
-﻿using System;
-using DryIoc;
+﻿using DryIoc;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.JsonRpc;
 

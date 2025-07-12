@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OmniSharp.Extensions.JsonRpc
+﻿namespace OmniSharp.Extensions.JsonRpc
 {
     internal class ExternalServiceProvider : IExternalServiceProvider
     {

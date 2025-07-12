@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
+﻿using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
