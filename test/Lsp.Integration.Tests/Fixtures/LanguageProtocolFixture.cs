@@ -1,10 +1,8 @@
-﻿using System.Threading.Tasks;
-using NSubstitute;
+﻿using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Lsp.Integration.Tests.Fixtures
