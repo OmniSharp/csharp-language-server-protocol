@@ -1,11 +1,8 @@
-﻿using System;
-using System.Reactive;
+﻿using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
-using System.Threading;
-using System.Threading.Tasks;
 using static System.Reactive.Linq.Observable;
 
 namespace OmniSharp.Extensions.JsonRpc.Testing

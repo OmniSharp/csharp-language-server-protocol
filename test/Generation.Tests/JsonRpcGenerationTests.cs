@@ -1,7 +1,5 @@
-using System.Threading.Tasks;
 using FluentAssertions;
 using OmniSharp.Extensions.JsonRpc.Generators;
-using Xunit;
 using Xunit.Sdk;
 using static Generation.Tests.GenerationHelpers;
 
