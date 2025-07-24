@@ -1,8 +1,6 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using Xunit;
 
 namespace Lsp.Tests
 {
