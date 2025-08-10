@@ -1,5 +1,3 @@
-using System.Threading;
-using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc.Server;
 
 namespace OmniSharp.Extensions.JsonRpc
