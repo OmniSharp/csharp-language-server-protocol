@@ -1,6 +1,4 @@
-using System;
 using System.Globalization;
-using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;

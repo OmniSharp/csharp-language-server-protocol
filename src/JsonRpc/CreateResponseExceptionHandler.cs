@@ -1,5 +1,4 @@
-﻿using System;
-using OmniSharp.Extensions.JsonRpc.Server;
+﻿using OmniSharp.Extensions.JsonRpc.Server;
 
 namespace OmniSharp.Extensions.JsonRpc
 {

@@ -1,9 +1,7 @@
-using System;
 using FluentAssertions;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
-using Xunit;
 
 namespace Dap.Tests
 {

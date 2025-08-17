@@ -1,6 +1,3 @@
-using System;
-using System.Linq;
-
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     /// <summary>

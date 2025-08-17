@@ -1,7 +1,5 @@
-using System.IO;
 using System.IO.Pipelines;
 using System.Reactive.Concurrency;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json.Linq;
@@ -10,7 +8,6 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
-using Xunit;
 
 namespace Dap.Tests
 {

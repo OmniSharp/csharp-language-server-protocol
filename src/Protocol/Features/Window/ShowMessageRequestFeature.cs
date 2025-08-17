@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Diagnostics;
 using MediatR;
 using Newtonsoft.Json;
