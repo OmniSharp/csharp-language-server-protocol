@@ -1,6 +1,5 @@
 // See https://github.com/JoshKeegan/xRetry
 
-using System.Collections.Generic;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 

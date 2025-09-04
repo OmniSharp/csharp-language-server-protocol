@@ -1,11 +1,7 @@
-﻿using System;
-using System.Reactive;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Reactive;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Lsp.Integration.Tests.Fixtures

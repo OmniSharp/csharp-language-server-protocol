@@ -1,5 +1,3 @@
-using System;
-
 namespace OmniSharp.Extensions.LanguageProtocol.Testing
 {
     public readonly struct PositionMarker : IEquatable<PositionMarker>, IComparable<PositionMarker>, IComparable

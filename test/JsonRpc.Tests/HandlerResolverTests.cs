@@ -1,11 +1,8 @@
-using System;
-using System.Linq;
 using DryIoc;
 using FluentAssertions;
 using MediatR;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
-using Xunit;
 
 namespace JsonRpc.Tests
 {

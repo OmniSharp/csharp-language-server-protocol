@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TestingUtils
+﻿namespace TestingUtils
 {
     [Flags]
     public enum SkipOnPlatform

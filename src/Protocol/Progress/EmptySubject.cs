@@ -1,5 +1,4 @@
-﻿using System;
-using System.Reactive.Disposables;
+﻿using System.Reactive.Disposables;
 using System.Reactive.Subjects;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
