@@ -90,19 +90,19 @@ jobs:
           path: '${{ github.workspace }}/.nuget/packages'
           key: "${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props') }}-${{ hashFiles('**/dotnet-tools.json') }}"
       - name: 🔨 Use .NET Core 3.1 SDK
-        uses: actions/setup-dotnet@v4.3.1
+        uses: actions/setup-dotnet@v5.0.0
         with:
           dotnet-version: '3.1.x'
       - name: 🔨 Use .NET Core 6.0 SDK
-        uses: actions/setup-dotnet@v4.3.1
+        uses: actions/setup-dotnet@v5.0.0
         with:
           dotnet-version: '6.0.x'
       - name: 🔨 Use .NET Core 8.0 SDK
-        uses: actions/setup-dotnet@v4.3.1
+        uses: actions/setup-dotnet@v5.0.0
         with:
           dotnet-version: '8.0.x'
       - name: 🔨 Use .NET Core 9.0 SDK
-        uses: actions/setup-dotnet@v4.3.1
+        uses: actions/setup-dotnet@v5.0.0
         with:
           dotnet-version: '9.0.x'
       - name: 🎁 dotnet tool restore
