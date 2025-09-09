@@ -58,7 +58,7 @@
     <PackageVersion Include="Snapper" Version="2.4.1" />
     <PackageVersion Include="Xunit.SkippableFact" Version="1.5.23" />
     <PackageVersion Include="Nerdbank.Streams" Version="2.11.92" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.13.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.14.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" />
     <PackageVersion Include="DryIoc.Internal" Version="5.4.3" />
   </ItemGroup>
