@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace OmniSharp.Extensions.JsonRpc
+﻿namespace OmniSharp.Extensions.JsonRpc
 {
     public interface IInputHandler
     {

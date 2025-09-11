@@ -1,9 +1,6 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Disposables;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace OmniSharp.Extensions.JsonRpc.Testing
 {

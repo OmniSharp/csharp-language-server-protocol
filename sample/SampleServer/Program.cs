@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -27,13 +25,24 @@ namespace SampleServer
             //     await Task.Delay(100);
             // }
 
+            // Parse command line arguments
+            string solutionPath = null;
+            for (int i = 0; i < args.Length; i++)
+            {
+                if ((args[i] == "-s" || args[i] == "--solution") && i + 1 < args.Length)
+                {
+                    solutionPath = args[i + 1];
+                    break;
+                }
+            }
+
             Log.Logger = new LoggerConfiguration()
                         .Enrich.FromLogContext()
                         .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
                         .MinimumLevel.Verbose()
                         .CreateLogger();
 
-            Log.Logger.Information("This only goes file...");
+            Log.Logger.Information("Starting language server with solution: {SolutionPath}", solutionPath ?? "none");
 
             IObserver<WorkDoneProgressReport> workDone = null!;
 

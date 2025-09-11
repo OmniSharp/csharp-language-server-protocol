@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
+﻿namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 {
     public interface IProgressObservable<out TItem> : IProgressObservable, IDisposable, IObservable<TItem>
     {

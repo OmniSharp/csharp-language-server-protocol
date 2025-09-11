@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
