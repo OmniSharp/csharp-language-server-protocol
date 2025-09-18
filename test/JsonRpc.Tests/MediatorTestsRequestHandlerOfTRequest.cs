@@ -1,13 +1,9 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using DryIoc;
 using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
-using Xunit;
 using Xunit.Abstractions;
 using Arg = NSubstitute.Arg;
 using Request = OmniSharp.Extensions.JsonRpc.Server.Request;

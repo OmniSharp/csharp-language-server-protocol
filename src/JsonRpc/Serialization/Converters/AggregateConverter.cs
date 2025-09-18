@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using Newtonsoft.Json;
 
 namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters

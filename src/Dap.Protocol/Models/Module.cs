@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models

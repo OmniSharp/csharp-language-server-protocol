@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using DryIoc;
 using FluentAssertions;
 using NSubstitute;
@@ -13,7 +10,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Server.Matchers;
 using OmniSharp.Extensions.LanguageServer.Shared;
-using Xunit;
 using Xunit.Abstractions;
 using Arg = NSubstitute.Arg;
 

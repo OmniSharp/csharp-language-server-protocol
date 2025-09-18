@@ -1,13 +1,10 @@
-using System;
-using System.Collections.Generic;
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using TestingUtils;
-using Xunit;
-
+ 
 namespace Lsp.Tests.Models
 {
     public class ApplyWorkspaceEditParamsTests

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Reactive.Disposables;
-using System.Threading;
+﻿using System.Reactive.Disposables;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 

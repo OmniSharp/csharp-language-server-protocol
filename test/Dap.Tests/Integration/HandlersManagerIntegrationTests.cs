@@ -1,13 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Testing;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Testing;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Dap.Tests.Integration
