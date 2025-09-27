@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;

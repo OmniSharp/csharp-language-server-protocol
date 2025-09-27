@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
+﻿using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Server
 {

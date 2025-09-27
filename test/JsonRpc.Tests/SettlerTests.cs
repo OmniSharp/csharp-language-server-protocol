@@ -1,10 +1,7 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using DryIoc;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Reactive.Testing;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Testing;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace JsonRpc.Tests

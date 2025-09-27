@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
+﻿namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     public interface ICanBeIdentifiedHandler
     {

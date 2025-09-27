@@ -1,5 +1,4 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Serialization
