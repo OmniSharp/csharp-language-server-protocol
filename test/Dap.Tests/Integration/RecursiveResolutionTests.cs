@@ -1,6 +1,3 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using DryIoc;
 using FluentAssertions;
 using MediatR;
@@ -14,7 +11,6 @@ using OmniSharp.Extensions.DebugAdapter.Testing;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using TestingUtils;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Dap.Tests.Integration

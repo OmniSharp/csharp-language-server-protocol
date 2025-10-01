@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using DryIoc;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -22,7 +18,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Server.Matchers;
 using OmniSharp.Extensions.LanguageServer.Shared;
-using Xunit;
 using Xunit.Abstractions;
 using Arg = NSubstitute.Arg;
 using Request = OmniSharp.Extensions.JsonRpc.Server.Request;

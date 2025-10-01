@@ -1,6 +1,5 @@
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Xunit;
 
 namespace Lsp.Tests.Capabilities.Server
 {

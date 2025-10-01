@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using OmniSharp.Extensions.JsonRpc;
+﻿using OmniSharp.Extensions.JsonRpc;
 
 namespace JsonRpc.Tests
 {

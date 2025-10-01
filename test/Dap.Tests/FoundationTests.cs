@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.IO.Pipelines;
-using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,7 +13,6 @@ using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Server;
 using OmniSharp.Extensions.DebugAdapter.Testing;
 using OmniSharp.Extensions.JsonRpc;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Dap.Tests
