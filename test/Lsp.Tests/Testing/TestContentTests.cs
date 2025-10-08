@@ -1,9 +1,7 @@
-using System;
 using FluentAssertions;
 using NSubstitute;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Lsp.Tests.Testing

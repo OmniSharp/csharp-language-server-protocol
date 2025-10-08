@@ -1,6 +1,5 @@
 // See https://github.com/JoshKeegan/xRetry
 
-using System;
 using Xunit.Sdk;
 
 namespace TestingUtils

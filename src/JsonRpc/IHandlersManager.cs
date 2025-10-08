@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace OmniSharp.Extensions.JsonRpc
 {
     public interface IHandlersManager
