@@ -1,4 +1,3 @@
-using System;
 using FluentAssertions;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
@@ -6,7 +5,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.General;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Shared;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Lsp.Tests

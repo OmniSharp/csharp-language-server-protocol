@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Linq;
 using MediatR;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;

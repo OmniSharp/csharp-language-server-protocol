@@ -1,14 +1,10 @@
-﻿using System;
-using System.IO.Pipelines;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.IO.Pipelines;
 using FluentAssertions;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace JsonRpc.Tests

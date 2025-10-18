@@ -1,7 +1,5 @@
-using System;
 using System.IO.Pipelines;
 using System.Reactive.Concurrency;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace OmniSharp.Extensions.JsonRpc

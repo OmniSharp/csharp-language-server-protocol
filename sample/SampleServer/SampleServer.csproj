@@ -4,7 +4,6 @@
         <OutputType>Exe</OutputType>
         <IsPackable>false</IsPackable>
         <TargetFramework>net8.0</TargetFramework>
-        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
