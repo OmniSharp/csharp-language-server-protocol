@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using Xunit;
-
-namespace TestingUtils
+﻿namespace TestingUtils
 {
     public class TheoryWithSkipOnAttribute : TheoryAttribute
     {

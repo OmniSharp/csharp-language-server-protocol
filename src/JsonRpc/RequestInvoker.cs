@@ -1,4 +1,3 @@
-using System;
 using OmniSharp.Extensions.JsonRpc.Server;
 using Notification = OmniSharp.Extensions.JsonRpc.Server.Notification;
 

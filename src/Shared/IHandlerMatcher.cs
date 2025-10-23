@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 
 namespace OmniSharp.Extensions.LanguageServer.Shared

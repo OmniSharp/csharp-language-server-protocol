@@ -1,8 +1,5 @@
-using System;
-using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Lsp.Integration.Tests.Fixtures;
 using NSubstitute;
@@ -12,7 +9,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Serilog.Events;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Lsp.Integration.Tests

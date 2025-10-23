@@ -1,4 +1,3 @@
-using System.Threading;
 using MediatR;
 using NSubstitute;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;

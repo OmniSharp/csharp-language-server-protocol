@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.DebugAdapter.Protocol.DebugAdapterConverters;
 using OmniSharp.Extensions.JsonRpc.Serialization;

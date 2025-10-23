@@ -3,7 +3,6 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using TestingUtils;
-using Xunit;
 
 namespace Lsp.Tests.Models
 {
