@@ -23,7 +23,7 @@ jobs:
         with:
           nuget-version: '6.x'
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           path: nuget
           pattern: nuget-*
