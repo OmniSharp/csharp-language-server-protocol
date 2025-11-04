@@ -1,5 +1,3 @@
-using System;
-
 namespace OmniSharp.Extensions.JsonRpc
 {
     public class RpcErrorException : Exception

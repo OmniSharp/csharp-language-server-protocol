@@ -1,14 +1,9 @@
-using System;
 using System.Diagnostics;
-using System.IO;
 using System.IO.Pipelines;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Server;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Tests
