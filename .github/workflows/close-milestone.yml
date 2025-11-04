@@ -17,19 +17,19 @@ jobs:
       - uses: actions/setup-dotnet@v5
 
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v4.1.0
+        uses: gittools/actions/gitversion/setup@v4.2.0
         with:
           versionSpec: '6.0.x'
           preferLatestVersion: true
 
       - name: Install GitReleaseManager
-        uses: gittools/actions/gitreleasemanager/setup@v4.1.0
+        uses: gittools/actions/gitreleasemanager/setup@v4.2.0
         with:
           versionSpec: '0.18.x'
 
       - name: Use GitVersion
         id: gitversion
-        uses: gittools/actions/gitversion/execute@v4.1.0
+        uses: gittools/actions/gitversion/execute@v4.2.0
 
       # Ensure the milestone exists
       - name: Create Milestone
