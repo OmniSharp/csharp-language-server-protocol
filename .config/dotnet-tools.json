@@ -10,7 +10,7 @@
       "rollForward": false
     },
     "dotnet-reportgenerator-globaltool": {
-      "version": "5.4.18",
+      "version": "5.5.0",
       "commands": [
         "reportgenerator"
       ],
