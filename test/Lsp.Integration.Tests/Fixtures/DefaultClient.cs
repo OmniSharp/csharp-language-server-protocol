@@ -1,5 +1,4 @@
-﻿using System;
-using OmniSharp.Extensions.LanguageServer.Client;
+﻿using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Lsp.Integration.Tests.Fixtures

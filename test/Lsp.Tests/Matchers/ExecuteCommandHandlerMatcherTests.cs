@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using FluentAssertions;
 using NSubstitute;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -7,7 +5,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Server.Matchers;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Lsp.Tests.Matchers

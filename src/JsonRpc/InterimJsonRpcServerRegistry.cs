@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OmniSharp.Extensions.JsonRpc
+﻿namespace OmniSharp.Extensions.JsonRpc
 {
     public class InterimJsonRpcServerRegistry<T> : JsonRpcCommonMethodsBase<T> where T : IJsonRpcHandlerRegistry<T>
     {

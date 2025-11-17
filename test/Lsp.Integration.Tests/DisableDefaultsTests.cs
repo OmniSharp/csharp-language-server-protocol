@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
@@ -18,7 +15,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Shared;
 using TestingUtils;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Lsp.Integration.Tests

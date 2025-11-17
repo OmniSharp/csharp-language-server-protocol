@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections;
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Lsp.Tests

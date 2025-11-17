@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public struct Supports<T> : ISupports

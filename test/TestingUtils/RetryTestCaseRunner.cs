@@ -1,8 +1,5 @@
 // See https://github.com/JoshKeegan/xRetry
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 

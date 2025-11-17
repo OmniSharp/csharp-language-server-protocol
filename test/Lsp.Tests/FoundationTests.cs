@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Pipelines;
-using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,7 +19,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Server;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Lsp.Tests

@@ -1,7 +1,3 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MediatR;
 using Newtonsoft.Json.Linq;
@@ -9,7 +5,6 @@ using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Serialization;
-using Xunit;
 
 namespace JsonRpc.Tests
 {

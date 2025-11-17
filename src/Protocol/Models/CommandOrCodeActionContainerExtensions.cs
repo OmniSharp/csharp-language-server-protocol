@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     public static class CommandOrCodeActionContainerExtensions

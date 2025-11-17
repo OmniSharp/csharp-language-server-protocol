@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
@@ -8,7 +6,6 @@ using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Lsp.Integration.Tests

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Linq;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
-using Xunit;
 
 namespace JsonRpc.Tests.Server
 {

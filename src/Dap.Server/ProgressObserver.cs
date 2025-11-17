@@ -1,6 +1,4 @@
-﻿using System;
-using System.Reactive.Disposables;
-using System.Threading;
+﻿using System.Reactive.Disposables;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;

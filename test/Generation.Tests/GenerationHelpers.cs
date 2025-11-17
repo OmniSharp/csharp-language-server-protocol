@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MediatR;
 using Microsoft.CodeAnalysis;
@@ -15,7 +10,6 @@ using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.JsonRpc.Generators;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using Xunit;
 
 //using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 //using OmniSharp.Extensions.LanguageServer.Protocol.Server;

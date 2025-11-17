@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
+﻿namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
     /// <summary>
     /// General client capabilities.

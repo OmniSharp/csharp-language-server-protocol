@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Lsp.Tests

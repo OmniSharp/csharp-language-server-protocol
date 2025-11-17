@@ -1,16 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Reactive.Threading.Tasks;
-using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
-using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
+﻿using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {

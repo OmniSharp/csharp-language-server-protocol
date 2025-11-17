@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace OmniSharp.Extensions.JsonRpc
+﻿namespace OmniSharp.Extensions.JsonRpc
 {
     public interface IJsonRpcHandlerCollection : IEnumerable<JsonRpcHandlerDescription>
     {

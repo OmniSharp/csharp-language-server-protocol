@@ -1,7 +1,6 @@
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
-using Xunit;
 
 namespace Lsp.Tests.Models
 {

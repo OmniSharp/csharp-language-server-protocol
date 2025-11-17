@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading;
-using System.Threading.Tasks;
 using MediatR;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc.Client;
@@ -127,7 +124,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         return (TResponse)(object)Unit.Value;
                     }
 
-                    return result.ToObject<TResponse>(_router.Serializer.JsonSerializer);
+                    return result.ToObject<TResponse>(_router.Serializer.JsonSerializer)!;
                 }
                 finally
                 {

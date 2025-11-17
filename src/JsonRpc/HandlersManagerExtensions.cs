@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace OmniSharp.Extensions.JsonRpc
+﻿namespace OmniSharp.Extensions.JsonRpc
 {
     public static class HandlersManagerExtensions
     {

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Reactive.Disposables;
+﻿using System.Reactive.Disposables;
 using FluentAssertions;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace JsonRpc.Tests

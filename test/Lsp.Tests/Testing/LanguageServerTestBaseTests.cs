@@ -1,12 +1,9 @@
-﻿using System.IO;
-using System.IO.Pipelines;
-using System.Threading.Tasks;
+﻿using System.IO.Pipelines;
 using FluentAssertions;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Server;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Lsp.Tests.Testing

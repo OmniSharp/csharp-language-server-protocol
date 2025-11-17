@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information. 	// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // #see https://github.com/NuGet/NuGet.Server
 
-using System;
 using Newtonsoft.Json;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters

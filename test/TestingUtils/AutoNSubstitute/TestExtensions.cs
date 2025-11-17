@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using OmniSharp.Extensions.JsonRpc.Testing;
+﻿using OmniSharp.Extensions.JsonRpc.Testing;
 using Serilog.Events;
 using Xunit.Abstractions;
 

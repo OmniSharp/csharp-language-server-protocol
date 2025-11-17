@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using DryIoc;
 using FluentAssertions;
 using MediatR;
@@ -15,7 +12,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Shared;
-using Xunit;
 using Arg = NSubstitute.Arg;
 
 namespace Lsp.Tests

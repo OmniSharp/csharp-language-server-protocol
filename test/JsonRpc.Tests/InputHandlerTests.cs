@@ -1,11 +1,6 @@
-using System;
-using System.IO;
 using System.IO.Pipelines;
-using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -15,7 +10,6 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Serialization;
 using OmniSharp.Extensions.JsonRpc.Server;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace JsonRpc.Tests

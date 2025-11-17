@@ -1,8 +1,5 @@
-using System;
-using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Lsp.Integration.Tests.Fixtures;
 using NSubstitute;
@@ -15,7 +12,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server;
 using TestingUtils;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Lsp.Integration.Tests

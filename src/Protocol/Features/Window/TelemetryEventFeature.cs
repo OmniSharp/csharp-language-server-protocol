@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using MediatR;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;

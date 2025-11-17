@@ -1,4 +1,3 @@
-using System;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 

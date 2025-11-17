@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace OmniSharp.Extensions.LanguageServer.Protocol
+﻿namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
     // TODO: maybe?
