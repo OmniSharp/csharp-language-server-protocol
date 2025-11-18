@@ -27,7 +27,7 @@ jobs:
         if: ${{ github.event.action == 'opened' }}
         uses: gittools/actions/gitversion/setup@v4.2.0
         with:
-          versionSpec: '6.0.x'
+          versionSpec: '6.x'
           preferLatestVersion: true
 
       - name: Install GitReleaseManager
