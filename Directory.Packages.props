@@ -11,7 +11,7 @@
   </ItemGroup>
   <!-- Samples -->
   <ItemGroup>
-    <PackageVersion Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageVersion Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageVersion Include="Serilog.Sinks.Debug" Version="3.0.0" />
     <PackageVersion Include="System.IO.FileSystem.Primitives" Version="4.3.0" />
     <PackageVersion Include="System.IO" Version="4.3.0" />
@@ -21,26 +21,26 @@
     <PackageVersion Include="System.Threading.Tasks" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
-    <PackageVersion Include="GitVersion.Tool" Version="6.4.0" />
-    <PackageVersion Include="JetBrains.ReSharper.CommandLineTools" Version="2025.2.1" />
-    <PackageVersion Include="ReportGenerator" Version="5.4.13" />
+    <PackageVersion Include="GitVersion.Tool" Version="6.5.0" />
+    <PackageVersion Include="JetBrains.ReSharper.CommandLineTools" Version="2025.2.4" />
+    <PackageVersion Include="ReportGenerator" Version="5.5.0" />
     <PackageVersion Include="Rocket.Surgery.Nuke" Version="1.8.36" />
   </ItemGroup>
   <ItemGroup>
     <!-- backwards compat is maintained in Directory.Packages.supports.props -->
-    <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="9.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Options" Version="9.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
     <PackageVersion Include="xunit" Version="2.9.3" />
-    <PackageVersion Include="FluentAssertions" Version="8.6.0" />
-    <PackageVersion Include="Verify.Xunit" Version="30.13.0" />
+    <PackageVersion Include="FluentAssertions" Version="8.8.0" />
+    <PackageVersion Include="Verify.Xunit" Version="31.7.1" />
     <PackageVersion Include="Verify.SourceGenerators" Version="2.5.0" />
     <PackageVersion Include="NSubstitute" Version="5.3.0" />
     <PackageVersion Include="Serilog.Extensions.Logging" Version="9.0.2" />
@@ -49,16 +49,16 @@
     <PackageVersion Include="XunitXml.TestLogger" Version="6.1.0" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="coverlet.msbuild" Version="6.0.4" />
-    <PackageVersion Include="System.Reactive" Version="6.0.2" />
-    <PackageVersion Include="System.Collections.Immutable" Version="9.0.9" />
-    <PackageVersion Include="System.Threading.Channels" Version="9.0.9" />
-    <PackageVersion Include="Microsoft.Reactive.Testing" Version="6.0.2" />
+    <PackageVersion Include="System.Reactive" Version="6.1.0" />
+    <PackageVersion Include="System.Collections.Immutable" Version="10.0.0" />
+    <PackageVersion Include="System.Threading.Channels" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Reactive.Testing" Version="6.1.0" />
     <PackageVersion Include="MediatR" Version="12.4.1" />
-    <PackageVersion Include="Bogus" Version="35.6.3" />
+    <PackageVersion Include="Bogus" Version="35.6.5" />
     <PackageVersion Include="Snapper" Version="2.4.1" />
     <PackageVersion Include="Xunit.SkippableFact" Version="1.5.23" />
-    <PackageVersion Include="Nerdbank.Streams" Version="2.11.92" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.14.0" />
+    <PackageVersion Include="Nerdbank.Streams" Version="2.13.16" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.0.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" />
     <PackageVersion Include="DryIoc.Internal" Version="5.4.3" />
   </ItemGroup>

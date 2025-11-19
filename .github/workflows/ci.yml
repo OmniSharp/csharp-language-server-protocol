@@ -79,7 +79,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v5.0.1
         with:
           clean: 'false'
           fetch-depth: '0'
@@ -89,22 +89,18 @@ jobs:
         with:
           path: '${{ github.workspace }}/.nuget/packages'
           key: "${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props') }}-${{ hashFiles('**/dotnet-tools.json') }}"
-      - name: 🔨 Use .NET Core 3.1 SDK
-        uses: actions/setup-dotnet@v5.0.0
-        with:
-          dotnet-version: '3.1.x'
-      - name: 🔨 Use .NET Core 6.0 SDK
-        uses: actions/setup-dotnet@v5.0.0
-        with:
-          dotnet-version: '6.0.x'
-      - name: 🔨 Use .NET Core 8.0 SDK
+      - name: 🔨 Use .NET 8.0 SDK
         uses: actions/setup-dotnet@v5.0.0
         with:
           dotnet-version: '8.0.x'
-      - name: 🔨 Use .NET Core 9.0 SDK
+      - name: 🔨 Use .NET 9.0 SDK
         uses: actions/setup-dotnet@v5.0.0
         with:
           dotnet-version: '9.0.x'
+      - name: 🔨 Use .NET 10.0 SDK
+        uses: actions/setup-dotnet@v5.0.0
+        with:
+          dotnet-version: '10.0.x'
       - name: 🎁 dotnet tool restore
         run: |
           dotnet tool restore
@@ -141,7 +137,7 @@ jobs:
           working-directory: 'vscode-testextension'
       - name: 🏺 Publish coverage data
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: 'coverage-${{ matrix.os }}'
           path: 'coverage/'
@@ -152,24 +148,24 @@ jobs:
           name: 'actions-${{ matrix.os }}'
       - name: 🏺 Publish logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: 'logs-${{ matrix.os }}'
           path: 'artifacts/logs/'
       - name: 🏺 Publish test data
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: 'test data-${{ matrix.os }}'
           path: 'artifacts/test/'
       - name: 🏺 Publish NuGet Packages
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: 'nuget-${{ matrix.os }}'
           path: 'artifacts/nuget/'
       - name: 🏺 Publish Documentation
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: 'docs-${{ matrix.os }}'
           path: 'artifacts/docs/'
@@ -178,7 +174,7 @@ jobs:
     needs: build
     steps:
       - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@v4
+        uses: actions/upload-artifact/merge@v5
         with:
           name: nuget
           pattern: nuget-*

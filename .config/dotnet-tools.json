@@ -10,7 +10,7 @@
       "rollForward": false
     },
     "dotnet-reportgenerator-globaltool": {
-      "version": "5.4.13",
+      "version": "5.5.0",
       "commands": [
         "reportgenerator"
       ],
@@ -24,7 +24,7 @@
       "rollForward": false
     },
     "jetbrains.resharper.globaltools": {
-      "version": "2025.2.1",
+      "version": "2025.3.0",
       "commands": [
         "jb"
       ],
