@@ -75,9 +75,9 @@ jobs:
       - template: support/install-dotnet.yml@rsg
         parameters:
           DotNetSdk:
-            - '2.1.x'
-            - '3.1.x'
-            - '5.0.x'
+            - '8.0.x'
+            - '9.0.x'
+            - '10.0.x'
 
       - task: DotNetCoreCLI@2
         displayName: 'dotnet tool restore'
