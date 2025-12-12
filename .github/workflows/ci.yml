@@ -85,7 +85,7 @@ jobs:
           fetch-depth: '0'
       - name: Restore NuGet Cache
         id: restore-nuget-cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: '${{ github.workspace }}/.nuget/packages'
           key: "${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props') }}-${{ hashFiles('**/dotnet-tools.json') }}"
@@ -110,7 +110,7 @@ jobs:
           dotnet nuke Restore --skip
       - name: Update NuGet Cache
         if: always() && steps.restore-nuget-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           key: "${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props') }}-${{ hashFiles('**/dotnet-tools.json') }}"
           path: '${{ github.workspace }}/.nuget/packages'
