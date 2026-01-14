@@ -90,15 +90,15 @@ jobs:
           path: '${{ github.workspace }}/.nuget/packages'
           key: "${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props') }}-${{ hashFiles('**/dotnet-tools.json') }}"
       - name: 🔨 Use .NET 8.0 SDK
-        uses: actions/setup-dotnet@v5.0.1
+        uses: actions/setup-dotnet@v5.1.0
         with:
           dotnet-version: '8.0.x'
       - name: 🔨 Use .NET 9.0 SDK
-        uses: actions/setup-dotnet@v5.0.1
+        uses: actions/setup-dotnet@v5.1.0
         with:
           dotnet-version: '9.0.x'
       - name: 🔨 Use .NET 10.0 SDK
-        uses: actions/setup-dotnet@v5.0.1
+        uses: actions/setup-dotnet@v5.1.0
         with:
           dotnet-version: '10.0.x'
       - name: 🎁 dotnet tool restore
