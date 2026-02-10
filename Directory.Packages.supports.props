@@ -2,12 +2,12 @@
 <Project>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netstandard2.1'">
     <!-- Lower bound for most target frameworks -->
-    <PackageVersion Update="Microsoft.Extensions.Logging" Version="10.0.2" />
-    <PackageVersion Update="Microsoft.Extensions.Logging.Debug" Version="10.0.2" />
-    <PackageVersion Update="Microsoft.Extensions.Configuration" Version="10.0.2" />
-    <PackageVersion Update="Microsoft.Extensions.Configuration.Binder" Version="10.0.2" />
-    <PackageVersion Update="Microsoft.Extensions.Options" Version="10.0.2" />
-    <PackageVersion Update="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.2" />
-    <PackageVersion Update="Microsoft.Extensions.DependencyInjection" Version="10.0.2" />
+    <PackageVersion Update="Microsoft.Extensions.Logging" Version="10.0.3" />
+    <PackageVersion Update="Microsoft.Extensions.Logging.Debug" Version="10.0.3" />
+    <PackageVersion Update="Microsoft.Extensions.Configuration" Version="10.0.3" />
+    <PackageVersion Update="Microsoft.Extensions.Configuration.Binder" Version="10.0.3" />
+    <PackageVersion Update="Microsoft.Extensions.Options" Version="10.0.3" />
+    <PackageVersion Update="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.3" />
+    <PackageVersion Update="Microsoft.Extensions.DependencyInjection" Version="10.0.3" />
   </ItemGroup>
 </Project>
