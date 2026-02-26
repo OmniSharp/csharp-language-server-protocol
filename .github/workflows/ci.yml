@@ -137,7 +137,7 @@ jobs:
           working-directory: 'vscode-testextension'
       - name: 🏺 Publish coverage data
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: 'coverage-${{ matrix.os }}'
           path: 'coverage/'
@@ -148,24 +148,24 @@ jobs:
           name: 'actions-${{ matrix.os }}'
       - name: 🏺 Publish logs
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: 'logs-${{ matrix.os }}'
           path: 'artifacts/logs/'
       - name: 🏺 Publish test data
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: 'test data-${{ matrix.os }}'
           path: 'artifacts/test/'
       - name: 🏺 Publish NuGet Packages
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: 'nuget-${{ matrix.os }}'
           path: 'artifacts/nuget/'
       - name: 🏺 Publish Documentation
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: 'docs-${{ matrix.os }}'
           path: 'artifacts/docs/'
@@ -174,7 +174,7 @@ jobs:
     needs: build
     steps:
       - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@v6
+        uses: actions/upload-artifact/merge@v7
         with:
           name: nuget
           pattern: nuget-*
