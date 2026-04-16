@@ -19,7 +19,7 @@ jobs:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
 
-      - uses: nuget/setup-nuget@v3
+      - uses: nuget/setup-nuget@v4
         with:
           nuget-version: '6.x'
 
