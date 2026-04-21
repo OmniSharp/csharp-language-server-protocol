@@ -143,7 +143,7 @@ jobs:
           path: 'coverage/'
       - name: 🐿 Publish Coverage
         if: (github.event_name != 'pull_request' && github.event_name != 'pull_request_target') || ((github.event_name == 'pull_request' || github.event_name == 'pull_request_target') && github.event.pull_request.user.login != 'renovate[bot]' && github.event.pull_request.user.login != 'dependabot[bot]')
-        uses: codecov/codecov-action@v4.0.0-beta.2
+        uses: codecov/codecov-action@v4.6.0
         with:
           name: 'actions-${{ matrix.os }}'
       - name: 🏺 Publish logs
