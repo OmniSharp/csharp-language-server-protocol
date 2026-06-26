@@ -15,8 +15,8 @@ namespace OmniSharp.Extensions.JsonRpc
         internal readonly ISerializer Serializer;
         private readonly IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?> _handlerTypeDescriptorProvider;
 
-        internal readonly ConcurrentDictionary<long, (string method, TaskCompletionSource<JToken> pendingTask)> Requests =
-            new ConcurrentDictionary<long, (string method, TaskCompletionSource<JToken> pendingTask)>();
+        internal readonly ConcurrentDictionary<object, (string method, TaskCompletionSource<JToken> pendingTask)> Requests =
+            new ConcurrentDictionary<object, (string method, TaskCompletionSource<JToken> pendingTask)>();
 
         public ResponseRouter(
             Lazy<IOutputHandler> outputHandler, ISerializer serializer, IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?> handlerTypeDescriptorProvider
@@ -68,7 +68,7 @@ namespace OmniSharp.Extensions.JsonRpc
             return new ResponseRouterReturnsImpl(this, method, @params);
         }
 
-        public bool TryGetRequest(long id, [NotNullWhen(true)] out string? method, [NotNullWhen(true)] out TaskCompletionSource<JToken>? pendingTask)
+        public bool TryGetRequest(object id, [NotNullWhen(true)] out string? method, [NotNullWhen(true)] out TaskCompletionSource<JToken>? pendingTask)
         {
             var result = Requests.TryGetValue(id, out var source);
             method = source.method;

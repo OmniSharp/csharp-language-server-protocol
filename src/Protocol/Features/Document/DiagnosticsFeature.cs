@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using MediatR;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -72,7 +73,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace")]
         [GenerateHandlerMethods]
         [GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
-        [Capability(typeof(CodeLensWorkspaceClientCapabilities))]
+        [Capability(typeof(DiagnosticWorkspaceClientCapabilities))]
         public partial record DiagnosticRefreshParams : IRequest<Unit>;
 
         public interface IDiagnosticReport
@@ -123,14 +124,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
                 public override void WriteJson(JsonWriter writer, RelatedDocumentDiagnosticReport? value, JsonSerializer serializer)
                 {
-                    throw new NotImplementedException();
+                    WorkspaceDocumentDiagnosticReport.DiagnosticReportConverter.WriteRelatedDocumentDiagnosticReport(writer, value, serializer);
                 }
 
                 public override RelatedDocumentDiagnosticReport ReadJson(
                     JsonReader reader, Type objectType, RelatedDocumentDiagnosticReport? existingValue, bool hasExistingValue, JsonSerializer serializer
                 )
                 {
-                    throw new NotImplementedException();
+                    if (reader.TokenType == JsonToken.Null)
+                    {
+                        return null!;
+                    }
+
+                    return WorkspaceDocumentDiagnosticReport.DiagnosticReportConverter.ReadRelatedDocumentDiagnosticReport(JObject.Load(reader), serializer);
                 }
             }
         }
@@ -147,14 +153,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
                 public override void WriteJson(JsonWriter writer, DocumentDiagnosticReport value, JsonSerializer serializer)
                 {
-                    throw new NotImplementedException();
+                    WorkspaceDocumentDiagnosticReport.DiagnosticReportConverter.WriteDocumentDiagnosticReport(writer, value, serializer);
                 }
 
                 public override DocumentDiagnosticReport ReadJson(
                     JsonReader reader, Type objectType, DocumentDiagnosticReport existingValue, bool hasExistingValue, JsonSerializer serializer
                 )
                 {
-                    throw new NotImplementedException();
+                    if (reader.TokenType == JsonToken.Null)
+                    {
+                        return null!;
+                    }
+
+                    return WorkspaceDocumentDiagnosticReport.DiagnosticReportConverter.ReadDocumentDiagnosticReport(JObject.Load(reader), serializer);
                 }
             }
         }
@@ -306,11 +317,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             public ImmutableDictionary<DocumentUri, DocumentDiagnosticReport>? RelatedDocuments { get; init; }
 
-            public static DocumentDiagnosticReportPartialResult? From(DocumentDiagnosticReport? result)
+            public static DocumentDiagnosticReportPartialResult? From(RelatedDocumentDiagnosticReport? result)
             {
-                if (result is null)
+                if (result is not null)
                 {
-                    return null;
+                    return new DocumentDiagnosticReportPartialResult { RelatedDocuments = result.RelatedDocuments };
                 }
 
                 return null;
@@ -397,14 +408,256 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
                 public override void WriteJson(JsonWriter writer, WorkspaceDocumentDiagnosticReport value, JsonSerializer serializer)
                 {
-                    throw new NotImplementedException();
+                    DiagnosticReportConverter.WriteWorkspaceDocumentDiagnosticReport(writer, value, serializer);
                 }
 
                 public override WorkspaceDocumentDiagnosticReport ReadJson(
                     JsonReader reader, Type objectType, WorkspaceDocumentDiagnosticReport existingValue, bool hasExistingValue, JsonSerializer serializer
                 )
                 {
-                    throw new NotImplementedException();
+                    if (reader.TokenType == JsonToken.Null)
+                    {
+                        return null!;
+                    }
+
+                    return DiagnosticReportConverter.ReadWorkspaceDocumentDiagnosticReport(JObject.Load(reader), serializer);
+                }
+            }
+
+            internal static class DiagnosticReportConverter
+            {
+                public static DocumentDiagnosticReportKind GetKind(JObject result)
+                {
+                    var kind = result["kind"]?.Value<string>();
+                    if (string.IsNullOrWhiteSpace(kind))
+                    {
+                        throw new JsonSerializationException("Diagnostic report is missing a kind.");
+                    }
+
+                    return new DocumentDiagnosticReportKind(kind);
+                }
+
+                public static DocumentDiagnosticReport ReadDocumentDiagnosticReport(JObject result, JsonSerializer serializer)
+                {
+                    return GetKind(result) switch {
+                        var kind when kind == DocumentDiagnosticReportKind.Full => new FullDocumentDiagnosticReport {
+                            ResultId = result["resultId"]?.Value<string>(),
+                            Items = ReadItems(result, serializer)
+                        },
+                        var kind when kind == DocumentDiagnosticReportKind.Unchanged => new UnchangedDocumentDiagnosticReport {
+                            ResultId = ReadRequiredString(result, "resultId")
+                        },
+                        var kind => throw new JsonSerializationException($"Unknown diagnostic report kind '{kind}'")
+                    };
+                }
+
+                public static RelatedDocumentDiagnosticReport ReadRelatedDocumentDiagnosticReport(JObject result, JsonSerializer serializer)
+                {
+                    return GetKind(result) switch {
+                        var kind when kind == DocumentDiagnosticReportKind.Full => new RelatedFullDocumentDiagnosticReport {
+                            ResultId = result["resultId"]?.Value<string>(),
+                            Items = ReadItems(result, serializer),
+                            RelatedDocuments = ReadRelatedDocuments(result, serializer)
+                        },
+                        var kind when kind == DocumentDiagnosticReportKind.Unchanged => new RelatedUnchangedDocumentDiagnosticReport {
+                            ResultId = ReadRequiredString(result, "resultId"),
+                            RelatedDocuments = ReadRelatedDocuments(result, serializer)
+                        },
+                        var kind => throw new JsonSerializationException($"Unknown diagnostic report kind '{kind}'")
+                    };
+                }
+
+                public static WorkspaceDocumentDiagnosticReport ReadWorkspaceDocumentDiagnosticReport(JObject result, JsonSerializer serializer)
+                {
+                    return GetKind(result) switch {
+                        var kind when kind == DocumentDiagnosticReportKind.Full => new WorkspaceFullDocumentDiagnosticReport {
+                            Uri = ReadRequired<DocumentUri>(result, "uri", serializer),
+                            Version = result["version"]?.Type == JTokenType.Null ? null : result["version"]?.Value<int?>(),
+                            ResultId = result["resultId"]?.Value<string>(),
+                            Items = ReadItems(result, serializer)
+                        },
+                        var kind when kind == DocumentDiagnosticReportKind.Unchanged => new WorkspaceUnchangedDocumentDiagnosticReport {
+                            Uri = ReadRequired<DocumentUri>(result, "uri", serializer),
+                            Version = result["version"]?.Type == JTokenType.Null ? null : result["version"]?.Value<int?>(),
+                            ResultId = ReadRequiredString(result, "resultId")
+                        },
+                        var kind => throw new JsonSerializationException($"Unknown workspace diagnostic report kind '{kind}'")
+                    };
+                }
+
+                public static void WriteDocumentDiagnosticReport(JsonWriter writer, DocumentDiagnosticReport? value, JsonSerializer serializer)
+                {
+                    switch (value)
+                    {
+                        case null:
+                            writer.WriteNull();
+                            return;
+                        case FullDocumentDiagnosticReport full:
+                            WriteFull(writer, full, serializer);
+                            return;
+                        case UnchangedDocumentDiagnosticReport unchanged:
+                            WriteUnchanged(writer, unchanged);
+                            return;
+                        default:
+                            throw new JsonSerializationException($"Unknown diagnostic report type {value.GetType()}");
+                    }
+                }
+
+                public static void WriteRelatedDocumentDiagnosticReport(JsonWriter writer, RelatedDocumentDiagnosticReport? value, JsonSerializer serializer)
+                {
+                    switch (value)
+                    {
+                        case null:
+                            writer.WriteNull();
+                            return;
+                        case RelatedFullDocumentDiagnosticReport full:
+                            WriteStartObject(writer, full.Kind);
+                            WriteOptionalString(writer, "resultId", full.ResultId);
+                            WriteProperty(writer, "items", full.Items, serializer);
+                            WriteRelatedDocuments(writer, full.RelatedDocuments, serializer);
+                            writer.WriteEndObject();
+                            return;
+                        case RelatedUnchangedDocumentDiagnosticReport unchanged:
+                            WriteStartObject(writer, unchanged.Kind);
+                            WriteProperty(writer, "resultId", unchanged.ResultId, serializer);
+                            WriteRelatedDocuments(writer, unchanged.RelatedDocuments, serializer);
+                            writer.WriteEndObject();
+                            return;
+                        default:
+                            throw new JsonSerializationException($"Unknown related diagnostic report type {value.GetType()}");
+                    }
+                }
+
+                public static void WriteWorkspaceDocumentDiagnosticReport(JsonWriter writer, WorkspaceDocumentDiagnosticReport? value, JsonSerializer serializer)
+                {
+                    switch (value)
+                    {
+                        case null:
+                            writer.WriteNull();
+                            return;
+                        case WorkspaceFullDocumentDiagnosticReport full:
+                            WriteStartObject(writer, full.Kind);
+                            WriteProperty(writer, "uri", full.Uri, serializer);
+                            WriteProperty(writer, "version", full.Version, serializer);
+                            WriteOptionalString(writer, "resultId", full.ResultId);
+                            WriteProperty(writer, "items", full.Items, serializer);
+                            writer.WriteEndObject();
+                            return;
+                        case WorkspaceUnchangedDocumentDiagnosticReport unchanged:
+                            WriteStartObject(writer, unchanged.Kind);
+                            WriteProperty(writer, "uri", unchanged.Uri, serializer);
+                            WriteProperty(writer, "version", unchanged.Version, serializer);
+                            WriteProperty(writer, "resultId", unchanged.ResultId, serializer);
+                            writer.WriteEndObject();
+                            return;
+                        default:
+                            throw new JsonSerializationException($"Unknown workspace diagnostic report type {value.GetType()}");
+                    }
+                }
+
+                private static void WriteFull(JsonWriter writer, IFullDocumentDiagnosticReport full, JsonSerializer serializer)
+                {
+                    WriteStartObject(writer, full.Kind);
+                    WriteOptionalString(writer, "resultId", full.ResultId);
+                    WriteProperty(writer, "items", full.Items, serializer);
+                    writer.WriteEndObject();
+                }
+
+                private static void WriteUnchanged(JsonWriter writer, IUnchangedDocumentDiagnosticReport unchanged)
+                {
+                    WriteStartObject(writer, unchanged.Kind);
+                    WriteProperty(writer, "resultId", unchanged.ResultId, null);
+                    writer.WriteEndObject();
+                }
+
+                private static void WriteStartObject(JsonWriter writer, DocumentDiagnosticReportKind kind)
+                {
+                    writer.WriteStartObject();
+                    writer.WritePropertyName("kind");
+                    writer.WriteValue(kind.ToString());
+                }
+
+                private static void WriteRelatedDocuments(
+                    JsonWriter writer, ImmutableDictionary<DocumentUri, DocumentDiagnosticReport>? relatedDocuments, JsonSerializer serializer
+                )
+                {
+                    if (relatedDocuments is null || relatedDocuments.Count == 0)
+                    {
+                        return;
+                    }
+
+                    writer.WritePropertyName("relatedDocuments");
+                    writer.WriteStartObject();
+                    foreach (var item in relatedDocuments)
+                    {
+                        writer.WritePropertyName(item.Key.ToString());
+                        WriteDocumentDiagnosticReport(writer, item.Value, serializer);
+                    }
+
+                    writer.WriteEndObject();
+                }
+
+                private static ImmutableDictionary<DocumentUri, DocumentDiagnosticReport>? ReadRelatedDocuments(JObject result, JsonSerializer serializer)
+                {
+                    if (result["relatedDocuments"] is not JObject relatedDocuments)
+                    {
+                        return null;
+                    }
+
+                    var builder = ImmutableDictionary<DocumentUri, DocumentDiagnosticReport>.Empty.ToBuilder();
+                    foreach (var property in relatedDocuments.Properties())
+                    {
+                        builder.Add(DocumentUri.Parse(property.Name), ReadDocumentDiagnosticReport((JObject)property.Value, serializer));
+                    }
+
+                    return builder.ToImmutable();
+                }
+
+                private static Container<Diagnostic> ReadItems(JObject result, JsonSerializer serializer)
+                {
+                    return result["items"]?.ToObject<Container<Diagnostic>>(serializer) ?? new Container<Diagnostic>();
+                }
+
+                private static string ReadRequiredString(JObject result, string name)
+                {
+                    return result[name]?.Value<string>() ??
+                           throw new JsonSerializationException($"Diagnostic report is missing required property '{name}'.");
+                }
+
+                private static T ReadRequired<T>(JObject result, string name, JsonSerializer serializer)
+                {
+                    var token = result[name] ??
+                                throw new JsonSerializationException($"Diagnostic report is missing required property '{name}'.");
+                    var value = token.ToObject<T>(serializer);
+                    if (value is null)
+                    {
+                        throw new JsonSerializationException($"Diagnostic report property '{name}' cannot be null.");
+                    }
+
+                    return value;
+                }
+
+                private static void WriteOptionalString(JsonWriter writer, string name, string? value)
+                {
+                    if (value is null)
+                    {
+                        return;
+                    }
+
+                    WriteProperty(writer, name, value, null);
+                }
+
+                private static void WriteProperty(JsonWriter writer, string name, object? value, JsonSerializer? serializer)
+                {
+                    writer.WritePropertyName(name);
+                    if (serializer is null)
+                    {
+                        writer.WriteValue(value);
+                    }
+                    else
+                    {
+                        serializer.Serialize(writer, value);
+                    }
                 }
             }
         }

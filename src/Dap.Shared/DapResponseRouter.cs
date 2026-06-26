@@ -16,8 +16,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
         internal readonly IOutputHandler OutputHandler;
         internal readonly ISerializer Serializer;
 
-        internal readonly ConcurrentDictionary<long, (string method, TaskCompletionSource<JToken> pendingTask)> Requests =
-            new ConcurrentDictionary<long, (string method, TaskCompletionSource<JToken> pendingTask)>();
+        internal readonly ConcurrentDictionary<object, (string method, TaskCompletionSource<JToken> pendingTask)> Requests =
+            new ConcurrentDictionary<object, (string method, TaskCompletionSource<JToken> pendingTask)>();
 
         internal static readonly ConcurrentDictionary<Type, string> MethodCache =
             new ConcurrentDictionary<Type, string>();
@@ -69,7 +69,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
             return new ResponseRouterReturnsImpl(this, method, @params);
         }
 
-        public bool TryGetRequest(long id, [NotNullWhen(true)] out string? method, [NotNullWhen(true)] out TaskCompletionSource<JToken>? pendingTask)
+        public bool TryGetRequest(object id, [NotNullWhen(true)] out string? method, [NotNullWhen(true)] out TaskCompletionSource<JToken>? pendingTask)
         {
             var result = Requests.TryGetValue(id, out var source);
             method = source.method;

@@ -44,7 +44,7 @@ namespace OmniSharp.Extensions.JsonRpc
             return Task.FromResult<TResponse>(default!);
         }
 
-        bool IResponseRouter.TryGetRequest(long id, [NotNullWhen(true)] out string? method, [NotNullWhen(true)] out TaskCompletionSource<JToken>? pendingTask)
+        bool IResponseRouter.TryGetRequest(object id, [NotNullWhen(true)] out string? method, [NotNullWhen(true)] out TaskCompletionSource<JToken>? pendingTask)
         {
             method = default!;
             pendingTask = default!;
