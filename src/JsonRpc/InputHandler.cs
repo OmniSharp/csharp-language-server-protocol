@@ -462,50 +462,46 @@ namespace OmniSharp.Extensions.JsonRpc
 
             // using (_logger.TimeDebug("InputHandler is handling the request"))
             // {
-            var (requests, hasResponse) = _receiver.GetRequests(payload);
-            if (hasResponse)
+            var (requests, _) = _receiver.GetRequests(payload);
+            var items = requests as Renor[] ?? requests.ToArray();
+            foreach (var response in items.Where(x => x.IsResponse).Select(x => x.Response!))
             {
-                foreach (var response in requests.Where(x => x.IsResponse).Select(x => x.Response!))
+                // _logger.LogDebug("Handling Response for request {ResponseId}", response.Id);
+                if (response.Id is null)
                 {
-                    // _logger.LogDebug("Handling Response for request {ResponseId}", response.Id);
-                    if (response.Id is null)
-                    {
-                        continue;
-                    }
-
-                    if (!_responseRouter.TryGetRequest(response.Id, out var method, out var tcs) &&
-                        !(response.Id is string s && long.TryParse(s, out var numericId) && _responseRouter.TryGetRequest(numericId, out method, out tcs)))
-                    {
-                        // _logger.LogDebug("Request {ResponseId} was not found in the response router, unable to complete", response.Id);
-                        continue;
-                    }
-
-                    _inputQueue.OnNext(
-                        Observable.Create<Unit>(
-                            observer =>
-                            {
-                                if (response is ServerResponse serverResponse)
-                                {
-                                    // _logger.LogDebug("Setting successful Response for {ResponseId}", response.Id);
-                                    tcs.TrySetResult(serverResponse.Result);
-                                }
-                                else if (response is ServerError serverError)
-                                {
-                                    // _logger.LogDebug("Setting error for {ResponseId}", response.Id);
-                                    tcs.TrySetException(DefaultErrorParser(method, serverError, _getException));
-                                }
-
-                                observer.OnCompleted();
-                                return Disposable.Empty;
-                            }
-                        )
-                    );
+                    continue;
                 }
 
-                return;
+                if (!_responseRouter.TryGetRequest(response.Id, out var method, out var tcs) &&
+                    !(response.Id is string s && long.TryParse(s, out var numericId) && _responseRouter.TryGetRequest(numericId, out method, out tcs)))
+                {
+                    // _logger.LogDebug("Request {ResponseId} was not found in the response router, unable to complete", response.Id);
+                    continue;
+                }
+
+                _inputQueue.OnNext(
+                    Observable.Create<Unit>(
+                        observer =>
+                        {
+                            if (response is ServerResponse serverResponse)
+                            {
+                                // _logger.LogDebug("Setting successful Response for {ResponseId}", response.Id);
+                                tcs.TrySetResult(serverResponse.Result);
+                            }
+                            else if (response is ServerError serverError)
+                            {
+                                // _logger.LogDebug("Setting error for {ResponseId}", response.Id);
+                                tcs.TrySetException(DefaultErrorParser(method, serverError, _getException));
+                            }
+
+                            observer.OnCompleted();
+                            return Disposable.Empty;
+                        }
+                    )
+                );
             }
 
-            foreach (var item in requests)
+            foreach (var item in items)
             {
                 if (item.IsRequest && item.Request != null)
                 {
@@ -517,7 +513,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         {
                             _logger.LogDebug("Request handler was not found (or not setup) {Method} {ResponseId}", item.Request.Method, item.Request.Id);
                             _outputHandler.Send(new MethodNotFound(item.Request.Id, item.Request.Method));
-                            return;
+                            continue;
                         }
 
                         var requestHandle = _requestInvoker.InvokeRequest(descriptor, item.Request);
@@ -568,7 +564,7 @@ namespace OmniSharp.Extensions.JsonRpc
                             _logger.LogDebug("Notification handler was not found (or not setup) {Method}", item.Notification.Method);
                             // TODO: Figure out a good way to send this feedback back.
                             // _outputHandler.Send(new RpcError(null, new ErrorMessage(-32601, $"Method not found - {item.Notification.Method}")));
-                            return;
+                            continue;
                         }
 
                         _requestInvoker.InvokeNotification(descriptor, item.Notification);

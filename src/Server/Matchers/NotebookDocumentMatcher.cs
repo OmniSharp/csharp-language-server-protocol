@@ -62,12 +62,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                     var attributes = GetNotebookDocumentAttributes(didChangeDocumentParams.NotebookDocument.Uri);
                     
                     attributes.AddRange(
-                        didChangeDocumentParams.Change.Cells.Structure?.Array.Cells?
+                        didChangeDocumentParams.Change.Cells?.Structure?.Array.Cells?
                                                .Select(z => new NotebookDocumentAttributes(z.Document))
                                                .Distinct() ?? Array.Empty<NotebookDocumentAttributes>()
                     );
                     attributes.AddRange(
-                        didChangeDocumentParams.Change.Cells.Data?
+                        didChangeDocumentParams.Change.Cells?.Data?
                                                .Select(z => new NotebookDocumentAttributes(z.Document))
                                                .Distinct() ?? Array.Empty<NotebookDocumentAttributes>()
                     );

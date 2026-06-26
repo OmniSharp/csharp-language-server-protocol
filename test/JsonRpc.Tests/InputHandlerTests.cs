@@ -358,6 +358,66 @@ namespace JsonRpc.Tests
         }
 
         [Fact]
+        public async Task Should_Process_Mixed_Batch_Items_Independently()
+        {
+            var pipe = new Pipe(new PipeOptions());
+            var outputHandler = Substitute.For<IOutputHandler>();
+            var receiver = new Receiver();
+            var responseRouter = new ResponseRouter(
+                new Lazy<IOutputHandler>(() => outputHandler),
+                new JsonRpcSerializer(),
+                new AssemblyScanningHandlerTypeDescriptorProvider(new[] { typeof(AssemblyScanningHandlerTypeDescriptorProvider).Assembly, typeof(InputHandlerTests).Assembly })
+            );
+            var pending = new TaskCompletionSource<JToken>();
+            responseRouter.Requests.TryAdd("response-id", ("known", pending)).Should().BeTrue();
+
+            var handlerDescriptor = Substitute.For<IHandlerDescriptor>();
+            handlerDescriptor.Method.Returns("known");
+            var knownDescriptor = Substitute.For<IRequestDescriptor<IHandlerDescriptor?>>();
+            knownDescriptor.Default.Returns(handlerDescriptor);
+            var missingDescriptor = Substitute.For<IRequestDescriptor<IHandlerDescriptor?>>();
+            missingDescriptor.Default.Returns((IHandlerDescriptor?)null);
+
+            var requestRouter = Substitute.For<IRequestRouter<IHandlerDescriptor?>>();
+            requestRouter.GetDescriptors(Arg.Is<Request>(x => x.Method == "known")).Returns(knownDescriptor);
+            requestRouter.GetDescriptors(Arg.Is<Request>(x => x.Method == "missing")).Returns(missingDescriptor);
+            requestRouter.GetDescriptors(Arg.Is<Notification>(x => x.Method == "known")).Returns(knownDescriptor);
+            requestRouter.GetDescriptors(Arg.Is<Notification>(x => x.Method == "missing")).Returns(missingDescriptor);
+
+            var requestInvoker = Substitute.For<RequestInvoker>();
+            requestInvoker
+               .InvokeRequest(Arg.Any<IRequestDescriptor<IHandlerDescriptor?>>(), Arg.Any<Request>())
+               .Returns(x => new RequestInvocationHandle(x.Arg<Request>()));
+
+            using var handler = NewHandler(
+                pipe.Reader, outputHandler, receiver,
+                requestRouter,
+                _loggerFactory, responseRouter,
+                requestInvoker
+            );
+
+            const string content = """
+            [
+                { "jsonrpc": "2.0", "id": "response-id", "result": { "ok": true } },
+                { "jsonrpc": "2.0", "id": 1, "method": "known", "params": {} },
+                { "jsonrpc": "2.0", "id": 2, "method": "missing", "params": {} },
+                { "jsonrpc": "2.0", "method": "missing", "params": {} },
+                { "jsonrpc": "2.0", "method": "known", "params": {} }
+            ]
+            """;
+            handler.Start();
+            await pipe.Writer.WriteAsync(Encoding.UTF8.GetBytes($"Content-Length: {Encoding.UTF8.GetByteCount(content)}\r\n\r\n{content}"));
+
+            await pipe.Writer.CompleteAsync();
+            await handler.InputCompleted;
+
+            pending.Task.IsCompletedSuccessfully.Should().BeTrue();
+            requestInvoker.Received(1).InvokeRequest(Arg.Any<IRequestDescriptor<IHandlerDescriptor?>>(), Arg.Is<Request>(x => x.Method == "known"));
+            requestInvoker.Received(1).InvokeNotification(Arg.Any<IRequestDescriptor<IHandlerDescriptor?>>(), Arg.Is<Notification>(x => x.Method == "known"));
+            outputHandler.Received(1).Send(Arg.Is<MethodNotFound>(x => x.Id!.Equals(2L)));
+        }
+
+        [Fact]
         public async Task Should_Handle_Header_Terminiator_Being_Incomplete()
         {
             var pipe = new Pipe(
