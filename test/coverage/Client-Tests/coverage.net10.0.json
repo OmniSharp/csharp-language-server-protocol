@@ -1,0 +1,9 @@
+{
+  "OmniSharp.Extensions.JsonRpc.dll": {},
+  "OmniSharp.Extensions.JsonRpc.Testing.dll": {},
+  "OmniSharp.Extensions.LanguageClient.dll": {},
+  "OmniSharp.Extensions.LanguageProtocol.dll": {},
+  "OmniSharp.Extensions.LanguageProtocol.Testing.dll": {},
+  "OmniSharp.Extensions.LanguageServer.dll": {},
+  "OmniSharp.Extensions.LanguageServer.Shared.dll": {}
+}
