@@ -14,7 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
         {
             if (request is SemanticTokensParams semanticTokensParams)
             {
-                var response = await next().ConfigureAwait(false);
+                var response = await next(cancellationToken).ConfigureAwait(false);
                 if (GetResponse(semanticTokensParams, response, out var result) && string.IsNullOrEmpty(result.ResultId))
                 {
                     result = result with { ResultId = Guid.NewGuid().ToString() };
@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
 
             if (request is SemanticTokensDeltaParams semanticTokensDeltaParams)
             {
-                var response = await next().ConfigureAwait(false);
+                var response = await next(cancellationToken).ConfigureAwait(false);
                 if (GetResponse(semanticTokensDeltaParams, response, out var result))
                 {
                     if (result is { IsFull: true, Full: { ResultId: null or { Length: 0 } } })
@@ -41,7 +41,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
                 return result is TResponse r ? r : response;
             }
 
-            return await next().ConfigureAwait(false);
+            return await next(cancellationToken).ConfigureAwait(false);
         }
 
         // ReSharper disable once UnusedParameter.Local
