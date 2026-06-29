@@ -1,0 +1,11 @@
+{
+  "OmniSharp.Extensions.DebugAdapter.Client.dll": {},
+  "OmniSharp.Extensions.DebugAdapter.dll": {},
+  "OmniSharp.Extensions.DebugAdapter.Proposals.dll": {},
+  "OmniSharp.Extensions.DebugAdapter.Server.dll": {},
+  "OmniSharp.Extensions.DebugAdapter.Shared.dll": {},
+  "OmniSharp.Extensions.DebugAdapter.Testing.dll": {},
+  "OmniSharp.Extensions.JsonRpc.dll": {},
+  "OmniSharp.Extensions.JsonRpc.Generators.dll": {},
+  "OmniSharp.Extensions.JsonRpc.Testing.dll": {}
+}

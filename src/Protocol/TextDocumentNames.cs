@@ -22,6 +22,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public const string DocumentLinkResolve = "documentLink/resolve";
         public const string OnTypeFormatting = "textDocument/onTypeFormatting";
         public const string RangeFormatting = "textDocument/rangeFormatting";
+        public const string RangesFormatting = "textDocument/rangesFormatting";
         public const string DocumentSymbol = "textDocument/documentSymbol";
         public const string Hover = "textDocument/hover";
         public const string Implementation = "textDocument/implementation";
@@ -47,6 +48,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public const string InlayHint = "textDocument/inlayHint";
         public const string InlayHintResolve = "inlayHint/resolve";
         public const string InlineValue = "textDocument/inlineValue";
+        public const string InlineCompletion = "textDocument/inlineCompletion";
         public const string Diagnostics = "textDocument/diagnostic";
         public const string PrepareTypeHierarchy = "textDocument/prepareTypeHierarchy";
         public const string TypeHierarchySupertypes = "typeHierarchy/supertypes";

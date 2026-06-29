@@ -174,5 +174,19 @@
         /// @since 3.17.0
         /// </summary>
         Supports<DiagnosticClientCapabilities?> Diagnostic { get; set; }
+
+        /// <summary>
+        /// Client capabilities specific to text document filters.
+        ///
+        /// @since 3.18.0
+        /// </summary>
+        Supports<TextDocumentFilterClientCapabilities> Filters { get; set; }
+
+        /// <summary>
+        /// Client capabilities specific to inline completions.
+        ///
+        /// @since 3.18.0
+        /// </summary>
+        Supports<InlineCompletionClientCapabilities?> InlineCompletion { get; set; }
     }
 }

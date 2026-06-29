@@ -251,6 +251,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         public DiagnosticsRegistrationOptions.StaticOptions? DiagnosticProvider { get; set; }
 
         /// <summary>
+        /// The server provides inline completions.
+        ///
+        /// @since 3.18.0
+        /// </summary>
+        [Optional]
+        public BooleanOr<InlineCompletionRegistrationOptions.StaticOptions>? InlineCompletionProvider { get; set; }
+
+        /// <summary>
         /// Workspace specific server capabilities
         /// </summary>
         [Optional]

@@ -20,5 +20,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// </summary>
         [Optional]
         public FileOperationsWorkspaceServerCapabilities? FileOperations { get; set; }
+
+        /// <summary>
+        /// The server provides dynamic text document content.
+        ///
+        /// @since 3.18.0
+        /// </summary>
+        [Optional]
+        public TextDocumentContentRegistrationOptions.StaticOptions? TextDocumentContent { get; set; }
     }
 }

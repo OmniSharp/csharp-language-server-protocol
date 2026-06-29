@@ -182,7 +182,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 {
                     Item = item.Item,
                     PartialResultToken = item.PartialResultToken,
-                    WorkDoneToken = item.PartialResultToken
+                    WorkDoneToken = item.WorkDoneToken
                 };
             }
         }
@@ -204,7 +204,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 {
                     Item = item.Item,
                     PartialResultToken = item.PartialResultToken,
-                    WorkDoneToken = item.PartialResultToken
+                    WorkDoneToken = item.WorkDoneToken
                 };
             }
 

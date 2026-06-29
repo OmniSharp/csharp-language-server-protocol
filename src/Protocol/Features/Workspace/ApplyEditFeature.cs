@@ -26,6 +26,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// The edits to apply.
             /// </summary>
             public WorkspaceEdit Edit { get; init; }
+
+            /// <summary>
+            /// Additional data about the workspace edit.
+            ///
+            /// @since 3.18.0
+            /// </summary>
+            [Optional]
+            public WorkspaceEditMetadata? Metadata { get; init; }
         }
 
         public partial record ApplyWorkspaceEditResponse

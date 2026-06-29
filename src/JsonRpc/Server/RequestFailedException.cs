@@ -16,7 +16,7 @@ public class RequestFailedException
     /// The LSP / JSON-RPC request Id (if known).
     /// </param>
     public RequestFailedException(object? requestId)
-        : this(ErrorCodes.RequestFailed, requestId?.ToString() ?? "(unknown)", "Content not modified.", null!)
+        : this(ErrorCodes.RequestFailed, requestId?.ToString() ?? "(unknown)", "Request failed.", null!)
     {
     }
 
@@ -30,7 +30,7 @@ public class RequestFailedException
     /// The exception that caused this exception to be raised.
     /// </param>
     public RequestFailedException(object? requestId, Exception inner)
-        : this(ErrorCodes.RequestFailed, requestId?.ToString() ?? "(unknown)", "Content not modified.", inner)
+        : this(ErrorCodes.RequestFailed, requestId?.ToString() ?? "(unknown)", "Request failed.", inner)
     {
     }
 

@@ -174,5 +174,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// @since 3.17.0
         /// </summary>
         public Supports<DiagnosticClientCapabilities?> Diagnostic { get; set; }
+
+        /// <summary>
+        /// Client capabilities specific to text document filters.
+        ///
+        /// @since 3.18.0
+        /// </summary>
+        public Supports<TextDocumentFilterClientCapabilities> Filters { get; set; }
+
+        /// <summary>
+        /// Client capabilities specific to inline completions.
+        ///
+        /// @since 3.18.0
+        /// </summary>
+        public Supports<InlineCompletionClientCapabilities?> InlineCompletion { get; set; }
     }
 }
