@@ -21,6 +21,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public string Name { get; init; } = null!;
 
         /// <summary>
+        /// An optional tooltip.
+        ///
+        /// @since 3.18.0
+        /// </summary>
+        [Optional]
+        public string? Tooltip { get; init; }
+
+        /// <summary>
         /// Arguments that the command handler should be
         /// invoked with.
         /// </summary>

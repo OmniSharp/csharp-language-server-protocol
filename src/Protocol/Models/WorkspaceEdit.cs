@@ -41,5 +41,27 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         [Optional]
         public IDictionary<ChangeAnnotationIdentifier, ChangeAnnotation>? ChangeAnnotations { get; init; }
+
+        /// <summary>
+        /// Additional data about the workspace edit.
+        ///
+        /// @since 3.18.0
+        /// </summary>
+        [Optional]
+        public WorkspaceEditMetadata? Metadata { get; init; }
+    }
+
+    /// <summary>
+    /// Additional data about a workspace edit.
+    ///
+    /// @since 3.18.0
+    /// </summary>
+    public record WorkspaceEditMetadata
+    {
+        /// <summary>
+        /// Signal to the editor that this edit is a refactoring.
+        /// </summary>
+        [Optional]
+        public bool IsRefactoring { get; init; }
     }
 }

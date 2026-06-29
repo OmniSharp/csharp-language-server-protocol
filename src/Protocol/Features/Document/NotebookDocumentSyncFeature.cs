@@ -467,13 +467,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// A glob pattern, like `*.{ts,js}`.
             /// </summary>
             [Optional]
-            public string? Pattern
+            public GlobPattern? Pattern
             {
                 get => _pattern;
                 init
                 {
                     _pattern = value;
-                    _minimatcher = new Minimatcher(value!, new Options { MatchBase = true });
+                    _minimatcher = new Minimatcher(GetPattern(value)!, new Options { MatchBase = true });
                 }
             }
 
@@ -483,8 +483,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             [JsonIgnore]
             public bool HasPattern => Pattern != null;
 
-            private string? _pattern;
+            private GlobPattern? _pattern;
             private Minimatcher? _minimatcher;
+
+            private static string? GetPattern(GlobPattern? pattern) =>
+                pattern?.HasRelativePattern == true ? pattern.RelativePattern?.Pattern : pattern?.Pattern;
 
             public static explicit operator string(NotebookDocumentFilter notebookDocumentFilter)
             {
@@ -501,7 +504,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
                 if (notebookDocumentFilter.HasPattern)
                 {
-                    items.Add(notebookDocumentFilter.Pattern!);
+                    items.Add(notebookDocumentFilter.Pattern!.ToString());
                 }
 
                 return $"[{string.Join(", ", items)}]";
@@ -551,7 +554,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
                 if (ReferenceEquals(null, other)) return false;
                 if (ReferenceEquals(this, other)) return true;
-                return _pattern == other._pattern && NotebookType == other.NotebookType && Scheme == other.Scheme;
+                return Equals(_pattern, other._pattern) && NotebookType == other.NotebookType && Scheme == other.Scheme;
             }
 
             public override bool Equals(object? obj)

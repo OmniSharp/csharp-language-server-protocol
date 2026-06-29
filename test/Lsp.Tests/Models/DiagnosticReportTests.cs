@@ -34,7 +34,7 @@ namespace Lsp.Tests.Models
             deresult.Should().BeOfType<FullDocumentDiagnosticReport>();
             var full = (FullDocumentDiagnosticReport)deresult;
             full.ResultId.Should().Be("result-1");
-            full.Items.Should().ContainSingle().Which.Message.Should().Be("message");
+            full.Items.Should().ContainSingle().Which.Message.String.Should().Be("message");
         }
 
         [Fact]

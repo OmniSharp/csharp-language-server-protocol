@@ -76,6 +76,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         public Supports<DiagnosticWorkspaceClientCapabilities> Diagnostics { get; set; }
 
         /// <summary>
+        /// Client workspace capabilities specific to folding ranges.
+        ///
+        /// @since 3.18.0.
+        /// </summary>
+        public Supports<FoldingRangeWorkspaceClientCapabilities> FoldingRange { get; set; }
+
+        /// <summary>
+        /// Client workspace capabilities specific to dynamic text document content.
+        ///
+        /// @since 3.18.0.
+        /// </summary>
+        public Supports<TextDocumentContentClientCapabilities?> TextDocumentContent { get; set; }
+
+        /// <summary>
         /// The client has support for workspace folders.
         ///
         /// Since 3.6.0

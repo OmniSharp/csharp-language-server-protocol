@@ -755,6 +755,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             [Optional]
             public bool RelatedDocumentSupport { get; set; }
+
+            /// <summary>
+            /// Whether the client supports the `Diagnostic.message` property being a `MarkupContent`.
+            ///
+            /// @since 3.18.0
+            /// </summary>
+            [Optional]
+            public bool MarkupMessageSupport { get; set; }
         }
 
         /// <summary>

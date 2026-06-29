@@ -46,5 +46,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// </summary>
         [Optional]
         public WorkspaceEditSupportCapabilitiesChangeAnnotationSupport? ChangeAnnotationSupport { get; set; }
+
+        /// <summary>
+        /// Whether the client supports metadata on workspace edits.
+        ///
+        /// @since 3.18.0
+        /// </summary>
+        [Optional]
+        public bool MetadataSupport { get; set; }
+
+        /// <summary>
+        /// Whether the client supports snippets in text document edits.
+        ///
+        /// @since 3.18.0
+        /// </summary>
+        [Optional]
+        public bool SnippetEditSupport { get; set; }
     }
 }

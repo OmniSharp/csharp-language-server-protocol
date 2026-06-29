@@ -2,8 +2,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using MediatR;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
@@ -443,12 +445,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             [Optional]
             public CompletionListItemDefaults? ItemDefaults { get; set; }
 
+            /// <summary>
+            /// Specifies how fields from a completion item should be combined with those from `itemDefaults`.
+            ///
+            /// @since 3.18.0
+            /// </summary>
+            [Optional]
+            public CompletionItemApplyKinds? ApplyKind { get; set; }
+
             public static CompletionList? From<T>(CompletionList<T>? list) where T : class?, IHandlerIdentity?
                 => list switch
                 {
                     not null => new(list.Items.Select(CompletionItem.From)!, list.IsIncomplete)
                     {
-                        ItemDefaults = list.ItemDefaults
+                        ItemDefaults = list.ItemDefaults,
+                        ApplyKind = list.ApplyKind
                     },
                     _ => null
                 };
@@ -456,14 +467,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static CompletionList From(CompletionList? source, IEnumerable<CompletionItem>? result)
                 => new((source?.Items ?? Array.Empty<CompletionItem>()).Concat(result ?? Array.Empty<CompletionItem>()))
                 {
-                    ItemDefaults = source?.ItemDefaults
+                    ItemDefaults = source?.ItemDefaults,
+                    ApplyKind = source?.ApplyKind
                 };
 
             internal class Converter : JsonConverter<CompletionList>
             {
                 public override void WriteJson(JsonWriter writer, CompletionList? value, JsonSerializer serializer)
                 {
-                    if (!value.IsIncomplete && value.ItemDefaults is null)
+                    if (!value.IsIncomplete && value.ItemDefaults is null && value.ApplyKind is null)
                     {
                         serializer.Serialize(writer, value.Items.ToArray());
                         return;
@@ -485,6 +497,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     {
                         writer.WritePropertyName("itemDefaults");
                         serializer.Serialize(writer, value.ItemDefaults);
+                    }
+
+                    if (value.ApplyKind is { })
+                    {
+                        writer.WritePropertyName("applyKind");
+                        serializer.Serialize(writer, value.ApplyKind);
                     }
 
                     writer.WriteEndObject();
@@ -509,7 +527,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     var items = result["items"].ToObject<IEnumerable<CompletionItem>>(serializer);
                     return new CompletionList(items, result["isIncomplete"]?.Value<bool>() ?? false)
                     {
-                        ItemDefaults = result["itemDefaults"]?.ToObject<CompletionListItemDefaults>(serializer)
+                        ItemDefaults = result["itemDefaults"]?.ToObject<CompletionListItemDefaults>(serializer),
+                        ApplyKind = result["applyKind"]?.ToObject<CompletionItemApplyKinds>(serializer)
                     };
                 }
 
@@ -564,13 +583,22 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             [Optional]
             public CompletionListItemDefaults? ItemDefaults { get; set; }
 
+            /// <summary>
+            /// Specifies how fields from a completion item should be combined with those from `itemDefaults`.
+            ///
+            /// @since 3.18.0
+            /// </summary>
+            [Optional]
+            public CompletionItemApplyKinds? ApplyKind { get; set; }
+
             public static CompletionList<T>? Create(CompletionList? list)
                 => list switch
                 {
                     not null =>
                         new(list.IsIncomplete, list.Items.Select(CompletionItem<T>.From)!)
                         {
-                            ItemDefaults = list.ItemDefaults
+                            ItemDefaults = list.ItemDefaults,
+                            ApplyKind = list.ApplyKind
                         },
                     _ => null
                 };
@@ -580,7 +608,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
                 not null => new CompletionList(container.Select(value => (CompletionItem)value), container.IsIncomplete)
                 {
-                    ItemDefaults = container.ItemDefaults
+                    ItemDefaults = container.ItemDefaults,
+                    ApplyKind = container.ApplyKind
                 },
                 _ => null
             };
@@ -649,6 +678,35 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             [Optional]
             public JToken? Data { get; init; }
+        }
+
+        /// <summary>
+        /// Specifies how a completion item's fields combine with completion list item defaults.
+        ///
+        /// @since 3.18.0
+        /// </summary>
+        public record CompletionItemApplyKinds
+        {
+            [Optional]
+            public ApplyKind? CommitCharacters { get; init; }
+
+            [Optional]
+            public ApplyKind? Data { get; init; }
+        }
+
+        /// <summary>
+        /// Defines whether a completion item field replaces or merges with a completion list item default.
+        ///
+        /// @since 3.18.0
+        /// </summary>
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum ApplyKind
+        {
+            [EnumMember(Value = "replace")]
+            Replace,
+
+            [EnumMember(Value = "merge")]
+            Merge
         }
 
         /// <summary>
@@ -739,6 +797,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             [Optional]
             public Container<string>? ItemDefaults { get; set; }
+
+            /// <summary>
+            /// The client supports the `applyKind` property on completion lists.
+            ///
+            /// @since 3.18.0
+            /// </summary>
+            [Optional]
+            public bool ApplyKindSupport { get; set; }
         }
 
         public class CompletionItemCapabilityOptions

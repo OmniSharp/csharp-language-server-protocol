@@ -333,6 +333,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             [Optional]
             public bool ResolveProvider { get; set; }
 
+            /// <summary>
+            /// Documentation for code action kinds provided by this server.
+            ///
+            /// @since 3.18.0
+            /// </summary>
+            [Optional]
+            public Container<CodeActionKindDocumentation>? Documentation { get; set; }
+
             private class CodeActionRegistrationOptionsConverter : RegistrationOptionsConverterBase<CodeActionRegistrationOptions, StaticOptions>
             {
                 private readonly IHandlersManager _handlersManager;
@@ -349,9 +357,22 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                         CodeActionKinds = source.CodeActionKinds,
                         ResolveProvider = source.ResolveProvider || _handlersManager.Descriptors.Any(z => z.HandlerType == typeof(ICodeActionResolveHandler)),
                         WorkDoneProgress = source.WorkDoneProgress,
+                        Documentation = source.Documentation,
                     };
                 }
             }
+        }
+
+        /// <summary>
+        /// Documentation for a class of code actions.
+        ///
+        /// @since 3.18.0
+        /// </summary>
+        public record CodeActionKindDocumentation
+        {
+            public CodeActionKind Kind { get; init; }
+
+            public Command Command { get; init; } = null!;
         }
 
         /// <summary>
@@ -415,6 +436,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static CodeActionKind RefactorRewrite { get; } = new CodeActionKind("refactor.rewrite");
 
             /// <summary>
+            /// Base kind for refactoring move actions: 'refactor.move'
+            ///
+            /// @since 3.18.0
+            /// </summary>
+            public static CodeActionKind RefactorMove { get; } = new CodeActionKind("refactor.move");
+
+            /// <summary>
             /// Base kind for source actions: `source`
             ///
             /// Source code actions apply to the entire file.
@@ -436,6 +464,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// @since 3.17.0
             /// </summary>
             public static CodeActionKind SourceFixAll { get; } = new CodeActionKind("source.fixAll");
+
+            /// <summary>
+            /// Base kind for notebook actions: `notebook`.
+            ///
+            /// @since 3.18.0
+            /// </summary>
+            public static CodeActionKind Notebook { get; } = new CodeActionKind("notebook");
         }
 
 
@@ -515,6 +550,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             [Optional]
             public bool HonorsChangeAnnotations { get; set; }
+
+            /// <summary>
+            /// Whether the client supports documentation for code action kinds.
+            ///
+            /// @since 3.18.0
+            /// </summary>
+            [Optional]
+            public bool DocumentationSupport { get; set; }
         }
 
         public class CodeActionLiteralSupportOptions

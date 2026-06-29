@@ -13,6 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public const string WorkspaceFolders = "workspace/workspaceFolders";
         public const string SemanticTokensRefresh = "workspace/semanticTokens/refresh";
         public const string CodeLensRefresh = "workspace/codeLens/refresh";
+        public const string FoldingRangeRefresh = "workspace/foldingRange/refresh";
         public const string WillCreateFiles = "workspace/willCreateFiles";
         public const string DidCreateFiles = "workspace/didCreateFiles";
         public const string WillRenameFiles = "workspace/willRenameFiles";
@@ -23,5 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public const string DiagnosticRefresh = "workspace/diagnostic/refresh";
         public const string Diagnostics = "workspace/diagnostic";
         public const string InlayHintRefresh = "workspace/inlayHint/refresh";
+        public const string TextDocumentContent = "workspace/textDocumentContent";
+        public const string TextDocumentContentRefresh = "workspace/textDocumentContent/refresh";
     }
 }
