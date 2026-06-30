@@ -3,7 +3,7 @@
   "isRoot": true,
   "tools": {
     "dotnet-outdated-tool": {
-      "version": "4.6.9",
+      "version": "4.8.1",
       "commands": [
         "dotnet-outdated"
       ],
@@ -17,14 +17,14 @@
       "rollForward": false
     },
     "nuke.globaltool": {
-      "version": "9.0.4",
+      "version": "10.1.0",
       "commands": [
         "nuke"
       ],
       "rollForward": false
     },
     "jetbrains.resharper.globaltools": {
-      "version": "2026.1.2",
+      "version": "2026.1.3",
       "commands": [
         "jb"
       ],

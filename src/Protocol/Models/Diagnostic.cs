@@ -49,7 +49,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The diagnostic's message.
         /// </summary>
-        public string Message { get; init; } = null!;
+        public StringOrMarkupContent Message { get; init; } = null!;
 
         /// <summary>
         /// Additional metadata about the diagnostic.
@@ -81,7 +81,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             $"{Range}" +
             $"{( string.IsNullOrWhiteSpace(Source) ? "" : $" ({Source})" )}" +
             $"{( Tags?.Any() == true ? $" [tags: {string.Join(", ", Tags.Select(z => z.ToString()))}]" : "" )}" +
-            $" {( Message?.Length > 20 ? Message.Substring(0, 20) : Message )}";
+            $" {( Message?.ToString()?.Length > 20 ? Message.ToString()!.Substring(0, 20) : Message )}";
     }
 
     [JsonConverter(typeof(DiagnosticCodeConverter))]

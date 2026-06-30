@@ -13,6 +13,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             writer.WriteStartObject();
             writer.WritePropertyName("range");
             serializer.Serialize(writer, value.Range);
+            if (value is SnippetTextEdit snippetTextEdit)
+            {
+                writer.WritePropertyName("snippet");
+                serializer.Serialize(writer, snippetTextEdit.Snippet);
+                if (snippetTextEdit.AnnotationId is { })
+                {
+                    writer.WritePropertyName("annotationId");
+                    serializer.Serialize(writer, snippetTextEdit.AnnotationId);
+                }
+
+                writer.WriteEndObject();
+                return;
+            }
+
             writer.WritePropertyName("newText");
             serializer.Serialize(writer, value.NewText);
             if (value is AnnotatedTextEdit annotatedTextEdit)
@@ -28,7 +42,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
         {
             var result = JObject.Load(reader);
             TextEdit edit;
-            if (result["annotationId"] is { Type: JTokenType.String } annotation)
+            if (result["snippet"] is { Type: JTokenType.Object } snippet)
+            {
+                edit = new SnippetTextEdit() {
+                    Snippet = snippet.ToObject<StringValue>(serializer)!,
+                    AnnotationId = result["annotationId"]?.ToObject<ChangeAnnotationIdentifier>(serializer)
+                };
+            }
+            else if (result["annotationId"] is { Type: JTokenType.String } annotation)
             {
                 edit = new AnnotatedTextEdit() {
                     AnnotationId = annotation.ToObject<ChangeAnnotationIdentifier>(serializer)

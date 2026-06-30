@@ -16,7 +16,7 @@ public class ServerCancelledException
     /// The LSP / JSON-RPC request Id (if known).
     /// </param>
     public ServerCancelledException(object? requestId)
-        : this(ErrorCodes.ServerCancelled, requestId?.ToString() ?? "(unknown)", "Content not modified.", null!)
+        : this(ErrorCodes.ServerCancelled, requestId?.ToString() ?? "(unknown)", "Server cancelled the request.", null!)
     {
     }
 
@@ -30,7 +30,7 @@ public class ServerCancelledException
     /// The exception that caused this exception to be raised.
     /// </param>
     public ServerCancelledException(object? requestId, Exception inner)
-        : this(ErrorCodes.ServerCancelled, requestId?.ToString() ?? "(unknown)", "Content not modified.", inner)
+        : this(ErrorCodes.ServerCancelled, requestId?.ToString() ?? "(unknown)", "Server cancelled the request.", inner)
     {
     }
 

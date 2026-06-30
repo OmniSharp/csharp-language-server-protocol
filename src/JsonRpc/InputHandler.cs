@@ -323,6 +323,7 @@ namespace OmniSharp.Extensions.JsonRpc
             try
             {
                 var headersParsed = false;
+                var invalidContentType = false;
                 long length = 0;
                 do
                 {
@@ -337,6 +338,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         {
                             if (TryParseHeaders(ref buffer, out var line))
                             {
+                                invalidContentType = !IsSupportedContentType(line);
                                 if (TryParseContentLength(ref line, out length))
                                 {
                                     headersParsed = true;
@@ -346,7 +348,16 @@ namespace OmniSharp.Extensions.JsonRpc
 
                         if (headersParsed && length == 0)
                         {
-                            HandleRequest(new ReadOnlySequence<byte>(Array.Empty<byte>()));
+                            if (invalidContentType)
+                            {
+                                _outputHandler.Send(new ParseError(string.Empty));
+                                invalidContentType = false;
+                            }
+                            else
+                            {
+                                HandleRequest(new ReadOnlySequence<byte>(Array.Empty<byte>()));
+                            }
+
                             headersParsed = false;
                         }
 
@@ -356,7 +367,16 @@ namespace OmniSharp.Extensions.JsonRpc
                             {
                                 headersParsed = false;
                                 length = 0;
-                                HandleRequest(line);
+                                if (invalidContentType)
+                                {
+                                    _outputHandler.Send(new ParseError(string.Empty));
+                                    invalidContentType = false;
+                                }
+                                else
+                                {
+                                    HandleRequest(line);
+                                }
+
                                 dataParsed = true;
                             }
                         }
@@ -384,6 +404,41 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
+        private static bool IsSupportedContentType(ReadOnlySequence<byte> headers)
+        {
+            var headerText = Encoding.ASCII.GetString(headers.ToArray());
+            foreach (var header in headerText.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                var colonIndex = header.IndexOf(':');
+                if (colonIndex < 0)
+                {
+                    continue;
+                }
+
+                var name = header.Substring(0, colonIndex).Trim();
+                if (!string.Equals(name, "Content-Type", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                var value = header.Substring(colonIndex + 1);
+                foreach (var part in value.Split(';').Skip(1))
+                {
+                    var pair = part.Split(new[] { '=' }, 2);
+                    if (pair.Length != 2 || !string.Equals(pair[0].Trim(), "charset", StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    var charset = pair[1].Trim().Trim('"');
+                    return string.Equals(charset, "utf-8", StringComparison.OrdinalIgnoreCase) ||
+                           string.Equals(charset, "utf8", StringComparison.OrdinalIgnoreCase);
+                }
+            }
+
+            return true;
+        }
+
         private void HandleRequest(in ReadOnlySequence<byte> request)
         {
             JToken payload;
@@ -407,51 +462,46 @@ namespace OmniSharp.Extensions.JsonRpc
 
             // using (_logger.TimeDebug("InputHandler is handling the request"))
             // {
-            var (requests, hasResponse) = _receiver.GetRequests(payload);
-            if (hasResponse)
+            var (requests, _) = _receiver.GetRequests(payload);
+            var items = requests as Renor[] ?? requests.ToArray();
+            foreach (var response in items.Where(x => x.IsResponse).Select(x => x.Response!))
             {
-                foreach (var response in requests.Where(x => x.IsResponse).Select(x => x.Response!))
+                // _logger.LogDebug("Handling Response for request {ResponseId}", response.Id);
+                if (response.Id is null)
                 {
-                    // _logger.LogDebug("Handling Response for request {ResponseId}", response.Id);
-                    var id = response.Id is string s ? long.Parse(s) : response.Id is long l ? l : -1;
-                    if (id < 0)
-                    {
-                        // _logger.LogDebug("Id was out of range, skipping request {ResponseId}", response.Id);
-                        continue;
-                    }
-
-                    if (!_responseRouter.TryGetRequest(id, out var method, out var tcs))
-                    {
-                        // _logger.LogDebug("Request {ResponseId} was not found in the response router, unable to complete", response.Id);
-                        continue;
-                    }
-
-                    _inputQueue.OnNext(
-                        Observable.Create<Unit>(
-                            observer =>
-                            {
-                                if (response is ServerResponse serverResponse)
-                                {
-                                    // _logger.LogDebug("Setting successful Response for {ResponseId}", response.Id);
-                                    tcs.TrySetResult(serverResponse.Result);
-                                }
-                                else if (response is ServerError serverError)
-                                {
-                                    // _logger.LogDebug("Setting error for {ResponseId}", response.Id);
-                                    tcs.TrySetException(DefaultErrorParser(method, serverError, _getException));
-                                }
-
-                                observer.OnCompleted();
-                                return Disposable.Empty;
-                            }
-                        )
-                    );
+                    continue;
                 }
 
-                return;
+                if (!_responseRouter.TryGetRequest(response.Id, out var method, out var tcs) &&
+                    !(response.Id is string s && long.TryParse(s, out var numericId) && _responseRouter.TryGetRequest(numericId, out method, out tcs)))
+                {
+                    // _logger.LogDebug("Request {ResponseId} was not found in the response router, unable to complete", response.Id);
+                    continue;
+                }
+
+                _inputQueue.OnNext(
+                    Observable.Create<Unit>(
+                        observer =>
+                        {
+                            if (response is ServerResponse serverResponse)
+                            {
+                                // _logger.LogDebug("Setting successful Response for {ResponseId}", response.Id);
+                                tcs.TrySetResult(serverResponse.Result);
+                            }
+                            else if (response is ServerError serverError)
+                            {
+                                // _logger.LogDebug("Setting error for {ResponseId}", response.Id);
+                                tcs.TrySetException(DefaultErrorParser(method, serverError, _getException));
+                            }
+
+                            observer.OnCompleted();
+                            return Disposable.Empty;
+                        }
+                    )
+                );
             }
 
-            foreach (var item in requests)
+            foreach (var item in items)
             {
                 if (item.IsRequest && item.Request != null)
                 {
@@ -463,7 +513,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         {
                             _logger.LogDebug("Request handler was not found (or not setup) {Method} {ResponseId}", item.Request.Method, item.Request.Id);
                             _outputHandler.Send(new MethodNotFound(item.Request.Id, item.Request.Method));
-                            return;
+                            continue;
                         }
 
                         var requestHandle = _requestInvoker.InvokeRequest(descriptor, item.Request);
@@ -514,7 +564,7 @@ namespace OmniSharp.Extensions.JsonRpc
                             _logger.LogDebug("Notification handler was not found (or not setup) {Method}", item.Notification.Method);
                             // TODO: Figure out a good way to send this feedback back.
                             // _outputHandler.Send(new RpcError(null, new ErrorMessage(-32601, $"Method not found - {item.Notification.Method}")));
-                            return;
+                            continue;
                         }
 
                         _requestInvoker.InvokeNotification(descriptor, item.Notification);
@@ -548,6 +598,8 @@ namespace OmniSharp.Extensions.JsonRpc
                 ErrorCodes.ParseError           => new ParseErrorException(error.Id),
                 ErrorCodes.RequestCancelled     => new RequestCancelledException(error.Id),
                 ErrorCodes.ContentModified      => new ContentModifiedException(error.Id),
+                ErrorCodes.ServerCancelled      => new ServerCancelledException(error.Id),
+                ErrorCodes.RequestFailed        => new RequestFailedException(error.Id),
                 ErrorCodes.UnknownErrorCode     => new UnknownErrorException(error.Id),
                 ErrorCodes.Exception            => new JsonRpcException(ErrorCodes.Exception, error.Id, error.Error.Message, error.Error.Data?.ToString()),
                 _ => customHandler?.Invoke(error, method ?? "UNKNOWN") ??

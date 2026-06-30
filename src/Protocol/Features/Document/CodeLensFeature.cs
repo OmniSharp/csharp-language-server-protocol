@@ -8,6 +8,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
@@ -126,6 +127,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.CodeLens))]
         public partial class CodeLensCapability : DynamicCapability
         {
+            /// <summary>
+            /// Indicates which properties a client can resolve lazily on a code lens.
+            ///
+            /// @since 3.18.0
+            /// </summary>
+            [Optional]
+            public CodeLensCapabilityResolveSupport? ResolveSupport { get; set; }
+        }
+
+        public class CodeLensCapabilityResolveSupport
+        {
+            /// <summary>
+            /// The properties that a client can resolve lazily.
+            /// </summary>
+            public Container<string> Properties { get; set; } = null!;
         }
 
         /// <summary>
