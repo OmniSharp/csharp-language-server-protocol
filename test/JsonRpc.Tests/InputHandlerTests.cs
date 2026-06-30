@@ -15,6 +15,7 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Serialization;
 using OmniSharp.Extensions.JsonRpc.Server;
+using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -115,6 +116,8 @@ namespace JsonRpc.Tests
         [InlineData(
             "Content-Length:                    2                       \r\nContent-Type: application/json\r\n\r\n{}"
         )]
+        [InlineData("Content-Length: 2\r\nContent-Type: application/vscode-jsonrpc; charset=utf-8\r\n\r\n{}")]
+        [InlineData("Content-Length: 2\r\nContent-Type: application/vscode-jsonrpc; charset=utf8\r\n\r\n{}")]
         [InlineData("Content-Type: application/json\r\nContent-Length: 2\r\n\r\n{}")]
         [InlineData("Content-Type: application/json\r\nNot-A-Header: really\r\nContent-Length: 2\r\n\r\n{}")]
         [InlineData(
@@ -148,6 +151,35 @@ namespace JsonRpc.Tests
             await processTask;
 
             receiver.Received(1).IsValid(Arg.Is<JToken>(x => x.ToString() == "{}"));
+        }
+
+        [Fact]
+        public async Task Should_Reject_Unsupported_Content_Type_Charset()
+        {
+            var pipe = new Pipe(new PipeOptions());
+
+            var outputHandler = Substitute.For<IOutputHandler>();
+            var receiver = Substitute.For<IReceiver>();
+
+            using var handler = NewHandler(
+                pipe.Reader, outputHandler, receiver,
+                Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
+                _loggerFactory, Substitute.For<IResponseRouter>(),
+                Substitute.For<RequestInvoker>()
+            );
+            await pipe.Writer.WriteAsync(
+                Encoding.UTF8.GetBytes("Content-Type: application/vscode-jsonrpc; charset=iso-8859-1\r\nContent-Length: 2\r\n\r\n{}")
+            );
+
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            var processTask = handler.ProcessInputStream(cts.Token);
+
+            await pipe.Writer.CompleteAsync();
+            await processTask;
+
+            receiver.DidNotReceiveWithAnyArgs().IsValid(default!);
+            outputHandler.Received().Send(Arg.Is<ParseError>(x => x.Error!.Code == ErrorCodes.ParseError));
         }
 
         [Fact]
@@ -257,6 +289,132 @@ namespace JsonRpc.Tests
             await processTask;
 
             receiver.Received(1).IsValid(Arg.Any<JToken>());
+        }
+
+        [Fact]
+        public async Task Should_Complete_Pending_Request_With_String_Response_Id()
+        {
+            var pipe = new Pipe(new PipeOptions());
+
+            var outputHandler = Substitute.For<IOutputHandler>();
+            var receiver = new Receiver();
+            var responseRouter = new ResponseRouter(
+                new Lazy<IOutputHandler>(() => outputHandler),
+                new JsonRpcSerializer(),
+                new AssemblyScanningHandlerTypeDescriptorProvider(new[] { typeof(AssemblyScanningHandlerTypeDescriptorProvider).Assembly, typeof(InputHandlerTests).Assembly })
+            );
+            var pending = new TaskCompletionSource<JToken>();
+            responseRouter.Requests.TryAdd("request-id", ("method", pending)).Should().BeTrue();
+
+            using var handler = NewHandler(
+                pipe.Reader, outputHandler, receiver,
+                Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
+                _loggerFactory, responseRouter,
+                Substitute.For<RequestInvoker>()
+            );
+            var content = @"{""jsonrpc"":""2.0"",""id"":""request-id"",""result"":{}}";
+            handler.Start();
+            await pipe.Writer.WriteAsync(Encoding.UTF8.GetBytes($"Content-Length: {Encoding.UTF8.GetByteCount(content)}\r\n\r\n{content}"));
+
+            await pipe.Writer.CompleteAsync();
+            await handler.InputCompleted;
+
+            pending.Task.IsCompletedSuccessfully.Should().BeTrue();
+        }
+
+        [Theory]
+        [InlineData(ErrorCodes.RequestFailed, typeof(RequestFailedException))]
+        [InlineData(ErrorCodes.ServerCancelled, typeof(ServerCancelledException))]
+        [InlineData(ErrorCodes.UnknownErrorCode, typeof(UnknownErrorException))]
+        public async Task Should_Map_Response_Error_Codes_To_Lsp_Exceptions(int errorCode, Type exceptionType)
+        {
+            var pipe = new Pipe(new PipeOptions());
+
+            var outputHandler = Substitute.For<IOutputHandler>();
+            var receiver = new Receiver();
+            var responseRouter = new ResponseRouter(
+                new Lazy<IOutputHandler>(() => outputHandler),
+                new JsonRpcSerializer(),
+                new AssemblyScanningHandlerTypeDescriptorProvider(new[] { typeof(AssemblyScanningHandlerTypeDescriptorProvider).Assembly, typeof(InputHandlerTests).Assembly })
+            );
+            var pending = new TaskCompletionSource<JToken>();
+            responseRouter.Requests.TryAdd("request-id", ("method", pending)).Should().BeTrue();
+
+            using var handler = NewHandler(
+                pipe.Reader, outputHandler, receiver,
+                Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
+                _loggerFactory, responseRouter,
+                Substitute.For<RequestInvoker>()
+            );
+            var content = $@"{{""jsonrpc"":""2.0"",""id"":""request-id"",""error"":{{""code"":{errorCode},""message"":""error""}}}}";
+            handler.Start();
+            await pipe.Writer.WriteAsync(Encoding.UTF8.GetBytes($"Content-Length: {Encoding.UTF8.GetByteCount(content)}\r\n\r\n{content}"));
+
+            await pipe.Writer.CompleteAsync();
+            await handler.InputCompleted;
+
+            var action = async () => await pending.Task;
+            await action.Should().ThrowAsync<Exception>().Where(x => x.GetType() == exceptionType);
+        }
+
+        [Fact]
+        public async Task Should_Process_Mixed_Batch_Items_Independently()
+        {
+            var pipe = new Pipe(new PipeOptions());
+            var outputHandler = Substitute.For<IOutputHandler>();
+            var receiver = new Receiver();
+            var responseRouter = new ResponseRouter(
+                new Lazy<IOutputHandler>(() => outputHandler),
+                new JsonRpcSerializer(),
+                new AssemblyScanningHandlerTypeDescriptorProvider(new[] { typeof(AssemblyScanningHandlerTypeDescriptorProvider).Assembly, typeof(InputHandlerTests).Assembly })
+            );
+            var pending = new TaskCompletionSource<JToken>();
+            responseRouter.Requests.TryAdd("response-id", ("known", pending)).Should().BeTrue();
+
+            var handlerDescriptor = Substitute.For<IHandlerDescriptor>();
+            handlerDescriptor.Method.Returns("known");
+            var knownDescriptor = Substitute.For<IRequestDescriptor<IHandlerDescriptor?>>();
+            knownDescriptor.Default.Returns(handlerDescriptor);
+            var missingDescriptor = Substitute.For<IRequestDescriptor<IHandlerDescriptor?>>();
+            missingDescriptor.Default.Returns((IHandlerDescriptor?)null);
+
+            var requestRouter = Substitute.For<IRequestRouter<IHandlerDescriptor?>>();
+            requestRouter.GetDescriptors(Arg.Is<Request>(x => x.Method == "known")).Returns(knownDescriptor);
+            requestRouter.GetDescriptors(Arg.Is<Request>(x => x.Method == "missing")).Returns(missingDescriptor);
+            requestRouter.GetDescriptors(Arg.Is<Notification>(x => x.Method == "known")).Returns(knownDescriptor);
+            requestRouter.GetDescriptors(Arg.Is<Notification>(x => x.Method == "missing")).Returns(missingDescriptor);
+
+            var requestInvoker = Substitute.For<RequestInvoker>();
+            requestInvoker
+               .InvokeRequest(Arg.Any<IRequestDescriptor<IHandlerDescriptor?>>(), Arg.Any<Request>())
+               .Returns(x => new RequestInvocationHandle(x.Arg<Request>()));
+
+            using var handler = NewHandler(
+                pipe.Reader, outputHandler, receiver,
+                requestRouter,
+                _loggerFactory, responseRouter,
+                requestInvoker
+            );
+
+            const string content = """
+            [
+                { "jsonrpc": "2.0", "id": "response-id", "result": { "ok": true } },
+                { "jsonrpc": "2.0", "id": 1, "method": "known", "params": {} },
+                { "jsonrpc": "2.0", "id": 2, "method": "missing", "params": {} },
+                { "jsonrpc": "2.0", "method": "missing", "params": {} },
+                { "jsonrpc": "2.0", "method": "known", "params": {} }
+            ]
+            """;
+            handler.Start();
+            await pipe.Writer.WriteAsync(Encoding.UTF8.GetBytes($"Content-Length: {Encoding.UTF8.GetByteCount(content)}\r\n\r\n{content}"));
+
+            await pipe.Writer.CompleteAsync();
+            await handler.InputCompleted;
+
+            pending.Task.IsCompletedSuccessfully.Should().BeTrue();
+            requestInvoker.Received(1).InvokeRequest(Arg.Any<IRequestDescriptor<IHandlerDescriptor?>>(), Arg.Is<Request>(x => x.Method == "known"));
+            requestInvoker.Received(1).InvokeNotification(Arg.Any<IRequestDescriptor<IHandlerDescriptor?>>(), Arg.Is<Notification>(x => x.Method == "known"));
+            outputHandler.Received(1).Send(Arg.Is<MethodNotFound>(x => x.Id!.Equals(2L)));
         }
 
         [Fact]

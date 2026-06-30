@@ -25,5 +25,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// A log message.
         /// </summary>
         Log = 4,
+
+        /// <summary>
+        /// A debug message.
+        ///
+        /// @since 3.18.0
+        /// </summary>
+        Debug = 5,
     }
 }

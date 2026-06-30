@@ -337,7 +337,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.17.0.
         /// </summary>
-        [CapabilityKey(nameof(ClientCapabilities.Workspace), nameof(WorkspaceClientCapabilities.SemanticTokens))]
+        [CapabilityKey(nameof(ClientCapabilities.Workspace), nameof(WorkspaceClientCapabilities.InlayHint))]
         public class InlayHintWorkspaceClientCapabilities : ICapability
         {
             /// <summary>

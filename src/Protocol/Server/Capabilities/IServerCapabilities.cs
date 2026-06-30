@@ -32,12 +32,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// </summary>
         TextDocumentSync? TextDocumentSync { get; set; }
 
-//        /// <summary>
-//        /// Defines how notebook documents are synced.
-//        ///
-//        /// @since 3.17.0
-//        /// </summary>
-//        NotebookDocumentSyncOptions.StaticOptions NotebookDocumentSync { get; set; }
+        /// <summary>
+        /// Defines how notebook documents are synced.
+        ///
+        /// @since 3.17.0
+        /// </summary>
+        NotebookDocumentSyncOptions? NotebookDocumentSync { get; set; }
 
         /// <summary>
         /// The server provides hover support.
@@ -215,5 +215,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// @since 3.17.0
         /// </summary>
         DiagnosticsRegistrationOptions.StaticOptions? DiagnosticProvider { get; set; }
+
+        /// <summary>
+        /// The server provides inline completions.
+        ///
+        /// @since 3.18.0
+        /// </summary>
+        BooleanOr<InlineCompletionRegistrationOptions.StaticOptions>? InlineCompletionProvider { get; set; }
     }
 }

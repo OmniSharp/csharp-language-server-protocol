@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using OmniSharp.Extensions.JsonRpc;
@@ -9,6 +10,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
 // ReSharper disable once CheckNamespace
@@ -127,6 +129,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public partial class FoldingRangeRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions, IStaticRegistrationOptions
         {
         }
+
+        [Parallel]
+        [Method(WorkspaceNames.FoldingRangeRefresh, Direction.ServerToClient)]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace")]
+        [GenerateHandlerMethods]
+        [GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
+        [Capability(typeof(FoldingRangeWorkspaceClientCapabilities))]
+        public partial record FoldingRangeRefreshParams : IRequest<Unit>;
     }
 
     namespace Client.Capabilities
@@ -165,6 +175,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             [Optional]
             public FoldingRangeCapabilityFoldingRange? FoldingRange { get; set; }
+        }
+
+        /// <summary>
+        /// Client workspace capabilities specific to folding ranges.
+        ///
+        /// @since 3.18.0
+        /// </summary>
+        [CapabilityKey(nameof(ClientCapabilities.Workspace), nameof(WorkspaceClientCapabilities.FoldingRange))]
+        public class FoldingRangeWorkspaceClientCapabilities : ICapability
+        {
+            /// <summary>
+            /// Whether the client implementation supports a refresh request sent from the server to the client.
+            /// </summary>
+            [Optional]
+            public bool RefreshSupport { get; set; }
         }
 
         public partial class FoldingRangeCapabilityFoldingRangeKind

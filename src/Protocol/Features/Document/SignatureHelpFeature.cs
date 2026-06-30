@@ -299,6 +299,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             [Optional]
             public bool ActiveParameterSupport { get; set; }
+
+            /// <summary>
+            /// The client supports the `activeParameter` property being `null`.
+            ///
+            /// @since 3.18.0
+            /// </summary>
+            [Optional]
+            public bool NoActiveParameterSupport { get; set; }
         }
 
         public class SignatureParameterInformationCapabilityOptions

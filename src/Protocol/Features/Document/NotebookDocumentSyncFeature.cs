@@ -133,12 +133,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// The changed meta data if any.
             /// </summary>
+            [Optional]
             public JObject? Metadata { get; init; }
 
             /// <summary>
             /// Changes to cells
             /// </summary>
-            public NotebookDocumentChangeEventCells Cells { get; init; }
+            [Optional]
+            public NotebookDocumentChangeEventCells? Cells { get; init; }
         }
 
         /// <summary>
@@ -150,18 +152,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// Changes to the cell structure to add or
             /// remove cells.
             /// </summary>
+            [Optional]
             public NotebookDocumentChangeEventCellsStructure? Structure { get; init; }
 
             /// <summary>
             /// Changes to notebook cells properties like its
             /// kind, execution summary or metadata.
             /// </summary>
+            [Optional]
             public Container<NotebookCell>? Data { get; set; }
 
             /// <summary>
             /// Changes to the text content of notebook cells.
             /// </summary>
-            public NotebookDocumentChangeEventCellsTextContent TextContent { get; init; }
+            [Optional]
+            public Container<NotebookDocumentChangeEventCellsTextContent>? TextContent { get; init; }
         }
 
         /// <summary>
@@ -178,11 +183,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// Additional opened cell text documents.
             /// </summary>
+            [Optional]
             public Container<TextDocumentItem>? DidOpen { get; set; }
 
             /// <summary>
             /// Additional closed cell text documents.
             /// </summary>
+            [Optional]
             public Container<TextDocumentIdentifier>? DidClose { get; set; }
         }
 
@@ -207,6 +214,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// The new cells, if any
             /// </summary>
+            [Optional]
             public Container<NotebookCell>? Cells { get; set; }
         }
 
@@ -273,6 +281,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// Additional metadata stored with the notebook
             /// document.
             /// </summary>
+            [Optional]
             public JObject? Metadata { get; set; }
 
             /// <summary>
@@ -307,12 +316,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// Additional metadata stored with the cell.
             /// </summary>
+            [Optional]
             public JObject? Metadata { get; set; }
 
             /// <summary>
             /// Additional execution summary information
             /// if supported by the client.
             /// </summary>
+            [Optional]
             public ExecutionSummary? ExecutionSummary { get; set; }
         }
 
@@ -329,6 +340,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// Whether the execution was successful or
             /// not if known by the client.
             /// </summary>
+            [Optional]
             public bool? Success { get; set; }
         }
 
@@ -455,13 +467,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// A glob pattern, like `*.{ts,js}`.
             /// </summary>
             [Optional]
-            public string? Pattern
+            public GlobPattern? Pattern
             {
                 get => _pattern;
                 init
                 {
                     _pattern = value;
-                    _minimatcher = new Minimatcher(value!, new Options { MatchBase = true });
+                    _minimatcher = new Minimatcher(GetPattern(value)!, new Options { MatchBase = true });
                 }
             }
 
@@ -471,8 +483,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             [JsonIgnore]
             public bool HasPattern => Pattern != null;
 
-            private string? _pattern;
+            private GlobPattern? _pattern;
             private Minimatcher? _minimatcher;
+
+            private static string? GetPattern(GlobPattern? pattern) =>
+                pattern?.HasRelativePattern == true ? pattern.RelativePattern?.Pattern : pattern?.Pattern;
 
             public static explicit operator string(NotebookDocumentFilter notebookDocumentFilter)
             {
@@ -489,7 +504,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
                 if (notebookDocumentFilter.HasPattern)
                 {
-                    items.Add(notebookDocumentFilter.Pattern!);
+                    items.Add(notebookDocumentFilter.Pattern!.ToString());
                 }
 
                 return $"[{string.Join(", ", items)}]";
@@ -539,7 +554,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
                 if (ReferenceEquals(null, other)) return false;
                 if (ReferenceEquals(this, other)) return true;
-                return _pattern == other._pattern && NotebookType == other.NotebookType && Scheme == other.Scheme;
+                return Equals(_pattern, other._pattern) && NotebookType == other.NotebookType && Scheme == other.Scheme;
             }
 
             public override bool Equals(object? obj)

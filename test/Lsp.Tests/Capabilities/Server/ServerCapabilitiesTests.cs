@@ -101,5 +101,15 @@ namespace Lsp.Tests.Capabilities.Server
             var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<ServerCapabilities>(expected);
             deresult.Should().BeEquivalentTo(model, x => x.UsingStructuralRecordEquality());
         }
+
+        [Fact]
+        public void Interface_Exposes_Notebook_Document_Sync()
+        {
+            IServerCapabilities capabilities = new ServerCapabilities();
+
+            capabilities.NotebookDocumentSync = new NotebookDocumentSyncOptions();
+
+            capabilities.NotebookDocumentSync.Should().NotBeNull();
+        }
     }
 }
