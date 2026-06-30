@@ -107,25 +107,25 @@ jobs:
       - name: 🎁 Restore
         id: restore
         run: |
-          dotnet nuke Restore --skip
+          dotnet nuke --target DotnetCoreRestore Restore
       - name: Update NuGet Cache
         if: always() && steps.restore-nuget-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v6
         with:
           key: "${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props') }}-${{ hashFiles('**/dotnet-tools.json') }}"
           path: '${{ github.workspace }}/.nuget/packages'
-      - name: ⚙ Build
+      - name: ⚙️ Build
         id: build
         run: |
-          dotnet nuke Build --skip
-      - name: 🚦 Test
+          dotnet .build/bin/Debug/.build.dll --target DotnetCoreBuild Build
+      - name: 💨 Test
         id: test
         run: |
-          dotnet nuke Test TriggerCodeCoverageReports GenerateCodeCoverageReportCobertura GenerateCodeCoverageBadges GenerateCodeCoverageSummary GenerateCodeCoverageReport --skip
+          dotnet .build/bin/Debug/.build.dll --target DotnetCoreTest Test CollectCodeCoverage GenerateCodeCoverageReportCobertura GenerateCodeCoverageBadges GenerateCodeCoverageSummary GenerateCodeCoverageReport
       - name: 📦 Pack
         id: pack
         run: |
-          dotnet nuke Pack --skip
+          dotnet .build/bin/Debug/.build.dll --target DotnetCorePack Pack --skip Build
       - name: Npm install
         working-directory: vscode-testextension
         run: |
