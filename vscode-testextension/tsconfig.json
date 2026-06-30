@@ -1,8 +1,8 @@
 {
     "compilerOptions": {
         "target": "ESNext",
-        "module": "nodenext",
-        "moduleResolution": "nodenext",
+        "module": "commonjs",
+        "moduleResolution": "node",
         "outDir": "out",
         "lib": ["es2020"],
         "sourceMap": true,
