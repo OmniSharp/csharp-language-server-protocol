@@ -225,13 +225,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             ///   not `example.0`)
             /// </summary>
             [Optional]
-            public string? Pattern
+            public GlobPattern? Pattern
             {
                 get => _pattern;
                 init
                 {
                     _pattern = value;
-                    _minimatcher = new Minimatcher(value!, new Options { MatchBase = true });
+                    _minimatcher = new Minimatcher(GetPattern(value)!, new Options { MatchBase = true });
                 }
             }
 
@@ -241,8 +241,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             [JsonIgnore]
             public bool HasPattern => Pattern != null;
 
-            private string? _pattern;
+            private GlobPattern? _pattern;
             private Minimatcher? _minimatcher;
+
+            private static string? GetPattern(GlobPattern? pattern) =>
+                pattern?.HasRelativePattern == true ? pattern.RelativePattern?.Pattern : pattern?.Pattern;
 
             public static explicit operator string(TextDocumentFilter textDocumentFilter)
             {
@@ -259,7 +262,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
                 if (textDocumentFilter.HasPattern)
                 {
-                    items.Add(textDocumentFilter.Pattern!);
+                    items.Add(textDocumentFilter.Pattern!.ToString());
                 }
 
                 return $"[{string.Join(", ", items)}]";
@@ -309,7 +312,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
                 if (ReferenceEquals(null, other)) return false;
                 if (ReferenceEquals(this, other)) return true;
-                return _pattern == other._pattern && Language == other.Language && Scheme == other.Scheme;
+                return Equals(_pattern, other._pattern) && Language == other.Language && Scheme == other.Scheme;
             }
 
             public override bool Equals(object? obj)
@@ -587,6 +590,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             [Optional]
             public bool DidSave { get; set; }
+        }
+
+        /// <summary>
+        /// Client capabilities specific to text document filters.
+        ///
+        /// @since 3.18.0
+        /// </summary>
+        public class TextDocumentFilterClientCapabilities
+        {
+            /// <summary>
+            /// The client supports relative patterns in text document filters.
+            /// </summary>
+            [Optional]
+            public bool RelativePatternSupport { get; set; }
         }
     }
 
@@ -1036,6 +1053,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 {
                     return _getTextDocumentAttributes.Invoke(uri);
                 }
+
             }
         }
     }

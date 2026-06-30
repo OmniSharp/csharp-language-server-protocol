@@ -59,7 +59,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             return _responseRouter.SendRequest(request, cancellationToken);
         }
 
-        bool IResponseRouter.TryGetRequest(long id, [NotNullWhen(true)] out string? method, [NotNullWhen(true)] out TaskCompletionSource<JToken>? pendingTask)
+        bool IResponseRouter.TryGetRequest(object id, [NotNullWhen(true)] out string? method, [NotNullWhen(true)] out TaskCompletionSource<JToken>? pendingTask)
         {
             return _responseRouter.TryGetRequest(id, out method, out pendingTask);
         }

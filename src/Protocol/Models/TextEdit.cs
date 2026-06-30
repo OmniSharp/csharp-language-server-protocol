@@ -66,6 +66,36 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         }
     }
 
+    /// <summary>
+    /// An interactive text edit.
+    ///
+    /// @since 3.18.0
+    /// </summary>
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+    [JsonConverter(typeof(TextEditConverter))]
+    public record SnippetTextEdit : TextEdit
+    {
+        /// <summary>
+        /// The snippet to be inserted.
+        /// </summary>
+        public StringValue Snippet { get; init; } = null!;
+
+        /// <summary>
+        /// The actual identifier of the snippet edit.
+        /// </summary>
+        [Optional]
+        public ChangeAnnotationIdentifier? AnnotationId { get; init; }
+
+        private string DebuggerDisplay =>
+            $"snippet: {Range} {( string.IsNullOrWhiteSpace(Snippet?.Value) ? string.Empty : Snippet.Value.Length > 30 ? Snippet.Value.Substring(0, 30) : Snippet.Value )}";
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return DebuggerDisplay;
+        }
+    }
+
     [JsonConverter(typeof(TextEditOrInsertReplaceEditConverter))]
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     [GenerateContainer]

@@ -8,6 +8,7 @@ using DryIoc;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace OmniSharp.Extensions.JsonRpc
@@ -98,7 +99,23 @@ namespace OmniSharp.Extensions.JsonRpc
 
         internal static IContainer AddJsonRpcMediatR(this IContainer container)
         {
-            container.RegisterMany(new[] { typeof(IMediator).GetAssembly() }, Registrator.Interfaces, Reuse.ScopedOrSingleton);
+            var mediatRAssembly = typeof(IMediator).Assembly;
+            var licenseAccessorType = mediatRAssembly.GetType("MediatR.Licensing.LicenseAccessor", throwOnError: true)!;
+            var licenseValidatorType = mediatRAssembly.GetType("MediatR.Licensing.LicenseValidator", throwOnError: true)!;
+
+            container.RegisterMany(new[] { mediatRAssembly }, Registrator.Interfaces, Reuse.ScopedOrSingleton);
+            container.RegisterDelegate(
+                licenseAccessorType,
+                typeof(ILoggerFactory),
+                loggerFactory => Activator.CreateInstance(licenseAccessorType, loggerFactory)!,
+                Reuse.Singleton
+            );
+            container.RegisterDelegate(
+                licenseValidatorType,
+                typeof(ILoggerFactory),
+                loggerFactory => Activator.CreateInstance(licenseValidatorType, loggerFactory)!,
+                Reuse.Singleton
+            );
             container.RegisterMany<RequestContext>(Reuse.Scoped);
             // Select the desired constructor
             container.Register<IMediator, Mediator>(made: Made.Of(() => new Mediator(Arg.Of<IServiceProvider>())));
