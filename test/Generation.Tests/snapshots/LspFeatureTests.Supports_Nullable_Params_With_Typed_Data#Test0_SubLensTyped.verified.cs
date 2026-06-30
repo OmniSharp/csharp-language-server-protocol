@@ -63,7 +63,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test.Models
         /// <summary>
         /// The range in which this code lens is valid. Should only span a single line.
         /// </summary>
-        public Range Range { get; init; } = null !;
+        public Range Range { get; init; } = null!;
 
         /// <summary>
         /// The command this code lens represents.
