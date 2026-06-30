@@ -2,7 +2,7 @@
     "compilerOptions": {
         "target": "ESNext",
         "module": "commonjs",
-        "moduleResolution": "node",
+        "moduleResolution": "node16",
         "outDir": "out",
         "lib": ["es2020"],
         "sourceMap": true,
