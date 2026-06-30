@@ -15,7 +15,6 @@ namespace Build;
 [PublicAPI]
 [UnsetVisualStudioEnvironmentVariables]
 [PackageIcon("http://www.omnisharp.net/images/logo.png")]
-[EnsureReadmeIsUpdated]
 [DotNetVerbosityMapping]
 [MSBuildVerbosityMapping]
 [NuGetVerbosityMapping]
@@ -25,7 +24,6 @@ public sealed partial class Solution : NukeBuild,
                                 ICanBuildWithDotNetCore,
                                 ICanTestWithDotNetCore,
                                 ICanPackWithDotNetCore,
-                                IHaveDataCollector,
                                 ICanClean,
                                 ICanUpdateReadme,
                                 IGenerateCodeCoverageReport,
@@ -51,17 +49,17 @@ public sealed partial class Solution : NukeBuild,
                                   .DependsOn(Test)
                                   .DependsOn(Pack);
 
-    public Target Build => _ => _.Inherit<ICanBuildWithDotNetCore>(x => x.CoreBuild);
+    public Target Build => _ => _.Inherit<ICanBuildWithDotNetCore>(x => x.DotnetCoreBuild);
 
-    public Target Pack => _ => _.Inherit<ICanPackWithDotNetCore>(x => x.CorePack)
+    public Target Pack => _ => _.Inherit<ICanPackWithDotNetCore>(x => x.DotnetCorePack)
                                 .DependsOn(Clean);
 
     [ComputedGitVersion] public GitVersion GitVersion { get; } = null!;
 
-    public Target Clean => _ => _.Inherit<ICanClean>(x => x.Clean);
-    public Target Restore => _ => _.Inherit<ICanRestoreWithDotNetCore>(x => x.CoreRestore);
+    public Target Clean => _ => _.Inherit<ICanClean>(x => x.CleanWellKnownTemporaryFiles);
+    public Target Restore => _ => _.Inherit<ICanRestoreWithDotNetCore>(x => x.DotnetCoreRestore);
 
-    public Target Test => _ => _.Inherit<ICanTestWithDotNetCore>(x => x.CoreTest);
+    public Target Test => _ => _.Inherit<ICanTestWithDotNetCore>(x => x.DotnetCoreTest);
 
     public Target NpmInstall => _ => _
         .Executes(() =>
@@ -78,6 +76,8 @@ public sealed partial class Solution : NukeBuild,
     public Target BuildVersion => _ => _.Inherit<IHaveBuildVersion>(x => x.BuildVersion)
                                         .Before(Default)
                                         .Before(Clean);
+
+    public Target Docs => _ => _.Inherit<IGenerateDocFx>(x => x.GenerateDocFx);
 
     [Parameter("Configuration to build")] public Configuration Configuration { get; } = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 

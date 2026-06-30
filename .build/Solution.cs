@@ -56,7 +56,7 @@ internal class LocalConstants
     NonEntryTargets = new[]
     {
         nameof(ICIEnvironment.CIEnvironment),
-        nameof(ITriggerCodeCoverageReports.TriggerCodeCoverageReports),
+        nameof(ITriggerCodeCoverageReports.CollectCodeCoverage),
         nameof(ITriggerCodeCoverageReports.GenerateCodeCoverageReportCobertura),
         nameof(IGenerateCodeCoverageBadges.GenerateCodeCoverageBadges),
         nameof(IGenerateCodeCoverageReport.GenerateCodeCoverageReport),
@@ -96,7 +96,6 @@ public partial class Solution
     {
         configuration
             .ExcludeRepositoryConfigurationFiles()
-            .AddNugetPublish()
             .Jobs.OfType<RocketSurgeonsGithubActionsJob>()
             .First(z => z.Name.Equals("Build", StringComparison.OrdinalIgnoreCase))
             .ConfigureStep<CheckoutStep>(step => step.FetchDepth = 0)
