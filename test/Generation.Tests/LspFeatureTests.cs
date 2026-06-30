@@ -500,7 +500,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             /// <summary>
             /// The document to request code lens for.
             /// </summary>
-            public TextDocumentIdentifier TextDocument { get; init; } = null !;
+            public TextDocumentIdentifier TextDocument { get; init; } = null!;
         }
 
         public partial class SubLensContainer {}
