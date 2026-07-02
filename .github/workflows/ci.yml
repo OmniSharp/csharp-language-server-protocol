@@ -180,7 +180,7 @@ jobs:
           pattern: nuget-*
   Publish:
     needs: Merge
-    uses: RocketSurgeonsGuild/actions/.github/workflows/publish-nuget.yml@v0.3.15
+    uses: RocketSurgeonsGuild/actions/.github/workflows/publish-nuget.yml@v0.3.19
     secrets:
       RSG_NUGET_API_KEY: '${{ secrets.RSG_NUGET_API_KEY }}'
       RSG_AZURE_DEVOPS: '${{ secrets.RSG_AZURE_DEVOPS }}'
