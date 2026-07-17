@@ -51,7 +51,7 @@
     <PackageVersion Include="XunitXml.TestLogger" Version="8.0.0" />
     <PackageVersion Include="coverlet.collector" Version="10.0.1" />
     <PackageVersion Include="coverlet.msbuild" Version="10.0.1" />
-    <PackageVersion Include="System.Reactive" Version="6.1.0" />
+    <PackageVersion Include="System.Reactive" Version="7.0.0" />
     <PackageVersion Include="System.Collections.Immutable" Version="10.0.9" />
     <PackageVersion Include="System.Threading.Channels" Version="10.0.9" />
     <PackageVersion Include="Microsoft.Reactive.Testing" Version="6.1.0" />
