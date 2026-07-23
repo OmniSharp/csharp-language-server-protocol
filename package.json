@@ -3,7 +3,7 @@
     "devDependencies": {
         "@prettier/plugin-xml": "3.4.2",
         "husky": "9.1.7",
-        "lint-staged": "17.0.8",
+        "lint-staged": "17.2.0",
         "prettier": "3.9.6"
     },
     "scripts": {
