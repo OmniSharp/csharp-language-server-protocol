@@ -421,9 +421,19 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         public async Task Shutdown()
         {
+            await Shutdown(CancellationToken.None);
+        }
+
+        public async Task Shutdown(CancellationToken token)
+        {
             if (_connection.IsOpen)
             {
-                await this.RequestShutdown().ConfigureAwait(false);
+                try
+                {
+                    await this.RequestShutdown(token).ConfigureAwait(false);
+                }
+                catch (TaskCanceledException) { }
+
                 this.SendExit();
             }
 
