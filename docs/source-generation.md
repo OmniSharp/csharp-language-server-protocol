@@ -21,7 +21,7 @@ You may also provide a specific name that will be used for the interface and bas
 
 There is special logic to handle request objects that use the `IPartialItemRequest<,>` or `IPartialItemsRequest<,>` interfaces.  This emit another base class `<name>PartialHandlerBase` that implements the right stuff for creating a handler that works with the partial spec.
 
-Certain MediatR request types will map to different matters.
+Certain JSON-RPC request types map to different generated handler shapes.
 * `IRequest<TResponse>` - Will map as a request
 * `IRequest` - Will map as a notification
 * `IJsonRpcRequest` - Will map as a `Task` returning request.
@@ -48,12 +48,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     [Parallel, Method(ClientNames.RegisterCapability, Direction.ServerToClient)]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-    public interface IRegisterCapabilityHandler : IJsonRpcRequestHandler<RegistrationParams, MediatR.Unit>
+    public interface IRegisterCapabilityHandler : IJsonRpcRequestHandler<RegistrationParams, OmniSharp.Extensions.JsonRpc.Unit>
     {
     }
 
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
-    abstract public class RegisterCapabilityHandlerBase : AbstractHandlers.Request<RegistrationParams, MediatR.Unit>, IRegisterCapabilityHandler
+    abstract public class RegisterCapabilityHandlerBase : AbstractHandlers.Request<RegistrationParams, OmniSharp.Extensions.JsonRpc.Unit>, IRegisterCapabilityHandler
     {
     }
 #nullable restore

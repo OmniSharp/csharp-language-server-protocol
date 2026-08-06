@@ -63,7 +63,7 @@ The JSON-RPC layer knows only about JSON-RPC handlers and method names. It does 
 
 `src\Protocol` maps LSP specification concepts into .NET types:
 
-- Request and notification parameter records implement MediatR request shapes such as `IRequest<TResult>` for requests and `IRequest` for notifications.
+- Request and notification parameter records implement JSON-RPC request shapes such as `IRequest<TResult>` for requests and `IRequest` for notifications.
 - Protocol models live mostly under `src\Protocol\Models` and feature files under `src\Protocol\Features`.
 - Client capabilities are modeled under `src\Protocol\Client\Capabilities`.
 - Server capabilities are modeled under `src\Protocol\Server\Capabilities`.
