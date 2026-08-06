@@ -5,7 +5,6 @@ using System.Reactive.Concurrency;
 using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
@@ -94,76 +93,14 @@ namespace OmniSharp.Extensions.JsonRpc
             );
             container.RegisterMany<InstanceHasStarted>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
 
-            return container.AddJsonRpcMediatR();
+            return container.AddJsonRpcDispatcher();
         }
 
-        internal static IContainer AddJsonRpcMediatR(this IContainer container)
+        internal static IContainer AddJsonRpcDispatcher(this IContainer container)
         {
-            var mediatRAssembly = typeof(IMediator).Assembly;
-            var licenseAccessorType = mediatRAssembly.GetType("MediatR.Licensing.LicenseAccessor", throwOnError: true)!;
-            var licenseValidatorType = mediatRAssembly.GetType("MediatR.Licensing.LicenseValidator", throwOnError: true)!;
-
-            container.RegisterMany(new[] { mediatRAssembly }, Registrator.Interfaces, Reuse.ScopedOrSingleton);
-            container.RegisterDelegate(
-                licenseAccessorType,
-                typeof(ILoggerFactory),
-                loggerFactory => Activator.CreateInstance(licenseAccessorType, loggerFactory)!,
-                Reuse.Singleton
-            );
-            container.RegisterDelegate(
-                licenseValidatorType,
-                typeof(ILoggerFactory),
-                loggerFactory => Activator.CreateInstance(licenseValidatorType, loggerFactory)!,
-                Reuse.Singleton
-            );
             container.RegisterMany<RequestContext>(Reuse.Scoped);
-            // Select the desired constructor
-            container.Register<IMediator, Mediator>(made: Made.Of(() => new Mediator(Arg.Of<IServiceProvider>())));
-            container.Register(typeof(IRequestHandler<,>), typeof(RequestHandler<,>));
-            container.Register(typeof(IRequestHandler<,>), typeof(RequestHandlerDecorator<,>), setup: Setup.Decorator);
-
+            container.Register<IRequestDispatcher, RequestDispatcher>(Reuse.Scoped);
             return container;
-        }
-
-        class RequestHandler<T, TR> : IRequestHandler<T, TR> where T : IRequest<TR>
-        {
-            private readonly IRequestContext _requestContext;
-
-            public RequestHandler(IRequestContext requestContext)
-            {
-                _requestContext = requestContext;
-            }
-            public Task<TR> Handle(T request, CancellationToken cancellationToken)
-            {
-                return ((IRequestHandler<T, TR>) _requestContext.Descriptor.Handler).Handle(request, cancellationToken);
-            }
-        }
-
-        class RequestHandlerDecorator<T, TR> : IRequestHandler<T, TR> where T : IRequest<TR>
-        {
-            private readonly IRequestHandler<T, TR>? _handler;
-            private readonly IRequestContext? _requestContext;
-
-            public RequestHandlerDecorator(IRequestHandler<T, TR>? handler = null, IRequestContext? requestContext = null)
-            {
-                _handler = handler;
-                _requestContext = requestContext;
-            }
-            public Task<TR> Handle(T request, CancellationToken cancellationToken)
-            {
-                if (_requestContext == null)
-                {
-                    if (_handler == null)
-                    {
-                        throw new NotImplementedException($"No request handler was registered for type {typeof(IRequestHandler<T, TR>).FullName}");
-
-                    }
-
-                    return _handler.Handle(request, cancellationToken);
-                }
-
-                return ((IRequestHandler<T, TR>) _requestContext.Descriptor.Handler).Handle(request, cancellationToken);
-            }
         }
 
         internal static IContainer AddJsonRpcServerInternals(this IContainer container, JsonRpcServerOptions options)

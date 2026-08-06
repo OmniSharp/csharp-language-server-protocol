@@ -12,7 +12,7 @@ namespace JsonRpc.Tests
         public static IContainer Create(ITestOutputHelper testOutputHelper)
         {
             var container = JsonRpcServerContainer.Create(null)
-                                                  .AddJsonRpcMediatR()
+                                                  .AddJsonRpcDispatcher()
                                                   .With(rules => rules.WithDefaultReuse(Reuse.ScopedOrSingleton));
 
             var services = new ServiceCollection().AddLogging().AddOptions();
