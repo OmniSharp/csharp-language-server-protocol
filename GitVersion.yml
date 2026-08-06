@@ -1,5 +1,6 @@
 workflow: GitHubFlow/v1
 semantic-version-format: Loose
+next-version: 1.0.0
 
 branches:
   main:

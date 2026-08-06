@@ -15,8 +15,10 @@ We have an implementation of JSON-RPC designed to implement the [JSON-RPC](https
 
 For more information about using the `JsonRpcServer` on it's own [here](./docs/jsonrpc.md).
 
-## MediatR
-Internally this library revolves around the request and response model.  To make things easier we use [MediatR](https://github.com/jbogard/MediatR) as core piece that manages how requests and responses are handled.
+## Request dispatch
+Internally this library revolves around its own request, response, handler, and pipeline contracts in `OmniSharp.Extensions.JsonRpc`. Incoming JSON-RPC messages are dispatched to registered handlers without requiring an external mediator package.
+
+Applications upgrading from `0.19.x` should follow the [1.0 migration guide](./docs/migration-v1.md).
 
 ## Microsoft.Extensions.*
 We re-use some of the common packages used by .NET Core.
