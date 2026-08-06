@@ -36,7 +36,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                      "System.Collections.Generic",
                                                      "System.Threading",
                                                      "System.Threading.Tasks",
-                                                     "MediatR",
+                                                     "OmniSharp.Extensions.JsonRpc",
                                                      "Microsoft.Extensions.DependencyInjection"
                                                  };
 

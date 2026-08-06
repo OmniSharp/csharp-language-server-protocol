@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;

@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Reactive;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using ReactiveUnit = System.Reactive.Unit;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 {
@@ -41,7 +41,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         protected readonly IResponseRouter? responseRouter;
         protected readonly ISerializer? serializer;
         private readonly Action _disposal;
-        private readonly TaskCompletionSource<Unit> _completionSource;
+        private readonly TaskCompletionSource<ReactiveUnit> _completionSource;
         protected bool isComplete;
 
         public static ProgressObserver<T> Noop { get; } =
@@ -60,10 +60,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
             _disposal = disposal;
             ProgressToken = token;
             CancellationToken = cancellationToken;
-            _completionSource = new TaskCompletionSource<Unit>();
+            _completionSource = new TaskCompletionSource<ReactiveUnit>();
         }
 
-        public TaskAwaiter<Unit> GetAwaiter() => _completionSource.Task.GetAwaiter();
+        public TaskAwaiter<ReactiveUnit> GetAwaiter() => _completionSource.Task.GetAwaiter();
         public ProgressToken ProgressToken { get; }
         public CancellationToken CancellationToken { get; }
         public Type ParamsType { get; } = typeof(T);
@@ -71,7 +71,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         public void OnCompleted()
         {
             if (isComplete) return;
-            _completionSource.TrySetResult(Unit.Default);
+            _completionSource.TrySetResult(ReactiveUnit.Default);
             isComplete = true;
         }
 

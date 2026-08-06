@@ -3,7 +3,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;

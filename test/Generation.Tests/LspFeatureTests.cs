@@ -18,7 +18,6 @@ namespace Generation.Tests
         public async Task Supports_Generating_Custom_Language_Extensions()
         {
             var source = @"
-using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -84,7 +83,6 @@ namespace Lsp.Tests.Integration.Fixtures
 // </auto-generated>
 // ------------------------------------------------------------------------------
 
-using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -129,7 +127,7 @@ namespace Lsp.Tests.Integration.Fixtures
         {
             var source = @"
 using System.Diagnostics;
-using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
@@ -468,7 +466,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             var source = @"
 using System.Diagnostics;
 using System.Linq;
-using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;

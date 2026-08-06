@@ -7,7 +7,6 @@ using System.Reactive.Disposables;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;

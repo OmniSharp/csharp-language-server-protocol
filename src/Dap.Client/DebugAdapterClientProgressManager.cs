@@ -6,7 +6,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Events;

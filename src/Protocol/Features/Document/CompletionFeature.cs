@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;

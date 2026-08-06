@@ -7,7 +7,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;

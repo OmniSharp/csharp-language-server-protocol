@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
-using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;

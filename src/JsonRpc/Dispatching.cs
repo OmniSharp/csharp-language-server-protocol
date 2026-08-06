@@ -3,37 +3,42 @@ using System.Threading.Tasks;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public interface IJsonRpcRequest<out TResponse>
+    public readonly struct Unit : System.IEquatable<Unit>, System.IComparable<Unit>
+    {
+        public static readonly Unit Value;
+        public static readonly Task<Unit> Task = System.Threading.Tasks.Task.FromResult(Value);
+
+        public int CompareTo(Unit other) => 0;
+        public bool Equals(Unit other) => true;
+        public override bool Equals(object? obj) => obj is Unit;
+        public override int GetHashCode() => 0;
+        public override string ToString() => "()";
+    }
+
+    public interface IRequest<out TResponse>
     {
     }
 
-    public interface IJsonRpcNotification
+    public interface IRequest : IRequest<Unit>
     {
     }
 
-    public delegate Task<TResponse> JsonRpcRequestHandlerDelegate<TResponse>(CancellationToken cancellationToken);
-
-    public delegate Task JsonRpcRequestHandlerDelegate(CancellationToken cancellationToken);
-
-    public interface IJsonRpcPipelineBehavior<in TRequest, TResponse>
-        where TRequest : IJsonRpcRequest<TResponse>
+    public interface IRequestHandler<in TRequest, TResponse>
+        where TRequest : IRequest<TResponse>
     {
-        Task<TResponse> Handle(
-            TRequest request,
-            JsonRpcRequestHandlerDelegate<TResponse> next,
-            CancellationToken cancellationToken
-        );
+        Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken);
     }
 
-    public interface IJsonRpcPipelineBehavior<in TRequest>
-        where TRequest : IJsonRpcRequest
+    public interface IRequestHandler<in TRequest> : IRequestHandler<TRequest, Unit>
+        where TRequest : IRequest<Unit>
     {
-        Task Handle(TRequest request, JsonRpcRequestHandlerDelegate next, CancellationToken cancellationToken);
     }
 
-    public interface IJsonRpcNotificationPipelineBehavior<in TNotification>
-        where TNotification : IJsonRpcNotification
+    public delegate Task<TResponse> RequestHandlerDelegate<TResponse>(CancellationToken cancellationToken);
+
+    public interface IPipelineBehavior<in TRequest, TResponse>
+        where TRequest : notnull
     {
-        Task Handle(TNotification notification, JsonRpcRequestHandlerDelegate next, CancellationToken cancellationToken);
+        Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken);
     }
 }

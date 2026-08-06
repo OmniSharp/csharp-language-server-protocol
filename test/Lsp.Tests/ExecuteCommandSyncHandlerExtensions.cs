@@ -1,5 +1,5 @@
 using System.Threading;
-using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using NSubstitute;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;

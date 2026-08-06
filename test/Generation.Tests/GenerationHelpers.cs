@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using FluentAssertions;
-using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;

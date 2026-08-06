@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;

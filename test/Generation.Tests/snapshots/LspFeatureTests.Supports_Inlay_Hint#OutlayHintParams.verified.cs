@@ -1,5 +1,4 @@
 ﻿//HintName: OutlayHintParams.cs
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -7,6 +6,7 @@ using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;

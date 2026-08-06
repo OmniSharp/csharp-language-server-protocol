@@ -1,5 +1,4 @@
 ﻿//HintName: AssemblyCapabilityKeys.cs
-using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
