@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.JsonRpc

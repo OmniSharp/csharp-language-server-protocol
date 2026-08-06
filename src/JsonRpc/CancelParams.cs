@@ -1,4 +1,3 @@
-using MediatR;
 
 namespace OmniSharp.Extensions.JsonRpc
 {

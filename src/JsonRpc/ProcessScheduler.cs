@@ -6,6 +6,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc.Server;
+using ReactiveUnit = System.Reactive.Unit;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -28,13 +29,13 @@ namespace OmniSharp.Extensions.JsonRpc
             _disposable.Add(subject);
             _enqueue = subject;
 
-            var obs = Observable.Create<Unit>(
+            var obs = Observable.Create<ReactiveUnit>(
                 observer => {
                     var cd = new CompositeDisposable();
 
                     var observableQueue =
-                        new BehaviorSubject<(RequestProcessType type, ReplaySubject<IObservable<Unit>> observer, Subject<Unit>? contentModifiedSource)>(
-                            ( RequestProcessType.Serial, new ReplaySubject<IObservable<Unit>>(int.MaxValue, Scheduler.Immediate), supportContentModified ? new Subject<Unit>() : null )
+                        new BehaviorSubject<(RequestProcessType type, ReplaySubject<IObservable<ReactiveUnit>> observer, Subject<ReactiveUnit>? contentModifiedSource)>(
+                            ( RequestProcessType.Serial, new ReplaySubject<IObservable<ReactiveUnit>>(int.MaxValue, Scheduler.Immediate), supportContentModified ? new Subject<ReactiveUnit>() : null )
                         );
 
                     cd.Add(
@@ -46,18 +47,18 @@ namespace OmniSharp.Extensions.JsonRpc
                                     if (supportContentModified && observableQueue.Value.type == RequestProcessType.Parallel)
                                     {
                                         logger.LogDebug("Cancelling any outstanding requests (switch from parallel to serial)");
-                                        observableQueue.Value.contentModifiedSource?.OnNext(Unit.Default);
+                                        observableQueue.Value.contentModifiedSource?.OnNext(ReactiveUnit.Default);
                                         observableQueue.Value.contentModifiedSource?.OnCompleted();
                                     }
 
                                     logger.LogDebug("Completing existing request process type {Type}", observableQueue.Value.type);
                                     observableQueue.Value.observer.OnCompleted();
-                                    observableQueue.OnNext(( item.type, new ReplaySubject<IObservable<Unit>>(int.MaxValue, Scheduler.Immediate), supportContentModified ? new Subject<Unit>() : null ));
+                                    observableQueue.OnNext(( item.type, new ReplaySubject<IObservable<ReactiveUnit>>(int.MaxValue, Scheduler.Immediate), supportContentModified ? new Subject<ReactiveUnit>() : null ));
                                 }
 
                                 logger.LogDebug("Queueing {Type}:{Name} request for processing", item.type, item.name);
                                 observableQueue.Value.observer.OnNext(
-                                    HandleRequest(item.name, item.request(observableQueue.Value.contentModifiedSource ?? Observable.Never<Unit>(), scheduler))
+                                    HandleRequest(item.name, item.request(observableQueue.Value.contentModifiedSource ?? Observable.Never<ReactiveUnit>(), scheduler))
                                 );
                             }
                         )
@@ -99,31 +100,31 @@ namespace OmniSharp.Extensions.JsonRpc
                    .Subscribe(_ => { })
             );
 
-            IObservable<Unit> HandleRequest(string name, IObservable<Unit> request)
+            IObservable<ReactiveUnit> HandleRequest(string name, IObservable<ReactiveUnit> request)
             {
                 return request
-                      .Catch<Unit, RequestCancelledException>(
+                      .Catch<ReactiveUnit, RequestCancelledException>(
                            ex => {
                                logger.LogDebug(ex, "Request {Name} was explicitly cancelled", name);
-                               return Observable.Empty<Unit>();
+                               return Observable.Empty<ReactiveUnit>();
                            }
                        )
-                      .Catch<Unit, ContentModifiedException>(
+                      .Catch<ReactiveUnit, ContentModifiedException>(
                            ex => {
                                logger.LogDebug(ex, "Request {Name} was cancelled, due to content being modified", name);
-                               return Observable.Empty<Unit>();
+                               return Observable.Empty<ReactiveUnit>();
                            }
                        )
-                      .Catch<Unit, OperationCanceledException>(
+                      .Catch<ReactiveUnit, OperationCanceledException>(
                            ex => {
                                logger.LogDebug(ex, "Request {Name} was cancelled, due to timeout", name);
-                               return Observable.Empty<Unit>();
+                               return Observable.Empty<ReactiveUnit>();
                            }
                        )
-                      .Catch<Unit, Exception>(
+                      .Catch<ReactiveUnit, Exception>(
                            ex => {
                                logger.LogCritical(Events.UnhandledException, ex, "Unhandled exception executing {Name}", name);
-                               return Observable.Empty<Unit>();
+                               return Observable.Empty<ReactiveUnit>();
                            }
                        )
                     // .Do(v => {

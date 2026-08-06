@@ -18,7 +18,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using static System.Reactive.Linq.Observable;
-using Unit = MediatR.Unit;
+using Unit = OmniSharp.Extensions.JsonRpc.Unit;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 {

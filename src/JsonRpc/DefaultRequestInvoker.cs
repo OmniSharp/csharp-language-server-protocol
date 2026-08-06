@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using Notification = OmniSharp.Extensions.JsonRpc.Server.Notification;
+using ReactiveUnit = System.Reactive.Unit;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -143,7 +144,7 @@ namespace OmniSharp.Extensions.JsonRpc
                           .Select(
                                response => {
                                    _outputHandler.Send(response.Value);
-                                   return Unit.Default;
+                                   return ReactiveUnit.Default;
                                }
                            );
         }
@@ -155,7 +156,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 // ITS A RACE!
                 Observable.Amb(
                     Observable.Timer(_options.RequestTimeout, scheduler)
-                              .Select(_ => Unit.Default)
+                              .Select(_ => ReactiveUnit.Default)
                               .Do(
                                    _ => _logger.LogTrace("Notification was cancelled due to timeout")
                                ),

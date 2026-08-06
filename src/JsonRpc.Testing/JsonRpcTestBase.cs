@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Reactive;
 using System.Reactive.Disposables;
 using System.Threading;
 using System.Threading.Tasks;
+using ReactiveUnit = System.Reactive.Unit;
 
 namespace OmniSharp.Extensions.JsonRpc.Testing
 {
@@ -39,7 +39,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
             return Events.SettleNext();
         }
 
-        public IObservable<Unit> Settle()
+        public IObservable<ReactiveUnit> Settle()
         {
             return Events.Settle();
         }

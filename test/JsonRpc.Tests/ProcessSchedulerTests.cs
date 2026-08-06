@@ -9,6 +9,7 @@ using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using Xunit;
 using Xunit.Abstractions;
+using Unit = System.Reactive.Unit;
 using Xunit.Sdk;
 using static Microsoft.Reactive.Testing.ReactiveTest;
 

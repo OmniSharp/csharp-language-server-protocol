@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
-using MediatR;
 
 namespace OmniSharp.Extensions.JsonRpc
 {

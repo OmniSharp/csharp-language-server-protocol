@@ -60,7 +60,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 {
                     GenericNameSyntax gns => gns switch
                     {
-                        { Identifier: { Text: "IJsonRpcRequestHandler" }, Arity: 1 }                                       => ParseName("MediatR.Unit"),
+                        { Identifier: { Text: "IJsonRpcRequestHandler" }, Arity: 1 }                                       => ParseName("OmniSharp.Extensions.JsonRpc.Unit"),
                         { Identifier: { Text: "IJsonRpcRequestHandler" }, Arity: 2 }                                       => gns.TypeArgumentList.Arguments[1],
                         { Identifier: { Text: "ICanBeResolvedHandler" }, Arity: 1 }                                        => gns.TypeArgumentList.Arguments[0],
                         { Identifier: { Text: "IPartialItemRequest" or "IPartialItemWithInitialValueRequest" }, Arity: 2 } => gns.TypeArgumentList.Arguments[0],
@@ -69,8 +69,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                         { Identifier: { Text: "IRequest" }, Arity: 1 } => gns.TypeArgumentList.Arguments[0],
                         _                                              => null
                     },
-                    SimpleNameSyntax and { Identifier: { Text: "IRequest" } }        => ParseName("MediatR.Unit"),
-                    SimpleNameSyntax and { Identifier: { Text: "IJsonRpcRequest" } } => ParseName("MediatR.Unit"),
+                    SimpleNameSyntax and { Identifier: { Text: "IRequest" } }        => ParseName("OmniSharp.Extensions.JsonRpc.Unit"),
+                    SimpleNameSyntax and { Identifier: { Text: "IJsonRpcRequest" } } => ParseName("OmniSharp.Extensions.JsonRpc.Unit"),
                     _                                                                => null
                 };
                 if (type != null) break;

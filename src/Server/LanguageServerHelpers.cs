@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
@@ -13,6 +12,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Shared;
+using ReactiveUnit = System.Reactive.Unit;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
@@ -61,7 +61,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         }
 
         internal static IDisposable RegisterHandlers(
-            IObservable<Unit> initializeComplete,
+            IObservable<ReactiveUnit> initializeComplete,
             IClientLanguageServer client,
             IServerWorkDoneManager serverWorkDoneManager,
             ISupportedCapabilities supportedCapabilities,
@@ -94,7 +94,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         internal static IDisposable DynamicallyRegisterHandlers(
             IClientLanguageServer client,
-            IObservable<Unit> initializeComplete,
+            IObservable<ReactiveUnit> initializeComplete,
             IServerWorkDoneManager serverWorkDoneManager,
             ISupportedCapabilities supportedCapabilities,
             IReadOnlyList<ILspHandlerDescriptor> descriptors
@@ -153,7 +153,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         }
 
         internal static IDisposable RegisterHandlers(
-            IObservable<Unit> initializeComplete,
+            IObservable<ReactiveUnit> initializeComplete,
             IClientLanguageServer client,
             IServerWorkDoneManager serverWorkDoneManager,
             ISupportedCapabilities supportedCapabilities,

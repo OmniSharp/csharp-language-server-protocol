@@ -4,7 +4,6 @@
 // using System.Threading;
 // using System.Threading.Tasks;
 // using FluentAssertions;
-// using MediatR;
 // using NSubstitute;
 // using OmniSharp.Extensions.DebugAdapter.Testing;
 // using OmniSharp.Extensions.JsonRpc;

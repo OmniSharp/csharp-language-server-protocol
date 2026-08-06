@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using ReactiveUnit = System.Reactive.Unit;
 
 namespace OmniSharp.Extensions.JsonRpc.Testing
 {
@@ -14,7 +14,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
 
         public Task SettleNext() => Task.WhenAll(_settlers.Select(z => z.SettleNext()));
 
-        public IObservable<Unit> Settle() =>
+        public IObservable<ReactiveUnit> Settle() =>
             _settlers
                .Select((settler, index) => settler.Settle().Select((_, value) => new { index, value }))
                .CombineLatest()
@@ -25,6 +25,6 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
                     }
                 )
                .DistinctUntilChanged()
-               .Select(_ => Unit.Default);
+               .Select(_ => ReactiveUnit.Default);
     }
 }

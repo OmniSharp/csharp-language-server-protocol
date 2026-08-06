@@ -13,7 +13,7 @@ namespace Lsp.Tests
         public static IContainer Create(ITestOutputHelper testOutputHelper)
         {
             var container = JsonRpcServerContainer.Create(null)
-                                                  .AddJsonRpcMediatR()
+                                                  .AddJsonRpcDispatcher()
                                                   .With(
                                                        rules => rules
                                                                .WithTestLoggerResolver((request, loggerType) => ActivatorUtilities.CreateInstance(request.Container, loggerType))

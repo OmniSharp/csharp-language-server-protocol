@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using Minimatch;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;

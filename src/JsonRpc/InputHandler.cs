@@ -20,6 +20,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
+using ReactiveUnit = System.Reactive.Unit;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -49,12 +50,12 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly Memory<byte> _contentLengthValueMemory;
         private readonly CancellationTokenSource _stopProcessing;
         private readonly CompositeDisposable _disposable;
-        private readonly AsyncSubject<Unit> _inputActive;
+        private readonly AsyncSubject<ReactiveUnit> _inputActive;
 
         private readonly ConcurrentDictionary<object, RequestInvocationHandle> _requests =
             new ConcurrentDictionary<object, RequestInvocationHandle>();
 
-        private readonly Subject<IObservable<Unit>> _inputQueue;
+        private readonly Subject<IObservable<ReactiveUnit>> _inputQueue;
 
         [Obsolete("Use the other constructor that takes a request invoker")]
         public InputHandler(
@@ -131,8 +132,8 @@ namespace OmniSharp.Extensions.JsonRpc
                 _requestInvoker,
             };
 
-            _inputActive = new AsyncSubject<Unit>();
-            _inputQueue = new Subject<IObservable<Unit>>();
+            _inputActive = new AsyncSubject<ReactiveUnit>();
+            _inputQueue = new Subject<IObservable<ReactiveUnit>>();
         }
 
         public void Start()
@@ -480,7 +481,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 }
 
                 _inputQueue.OnNext(
-                    Observable.Create<Unit>(
+                    Observable.Create<ReactiveUnit>(
                         observer =>
                         {
                             if (response is ServerResponse serverResponse)

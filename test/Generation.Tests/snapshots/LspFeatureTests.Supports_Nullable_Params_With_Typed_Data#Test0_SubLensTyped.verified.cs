@@ -1,7 +1,7 @@
 ﻿//HintName: Test0_SubLensTyped.cs
 using System.Diagnostics;
 using System.Linq;
-using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;

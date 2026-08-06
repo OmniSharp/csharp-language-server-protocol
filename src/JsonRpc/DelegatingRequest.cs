@@ -1,4 +1,3 @@
-using MediatR;
 using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.JsonRpc

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO.Pipelines;
 using System.Threading.Tasks;
-using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
