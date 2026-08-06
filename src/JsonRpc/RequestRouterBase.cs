@@ -75,9 +75,9 @@ namespace OmniSharp.Extensions.JsonRpc
                 using var scope = serviceScopeFactory.CreateScope();
                 var context = scope.ServiceProvider.GetRequiredService<IRequestContext>();
                 context.Descriptor = descriptor;
-                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var dispatcher = scope.ServiceProvider.GetRequiredService<IRequestDispatcher>();
 
-                await HandleNotification(mediator, descriptor, @params ?? Activator.CreateInstance(descriptor.Params!), token).ConfigureAwait(false);
+                await HandleNotification(dispatcher, descriptor, @params ?? Activator.CreateInstance(descriptor.Params!), token).ConfigureAwait(false);
             }
         }
 
@@ -153,11 +153,11 @@ namespace OmniSharp.Extensions.JsonRpc
                 using var scope = serviceScopeFactory.CreateScope();
                 var context = scope.ServiceProvider.GetRequiredService<IRequestContext>();
                 context.Descriptor = descriptor;
-                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var dispatcher = scope.ServiceProvider.GetRequiredService<IRequestDispatcher>();
 
                 token.ThrowIfCancellationRequested();
 
-                var result = HandleRequest(mediator, descriptor, @params ?? Activator.CreateInstance(descriptor.Params!), token);
+                var result = HandleRequest(dispatcher, descriptor, @params ?? Activator.CreateInstance(descriptor.Params!), token);
                 await result.ConfigureAwait(false);
 
                 token.ThrowIfCancellationRequested();
@@ -196,31 +196,31 @@ namespace OmniSharp.Extensions.JsonRpc
                                                                 .Where(x => x.Name == nameof(SendRequest))
                                                                 .First(x => x.GetGenericArguments().Length == 2);
 
-        public static Task HandleNotification(IMediator mediator, IHandlerDescriptor handler, object @params, CancellationToken token) =>
+        internal static Task HandleNotification(IRequestDispatcher dispatcher, IHandlerDescriptor handler, object @params, CancellationToken token) =>
             (Task) SendRequestUnit
                   .MakeGenericMethod(handler.Params!)
-                  .Invoke(null, new[] { mediator, @params, token });
+                  .Invoke(null, new[] { dispatcher, @params, token });
 
-        public static Task HandleRequest(IMediator mediator, IHandlerDescriptor descriptor, object @params, CancellationToken token)
+        internal static Task HandleRequest(IRequestDispatcher dispatcher, IHandlerDescriptor descriptor, object @params, CancellationToken token)
         {
             if (!descriptor.HasReturnType)
             {
                 return (Task) SendRequestUnit
                              .MakeGenericMethod(descriptor.Params!)
-                             .Invoke(null, new[] { mediator, @params, token });
+                             .Invoke(null, new[] { dispatcher, @params, token });
             }
 
             return (Task) SendRequestResponse
                          .MakeGenericMethod(descriptor.Params!, descriptor.Response!)
-                         .Invoke(null, new[] { mediator, @params, token });
+                         .Invoke(null, new[] { dispatcher, @params, token });
         }
 
-        private static Task SendRequest<T>(IMediator mediator, T request, CancellationToken token)
+        private static Task SendRequest<T>(IRequestDispatcher dispatcher, T request, CancellationToken token)
             where T : IRequest<Unit> =>
-            mediator.Send(request, token);
+            dispatcher.Send(request, token);
 
-        private static Task<TResponse> SendRequest<T, TResponse>(IMediator mediator, T request, CancellationToken token)
+        private static Task<TResponse> SendRequest<T, TResponse>(IRequestDispatcher dispatcher, T request, CancellationToken token)
             where T : IRequest<TResponse> =>
-            mediator.Send(request, token);
+            dispatcher.Send<T, TResponse>(request, token);
     }
 }
