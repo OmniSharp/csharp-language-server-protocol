@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using JsonElement = System.Text.Json.JsonElement;
 
 namespace OmniSharp.Extensions.JsonRpc.Serialization
 {
@@ -62,11 +63,15 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization
         public object DeserializeObject(object value, Type type) =>
             value is JToken token
                 ? token.ToObject(type, JsonSerializer)
+                : value is JsonElement element
+                    ? DeserializeObject(element.GetRawText(), type)
                 : DeserializeObject(SerializeObject(value), type);
 
         public T DeserializeObject<T>(object value) =>
             value is JToken token
                 ? token.ToObject<T>(JsonSerializer)
+                : value is JsonElement element
+                    ? DeserializeObject<T>(element.GetRawText())
                 : DeserializeObject<T>(SerializeObject(value));
 
         public void PopulateObject(string json, object target) => JsonConvert.PopulateObject(json, target, Settings);

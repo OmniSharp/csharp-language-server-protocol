@@ -1,4 +1,4 @@
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace OmniSharp.Extensions.JsonRpc.Server
 {
@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         public Request(
             object id,
             string method,
-            JToken? @params
+            JsonElement? @params
         )
         {
             Id = id;
@@ -19,7 +19,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server
 
         public string Method { get; }
 
-        public JToken? Params { get; }
+        public JsonElement? Params { get; }
 
         /// <summary>
         /// Gets or sets the data for the <see href="https://www.w3.org/TR/trace-context/">W3C Trace Context</see> <c>traceparent</c> value.

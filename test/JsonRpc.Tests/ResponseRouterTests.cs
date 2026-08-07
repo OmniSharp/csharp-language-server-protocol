@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -26,7 +27,7 @@ namespace JsonRpc.Tests
                .Do(
                     call => {
                         router.TryGetRequest((long) call.Arg<OutgoingRequest>().Id!, out _, out var tcs);
-                        tcs.TrySetResult(new JObject());
+                        tcs.TrySetResult(JsonTestHelper.Parse("{}"));
                     }
                 );
 
@@ -50,7 +51,7 @@ namespace JsonRpc.Tests
                .Do(
                     call => {
                         router.TryGetRequest((long) call.Arg<OutgoingRequest>().Id!, out _, out var tcs);
-                        tcs.SetResult(new JObject());
+                        tcs.SetResult(JsonTestHelper.Parse("{}"));
                     }
                 );
 

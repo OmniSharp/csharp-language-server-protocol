@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -38,7 +38,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
         private IRequestDescriptor<ILspHandlerDescriptor> FindDescriptor(IMethodWithParams instance) => FindDescriptor(instance.Method, instance.Params);
 
-        private IRequestDescriptor<ILspHandlerDescriptor> FindDescriptor(string method, JToken? @params)
+        private IRequestDescriptor<ILspHandlerDescriptor> FindDescriptor(string method, JsonElement? @params)
         {
             _logger.LogDebug("Finding descriptors for {Method}", method);
             var descriptor = _collection.FirstOrDefault(x => x.Method == method);

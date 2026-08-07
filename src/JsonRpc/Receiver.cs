@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
@@ -11,17 +11,16 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         protected bool _initialized { get; private set; }
 
-        public bool IsValid(JToken container)
+        public bool IsValid(JsonElement container)
         {
-            // request must be an object or array
-            if (container is JObject)
+            if (container.ValueKind == JsonValueKind.Object)
             {
                 return true;
             }
 
-            if (container is JArray array)
+            if (container.ValueKind == JsonValueKind.Array)
             {
-                return array.Count > 0;
+                return container.GetArrayLength() > 0;
             }
 
             return false;
@@ -32,13 +31,13 @@ namespace OmniSharp.Extensions.JsonRpc
             _initialized = true;
         }
 
-        public virtual (IEnumerable<Renor> results, bool hasResponse) GetRequests(JToken container)
+        public virtual (IEnumerable<Renor> results, bool hasResponse) GetRequests(JsonElement container)
         {
             var results = new List<Renor>();
 
-            if (container is JArray)
+            if (container.ValueKind == JsonValueKind.Array)
             {
-                results.AddRange(container.Select(GetRenor));
+                results.AddRange(container.EnumerateArray().Select(GetRenor));
             }
             else
             {
@@ -48,14 +47,16 @@ namespace OmniSharp.Extensions.JsonRpc
             return ( results, results.Any(z => z.IsResponse) );
         }
 
-        protected virtual Renor GetRenor(JToken @object)
+        protected virtual Renor GetRenor(JsonElement @object)
         {
-            if (!( @object is JObject request ))
+            if (@object.ValueKind != JsonValueKind.Object)
             {
                 return new InvalidRequest(null, "Not an object");
             }
 
-            var protocol = request["jsonrpc"]?.Value<string>();
+            var protocol = @object.TryGetProperty("jsonrpc", out var protocolValue) && protocolValue.ValueKind == JsonValueKind.String
+                ? protocolValue.GetString()
+                : null;
             if (protocol != "2.0")
             {
                 return new InvalidRequest(null, "Unexpected protocol");
@@ -64,65 +65,66 @@ namespace OmniSharp.Extensions.JsonRpc
             object? requestId = null;
             bool hasRequestId;
             // ReSharper disable once AssignmentInConditionalExpression
-            if (hasRequestId = request.TryGetValue("id", out var id))
+            if (hasRequestId = @object.TryGetProperty("id", out var id))
             {
-                requestId = id switch
+                requestId = id.ValueKind switch
                 {
-                    { Type: JTokenType.String }  => id.Value<string>(),
-                    { Type: JTokenType.Integer } => id.Value<long>(),
-                    _ => null
+                    JsonValueKind.String => id.GetString(),
+                    JsonValueKind.Number when id.TryGetInt64(out var numericId) => numericId,
+                    _ => null,
                 };
             }
 
-            if (hasRequestId && request.TryGetValue("result", out var response))
+            if (hasRequestId && @object.TryGetProperty("result", out var response))
             {
-                return new ServerResponse(requestId!, response);
+                return new ServerResponse(requestId!, response.Clone());
             }
 
-            if (request.TryGetValue("error", out var errorResponse))
+            if (@object.TryGetProperty("error", out var errorResponse))
             {
-                // TODO: this doesn't seem right.
-                return new ServerError(requestId, errorResponse.ToObject<ServerErrorResult>());
+                return new ServerError(
+                    requestId,
+                    JsonSerializer.Deserialize<ServerErrorResult>(errorResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                );
             }
 
-            var method = request["method"]?.Value<string>();
+            var method = @object.TryGetProperty("method", out var methodValue)
+                ? methodValue.ValueKind == JsonValueKind.String ? methodValue.GetString() : methodValue.ToString()
+                : null;
             if (string.IsNullOrEmpty(method))
             {
                 return new InvalidRequest(requestId, string.Empty, "Method not set");
             }
 
-            var hasParams = request.TryGetValue("params", out var @params);
-            if (hasParams && @params?.Type != JTokenType.Array && @params?.Type != JTokenType.Object && @params?.Type != JTokenType.Null)
+            var hasParams = @object.TryGetProperty("params", out var @params);
+            if (hasParams && @params.ValueKind is not (JsonValueKind.Array or JsonValueKind.Object or JsonValueKind.Null))
             {
                 return new InvalidRequest(requestId, method, "Invalid params");
             }
 
             // Special case params such that if we get a null value (from a non spec compliant system)
             // that we don't fall over and throw an error.
-            if (@params?.Type == JTokenType.Null)
+            if (hasParams && @params.ValueKind == JsonValueKind.Null)
             {
-                @params = new JObject();
+                @params = JsonSerializer.SerializeToElement(new { });
             }
 
-            var properties = request.Properties().ToLookup(z => z.Name, StringComparer.OrdinalIgnoreCase);
-
-            var traceStateProperty = properties["tracestate"].FirstOrDefault();
-            var traceState = traceStateProperty?.Value.ToString();
-            var traceParentProperty = properties["traceparent"].FirstOrDefault();
-            var traceParent = traceParentProperty?.Value.ToString();
+            var traceState = GetStringProperty(@object, "tracestate");
+            var traceParent = GetStringProperty(@object, "traceparent");
+            JsonElement? paramsValue = hasParams ? @params.Clone() : null;
 
             // id == request
             // !id == notification
             if (!hasRequestId)
             {
-                return new Notification(method!, @params)
+                return new Notification(method!, paramsValue)
                 {
                     TraceState = traceState,
                     TraceParent = traceParent,
                 };
             }
 
-            return new Request(requestId!, method!, @params)
+            return new Request(requestId!, method!, paramsValue)
             {
                 TraceState = traceState,
                 TraceParent = traceParent,
@@ -132,6 +134,19 @@ namespace OmniSharp.Extensions.JsonRpc
         public bool ShouldOutput(object value)
         {
             return _initialized;
+        }
+
+        private static string? GetStringProperty(JsonElement value, string name)
+        {
+            foreach (var property in value.EnumerateObject())
+            {
+                if (string.Equals(property.Name, name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return property.Value.ValueKind == JsonValueKind.String ? property.Value.GetString() : property.Value.ToString();
+                }
+            }
+
+            return null;
         }
     }
 }

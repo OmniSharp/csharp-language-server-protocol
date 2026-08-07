@@ -8,6 +8,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
@@ -443,7 +444,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         public IObservable<InitializeResult> Start => _initializeComplete.AsObservable();
 
-        bool IResponseRouter.TryGetRequest(object id, [NotNullWhen(true)] out string? method, [NotNullWhen(true)] out TaskCompletionSource<JToken>? pendingTask)
+        bool IResponseRouter.TryGetRequest(object id, [NotNullWhen(true)] out string? method, [NotNullWhen(true)] out TaskCompletionSource<JsonElement>? pendingTask)
         {
             return _responseRouter.TryGetRequest(id, out method, out pendingTask);
         }

@@ -49,7 +49,7 @@ namespace JsonRpc.Tests
 
             var id = Guid.NewGuid().ToString();
             var @params = new CodeActionParams { TextDocument = "TextDocument", Range = "Range", Context = "Context" };
-            var request = new Request(id, "textDocument/codeAction", JObject.Parse(JsonConvert.SerializeObject(@params)));
+            var request = new Request(id, "textDocument/codeAction", JsonTestHelper.ToElement(@params));
 
             await router.RouteRequest(router.GetDescriptors(request), request, CancellationToken.None);
 

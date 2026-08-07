@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -13,6 +13,6 @@ namespace OmniSharp.Extensions.JsonRpc
         IResponseRouterReturns SendRequest<T>(string method, T @params);
         IResponseRouterReturns SendRequest(string method);
         Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken);
-        bool TryGetRequest(object id, [NotNullWhen(true)] out string? method, [NotNullWhen(true)] out TaskCompletionSource<JToken>? pendingTask);
+        bool TryGetRequest(object id, [NotNullWhen(true)] out string? method, [NotNullWhen(true)] out TaskCompletionSource<JsonElement>? pendingTask);
     }
 }

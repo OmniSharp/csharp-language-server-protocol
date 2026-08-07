@@ -6,7 +6,6 @@ using DryIoc;
 using OmniSharp.Extensions.JsonRpc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
@@ -70,7 +69,7 @@ namespace Lsp.Tests
 
             var request = new Notification(
                 TextDocumentNames.DidSave,
-                JObject.Parse(JsonConvert.SerializeObject(@params, new LspSerializer(ClientVersion.Lsp3).Settings))
+                JsonTestHelper.Parse(JsonConvert.SerializeObject(@params, new LspSerializer(ClientVersion.Lsp3).Settings))
             );
 
             await mediator.RouteNotification(mediator.GetDescriptors(request), request, CancellationToken.None);
@@ -116,7 +115,7 @@ namespace Lsp.Tests
 
             var request = new Notification(
                 TextDocumentNames.DidSave,
-                JObject.Parse(JsonConvert.SerializeObject(@params, new LspSerializer(ClientVersion.Lsp3).Settings))
+                JsonTestHelper.Parse(JsonConvert.SerializeObject(@params, new LspSerializer(ClientVersion.Lsp3).Settings))
             );
 
             await mediator.RouteNotification(mediator.GetDescriptors(request), request, CancellationToken.None);
@@ -163,7 +162,7 @@ namespace Lsp.Tests
 
             var request = new Request(
                 id, TextDocumentNames.CodeAction,
-                JObject.Parse(JsonConvert.SerializeObject(@params, new LspSerializer(ClientVersion.Lsp3).Settings))
+                JsonTestHelper.Parse(JsonConvert.SerializeObject(@params, new LspSerializer(ClientVersion.Lsp3).Settings))
             );
 
             await mediator.RouteRequest(mediator.GetDescriptors(request), request, CancellationToken.None);
@@ -224,7 +223,7 @@ namespace Lsp.Tests
 
             var request = new Request(
                 id, TextDocumentNames.CodeAction,
-                JObject.Parse(JsonConvert.SerializeObject(@params, new LspSerializer(ClientVersion.Lsp3).Settings))
+                JsonTestHelper.Parse(JsonConvert.SerializeObject(@params, new LspSerializer(ClientVersion.Lsp3).Settings))
             );
 
             await mediator.RouteRequest(mediator.GetDescriptors(request), request, CancellationToken.None);
@@ -282,7 +281,7 @@ namespace Lsp.Tests
 
             var request = new Request(
                 id, TextDocumentNames.CodeLens,
-                JObject.Parse(JsonConvert.SerializeObject(@params, new LspSerializer(ClientVersion.Lsp3).Settings))
+                JsonTestHelper.Parse(JsonConvert.SerializeObject(@params, new LspSerializer(ClientVersion.Lsp3).Settings))
             );
 
             await mediator.RouteRequest(mediator.GetDescriptors(request), request, CancellationToken.None);
@@ -315,7 +314,7 @@ namespace Lsp.Tests
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var id = Guid.NewGuid().ToString();
-            var request = new Request(id, GeneralNames.Shutdown, new JObject());
+            var request = new Request(id, GeneralNames.Shutdown, JsonTestHelper.Parse("{}"));
 
             await mediator.RouteRequest(mediator.GetDescriptors(request), request, CancellationToken.None);
 
