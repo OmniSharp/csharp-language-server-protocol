@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading;
 using OmniSharp.Extensions.JsonRpc;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -28,10 +28,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         {
             public static ProgressParams Create<T>(ProgressToken token, T value, ISerializer serializer)
             {
+                using var document = JsonDocument.Parse(serializer.SerializeObject(value));
                 return new ProgressParams
                 {
                     Token = token,
-                    Value = JToken.Parse(serializer.SerializeObject(value))
+                    Value = document.RootElement.Clone()
                 };
             }
 
@@ -43,7 +44,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// The progress data.
             /// </summary>
-            public JToken Value { get; init; } = null!;
+            public JsonElement Value { get; init; }
         }
 
         [JsonConverter(typeof(ProgressTokenConverter))]

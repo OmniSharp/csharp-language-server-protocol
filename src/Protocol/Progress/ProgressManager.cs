@@ -3,11 +3,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
@@ -39,7 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 
         Task<Unit> IRequestHandler<ProgressParams, Unit>.Handle(ProgressParams request, CancellationToken cancellationToken)
         {
-            if (_activeObservables.TryGetValue(request.Token, out var observable) && observable is IObserver<JToken> observer)
+            if (_activeObservables.TryGetValue(request.Token, out var observable) && observable is IObserver<JsonElement> observer)
             {
                 observer.OnNext(request.Value);
             }
@@ -50,7 +50,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 
         public IProgressObservable<T> Monitor<T>(ProgressToken token) => Monitor(token, _serializer.DeserializeObject<T>);
 
-        public IProgressObservable<T> Monitor<T>(ProgressToken token, Func<JToken, T> factory)
+        public IProgressObservable<T> Monitor<T>(ProgressToken token, Func<object, T> factory)
         {
             if (_activeObservables.TryGetValue(token, out var o) && o is IProgressObservable<T> observable)
             {
