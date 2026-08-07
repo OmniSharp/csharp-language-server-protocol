@@ -558,7 +558,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
         private static PropertyDeclarationSyntax GetJDataProperty()
         {
-            return PropertyDeclaration(NullableType(IdentifierName("JToken")), Identifier("JData"))
+            return PropertyDeclaration(NullableType(ParseTypeName("System.Text.Json.JsonElement")), Identifier("JData"))
                   .WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword)))
                   .WithAccessorList(
                        AccessorList(

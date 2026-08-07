@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.Json;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -34,7 +35,7 @@ namespace Lsp.Tests.Models
                     Name = "abc",
                     Title = "Cool story bro"
                 },
-                Data = JObject.FromObject(
+                Data = JsonSerializer.SerializeToElement(
                     new Dictionary<string, object>
                     {
                         { "somethingCool", 1 }

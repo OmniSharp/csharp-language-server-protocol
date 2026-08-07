@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
+using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Lsp.Integration.Tests.Fixtures;
@@ -233,7 +234,7 @@ namespace Lsp.Integration.Tests
                                         End = new Position(0, 1)
                                     },
                                     CommitCharacters = new Container<string>("a", "b", "c"),
-                                    Data = JObject.FromObject(new { Test = 1 })
+                                    Data = JsonSerializer.SerializeToElement(new { Test = 1 })
                                 }
                             }
                         ),

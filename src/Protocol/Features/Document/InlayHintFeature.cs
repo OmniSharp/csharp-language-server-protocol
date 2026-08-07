@@ -125,7 +125,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// DocumentLinkRequest and a DocumentLinkResolveRequest.
             /// </summary>
             [Optional]
-            public JToken? Data { get; init; }
+            public System.Text.Json.JsonElement? Data { get; init; }
 
             private string DebuggerDisplay => ToString();
         }
