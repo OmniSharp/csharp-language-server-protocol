@@ -4,7 +4,7 @@ using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
+using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Server;
@@ -18,7 +18,7 @@ namespace Dap.Tests
         private static OutputHandler NewHandler(PipeWriter writer)
         {
             return new OutputHandler(
-                writer, new DapProtocolSerializer(), new[] { new AlwaysOutputFilter() }, Scheduler.Immediate, NullLogger<OutputHandler>.Instance
+                writer, new DapSerializer(), new[] { new AlwaysOutputFilter() }, Scheduler.Immediate, NullLogger<OutputHandler>.Instance
             );
         }
 
