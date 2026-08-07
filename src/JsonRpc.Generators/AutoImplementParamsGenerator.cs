@@ -146,6 +146,33 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                                  )
                                                              )
                                                          ),
+                                                     Attribute(ParseName("System.Text.Json.Serialization.JsonPropertyName"))
+                                                        .WithArgumentList(
+                                                             AttributeArgumentList(
+                                                                 SingletonSeparatedList(
+                                                                     AttributeArgument(
+                                                                         LiteralExpression(
+                                                                             SyntaxKind.StringLiteralExpression, Literal("$$__handler_id__$$")
+                                                                         )
+                                                                     )
+                                                                 )
+                                                             )
+                                                         ),
+                                                     Attribute(ParseName("System.Text.Json.Serialization.JsonIgnore"))
+                                                        .WithArgumentList(
+                                                             AttributeArgumentList(
+                                                                 SingletonSeparatedList(
+                                                                     AttributeArgument(
+                                                                             MemberAccessExpression(
+                                                                                 SyntaxKind.SimpleMemberAccessExpression,
+                                                                                 ParseName("System.Text.Json.Serialization.JsonIgnoreCondition"),
+                                                                                 IdentifierName("WhenWritingDefault")
+                                                                             )
+                                                                         )
+                                                                        .WithNameEquals(NameEquals(IdentifierName("Condition")))
+                                                                 )
+                                                             )
+                                                         ),
                                                      Attribute(IdentifierName("EditorBrowsable"))
                                                         .WithArgumentList(
                                                              AttributeArgumentList(

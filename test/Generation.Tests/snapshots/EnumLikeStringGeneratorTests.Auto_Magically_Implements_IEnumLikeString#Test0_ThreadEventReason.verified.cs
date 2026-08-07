@@ -12,6 +12,7 @@ using OmniSharp.Extensions.JsonRpc.Serialization.Converters;
 namespace Test
 {
     [JsonConverter(typeof(EnumLikeStringConverter))]
+    [System.Text.Json.Serialization.JsonConverter(typeof(SystemTextJsonEnumLikeStringConverterFactory))]
     [DebuggerDisplay("{_value}")]
     public readonly partial struct ThreadEventReason : IEquatable<string>, IEquatable<ThreadEventReason>, IEnumLikeString
     {

@@ -120,6 +120,22 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                ),
                                AttributeList(
                                    SingletonSeparatedList(
+                                       Attribute(ParseName("System.Text.Json.Serialization.JsonConverter"))
+                                          .WithArgumentList(
+                                               AttributeArgumentList(
+                                                   SingletonSeparatedList(
+                                                       AttributeArgument(
+                                                           TypeOfExpression(
+                                                               IdentifierName("SystemTextJsonEnumLikeStringConverterFactory")
+                                                           )
+                                                       )
+                                                   )
+                                               )
+                                           )
+                                   )
+                               ),
+                               AttributeList(
+                                   SingletonSeparatedList(
                                        Attribute(IdentifierName("DebuggerDisplay"))
                                           .WithArgumentList(
                                                AttributeArgumentList(
