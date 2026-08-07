@@ -35,7 +35,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             };
             options.Converters.Add(new NumberStringConverter());
             options.Converters.Add(new ProgressTokenConverter());
-            options.Converters.Add(new EnumLikeStringConverterFactory());
             options.Converters.Add(new InferredObjectConverter());
             return options;
         }
@@ -266,20 +265,5 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             }
         }
 
-        private sealed class EnumLikeStringConverterFactory : JsonConverterFactory
-        {
-            public override bool CanConvert(Type typeToConvert) => typeof(IEnumLikeString).IsAssignableFrom(typeToConvert);
-
-            public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options) =>
-                (JsonConverter) Activator.CreateInstance(typeof(EnumLikeStringConverter<>).MakeGenericType(typeToConvert))!;
-        }
-
-        private sealed class EnumLikeStringConverter<T> : JsonConverter<T> where T : struct, IEnumLikeString
-        {
-            public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
-                (T) Activator.CreateInstance(typeof(T), reader.GetString())!;
-
-            public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options) => writer.WriteStringValue(value.ToString());
-        }
     }
 }
