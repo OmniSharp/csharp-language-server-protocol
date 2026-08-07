@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Text.Json;
 using FluentAssertions;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
@@ -27,8 +28,9 @@ namespace Dap.Tests
                 var r = request[i];
                 var response = result[i];
 
-                inSerializer.SerializeObject(response)
-                            .Should().Be(outSerializer.SerializeObject(r));
+                var actual = JsonTestHelper.Parse(inSerializer.SerializeObject(response));
+                var expected = JsonTestHelper.Parse(outSerializer.SerializeObject(r));
+                JsonElement.DeepEquals(actual, expected).Should().BeTrue();
             }
         }
 

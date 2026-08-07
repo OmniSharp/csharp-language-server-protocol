@@ -1,11 +1,32 @@
+using System;
+using System.Text.Json;
 using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public class DelegatingRequest<T> : IRequest<JToken>, IRequest
+    public class DelegatingRequest<T> : IRequest<JsonElement>, IRequest
     {
-        public DelegatingRequest(object value) => Value = typeof(T) == typeof(Unit) || value is Unit ? new JObject() : JToken.FromObject(value);
+        public DelegatingRequest(object value) => Value = ToJsonElement(value);
 
-        public JToken Value { get; }
+        public JsonElement Value { get; }
+
+        private static JsonElement ToJsonElement(object value)
+        {
+            if (typeof(T) == typeof(Unit) || value is Unit)
+            {
+                return JsonSerializer.SerializeToElement(new { });
+            }
+
+            if (value is null) throw new ArgumentNullException(nameof(value));
+
+            if (value is JsonElement element)
+            {
+                return element.Clone();
+            }
+
+            var token = value as JToken ?? JToken.FromObject(value);
+            using var document = JsonDocument.Parse(token.ToString(Newtonsoft.Json.Formatting.None));
+            return document.RootElement.Clone();
+        }
     }
 }
