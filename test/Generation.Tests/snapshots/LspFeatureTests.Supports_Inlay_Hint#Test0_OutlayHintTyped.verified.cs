@@ -148,8 +148,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test.Models
             };
         }
 
-        JToken? ICanBeResolved.Data { get; init; }
-        private JToken? JData { get => this.GetRawData(); init => this.SetRawData(value); }
+        System.Text.Json.JsonElement? ICanBeResolved.Data { get; init; }
+        private System.Text.Json.JsonElement? JData { get => this.GetRawData(); init => this.SetRawData(value); }
 
         public static implicit operator OutlayHint<T>(OutlayHint value) => new OutlayHint<T>
         {

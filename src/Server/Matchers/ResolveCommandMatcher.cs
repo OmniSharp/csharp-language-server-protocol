@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
@@ -25,7 +25,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
         {
             if (parameters is ICanBeResolved canBeResolved)
             {
-                if (canBeResolved.Data != null && canBeResolved.Data is JObject jObject && jObject.TryGetValue(Constants.PrivateHandlerId, out var value))
+                if (canBeResolved.Data is { ValueKind: JsonValueKind.Object } data
+                 && data.TryGetProperty(Constants.PrivateHandlerId, out var value))
                 {
                     if (!Guid.TryParse(value.ToString(), out var id)) yield break;
 

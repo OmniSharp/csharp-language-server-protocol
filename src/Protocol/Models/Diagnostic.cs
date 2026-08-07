@@ -74,7 +74,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// @since 3.16.0
         /// </summary>
         [Optional]
-        public JToken? Data { get; init; }
+        public System.Text.Json.JsonElement? Data { get; init; }
 
         private string DebuggerDisplay =>
             $"{( Code.HasValue ? $"[{Code.Value.ToString()}]" : "" )}" +

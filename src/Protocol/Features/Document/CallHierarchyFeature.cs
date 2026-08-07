@@ -91,7 +91,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// incoming calls or outgoing calls requests.
             /// </summary>
             [Optional]
-            public JToken? Data { get; init; }
+            public System.Text.Json.JsonElement? Data { get; init; }
 
             private string DebuggerDisplay =>
                 $"[{Kind.ToString()}] " +
@@ -110,7 +110,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         {
             public CallHierarchyItem Item { get; init; } = null!;
 
-            JToken? ICanBeResolved.Data
+            System.Text.Json.JsonElement? ICanBeResolved.Data
             {
                 get => Item?.GetRawData();
                 init => Item?.SetRawData(value);
@@ -122,7 +122,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         {
             public CallHierarchyItem<T> Item { get; init; } = null!;
 
-            JToken? ICanBeResolved.Data
+            System.Text.Json.JsonElement? ICanBeResolved.Data
             {
                 get => Item?.GetRawData();
                 init => Item?.SetRawData(value);

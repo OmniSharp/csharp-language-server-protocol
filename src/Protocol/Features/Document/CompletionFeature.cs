@@ -223,7 +223,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// a completion and a completion resolve request.
             /// </summary>
             [Optional]
-            public JToken? Data { get; init; }
+            public System.Text.Json.JsonElement? Data { get; init; }
 
             private string DebuggerDisplay => $"[{Kind}] {Label}{(Tags?.Any() == true ? $" tags: {string.Join(", ", Tags.Select(z => z.ToString()))}" : "")}";
 
@@ -677,7 +677,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// @since 3.17.0
             /// </summary>
             [Optional]
-            public JToken? Data { get; init; }
+            public System.Text.Json.JsonElement? Data { get; init; }
         }
 
         /// <summary>

@@ -253,7 +253,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             /// DocumentLinkRequest and a DocumentLinkResolveRequest.
             /// </summary>
             [Optional]
-            public JToken? Data { get; init; }
+            public System.Text.Json.JsonElement? Data { get; init; }
 
             private string DebuggerDisplay => ToString();
         }
@@ -537,7 +537,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             /// a code lens and a code lens resolve request.
             /// </summary>
             [Optional]
-            public JToken? Data { get; init; }
+            public System.Text.Json.JsonElement? Data { get; init; }
 
             private string DebuggerDisplay => $""{Range}{( Command != null ? $"" {Command}"" : """" )}"";
 
