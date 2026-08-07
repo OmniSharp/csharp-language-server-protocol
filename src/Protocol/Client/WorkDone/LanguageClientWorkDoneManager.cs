@@ -67,9 +67,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
         {
             if (!( token is JObject obj ) || !obj.TryGetValue("kind", out var kind)) throw new NotSupportedException("Unknown work done progress event");
             return kind.Value<string>() switch {
-                "begin"  => token.ToObject<WorkDoneProgressBegin>(_serializer.JsonSerializer),
-                "end"    => token.ToObject<WorkDoneProgressEnd>(_serializer.JsonSerializer),
-                "report" => token.ToObject<WorkDoneProgressReport>(_serializer.JsonSerializer),
+                "begin"  => _serializer.DeserializeObject<WorkDoneProgressBegin>(token),
+                "end"    => _serializer.DeserializeObject<WorkDoneProgressEnd>(token),
+                "report" => _serializer.DeserializeObject<WorkDoneProgressReport>(token),
                 _        => throw new NotSupportedException("Unknown work done progress event")
             };
         }

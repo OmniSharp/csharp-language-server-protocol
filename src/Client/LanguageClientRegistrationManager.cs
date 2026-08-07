@@ -151,7 +151,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 Id = registration.Id,
                 Method = registration.Method,
                 RegisterOptions = registration.RegisterOptions is JToken token
-                    ? token.ToObject(registrationType, _serializer.JsonSerializer)
+                    ? _serializer.DeserializeObject(token, registrationType)
                     : registration.RegisterOptions
             };
 

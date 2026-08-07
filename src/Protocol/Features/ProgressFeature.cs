@@ -26,12 +26,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateRequestMethods(typeof(IGeneralLanguageClient), typeof(ILanguageClient), typeof(IGeneralLanguageServer), typeof(ILanguageServer))]
         public record ProgressParams : IRequest<Unit>
         {
-            public static ProgressParams Create<T>(ProgressToken token, T value, JsonSerializer jsonSerializer)
+            public static ProgressParams Create<T>(ProgressToken token, T value, ISerializer serializer)
             {
                 return new ProgressParams
                 {
                     Token = token,
-                    Value = JToken.FromObject(value, jsonSerializer)
+                    Value = JToken.Parse(serializer.SerializeObject(value))
                 };
             }
 
@@ -99,9 +99,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 return new ProgressToken(value);
             }
 
-            public ProgressParams Create<T>(T value, JsonSerializer jsonSerializer)
+            public ProgressParams Create<T>(T value, ISerializer serializer)
             {
-                return ProgressParams.Create(this, value, jsonSerializer);
+                return ProgressParams.Create(this, value, serializer);
             }
 
             public bool Equals(long other)

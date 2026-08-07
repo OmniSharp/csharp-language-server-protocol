@@ -48,7 +48,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
             return Unit.Task;
         }
 
-        public IProgressObservable<T> Monitor<T>(ProgressToken token) => Monitor(token, x => x.ToObject<T>(_serializer.JsonSerializer)!);
+        public IProgressObservable<T> Monitor<T>(ProgressToken token) => Monitor(token, _serializer.DeserializeObject<T>);
 
         public IProgressObservable<T> Monitor<T>(ProgressToken token, Func<JToken, T> factory)
         {
