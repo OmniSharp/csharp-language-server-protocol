@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using ISerializer = OmniSharp.Extensions.JsonRpc.ISerializer;
@@ -29,7 +30,7 @@ namespace Lsp.Tests
                 jsonWriter.Formatting = Formatting.Indented;
                 jsonWriter.Indentation = 4;
 
-                serializer.JsonSerializer.Serialize(jsonWriter, value, type);
+                JToken.Parse(serializer.SerializeObject(value, type ?? value.GetType())).WriteTo(jsonWriter);
             }
 
             return sw.ToString().Replace("\r\n", "\n").TrimEnd(); //?.Replace("\n", "\r\n");

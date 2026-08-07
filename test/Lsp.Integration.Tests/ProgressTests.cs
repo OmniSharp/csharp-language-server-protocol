@@ -37,7 +37,7 @@ namespace Lsp.Integration.Tests
 
             using var observer = Client.ProgressManager.For<Data>(token, CancellationToken);
             var workDoneObservable = Server.ProgressManager.Monitor(
-                token, x => x.ToObject<Data>(Server.Services.GetRequiredService<ISerializer>().JsonSerializer)
+                token, Server.Services.GetRequiredService<ISerializer>().DeserializeObject<Data>
             );
             var observable = workDoneObservable.Replay();
             using var _ = observable.Connect();
@@ -95,7 +95,7 @@ namespace Lsp.Integration.Tests
 
             using var observer = Server.ProgressManager.For<Data>(token, CancellationToken);
             var workDoneObservable = Client.ProgressManager.Monitor(
-                token, x => x.ToObject<Data>(Client.Services.GetRequiredService<ISerializer>().JsonSerializer)
+                token, Client.Services.GetRequiredService<ISerializer>().DeserializeObject<Data>
             );
             var observable = workDoneObservable.Replay();
             using var _ = observable.Connect();
