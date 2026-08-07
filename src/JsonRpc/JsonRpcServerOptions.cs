@@ -9,7 +9,7 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             RequestProcessIdentifier = new ParallelRequestProcessIdentifier();
         }
-        public ISerializer Serializer { get; set; } = new JsonRpcSerializer();
+        public ISerializer Serializer { get; set; } = new SystemTextJsonSerializer();
         [DisallowNull] public IReceiver? Receiver { get; set; } = null!;
 
         public JsonRpcServerOptions WithReceiver(IReceiver receiver)
