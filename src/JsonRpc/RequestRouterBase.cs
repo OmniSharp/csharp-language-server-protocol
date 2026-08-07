@@ -56,13 +56,15 @@ namespace OmniSharp.Extensions.JsonRpc
                         _logger.LogTrace(
                             "Converting params for Notification {Method} to {Type}", notification.Method, descriptors.Default.Params.GetGenericArguments()[0].FullName
                         );
-                        var o = notification.Params?.ToObject(descriptors.Default.Params.GetGenericArguments()[0], _serializer.JsonSerializer);
+                        var o = notification.Params is null
+                            ? null
+                            : _serializer.DeserializeObject(notification.Params, descriptors.Default.Params.GetGenericArguments()[0]);
                         @params = Activator.CreateInstance(descriptors.Default.Params, o);
                     }
                     else
                     {
                         _logger.LogTrace("Converting params for Notification {Method} to {Type}", notification.Method, descriptors.Default.Params.FullName);
-                        @params = notification.Params?.ToObject(descriptors.Default.Params, _serializer.JsonSerializer);
+                        @params = notification.Params is null ? null : _serializer.DeserializeObject(notification.Params, descriptors.Default.Params);
                     }
                 }
 
@@ -105,14 +107,16 @@ namespace OmniSharp.Extensions.JsonRpc
                             "Converting params for Request ({Id}) {Method} to {Type}", request.Id, request.Method,
                             descriptors.Default!.Params!.GetGenericArguments()[0].FullName
                         );
-                        var o = request.Params?.ToObject(descriptors.Default!.Params!.GetGenericArguments()[0], _serializer.JsonSerializer);
+                        var o = request.Params is null
+                            ? null
+                            : _serializer.DeserializeObject(request.Params, descriptors.Default!.Params!.GetGenericArguments()[0]);
                         @params = Activator.CreateInstance(descriptors.Default!.Params, o);
                     }
                     else
                     {
                         _logger.LogTrace("Converting params for Request ({Id}) {Method} to {Type}", request.Id, request.Method, descriptors.Default!.Params!.FullName);
                         _logger.LogTrace("Converting params for Notification {Method} to {Type}", request.Method, descriptors.Default!.Params.FullName);
-                        @params = request.Params?.ToObject(descriptors.Default!.Params, _serializer.JsonSerializer);
+                        @params = request.Params is null ? null : _serializer.DeserializeObject(request.Params, descriptors.Default!.Params);
                     }
                 }
                 catch (Exception cannotDeserializeRequestParams)

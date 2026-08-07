@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.JsonRpc.Serialization
 {
@@ -53,10 +54,22 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization
         public JsonSerializerSettings Settings => _settings ?? CreateSerializerSettings();
 
         public string SerializeObject(object value) => JsonConvert.SerializeObject(value, Settings);
+        public string SerializeObject(object value, Type type) => JsonConvert.SerializeObject(value, type, Settings);
 
         public object DeserializeObject(string json, Type type) => JsonConvert.DeserializeObject(json, type, Settings);
 
         public T DeserializeObject<T>(string json) => JsonConvert.DeserializeObject<T>(json, Settings);
+        public object DeserializeObject(object value, Type type) =>
+            value is JToken token
+                ? token.ToObject(type, JsonSerializer)
+                : DeserializeObject(SerializeObject(value), type);
+
+        public T DeserializeObject<T>(object value) =>
+            value is JToken token
+                ? token.ToObject<T>(JsonSerializer)
+                : DeserializeObject<T>(SerializeObject(value));
+
+        public void PopulateObject(string json, object target) => JsonConvert.PopulateObject(json, target, Settings);
         public long GetNextId() => Interlocked.Increment(ref _id);
         protected abstract void AddOrReplaceConverters(ICollection<JsonConverter> converters);
     }
