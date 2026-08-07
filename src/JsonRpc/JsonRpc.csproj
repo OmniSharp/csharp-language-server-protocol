@@ -14,6 +14,7 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
         <PackageReference Include="Newtonsoft.Json" />
         <PackageReference Include="Nerdbank.Streams" />
+        <PackageReference Include="System.Text.Json" />
         <PackageReference Include="System.Threading.Channels" />
         <PackageReference Include="DryIoc.Internal" PrivateAssets="All" />
         <ProjectReference Include="..\JsonRpc.Generators\JsonRpc.Generators.csproj" IncludeAssets="analyzers" ExcludeAssets="compile;runtime;native" PrivateAssets="contentfiles;build;buildMultitargeting;buildTransitive" OutputItemType="Analyzer" />
