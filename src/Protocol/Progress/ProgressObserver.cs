@@ -29,7 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
                 new ProgressParams
                 {
                     Token = ProgressToken,
-                    Value = JToken.FromObject(initial, serializer?.JsonSerializer)
+                    Value = serializer is null ? JToken.FromObject(initial) : JToken.Parse(serializer.SerializeObject(initial))
                 }
             );
             _isInitialized = true;
@@ -89,7 +89,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
                 new ProgressParams
                 {
                     Token = ProgressToken,
-                    Value = JToken.FromObject(value, serializer?.JsonSerializer)
+                    Value = serializer is null ? JToken.FromObject(value) : JToken.Parse(serializer.SerializeObject(value))
                 }
             );
         }

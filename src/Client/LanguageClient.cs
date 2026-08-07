@@ -295,14 +295,11 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                     }
 
                     var lastKey = keys[keys.Length - 1];
-                    value[lastKey] = JToken.FromObject(capability, _serializer.JsonSerializer);
+                    value[lastKey] = JToken.Parse(_serializer.SerializeObject(capability));
                 }
             }
 
-            using (var reader = capabilitiesObject.CreateReader())
-            {
-                _serializer.JsonSerializer.Populate(reader, _clientCapabilities);
-            }
+            _serializer.PopulateObject(capabilitiesObject.ToString(), _clientCapabilities);
 
             _collection.Initialize();
             RegisterCapabilities(_clientCapabilities);

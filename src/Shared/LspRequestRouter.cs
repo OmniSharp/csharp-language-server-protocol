@@ -56,12 +56,12 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             object? paramsValue;
             if (descriptor.IsDelegatingHandler)
             {
-                var o = @params.ToObject(descriptor.Params.GetGenericArguments()[0], _serializer.JsonSerializer);
+                var o = _serializer.DeserializeObject(@params, descriptor.Params.GetGenericArguments()[0]);
                 paramsValue = Activator.CreateInstance(descriptor.Params, o);
             }
             else
             {
-                paramsValue = @params.ToObject(descriptor.Params, _serializer.JsonSerializer);
+                paramsValue = _serializer.DeserializeObject(@params, descriptor.Params);
             }
 
             var lspHandlerDescriptors = _collection.Where(handler => handler.Method == method).ToList();

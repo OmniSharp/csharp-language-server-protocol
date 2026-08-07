@@ -99,11 +99,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
             if (!_receivedInitialValue)
             {
                 _receivedInitialValue = true;
-                _dataSubject.OnNext(value.ToObject<TResult>(_serializer.JsonSerializer)!);
+                _dataSubject.OnNext(_serializer.DeserializeObject<TResult>(value));
             }
             else
             {
-                _dataSubject.OnNext(value.ToObject<TItem[]>(_serializer.JsonSerializer)!);
+                _dataSubject.OnNext(_serializer.DeserializeObject<TItem[]>(value));
             }
         }
 

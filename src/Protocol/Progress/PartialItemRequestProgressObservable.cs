@@ -86,7 +86,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         {
             if (_dataSubject.IsDisposed) return;
             _receivedPartialData = true;
-            _dataSubject.OnNext(value.ToObject<TItem>(_serializer.JsonSerializer)!);
+            _dataSubject.OnNext(_serializer.DeserializeObject<TItem>(value));
         }
 
         public void Dispose()

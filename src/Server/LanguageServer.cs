@@ -411,7 +411,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             out GeneralClientCapabilities generalCapabilities
         )
         {
-            clientCapabilities = request.Capabilities.ToObject<ClientCapabilities>(_serializer.JsonSerializer);
+            clientCapabilities = _serializer.DeserializeObject<ClientCapabilities>(request.Capabilities);
             _supportedCapabilities.Initialize(clientCapabilities);
             foreach (var group in _capabilityTypes)
             {
@@ -419,7 +419,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 {
                     if (request.Capabilities.SelectToken(group.Key) is JObject capabilityData)
                     {
-                        var capability = capabilityData.ToObject(capabilityType, _serializer.JsonSerializer) as ICapability;
+                        var capability = _serializer.DeserializeObject(capabilityData, capabilityType) as ICapability;
                         _supportedCapabilities.Add(capability!);
                     }
                 }
@@ -512,13 +512,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
                 value[lastKey] = registrationOptions == null
                     ? JValue.CreateNull()
-                    : JToken.FromObject(converter.Convert(registrationOptions), _serializer.JsonSerializer);
+                    : JToken.Parse(_serializer.SerializeObject(converter.Convert(registrationOptions)));
             }
 
-            using (var reader = serverCapabilitiesObject.CreateReader())
-            {
-                _serializer.JsonSerializer.Populate(reader, serverCapabilities);
-            }
+            _serializer.PopulateObject(serverCapabilitiesObject.ToString(Formatting.None), serverCapabilities);
 
             var ccp = new ClientCapabilityProvider(_collection, windowCapabilities.WorkDoneProgress.IsSupported);
 
