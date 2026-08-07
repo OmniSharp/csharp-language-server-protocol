@@ -12,12 +12,11 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Nerdbank.Streams;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using ReactiveUnit = System.Reactive.Unit;
@@ -442,12 +441,11 @@ namespace OmniSharp.Extensions.JsonRpc
 
         private void HandleRequest(in ReadOnlySequence<byte> request)
         {
-            JToken payload;
+            JsonElement payload;
             try
             {
-                using var textReader = new StreamReader(request.AsStream());
-                using var reader = new JsonTextReader(textReader);
-                payload = JToken.Load(reader);
+                using var document = JsonDocument.Parse(request);
+                payload = document.RootElement.Clone();
             }
             catch
             {
@@ -522,7 +520,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         _requests.TryAdd(requestHandle.Request.Id, requestHandle);
                         requestHandle.OnComplete += r => _requests.TryRemove(r.Id, out _);
                     }
-                    catch (JsonReaderException e)
+                    catch (Exception e) when (e is JsonException or Newtonsoft.Json.JsonException)
                     {
                         _outputHandler.Send(new ParseError(item.Request.Id, item.Request.Method));
                         _logger.LogCritical(e, "Error parsing request");
@@ -542,15 +540,23 @@ namespace OmniSharp.Extensions.JsonRpc
                         if (item.Notification.Method == JsonRpcNames.CancelRequest)
                         {
                             _logger.LogDebug("Found cancellation request {Method}", item.Notification.Method);
-                            var cancelParams = item.Notification.Params?.ToObject<CancelParams>();
-                            if (cancelParams == null)
+                            object? cancelId = item.Notification.Params is { ValueKind: JsonValueKind.Object } cancelPayload &&
+                                           TryGetProperty(cancelPayload, "id", out var cancelIdValue)
+                                ? cancelIdValue.ValueKind switch
+                                {
+                                    JsonValueKind.String => cancelIdValue.GetString(),
+                                    JsonValueKind.Number when cancelIdValue.TryGetInt64(out var numericId) => numericId,
+                                    _ => null,
+                                }
+                                : null;
+                            if (cancelId == null)
                             {
                                 _logger.LogDebug("Got incorrect cancellation params for {Method}", item.Notification.Method);
                                 continue;
                             }
 
                             _logger.LogDebug("Cancelling pending request for {Method}", item.Notification.Method);
-                            if (_requests.TryGetValue(cancelParams.Id, out var requestHandle))
+                            if (_requests.TryGetValue(cancelId, out var requestHandle))
                             {
                                 requestHandle.CancellationTokenSource.Cancel();
                             }
@@ -570,7 +576,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
                         _requestInvoker.InvokeNotification(descriptor, item.Notification);
                     }
-                    catch (JsonReaderException e)
+                    catch (Exception e) when (e is JsonException or Newtonsoft.Json.JsonException)
                     {
                         _logger.LogCritical(e, "Error parsing notification");
                     }
@@ -585,6 +591,21 @@ namespace OmniSharp.Extensions.JsonRpc
                     _outputHandler.Send(item.Error);
                 }
             }
+        }
+
+        private static bool TryGetProperty(JsonElement value, string name, out JsonElement result)
+        {
+            foreach (var property in value.EnumerateObject())
+            {
+                if (string.Equals(property.Name, name, StringComparison.OrdinalIgnoreCase))
+                {
+                    result = property.Value;
+                    return true;
+                }
+            }
+
+            result = default;
+            return false;
         }
 
         private static Exception DefaultErrorParser(string? method, ServerError error, CreateResponseExceptionHandler? customHandler)

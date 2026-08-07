@@ -38,7 +38,7 @@ namespace JsonRpc.Tests
             var router = AutoSubstitute.Resolve<RequestRouter>();
 
             var @params = new CancelParams { Id = Guid.NewGuid() };
-            var notification = new Notification("$/cancelRequest", JObject.Parse(JsonConvert.SerializeObject(@params)));
+            var notification = new Notification("$/cancelRequest", JsonTestHelper.ToElement(@params));
 
             await router.RouteNotification(router.GetDescriptors(notification), notification, CancellationToken.None);
 

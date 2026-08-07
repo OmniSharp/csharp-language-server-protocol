@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Client;
@@ -16,8 +16,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
         internal readonly IOutputHandler OutputHandler;
         internal readonly ISerializer Serializer;
 
-        internal readonly ConcurrentDictionary<object, (string method, TaskCompletionSource<JToken> pendingTask)> Requests =
-            new ConcurrentDictionary<object, (string method, TaskCompletionSource<JToken> pendingTask)>();
+        internal readonly ConcurrentDictionary<object, (string method, TaskCompletionSource<JsonElement> pendingTask)> Requests =
+            new ConcurrentDictionary<object, (string method, TaskCompletionSource<JsonElement> pendingTask)>();
 
         internal static readonly ConcurrentDictionary<Type, string> MethodCache =
             new ConcurrentDictionary<Type, string>();
@@ -69,7 +69,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
             return new ResponseRouterReturnsImpl(this, method, @params);
         }
 
-        public bool TryGetRequest(object id, [NotNullWhen(true)] out string? method, [NotNullWhen(true)] out TaskCompletionSource<JToken>? pendingTask)
+        public bool TryGetRequest(object id, [NotNullWhen(true)] out string? method, [NotNullWhen(true)] out TaskCompletionSource<JsonElement>? pendingTask)
         {
             var result = Requests.TryGetValue(id, out var source);
             method = source.method;
@@ -110,7 +110,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
             public async Task<TResponse> Returning<TResponse>(CancellationToken cancellationToken)
             {
                 var nextId = _router.Serializer.GetNextId();
-                var tcs = new TaskCompletionSource<JToken>();
+                var tcs = new TaskCompletionSource<JsonElement>();
                 _router.Requests.TryAdd(nextId, ( _method, tcs ));
 
                 cancellationToken.ThrowIfCancellationRequested();

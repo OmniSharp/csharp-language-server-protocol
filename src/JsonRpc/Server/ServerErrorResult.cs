@@ -1,12 +1,12 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace OmniSharp.Extensions.JsonRpc.Server
 {
     public class ServerErrorResult
     {
         [JsonConstructor]
-        public ServerErrorResult(int code, string? message, JToken data)
+        public ServerErrorResult(int code, string? message, JsonElement? data)
         {
             Code = code;
             Message = message ?? string.Empty;
@@ -17,13 +17,13 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         {
             Code = code;
             Message = message ?? string.Empty;
-            Data = new JObject();
+            Data = JsonSerializer.SerializeToElement(new { });
         }
 
         public int Code { get; set; }
         public string Message { get; set; }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public JToken? Data { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public JsonElement? Data { get; set; }
     }
 }

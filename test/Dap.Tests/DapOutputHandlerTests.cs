@@ -4,7 +4,6 @@ using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Client;
@@ -31,7 +30,7 @@ namespace Dap.Tests
 
             var value = new OutgoingResponse(
                 1, new object(),
-                new Request(1, "command", new JObject())
+                new Request(1, "command", JsonTestHelper.Parse("{}"))
             );
 
             handler.Send(value);

@@ -16,7 +16,7 @@ namespace JsonRpc.Tests.Server
         public void ShouldRespond_AsExpected2(string json, Renor[] request)
         {
             var receiver = new Receiver();
-            var (requests, _) = receiver.GetRequests(JToken.Parse(json));
+            var (requests, _) = receiver.GetRequests(JsonTestHelper.Parse(json));
             var result = requests.ToArray();
             request.Length.Should().Be(result.Length);
 
@@ -37,21 +37,21 @@ namespace JsonRpc.Tests.Server
                 Add(
                     @"{""jsonrpc"": ""2.0"", ""method"": ""subtract"", ""params"": [42, 23], ""id"": 1}",
                     new Renor[] {
-                        new Request(1, "subtract", new JArray(new[] { 42, 23 }))
+                        new Request(1, "subtract", JsonTestHelper.ToElement(new[] { 42, 23 }))
                     }
                 );
 
                 Add(
                     @"{""jsonrpc"": ""2.0"", ""method"": ""subtract"", ""params"": {""subtrahend"": 23, ""minuend"": 42}, ""id"": 3}",
                     new Renor[] {
-                        new Request(3, "subtract", JObject.FromObject(new { subtrahend = 23, minuend = 42 }))
+                        new Request(3, "subtract", JsonTestHelper.ToElement(new { subtrahend = 23, minuend = 42 }))
                     }
                 );
 
                 Add(
                     @"{""jsonrpc"": ""2.0"", ""method"": ""subtract"", ""params"": {""minuend"": 42, ""subtrahend"": 23 }, ""id"": 4}",
                     new Renor[] {
-                        new Request(4, "subtract", JObject.FromObject(new { minuend = 42, subtrahend = 23 }))
+                        new Request(4, "subtract", JsonTestHelper.ToElement(new { minuend = 42, subtrahend = 23 }))
                     }
                 );
 
@@ -69,14 +69,14 @@ namespace JsonRpc.Tests.Server
                 Add(
                     @"{""jsonrpc"": ""2.0"", ""method"": ""subtract"", ""params"": null, ""id"": 4}",
                     new Renor[] {
-                        new Request(4, "subtract", new JObject())
+                        new Request(4, "subtract", JsonTestHelper.Parse("{}"))
                     }
                 );
 
                 Add(
                     @"{""jsonrpc"": ""2.0"", ""method"": ""update"", ""params"": [1,2,3,4,5]}",
                     new Renor[] {
-                        new Notification("update", new JArray(new[] { 1, 2, 3, 4, 5 }))
+                        new Notification("update", JsonTestHelper.ToElement(new[] { 1, 2, 3, 4, 5 }))
                     }
                 );
 
@@ -94,14 +94,14 @@ namespace JsonRpc.Tests.Server
                 Add(
                     @"{""jsonrpc"": ""2.0"", ""method"": ""foobar"", ""params"": null}",
                     new Renor[] {
-                        new Notification("foobar", new JObject())
+                        new Notification("foobar", JsonTestHelper.Parse("{}"))
                     }
                 );
 
                 Add(
                     @"{""jsonrpc"":""2.0"",""method"":""initialized"",""params"":{}}",
                     new Renor[] {
-                        new Notification("initialized", new JObject()),
+                        new Notification("initialized", JsonTestHelper.Parse("{}")),
                     }
                 );
 
@@ -138,11 +138,11 @@ namespace JsonRpc.Tests.Server
                         {""jsonrpc"": ""2.0"", ""method"": ""get_data"", ""id"": ""9""}
                     ]",
                     new Renor[] {
-                        new Request("1", "sum", new JArray(new[] { 1, 2, 4 })),
-                        new Notification("notify_hello", new JArray(new[] { 7 })),
-                        new Request("2", "subtract", new JArray(new[] { 42, 23 })),
+                        new Request("1", "sum", JsonTestHelper.ToElement(new[] { 1, 2, 4 })),
+                        new Notification("notify_hello", JsonTestHelper.ToElement(new[] { 7 })),
+                        new Request("2", "subtract", JsonTestHelper.ToElement(new[] { 42, 23 })),
                         new InvalidRequest("", "Unexpected protocol"),
-                        new Request("5", "foo.get", JObject.FromObject(new { name = "myself" })),
+                        new Request("5", "foo.get", JsonTestHelper.ToElement(new { name = "myself" })),
                         new Request("9", "get_data", null),
                     }
                 );
@@ -167,7 +167,7 @@ namespace JsonRpc.Tests.Server
         public void Should_ValidateInvalidMessages(string json, bool expected)
         {
             var receiver = new Receiver();
-            var result = receiver.IsValid(JToken.Parse(json));
+            var result = receiver.IsValid(JsonTestHelper.Parse(json));
             result.Should().Be(expected);
         }
 
