@@ -1,7 +1,7 @@
 using System;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -41,11 +41,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.AddHandlerLink(string fromMethod, string toMethod) =>
             AddHandlerLink(fromMethod, toMethod);
 
-        ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.OnJsonRequest(string method, Func<JToken, Task<JToken>> handler, JsonRpcHandlerOptions? options) =>
+        ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.OnJsonRequest(string method, Func<JsonElement, Task<JsonElement>> handler, JsonRpcHandlerOptions? options) =>
             OnJsonRequest(method, handler, options);
 
         ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.OnJsonRequest(
-            string method, Func<JToken, CancellationToken, Task<JToken>> handler, JsonRpcHandlerOptions? options
+            string method, Func<JsonElement, CancellationToken, Task<JsonElement>> handler, JsonRpcHandlerOptions? options
         ) => OnJsonRequest(method, handler, options);
 
         ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.OnRequest<TParams, TResponse>(
@@ -78,18 +78,18 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             string method, Action<TParams, CancellationToken> handler, JsonRpcHandlerOptions? options
         ) => OnNotification(method, handler, options);
 
-        ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.OnJsonNotification(string method, Action<JToken> handler, JsonRpcHandlerOptions? options) =>
+        ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.OnJsonNotification(string method, Action<JsonElement> handler, JsonRpcHandlerOptions? options) =>
             OnJsonNotification(method, handler, options);
 
         ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.OnJsonNotification(
-            string method, Func<JToken, CancellationToken, Task> handler, JsonRpcHandlerOptions? options
+            string method, Func<JsonElement, CancellationToken, Task> handler, JsonRpcHandlerOptions? options
         ) => OnJsonNotification(method, handler, options);
 
-        ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.OnJsonNotification(string method, Func<JToken, Task> handler, JsonRpcHandlerOptions? options) =>
+        ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.OnJsonNotification(string method, Func<JsonElement, Task> handler, JsonRpcHandlerOptions? options) =>
             OnJsonNotification(method, handler, options);
 
         ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.OnJsonNotification(
-            string method, Action<JToken, CancellationToken> handler, JsonRpcHandlerOptions? options
+            string method, Action<JsonElement, CancellationToken> handler, JsonRpcHandlerOptions? options
         ) => OnJsonNotification(method, handler, options);
 
         ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.OnNotification<TParams>(string method, Action<TParams> handler, JsonRpcHandlerOptions? options) =>

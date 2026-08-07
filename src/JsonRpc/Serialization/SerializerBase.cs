@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc.Serialization.Converters;
 using JsonElement = System.Text.Json.JsonElement;
 
 namespace OmniSharp.Extensions.JsonRpc.Serialization
@@ -16,6 +17,7 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization
         {
             var serializer = JsonSerializer.CreateDefault();
             AddOrReplaceConverters(serializer.Converters);
+            ReplaceConverter(serializer.Converters, new JsonElementConverter());
             return _jsonSerializer = serializer;
         }
 
@@ -23,6 +25,7 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization
         {
             var settings = JsonConvert.DefaultSettings != null ? JsonConvert.DefaultSettings() : new JsonSerializerSettings { MaxDepth = 128 };
             AddOrReplaceConverters(settings.Converters);
+            ReplaceConverter(settings.Converters, new JsonElementConverter());
             return _settings = settings;
         }
 
