@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Serialization;
 using OmniSharp.Extensions.JsonRpc.Server;
@@ -10,6 +11,14 @@ namespace JsonRpc.Tests
     public class SerializerTests
     {
         private readonly JsonRpcSerializer _serializer = new JsonRpcSerializer();
+
+        [Fact]
+        public void Should_use_system_text_json_by_default()
+        {
+            var options = new JsonRpcServerOptions();
+
+            options.Serializer.Should().BeOfType<SystemTextJsonSerializer>();
+        }
 
         [Fact]
         public void Should_deserialize_json_values_without_exposing_the_underlying_serializer()
