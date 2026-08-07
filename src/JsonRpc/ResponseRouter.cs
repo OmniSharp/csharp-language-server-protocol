@@ -126,7 +126,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         return (TResponse)(object)Unit.Value;
                     }
 
-                    return result.ToObject<TResponse>(_router.Serializer.JsonSerializer);
+                    return _router.Serializer.DeserializeObject<TResponse>(result);
                 }
                 finally
                 {
