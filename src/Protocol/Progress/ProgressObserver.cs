@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using ReactiveUnit = System.Reactive.Unit;
@@ -29,7 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
                 new ProgressParams
                 {
                     Token = ProgressToken,
-                    Value = serializer is null ? JToken.FromObject(initial) : JToken.Parse(serializer.SerializeObject(initial))
+                    Value = serializer is null ? JsonSerializer.SerializeToElement(initial) : SerializeToElement(initial, serializer)
                 }
             );
             _isInitialized = true;
@@ -89,9 +89,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
                 new ProgressParams
                 {
                     Token = ProgressToken,
-                    Value = serializer is null ? JToken.FromObject(value) : JToken.Parse(serializer.SerializeObject(value))
+                    Value = serializer is null ? JsonSerializer.SerializeToElement(value) : SerializeToElement(value, serializer)
                 }
             );
+        }
+
+        protected static JsonElement SerializeToElement<TValue>(TValue value, ISerializer serializer)
+        {
+            using var document = JsonDocument.Parse(serializer.SerializeObject(value));
+            return document.RootElement.Clone();
         }
 
         public void Dispose() => _disposal();

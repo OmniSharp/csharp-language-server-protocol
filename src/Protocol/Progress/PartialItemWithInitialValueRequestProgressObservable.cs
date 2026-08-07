@@ -4,13 +4,13 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
 using System.Runtime.CompilerServices;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 
-internal class PartialItemWithInitialValueRequestProgressObservable<TItem, TResult> : IRequestProgressObservable<TItem, TResult>, IObserver<JToken>
+internal class PartialItemWithInitialValueRequestProgressObservable<TItem, TResult> : IRequestProgressObservable<TItem, TResult>, IObserver<JsonElement>
     where TResult : TItem
 {
     private readonly ISerializer _serializer;
@@ -58,12 +58,12 @@ internal class PartialItemWithInitialValueRequestProgressObservable<TItem, TResu
     public ProgressToken ProgressToken { get; }
     public Type ParamsType { get; } = typeof(TItem);
 
-    void IObserver<JToken>.OnCompleted()
+    void IObserver<JsonElement>.OnCompleted()
     {
         OnCompleted();
     }
 
-    void IObserver<JToken>.OnError(Exception error)
+    void IObserver<JsonElement>.OnError(Exception error)
     {
         OnError(error);
     }
@@ -80,7 +80,7 @@ internal class PartialItemWithInitialValueRequestProgressObservable<TItem, TResu
         _dataSubject.OnError(error);
     }
 
-    public void OnNext(JToken value)
+    public void OnNext(JsonElement value)
     {
         if (_dataSubject.IsDisposed) return;
         _receivedPartialData = true;

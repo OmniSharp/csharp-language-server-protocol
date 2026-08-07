@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Concurrent;
 using System.Reactive.Disposables;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using OmniSharp.Extensions.JsonRpc;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -42,7 +41,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
             }
 
             var data = new WorkDoneObservable(
-                _progressManager.Monitor(progressToken, Parse),
+                _progressManager.Monitor<WorkDoneProgress>(progressToken, value => Parse((JsonElement) value)),
                 Disposable.Create(() => _router.SendWorkDoneProgressCancel(progressToken))
             );
             _pendingWork.AddOrUpdate(progressToken, _ => data, (_, _) => data);
@@ -63,13 +62,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
             return Unit.Task;
         }
 
-        private WorkDoneProgress Parse(JToken token)
+        private WorkDoneProgress Parse(JsonElement value)
         {
-            if (!( token is JObject obj ) || !obj.TryGetValue("kind", out var kind)) throw new NotSupportedException("Unknown work done progress event");
-            return kind.Value<string>() switch {
-                "begin"  => _serializer.DeserializeObject<WorkDoneProgressBegin>(token),
-                "end"    => _serializer.DeserializeObject<WorkDoneProgressEnd>(token),
-                "report" => _serializer.DeserializeObject<WorkDoneProgressReport>(token),
+            if (value.ValueKind != JsonValueKind.Object || !value.TryGetProperty("kind", out var kind))
+                throw new NotSupportedException("Unknown work done progress event");
+            return kind.GetString() switch {
+                "begin"  => _serializer.DeserializeObject<WorkDoneProgressBegin>(value),
+                "end"    => _serializer.DeserializeObject<WorkDoneProgressEnd>(value),
+                "report" => _serializer.DeserializeObject<WorkDoneProgressReport>(value),
                 _        => throw new NotSupportedException("Unknown work done progress event")
             };
         }
