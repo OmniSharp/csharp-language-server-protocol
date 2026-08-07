@@ -1,12 +1,9 @@
 using System;
-using Newtonsoft.Json;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
     public interface ISerializer
     {
-        JsonSerializer JsonSerializer { get; }
-        JsonSerializerSettings Settings { get; }
         string SerializeObject(object value);
         string SerializeObject(object value, Type type);
         object DeserializeObject(string json, Type type);
