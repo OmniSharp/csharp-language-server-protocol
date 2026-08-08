@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
@@ -23,8 +24,8 @@ namespace Lsp.Tests.Capabilities.Client
         public void SimpleTest(string expected)
         {
             var model = new ClientCapabilities {
-                Experimental = new Dictionary<string, JToken> {
-                    { "abc", "test" }
+                Experimental = new Dictionary<string, JsonElement> {
+                    { "abc", JsonSerializer.SerializeToElement("test") }
                 },
                 TextDocument = new TextDocumentClientCapabilities {
                     CodeAction = new CodeActionCapability { DynamicRegistration = true },
@@ -86,8 +87,9 @@ namespace Lsp.Tests.Capabilities.Client
             result.Should().Be(expected);
 
             var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<ClientCapabilities>(expected);
-            deresult.Should().BeEquivalentTo(model, x => x.UsingStructuralRecordEquality().ConfigureForSupports(Logger)
+            deresult.Should().BeEquivalentTo(model, x => x.UsingStructuralRecordEquality().ConfigureForSupports(Logger).Excluding(z => z.Experimental)
             );
+            deresult.Experimental["abc"].GetRawText().Should().Be(model.Experimental["abc"].GetRawText());
         }
 
         [Theory]

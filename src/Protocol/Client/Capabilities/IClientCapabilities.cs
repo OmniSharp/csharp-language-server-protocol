@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
@@ -8,8 +8,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// <summary>
         /// Experimental client capabilities.
         /// </summary>
-        IDictionary<string, JToken> Experimental { get; set; }
+        IDictionary<string, JsonElement> Experimental { get; set; }
 
-        IDictionary<string, JToken> ExtensionData { get; set; }
+        IDictionary<string, JsonElement> ExtensionData { get; set; }
     }
 }

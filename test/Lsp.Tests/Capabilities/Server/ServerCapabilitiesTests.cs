@@ -1,6 +1,6 @@
 using System.Collections.Generic;
+using System.Text.Json;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -40,8 +40,8 @@ namespace Lsp.Tests.Capabilities.Server
                 ExecuteCommandProvider = new ExecuteCommandRegistrationOptions.StaticOptions {
                     Commands = new[] { "command1", "command2" }
                 },
-                Experimental = new Dictionary<string, JToken> {
-                    { "abc", "123" }
+                Experimental = new Dictionary<string, JsonElement> {
+                    { "abc", JsonSerializer.SerializeToElement("123") }
                 },
                 HoverProvider = true,
                 ReferencesProvider = true,
@@ -71,7 +71,8 @@ namespace Lsp.Tests.Capabilities.Server
             result.Should().Be(expected);
 
             var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<ServerCapabilities>(expected);
-            deresult.Should().BeEquivalentTo(model, x => x.UsingStructuralRecordEquality());
+            deresult.Should().BeEquivalentTo(model, x => x.UsingStructuralRecordEquality().Excluding(z => z.Experimental));
+            deresult.Experimental["abc"].GetRawText().Should().Be(model.Experimental["abc"].GetRawText());
         }
 
         [Theory]

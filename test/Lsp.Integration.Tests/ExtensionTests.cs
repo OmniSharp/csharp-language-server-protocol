@@ -1,11 +1,11 @@
 using System;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Lsp.Integration.Tests.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Testing;
@@ -119,7 +119,8 @@ namespace Lsp.Integration.Tests
                 options =>
                 {
                     options.UseAssemblyAttributeScanning = false;
-                    options.ClientCapabilities.Workspace!.ExtensionData["unitTests"] = JToken.FromObject(new { property = "Abcd", dynamicRegistration = true });
+                    options.ClientCapabilities.Workspace!.ExtensionData["unitTests"] =
+                        JsonSerializer.SerializeToElement(new { property = "Abcd", dynamicRegistration = true });
                 },
                 options =>
                 {

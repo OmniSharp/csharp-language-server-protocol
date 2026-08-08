@@ -1,6 +1,6 @@
 using System.Collections.Generic;
+using System.Text.Json;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -41,8 +41,8 @@ namespace Lsp.Tests.Models
                     ExecuteCommandProvider = new ExecuteCommandRegistrationOptions.StaticOptions {
                         Commands = new[] { "command1", "command2" }
                     },
-                    Experimental = new Dictionary<string, JToken> {
-                        { "abc", "123" }
+                    Experimental = new Dictionary<string, JsonElement> {
+                        { "abc", JsonSerializer.SerializeToElement("123") }
                     },
                     HoverProvider = true,
                     ReferencesProvider = true,
