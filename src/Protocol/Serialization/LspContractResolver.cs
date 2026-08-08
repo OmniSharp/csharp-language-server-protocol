@@ -4,9 +4,11 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using JsonElement = System.Text.Json.JsonElement;
 
 #pragma warning disable 618
 
@@ -54,6 +56,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
         protected override JsonObjectContract CreateObjectContract(Type objectType)
         {
             var contract = base.CreateObjectContract(objectType);
+            if (typeof(ICapabilitiesBase).IsAssignableFrom(objectType))
+            {
+                contract.ExtensionDataValueType = typeof(JsonElement);
+                contract.ExtensionDataGetter = value => ( (ICapabilitiesBase) value ).ExtensionData.Select(
+                    pair => new KeyValuePair<object, object>(pair.Key, pair.Value)
+                );
+                contract.ExtensionDataSetter = (value, key, extensionValue) =>
+                    ( (ICapabilitiesBase) value ).ExtensionData[key] = ToJsonElement(extensionValue);
+            }
+
             if (objectType == typeof(WorkspaceClientCapabilities) ||
                 objectType == typeof(TextDocumentClientCapabilities))
             {
@@ -73,9 +85,27 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             return contract;
         }
 
+        private static JsonElement ToJsonElement(object? value)
+        {
+            if (value is JsonElement element) return element;
+            if (value is JToken token)
+            {
+                using var document = System.Text.Json.JsonDocument.Parse(token.ToString(Formatting.None));
+                return document.RootElement.Clone();
+            }
+
+            return System.Text.Json.JsonSerializer.SerializeToElement(value);
+        }
+
         protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
         {
             var property = base.CreateProperty(member, memberSerialization);
+            if (member.Name == nameof(ICapabilitiesBase.ExtensionData) &&
+                member.DeclaringType is not null && typeof(ICapabilitiesBase).IsAssignableFrom(member.DeclaringType))
+            {
+                property.Ignored = true;
+            }
+
             if (member.GetCustomAttributes<OptionalAttribute>(true).Any()
              || property.DeclaringType.Name.EndsWith("Capabilities")
             )

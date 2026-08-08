@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
@@ -122,7 +122,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// <summary>
         /// Experimental server capabilities.
         /// </summary>
-        IDictionary<string, JToken> Experimental { get; set; }
+        IDictionary<string, JsonElement> Experimental { get; set; }
 
         /// <summary>
         /// The server provides Goto Type Definition support.

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -16,7 +15,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
     public class LanguageClientOptions : LanguageProtocolRpcOptionsBase<LanguageClientOptions>, ILanguageClientRegistry
     {
         public ClientCapabilities ClientCapabilities { get; set; } = new ClientCapabilities {
-            Experimental = new Dictionary<string, JToken>(),
+            Experimental = new Dictionary<string, JsonElement>(),
             General = new GeneralClientCapabilities(),
             Window = new WindowClientCapabilities(),
             Workspace = new WorkspaceClientCapabilities(),
