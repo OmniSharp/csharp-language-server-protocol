@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text.Json;
 using OmniSharp.Extensions.JsonRpc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -54,8 +53,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// Extension data that may contain additional properties based on <see cref="ShowMessageRequestClientCapabilities" />
             /// </summary>
-            [JsonExtensionData]
-            public IDictionary<string, JToken> ExtensionData { get; init; } = new Dictionary<string, JToken>();
+            public IDictionary<string, JsonElement> ExtensionData { get; init; } = new Dictionary<string, JsonElement>();
 
             private string DebuggerDisplay => Title;
 

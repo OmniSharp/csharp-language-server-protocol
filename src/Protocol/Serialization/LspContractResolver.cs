@@ -58,12 +58,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             var contract = base.CreateObjectContract(objectType);
             if (typeof(ICapabilitiesBase).IsAssignableFrom(objectType))
             {
-                contract.ExtensionDataValueType = typeof(JsonElement);
-                contract.ExtensionDataGetter = value => ( (ICapabilitiesBase) value ).ExtensionData.Select(
-                    pair => new KeyValuePair<object, object>(pair.Key, pair.Value)
-                );
-                contract.ExtensionDataSetter = (value, key, extensionValue) =>
-                    ( (ICapabilitiesBase) value ).ExtensionData[key] = ToJsonElement(extensionValue);
+                ConfigureExtensionData(contract, value => ( (ICapabilitiesBase) value ).ExtensionData);
+            }
+            else if (objectType == typeof(MessageActionItem))
+            {
+                ConfigureExtensionData(contract, value => ( (MessageActionItem) value ).ExtensionData);
             }
 
             if (objectType == typeof(WorkspaceClientCapabilities) ||
@@ -85,6 +84,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             return contract;
         }
 
+        private static void ConfigureExtensionData(JsonObjectContract contract, Func<object, IDictionary<string, JsonElement>> getExtensionData)
+        {
+            contract.ExtensionDataValueType = typeof(JsonElement);
+            contract.ExtensionDataGetter = value => getExtensionData(value).Select(
+                pair => new KeyValuePair<object, object>(pair.Key, pair.Value)
+            );
+            contract.ExtensionDataSetter = (value, key, extensionValue) => getExtensionData(value)[key] = ToJsonElement(extensionValue);
+        }
+
         private static JsonElement ToJsonElement(object? value)
         {
             if (value is JsonElement element) return element;
@@ -101,7 +109,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
         {
             var property = base.CreateProperty(member, memberSerialization);
             if (member.Name == nameof(ICapabilitiesBase.ExtensionData) &&
-                member.DeclaringType is not null && typeof(ICapabilitiesBase).IsAssignableFrom(member.DeclaringType))
+                member.DeclaringType is not null &&
+                ( typeof(ICapabilitiesBase).IsAssignableFrom(member.DeclaringType) || member.DeclaringType == typeof(MessageActionItem) ))
             {
                 property.Ignored = true;
             }
