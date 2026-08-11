@@ -31,10 +31,12 @@ The migration is split into independently testable and committable iterations. E
   - Migrate client registration options and server capability merging without string-based JSON manipulation.
   - Preserve static, dynamic, experimental, and proposed capability behavior.
 
-- [ ] **5. Migrate `LSPAny`, `LSPObject`, and `LSPArray`**
+- [x] **5. Migrate `LSPAny`, `LSPObject`, and `LSPArray`**
   - Replace the public Newtonsoft-backed arbitrary-value types with System.Text.Json-backed equivalents.
   - Preserve construction, conversion, equality, and serialization behavior where practical.
   - Document unavoidable source-breaking API changes.
+  - `LSPAny.Value` and its implicit conversions now use `JsonElement` instead of `JToken`.
+  - `LSPObject` and `LSPArray` are System.Text.Json builders and no longer derive from `JObject` and `JArray`.
 
 - [ ] **6. Port the LSP serializer and converters**
   - Reimplement `LspSerializer` and `ProposedLspSerializer` on System.Text.Json.
