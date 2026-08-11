@@ -1,6 +1,6 @@
 using System;
+using System.Text.Json;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -29,7 +29,7 @@ namespace Lsp.Tests.Models
             var serializer = new LspSerializer(ClientVersion.Lsp3);
             var result = serializer.DeserializeObject<LSPAnyContainer>(expected);
 
-            result.Value.Value.Should().BeOfType<JObject>();
+            result.Value.Value.ValueKind.Should().Be(JsonValueKind.Object);
             Fixture.SerializeObject(result).Should().Be(expected.Replace("\r\n", "\n", StringComparison.Ordinal));
         }
 
@@ -39,13 +39,24 @@ namespace Lsp.Tests.Models
             var value = LSPAny.From(
                 new LSPObject
                 {
-                    ["items"] = new LSPArray(1, "two", false)
+                    ["nested"] = new LSPObject { ["items"] = new LSPArray(1, "two", false) }
                 }
             );
 
-            value.Value.Should().BeOfType<LSPObject>();
-            value.Value!["items"].Should().BeOfType<LSPArray>();
-            value.ToString().Should().Be("""{"items":[1,"two",false]}""");
+            value.Value.ValueKind.Should().Be(JsonValueKind.Object);
+            value.Value.GetProperty("nested").GetProperty("items").ValueKind.Should().Be(JsonValueKind.Array);
+            value.ToString().Should().Be("""{"nested":{"items":[1,"two",false]}}""");
+        }
+
+        [Fact]
+        public void Supports_Null_And_Structural_Equality()
+        {
+            var left = LSPAny.From(new { name = "example", enabled = true });
+            using var document = JsonDocument.Parse("""{"name":"example","enabled":true}""");
+            var right = LSPAny.From(document.RootElement);
+
+            left.Should().Be(right);
+            LSPAny.From(null).Value.ValueKind.Should().Be(JsonValueKind.Null);
         }
 
         private class LSPAnyContainer
