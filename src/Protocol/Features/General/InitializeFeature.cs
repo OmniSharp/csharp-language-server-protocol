@@ -2,8 +2,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using System.Text.Json;
 using OmniSharp.Extensions.JsonRpc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -291,7 +289,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public bool Retry { get; init; }
         }
 
-        [JsonConverter(typeof(StringEnumConverter))]
         public enum InitializeTrace
         {
             [EnumMember(Value = "off")] Off,

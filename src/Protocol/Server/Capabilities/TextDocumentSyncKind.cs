@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
@@ -6,7 +5,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
     /// <summary>
     /// Defines how the host (editor) should sync document changes to the language server.
     /// </summary>
-    [JsonConverter(typeof(NumberEnumConverter))]
     public enum TextDocumentSyncKind
     {
         /// <summary>

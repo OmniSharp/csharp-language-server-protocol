@@ -1,5 +1,4 @@
 using OmniSharp.Extensions.JsonRpc;
-using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -50,7 +49,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Capability(typeof(RenameCapability))]
         public partial record PrepareRenameParams : TextDocumentPositionParams, IWorkDoneProgressParams, IRequest<RangeOrPlaceholderRange?>;
 
-        [JsonConverter(typeof(RangeOrPlaceholderRangeConverter))]
         public record RangeOrPlaceholderRange
         {
             private readonly RenameDefaultBehavior? _renameDefaultBehavior;

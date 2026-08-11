@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Text.Json;
 using System.Threading;
 using OmniSharp.Extensions.JsonRpc;
-using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -47,7 +46,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public JsonElement Value { get; init; }
         }
 
-        [JsonConverter(typeof(ProgressTokenConverter))]
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
         public record ProgressToken : IEquatable<long>, IEquatable<string>
         {

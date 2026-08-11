@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using OmniSharp.Extensions.JsonRpc;
-using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -77,7 +76,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.15.0
         /// </summary>
-        [JsonConverter(typeof(NumberEnumConverter))]
         public enum SignatureHelpTriggerKind
         {
             /// <summary>
@@ -196,7 +194,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }
         }
 
-        [JsonConverter(typeof(ParameterInformationLabelConverter))]
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
         public record ParameterInformationLabel
         {

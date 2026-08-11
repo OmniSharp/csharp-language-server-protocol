@@ -1,8 +1,6 @@
 using System.Diagnostics;
 using System.Linq;
 using OmniSharp.Extensions.JsonRpc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -204,7 +202,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public string Reason { get; init; } = null!;
         }
 
-        [JsonConverter(typeof(CommandOrCodeActionConverter))]
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
         [GenerateContainer]
         public record CommandOrCodeAction : ICanBeResolved // This to ensure that code actions get updated as expected
@@ -474,7 +471,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
 
-        [JsonConverter(typeof(NumberEnumConverter))]
         public enum CodeActionTriggerKind
         {
             /// <summary>

@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
@@ -36,7 +35,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public UnregistrationContainer? Unregisterations { get; init; }
 
             // Placeholder for v4 support
-            [JsonIgnore]
+            [System.Text.Json.Serialization.JsonIgnore]
             public UnregistrationContainer? Unregistrations
             {
                 get => Unregisterations;

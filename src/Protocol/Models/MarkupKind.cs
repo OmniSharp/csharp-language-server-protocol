@@ -1,6 +1,4 @@
 using System.Runtime.Serialization;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
@@ -11,7 +9,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// Please note that `MarkupKinds` must not start with a `$`. This kinds
     /// are reserved for internal usage.
     /// </summary>
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum MarkupKind
     {
         /// <summary>

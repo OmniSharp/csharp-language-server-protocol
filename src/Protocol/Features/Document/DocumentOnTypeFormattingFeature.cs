@@ -1,5 +1,4 @@
 using OmniSharp.Extensions.JsonRpc;
-using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -40,7 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// got inserted into the document since the client could auto insert
             /// characters as well(e.g.like automatic brace completion).
             /// </summary>
-            [JsonProperty("ch")]
+            [System.Text.Json.Serialization.JsonPropertyName("ch")]
             public string Character { get; init; } = null!;
 
             /// <summary>

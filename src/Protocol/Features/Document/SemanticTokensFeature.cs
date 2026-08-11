@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
-using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -267,7 +266,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public ImmutableArray<int>? Data { get; init; } = ImmutableArray<int>.Empty;
         }
 
-        [JsonConverter(typeof(SemanticTokensFullOrDeltaConverter))]
         public record SemanticTokensFullOrDelta
         {
             public SemanticTokensFullOrDelta(SemanticTokensDelta delta)
@@ -368,7 +366,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }
         }
 
-        [JsonConverter(typeof(SemanticTokensFullOrDeltaPartialResultConverter))]
         public record SemanticTokensFullOrDeltaPartialResult
         {
             public SemanticTokensFullOrDeltaPartialResult(

@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
@@ -7,7 +6,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    [JsonConverter(typeof(TextEditConverter))]
     [GenerateContainer]
     public record TextEdit
     {
@@ -72,7 +70,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// @since 3.18.0
     /// </summary>
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    [JsonConverter(typeof(TextEditConverter))]
     public record SnippetTextEdit : TextEdit
     {
         /// <summary>
@@ -96,7 +93,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         }
     }
 
-    [JsonConverter(typeof(TextEditOrInsertReplaceEditConverter))]
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     [GenerateContainer]
     public record TextEditOrInsertReplaceEdit
@@ -234,7 +230,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// @since 3.16.0.
     /// </summary>
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    [JsonConverter(typeof(TextEditConverter))]
     public record AnnotatedTextEdit : TextEdit
     {
         /// <summary>

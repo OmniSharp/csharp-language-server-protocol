@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
 using OmniSharp.Extensions.JsonRpc;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;

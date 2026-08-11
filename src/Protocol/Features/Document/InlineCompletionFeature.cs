@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Reflection;
 using OmniSharp.Extensions.JsonRpc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -78,7 +76,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.18.0
         /// </summary>
-        [JsonConverter(typeof(NumberEnumConverter))]
         public enum InlineCompletionTriggerKind
         {
             /// <summary>
@@ -129,7 +126,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.18.0
         /// </summary>
-        [JsonConverter(typeof(Converter))]
         public partial class InlineCompletionList
         {
             public IEnumerable<InlineCompletionItem> Items => this;
@@ -137,36 +133,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static InlineCompletionList From(InlineCompletionList? source, IEnumerable<InlineCompletionItem>? result)
                 => new((source?.Items ?? Array.Empty<InlineCompletionItem>()).Concat(result ?? Array.Empty<InlineCompletionItem>()));
 
-            internal class Converter : JsonConverter<InlineCompletionList>
-            {
-                public override void WriteJson(JsonWriter writer, InlineCompletionList? value, JsonSerializer serializer)
-                {
-                    writer.WriteStartObject();
-                    writer.WritePropertyName("items");
-                    serializer.Serialize(writer, (value?.Items ?? Array.Empty<InlineCompletionItem>()).ToArray());
-                    writer.WriteEndObject();
-                }
-
-                public override InlineCompletionList? ReadJson(
-                    JsonReader reader, Type objectType, InlineCompletionList? existingValue, bool hasExistingValue, JsonSerializer serializer
-                )
-                {
-                    if (reader.TokenType == JsonToken.StartArray)
-                    {
-                        return new InlineCompletionList(JArray.Load(reader).ToObject<IEnumerable<InlineCompletionItem>>(serializer)!);
-                    }
-
-                    if (reader.TokenType == JsonToken.Null)
-                    {
-                        return null;
-                    }
-
-                    var result = JObject.Load(reader);
-                    return new InlineCompletionList(result["items"]!.ToObject<IEnumerable<InlineCompletionItem>>(serializer)!);
-                }
-
-                public override bool CanRead => true;
-            }
         }
 
         /// <summary>
@@ -181,7 +147,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public string Value { get; init; } = null!;
         }
 
-        [JsonConverter(typeof(Converter))]
         public record StringOrStringValue
         {
             public StringOrStringValue(string value) => String = value;
@@ -198,31 +163,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public static implicit operator StringOrStringValue?(StringValue? value) => value is null ? null : new StringOrStringValue(value);
 
-            internal class Converter : JsonConverter<StringOrStringValue>
-            {
-                public override void WriteJson(JsonWriter writer, StringOrStringValue value, JsonSerializer serializer)
-                {
-                    if (value.HasString)
-                    {
-                        writer.WriteValue(value.String);
-                    }
-                    else
-                    {
-                        serializer.Serialize(writer, value.StringValue);
-                    }
-                }
-
-                public override StringOrStringValue ReadJson(
-                    JsonReader reader, Type objectType, StringOrStringValue existingValue, bool hasExistingValue, JsonSerializer serializer
-                )
-                {
-                    return reader.TokenType == JsonToken.StartObject
-                        ? new StringOrStringValue(JObject.Load(reader).ToObject<StringValue>(serializer)!)
-                        : new StringOrStringValue((reader.Value as string)!);
-                }
-
-                public override bool CanRead => true;
-            }
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.InlineCompletionProvider))]

@@ -8,7 +8,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     ///
     /// @since 3.17.0
     /// </summary>
-    [Newtonsoft.Json.JsonConverter(typeof(Converter))]
     public readonly partial struct LSPAny : IEquatable<LSPAny>
     {
         public LSPAny(JsonElement value)
@@ -56,26 +55,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
                 _                   => JsonSerializer.SerializeToNode(value)
             };
 
-        internal class Converter : Newtonsoft.Json.JsonConverter<LSPAny>
-        {
-            public override void WriteJson(
-                Newtonsoft.Json.JsonWriter writer, LSPAny value, Newtonsoft.Json.JsonSerializer serializer
-            )
-            {
-                writer.WriteRawValue(value.ToString());
-            }
-
-            public override LSPAny ReadJson(
-                Newtonsoft.Json.JsonReader reader,
-                Type objectType,
-                LSPAny existingValue,
-                bool hasExistingValue,
-                Newtonsoft.Json.JsonSerializer serializer
-            )
-            {
-                return new LSPAny(serializer.Deserialize<JsonElement>(reader));
-            }
-        }
     }
 
     /// <summary>

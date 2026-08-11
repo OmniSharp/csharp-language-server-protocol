@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using OmniSharp.Extensions.JsonRpc;
-using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
@@ -19,7 +18,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ]
         public record TelemetryEventParams : IRequest<Unit>
         {
-            [JsonExtensionData] public IDictionary<string, object> ExtensionData { get; init; } = new Dictionary<string, object>();
+            [System.Text.Json.Serialization.JsonExtensionData]
+            public IDictionary<string, object> ExtensionData { get; init; } = new Dictionary<string, object>();
         }
     }
 
