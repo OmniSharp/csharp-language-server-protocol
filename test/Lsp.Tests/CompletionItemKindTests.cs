@@ -65,5 +65,28 @@ namespace Lsp.Tests
             var result = serializer.DeserializeObject<CompletionItem>(json);
             result.Kind.Should().Be(CompletionItemKind.Class);
         }
+
+        [Fact]
+        public void WithCompletionItemKinds_Should_Work_After_First_Serialization()
+        {
+            var serializer = new LspSerializer();
+
+            serializer.SerializeObject(
+                new CompletionItem {
+                    Kind = CompletionItemKind.Event
+                }
+            );
+
+            serializer.WithCompletionItemKinds(new[] { CompletionItemKind.Class });
+
+            var json = serializer.SerializeObject(
+                new CompletionItem {
+                    Kind = CompletionItemKind.Event
+                }
+            );
+
+            var result = serializer.DeserializeObject<CompletionItem>(json);
+            result.Kind.Should().Be(CompletionItemKind.Class);
+        }
     }
 }

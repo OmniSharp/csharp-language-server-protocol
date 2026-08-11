@@ -1,7 +1,9 @@
 using System;
-using System.Reflection;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using System.Threading;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc.Client;
@@ -12,6 +14,7 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization
     public class SystemTextJsonSerializer : ISerializer
     {
         private long _id;
+        private JsonSerializerOptions _options = new();
 
         public SystemTextJsonSerializer() : this(new JsonSerializerOptions())
         {
@@ -19,17 +22,46 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization
 
         public SystemTextJsonSerializer(JsonSerializerOptions options)
         {
-            Options = new JsonSerializerOptions(options)
-            {
-                MaxDepth = options.MaxDepth == 0 ? 128 : options.MaxDepth,
-                PropertyNameCaseInsensitive = true
-            };
-            Options.Converters.Add(new OutgoingRequestConverter());
-            Options.Converters.Add(new OutgoingNotificationConverter());
-            Options.Converters.Add(new OutgoingResponseConverter());
+            ReplaceOptions(CreateOptionsSnapshot(options));
         }
 
-        public JsonSerializerOptions Options { get; }
+        public JsonSerializerOptions Options => _options;
+
+        protected JsonSerializerOptions CreateOptionsSnapshot(JsonSerializerOptions source)
+        {
+            var options = new JsonSerializerOptions(source)
+            {
+                MaxDepth = source.MaxDepth == 0 ? 128 : source.MaxDepth,
+                PropertyNameCaseInsensitive = true
+            };
+            AddOrReplaceBaseConverters(options.Converters);
+            return options;
+        }
+
+        protected void ReplaceOptions(JsonSerializerOptions options)
+        {
+            _options = options;
+        }
+
+        protected virtual void AddOrReplaceBaseConverters(IList<JsonConverter> converters)
+        {
+            ReplaceConverter(converters, new OutgoingRequestConverter());
+            ReplaceConverter(converters, new OutgoingNotificationConverter());
+            ReplaceConverter(converters, new OutgoingResponseConverter());
+        }
+
+        private static void ReplaceConverter<T>(IList<JsonConverter> converters, T converter) where T : JsonConverter
+        {
+            for (var i = converters.Count - 1; i >= 0; i--)
+            {
+                if (converters[i] is T)
+                {
+                    converters.RemoveAt(i);
+                }
+            }
+
+            converters.Add(converter);
+        }
 
         public string SerializeObject(object value) => SerializeObject(value, value.GetType());
 
@@ -43,13 +75,9 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization
             return StjJsonSerializer.Serialize(value, type, Options);
         }
 
-        public object DeserializeObject(string json, Type type) =>
-            StjJsonSerializer.Deserialize(json, type, Options)
-         ?? throw new JsonException($"Unable to deserialize {type.FullName}.");
+        public object DeserializeObject(string json, Type type) => StjJsonSerializer.Deserialize(json, type, Options)!;
 
-        public T DeserializeObject<T>(string json) =>
-            StjJsonSerializer.Deserialize<T>(json, Options)
-         ?? throw new JsonException($"Unable to deserialize {typeof(T).FullName}.");
+        public T DeserializeObject<T>(string json) => StjJsonSerializer.Deserialize<T>(json, Options)!;
 
         public object DeserializeObject(object value, Type type) => DeserializeObject(GetJson(value), type);
 
@@ -57,12 +85,27 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization
 
         public void PopulateObject(string json, object target)
         {
+            using var document = JsonDocument.Parse(json);
             var source = DeserializeObject(json, target.GetType());
-            foreach (var property in target.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
+            var typeInfo = Options.GetTypeInfo(target.GetType());
+            if (typeInfo.Kind != JsonTypeInfoKind.Object)
             {
-                if (property.CanRead && property.CanWrite)
+                throw new JsonException($"Unable to populate {target.GetType().FullName}.");
+            }
+
+            var jsonProperties = document.RootElement.EnumerateObject().ToArray();
+            foreach (var property in typeInfo.Properties)
+            {
+                if (property.Get is null || property.Set is null) continue;
+
+                var isPresent = property.IsExtensionData
+                    ? jsonProperties.Any(jsonProperty => typeInfo.Properties.All(candidate =>
+                        candidate.IsExtensionData || !string.Equals(candidate.Name, jsonProperty.Name, StringComparison.OrdinalIgnoreCase)
+                    ))
+                    : jsonProperties.Any(jsonProperty => string.Equals(property.Name, jsonProperty.Name, StringComparison.OrdinalIgnoreCase));
+                if (isPresent)
                 {
-                    property.SetValue(target, property.GetValue(source));
+                    property.Set(target, property.Get(source));
                 }
             }
         }

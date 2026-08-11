@@ -5,6 +5,7 @@ using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using TestingUtils;
 using Xunit;
@@ -18,6 +19,43 @@ namespace Lsp.Tests.Capabilities.Client
         public ClientCapabilitiesTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
         }
+
+        [Fact]
+        public void ExtensionDataRoundTrips()
+        {
+            AssertExtensionDataRoundTrips(new LspSerializer());
+        }
+
+        [Fact]
+        public void ExtensionDataRoundTripsWithProposals()
+        {
+            var serializer = new ProposedLspSerializer();
+            var model = CreateClientCapabilitiesWithExtensionData();
+            var initialize = new InitializeParams { Capabilities = model };
+
+            var internalInitialize = serializer.DeserializeObject<InternalInitializeParams>(serializer.SerializeObject(initialize));
+            var result = serializer.DeserializeObject<ClientCapabilities>(internalInitialize.Capabilities);
+
+            result.Workspace!.ExtensionData.Should().ContainKey("unitTests");
+        }
+
+        private static void AssertExtensionDataRoundTrips(LspSerializer serializer)
+        {
+            var model = CreateClientCapabilitiesWithExtensionData();
+
+            var result = serializer.DeserializeObject<ClientCapabilities>(serializer.SerializeObject(model));
+
+            result.Workspace!.ExtensionData.Should().ContainKey("unitTests");
+        }
+
+        private static ClientCapabilities CreateClientCapabilitiesWithExtensionData() =>
+            new ClientCapabilities {
+                Workspace = new WorkspaceClientCapabilities {
+                    ExtensionData = new Dictionary<string, JsonElement> {
+                        ["unitTests"] = JsonSerializer.SerializeToElement(new { property = "Abcd" })
+                    }
+                }
+            };
 
         [Theory]
         [JsonFixture]
@@ -96,7 +134,7 @@ namespace Lsp.Tests.Capabilities.Client
         [JsonFixture]
         public void Github_Issue_75(string expected)
         {
-            Action a = () => JObject.Parse(expected).ToObject(typeof(ClientCapabilities), new LspSerializer(ClientVersion.Lsp3).JsonSerializer);
+            Action a = () => new LspSerializer(ClientVersion.Lsp3).DeserializeObject<ClientCapabilities>(expected);
             a.Should().NotThrow();
         }
     }
