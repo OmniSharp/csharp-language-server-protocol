@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Testing;
@@ -152,7 +151,7 @@ namespace Lsp.Integration.Tests
                                     {
                                         Command = new Command
                                         {
-                                            Arguments = JArray.FromObject(new object[] { 1, "2", false })
+                                            Arguments = Command.CreateArguments(1, "2", false)
                                         }
                                     }
                                 )

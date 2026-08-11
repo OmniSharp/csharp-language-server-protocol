@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -47,7 +48,7 @@ namespace Lsp.Integration.Tests
                 options => { }, options =>
                 {
                     options.AddHandler<CustomExecuteCommandHandler>();
-                    options.OnExecuteCommand<JObject>("myothercommand", (a, ct) => Unit.Task);
+                    options.OnExecuteCommand<JsonElement>("myothercommand", (a, ct) => Unit.Task);
                 }
             );
 
@@ -55,7 +56,7 @@ namespace Lsp.Integration.Tests
                 new ExecuteCommandParams
                 {
                     Command = "myothercommand",
-                    Arguments = new JArray(new JObject())
+                    Arguments = Command.CreateArguments(new { })
                 }, CancellationToken
             );
 
@@ -108,6 +109,6 @@ namespace Lsp.Integration.Tests
         /// Arguments that the command should be invoked with.
         /// </summary>
         [Optional]
-        public JArray? Arguments { get; init; }
+        public Container<JsonElement>? Arguments { get; init; }
     }
 }

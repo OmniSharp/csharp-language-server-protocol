@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System.Text.Json;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
@@ -12,6 +12,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// Arguments that the command should be invoked with.
         /// </summary>
-        JArray? Arguments { get; }
+        Container<JsonElement>? Arguments { get; }
     }
 }
