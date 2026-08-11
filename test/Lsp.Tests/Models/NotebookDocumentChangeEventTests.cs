@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Text.Json;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -104,7 +105,7 @@ namespace Lsp.Tests.Models
         {
             var model = new NotebookDocumentChangeEvent
             {
-                Metadata = JObject.Parse("""{ "custom": true }""")
+                Metadata = JsonSerializer.SerializeToElement(new { custom = true })
             };
 
             var result = JObject.Parse(Fixture.SerializeObject(model));

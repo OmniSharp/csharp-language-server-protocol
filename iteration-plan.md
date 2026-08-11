@@ -22,7 +22,7 @@ The migration is split into independently testable and committable iterations. E
   - Preserve typed command argument serialization and handler deserialization.
   - Update command, code action, code lens, and completion integration coverage.
 
-- [ ] **3. Migrate notebook metadata**
+- [x] **3. Migrate notebook metadata**
   - Replace the remaining `JObject` notebook metadata properties.
   - Verify arbitrary metadata objects and null or omitted metadata retain their wire shapes.
 

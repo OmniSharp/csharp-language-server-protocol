@@ -19,6 +19,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using JsonElement = System.Text.Json.JsonElement;
 
 // ReSharper disable once CheckNamespace
 namespace OmniSharp.Extensions.LanguageServer.Protocol
@@ -134,7 +135,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// The changed meta data if any.
             /// </summary>
             [Optional]
-            public JObject? Metadata { get; init; }
+            public JsonElement? Metadata { get; init; }
 
             /// <summary>
             /// Changes to cells
@@ -282,7 +283,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// document.
             /// </summary>
             [Optional]
-            public JObject? Metadata { get; set; }
+            public JsonElement? Metadata { get; set; }
 
             /// <summary>
             /// The cells of a notebook.
@@ -317,7 +318,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// Additional metadata stored with the cell.
             /// </summary>
             [Optional]
-            public JObject? Metadata { get; set; }
+            public JsonElement? Metadata { get; set; }
 
             /// <summary>
             /// Additional execution summary information
