@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Linq;
+using System.Text.Json;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -33,7 +33,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// invoked with.
         /// </summary>
         [Optional]
-        public JArray? Arguments { get; init; }
+        public Container<JsonElement>? Arguments { get; init; }
 
         private string DebuggerDisplay =>
             $"{Title}{( string.IsNullOrWhiteSpace(Name) ? "" : $" {Name}" )}{( Arguments == null ? "" : string.Join(", ", Arguments.Select(z => z.ToString().Trim('"'))) )}";
@@ -45,12 +45,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public Command WithArguments(params object[] args)
         {
-            return this with { Arguments = JArray.FromObject(args) };
+            return this with { Arguments = CreateArguments(args) };
         }
 
         public static Command Create(string name, params object[] args)
         {
-            return new() { Name = name, Arguments = JArray.FromObject(args) };
+            return new() { Name = name, Arguments = CreateArguments(args) };
         }
+
+        public static Container<JsonElement> CreateArguments(params object[] args) =>
+            new(args.Select(arg => System.Text.Json.JsonSerializer.SerializeToElement(arg)));
     }
 }

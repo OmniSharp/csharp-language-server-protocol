@@ -17,7 +17,7 @@ The migration is split into independently testable and committable iterations. E
   - Migrate the server configuration pipeline and testing provider to System.Text.Json DOM APIs.
   - Cover JSON nulls, scalar settings, nested objects, arrays, and scoped configuration.
 
-- [ ] **2. Migrate LSP command arguments**
+- [x] **2. Migrate LSP command arguments**
   - Replace `JArray` on `Command`, `ExecuteCommandParams`, and `IExecuteCommandParams`.
   - Preserve typed command argument serialization and handler deserialization.
   - Update command, code action, code lens, and completion integration coverage.
