@@ -1,106 +1,49 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Xml.Linq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 {
     class ConfigurationConverter
     {
-        public void ParseClientConfiguration(IDictionary<string, string> data, JToken? settings, string? prefix = null)
+        public void ParseClientConfiguration(IDictionary<string, string?> data, JsonElement? settings, string? prefix = null)
         {
-            if (settings == null || settings.Type == JTokenType.Null || settings.Type == JTokenType.None) return;
+            if (settings is null || settings.Value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined) return;
             // The null request (appears) to always come second
             // this handler is set to use the SerialAttribute
 
             // TODO: Figure out the best way to plugin to handle additional configurations (toml, yaml?)
-            try
-            {
-                foreach (var item in
-                    JObject.FromObject(settings)
-                           .Descendants()
-                           .Where(p => !p.Any())
-                           .OfType<JValue>()
-                           .Select(
-                                item =>
-                                    new KeyValuePair<string, string>(
-                                        GetKey(item, prefix),
-                                        item.ToString(CultureInfo.InvariantCulture)
-                                    )
-                            ))
-                {
-                    data[item.Key] = item.Value;
-                }
-            }
-            catch (JsonReaderException)
-            {
-                // Might not have been json... try xml.
-                foreach (var item in
-                    XDocument.Parse(settings.ToString())
-                             .Descendants()
-                             .Where(p => !p.Descendants().Any())
-                             .Select(
-                                  item =>
-                                      new KeyValuePair<string, string>(GetKey(item, prefix), item.ToString())
-                              ))
-                {
-                    data[item.Key] = item.Value;
-                }
-            }
+            ParseElement(data, settings.Value, prefix ?? string.Empty);
         }
 
-        private static string GetKey(JToken token, string? prefix)
+        private static void ParseElement(IDictionary<string, string?> data, JsonElement element, string key)
         {
-            var items = new Stack<string>();
-
-            while (token.Parent != null)
+            if (element.ValueKind == JsonValueKind.Object)
             {
-                if (token.Parent is JArray arr)
+                foreach (var property in element.EnumerateObject())
                 {
-                    items.Push(arr.IndexOf(token).ToString());
+                    ParseElement(data, property.Value, CombineKey(key, property.Name));
                 }
 
-                if (token is JProperty p)
+                return;
+            }
+
+            if (element.ValueKind == JsonValueKind.Array)
+            {
+                var index = 0;
+                foreach (var item in element.EnumerateArray())
                 {
-                    items.Push(p.Name);
+                    ParseElement(data, item, CombineKey(key, index.ToString(CultureInfo.InvariantCulture)));
+                    index++;
                 }
 
-                token = token.Parent;
+                return;
             }
 
-            if (!string.IsNullOrWhiteSpace(prefix))
-            {
-                items.Push(prefix!);
-            }
-
-            return string.Join(":", items);
+            data[key] = element.ValueKind == JsonValueKind.String ? element.GetString() ?? string.Empty : element.ToString();
         }
 
-        private static string GetKey(XElement token, string? prefix)
-        {
-            var items = new Stack<string>();
-
-            while (token.Parent != null)
-            {
-                if (token.Parent.Elements().Count() > 1)
-                {
-                    items.Push(Array.IndexOf(token.Parent.Elements().ToArray(), token).ToString());
-                }
-
-                items.Push(token.Name.ToString());
-
-                token = token.Parent;
-            }
-
-            if (!string.IsNullOrWhiteSpace(prefix))
-            {
-                items.Push(prefix!);
-            }
-
-            return string.Join(":", items);
-        }
+        private static string CombineKey(string prefix, string key) => string.IsNullOrWhiteSpace(prefix) ? key : $"{prefix}:{key}";
     }
 }

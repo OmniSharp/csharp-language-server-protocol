@@ -1,6 +1,6 @@
 using System.Collections.Generic;
+using System.Text.Json;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -16,7 +16,7 @@ namespace Lsp.Tests.Models
         public void SimpleTest(string expected)
         {
             var model = new DidChangeConfigurationParams {
-                Settings = JObject.FromObject(
+                Settings = JsonSerializer.SerializeToElement(
                     new Dictionary<string, object> {
                         { "abc", 1 },
                         { "def", "a" },
@@ -29,7 +29,7 @@ namespace Lsp.Tests.Models
             result.Should().Be(expected);
 
             var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<DidChangeConfigurationParams>(expected);
-            deresult.Should().BeEquivalentTo(model, x => x.UsingStructuralRecordEquality());
+            deresult.Settings!.Value.GetRawText().Should().Be(model.Settings!.Value.GetRawText());
         }
     }
 }

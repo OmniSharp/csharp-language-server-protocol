@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
@@ -16,7 +16,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
         public ScopedConfiguration(
             IConfiguration rootConfiguration,
             ConfigurationConverter configurationConverter,
-            IEnumerable<(string key, JToken settings)> configuration,
+            IEnumerable<(string key, JsonElement settings)> configuration,
             IDisposable disposable
         )
         {
@@ -34,7 +34,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 
         public IChangeToken GetReloadToken() => _configuration.GetReloadToken();
 
-        internal void Update(IEnumerable<(string key, JToken settings)> data)
+        internal void Update(IEnumerable<(string key, JsonElement settings)> data)
         {
             _configurationSource.Update(data);
         }

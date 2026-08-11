@@ -7,11 +7,11 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -68,7 +68,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             if (_capability == null) return Unit.Task;
             // null means we need to re-read the configuration
             // https://github.com/Microsoft/vscode-languageserver-node/issues/380
-            if (request.Settings == null || request.Settings.Type == JTokenType.Null)
+            if (request.Settings is null || request.Settings.Value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
             {
                 _triggerChange.OnNext(System.Reactive.Unit.Default);
                 return Unit.Task;
@@ -106,7 +106,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             return Concat(
                 Create<System.Reactive.Unit>(
                     observer => {
-                        var newData = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase); // configuration is case-insensitive
+                        var newData = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase); // configuration is case-insensitive
                         return GetConfigurationFromClient(_configurationItems)
                               .Select(
                                    x => {
@@ -263,7 +263,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             _compositeDisposable.Dispose();
         }
 
-        private IObservable<(ConfigurationItem scope, JToken settings)> GetConfigurationFromClient(
+        private IObservable<(ConfigurationItem scope, JsonElement settings)> GetConfigurationFromClient(
             IEnumerable<ConfigurationItem> configurationItems
         )
         {
@@ -275,10 +275,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                     )
                 ).SelectMany(a => a.ToArray())
                  .Zip(configurationItems, (settings, scope) => ( scope, settings ))
-                 .Catch<(ConfigurationItem scope, JToken settings), Exception>(
+                 .Catch<(ConfigurationItem scope, JsonElement settings), Exception>(
                       e => {
                           _logger.LogError(e, "Unable to get configuration from client!");
-                          return Empty<(ConfigurationItem scope, JToken settings)>();
+                          return Empty<(ConfigurationItem scope, JsonElement settings)>();
                       }
                   );
         }
