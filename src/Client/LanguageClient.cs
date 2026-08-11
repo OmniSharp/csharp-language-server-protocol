@@ -9,11 +9,11 @@ using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -275,7 +275,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 InitializationOptions = _initializationOptions!
             };
 
-            var capabilitiesObject = new JObject();
+            var capabilitiesObject = new JsonObject();
             foreach (var capability in _capabilities)
             {
                 var keys = capability.GetType().GetCustomAttribute<CapabilityKeyAttribute>()?.Keys.Select(key => char.ToLower(key[0]) + key.Substring(1))
@@ -285,22 +285,24 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                     var value = capabilitiesObject;
                     foreach (var key in keys.Take(keys.Length - 1))
                     {
-                        if (value.TryGetValue(key, out var t) && t is JObject to)
+                        if (value[key] is JsonObject child)
                         {
-                            value = to;
+                            value = child;
                         }
                         else
                         {
-                            value[key] = value = new JObject();
+                            child = new JsonObject();
+                            value[key] = child;
+                            value = child;
                         }
                     }
 
                     var lastKey = keys[keys.Length - 1];
-                    value[lastKey] = JToken.Parse(_serializer.SerializeObject(capability));
+                    value[lastKey] = JsonNode.Parse(_serializer.SerializeObject(capability));
                 }
             }
 
-            _serializer.PopulateObject(capabilitiesObject.ToString(), _clientCapabilities);
+            _serializer.PopulateObject(capabilitiesObject.ToJsonString(), _clientCapabilities);
 
             _collection.Initialize();
             RegisterCapabilities(_clientCapabilities);

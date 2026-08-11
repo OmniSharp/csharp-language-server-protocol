@@ -26,7 +26,7 @@ The migration is split into independently testable and committable iterations. E
   - Replace the remaining `JObject` notebook metadata properties.
   - Verify arbitrary metadata objects and null or omitted metadata retain their wire shapes.
 
-- [ ] **4. Migrate initialization and capability composition**
+- [x] **4. Migrate initialization and capability composition**
   - Replace raw initialize capabilities and mutable capability assembly with System.Text.Json DOM types.
   - Migrate client registration options and server capability merging without string-based JSON manipulation.
   - Preserve static, dynamic, experimental, and proposed capability behavior.

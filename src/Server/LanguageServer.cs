@@ -7,13 +7,13 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
 using OmniSharp.Extensions.JsonRpc;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -417,7 +417,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             {
                 foreach (var capabilityType in group)
                 {
-                    if (request.Capabilities.SelectToken(group.Key) is JObject capabilityData)
+                    if (TryGetProperty(request.Capabilities, group.Key, out var capabilityData) && capabilityData.ValueKind == JsonValueKind.Object)
                     {
                         var capability = _serializer.DeserializeObject(capabilityData, capabilityType) as ICapability;
                         _supportedCapabilities.Add(capability!);
@@ -473,6 +473,21 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _collection.Initialize();
         }
 
+        private static bool TryGetProperty(JsonElement element, string path, out JsonElement value)
+        {
+            value = element;
+            foreach (var segment in path.Split('.'))
+            {
+                if (value.ValueKind != JsonValueKind.Object || !value.TryGetProperty(segment, out value))
+                {
+                    value = default;
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private InitializeResult ReadServerCapabilities(
             ClientCapabilities clientCapabilities,
             WindowClientCapabilities windowCapabilities,
@@ -484,20 +499,22 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             // little hack to ensure that we get the proposed capabilities if proposals are turned on
             var serverCapabilities = _serializer.DeserializeObject<ServerCapabilities>("{}");
 
-            var serverCapabilitiesObject = new JObject();
+            var serverCapabilitiesObject = new JsonObject();
             foreach (var converter in _registrationOptionsConverters)
             {
                 var keys = ( converter.Key ?? Array.Empty<string>() ).Select(key => char.ToLowerInvariant(key[0]) + key.Substring(1)).ToArray();
                 var value = serverCapabilitiesObject;
                 foreach (var key in keys.Take(keys.Length - 1))
                 {
-                    if (value.TryGetValue(key, out var t) && t is JObject to)
+                    if (value[key] is JsonObject child)
                     {
-                        value = to;
+                        value = child;
                     }
                     else
                     {
-                        value[key] = value = new JObject();
+                        child = new JsonObject();
+                        value[key] = child;
+                        value = child;
                     }
                 }
 
@@ -511,11 +528,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 var registrationOptions = descriptor.RegistrationOptions;
 
                 value[lastKey] = registrationOptions == null
-                    ? JValue.CreateNull()
-                    : JToken.Parse(_serializer.SerializeObject(converter.Convert(registrationOptions)));
+                    ? null
+                    : JsonNode.Parse(_serializer.SerializeObject(converter.Convert(registrationOptions)));
             }
 
-            _serializer.PopulateObject(serverCapabilitiesObject.ToString(Formatting.None), serverCapabilities);
+            _serializer.PopulateObject(serverCapabilitiesObject.ToJsonString(), serverCapabilities);
 
             var ccp = new ClientCapabilityProvider(_collection, windowCapabilities.WorkDoneProgress.IsSupported);
 
