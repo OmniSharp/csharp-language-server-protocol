@@ -12,7 +12,7 @@ The migration is split into independently testable and committable iterations. E
 
 ## Iterations
 
-- [ ] **1. Migrate LSP configuration payloads**
+- [x] **1. Migrate LSP configuration payloads**
   - Change configuration responses and change notifications from `JToken` to `JsonElement`.
   - Migrate the server configuration pipeline and testing provider to System.Text.Json DOM APIs.
   - Cover JSON nulls, scalar settings, nested objects, arrays, and scoped configuration.

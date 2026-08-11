@@ -1,5 +1,4 @@
-using OmniSharp.Extensions.JsonRpc;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -13,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Parallel]
         [Method(WorkspaceNames.Configuration, Direction.ServerToClient)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace"), GenerateHandlerMethods, GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
-        public partial record ConfigurationParams : IRequest<Container<JToken>>
+        public partial record ConfigurationParams : IRequest<Container<JsonElement>>
         {
             public Container<ConfigurationItem> Items { get; init; }
         }

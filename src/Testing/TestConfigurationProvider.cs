@@ -2,11 +2,12 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Client.Configuration;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -76,31 +77,31 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
 
         private void TriggerChange() => _workspaceLanguageClient.DidChangeConfiguration(new DidChangeConfigurationParams());
 
-        Task<Container<JToken>> IRequestHandler<ConfigurationParams, Container<JToken>>.Handle(ConfigurationParams request, CancellationToken cancellationToken)
+        Task<Container<JsonElement>> IRequestHandler<ConfigurationParams, Container<JsonElement>>.Handle(ConfigurationParams request, CancellationToken cancellationToken)
         {
-            var results = new List<JToken>();
+            var results = new List<JsonElement>();
             foreach (var item in request.Items)
             {
                 var config = Get(item);
                 results.Add(Parse(config.AsEnumerable(true).Where(x => x.Value != null)));
             }
 
-            return Task.FromResult<Container<JToken>>(results);
+            return Task.FromResult<Container<JsonElement>>(results);
         }
 
-        private JObject Parse(IEnumerable<KeyValuePair<string, string>> values)
+        private JsonElement Parse(IEnumerable<KeyValuePair<string, string?>> values)
         {
             if (values == null)
             {
                 throw new ArgumentNullException(nameof(values));
             }
 
-            var result = new JObject();
+            var result = new JsonObject();
             foreach (var item in values)
             {
                 var keys = item.Key.Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
                 var prop = keys.Last();
-                JToken root = result;
+                JsonNode root = result;
 
                 // This produces a simple look ahead
                 var zippedKeys = keys
@@ -110,34 +111,34 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
                 {
                     if (int.TryParse(next, out _))
                     {
-                        root = SetValueToToken(root, key, new JArray());
+                        root = SetValueToNode(root, key, new JsonArray());
                     }
                     else
                     {
-                        root = SetValueToToken(root, key, new JObject());
+                        root = SetValueToNode(root, key, new JsonObject());
                     }
                 }
 
-                SetValueToToken(root, prop, new JValue(item.Value));
+                SetValueToNode(root, prop, JsonValue.Create(item.Value!)!);
             }
 
-            return result;
+            return JsonSerializer.SerializeToElement(result);
         }
 
-        private T SetValueToToken<T>(JToken root, string key, T value)
-            where T : JToken
+        private T SetValueToNode<T>(JsonNode root, string key, T value)
+            where T : JsonNode
         {
-            var currentValue = GetValueFromToken(root, key);
-            if (currentValue == null || currentValue.Type == JTokenType.Null)
+            var currentValue = GetValueFromNode(root, key);
+            if (currentValue == null)
             {
-                if (root is JArray arr)
+                if (root is JsonArray arr)
                 {
                     if (int.TryParse(key, out var index))
                     {
                         if (arr.Count <= index)
                         {
                             while (arr.Count < index)
-                                arr.Add(null!);
+                                arr.Add(null);
                             arr.Add(value);
                         }
                         else
@@ -155,17 +156,17 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
                 }
             }
 
-            if (root is JArray arr2 && int.TryParse(key, out var i))
+            if (root is JsonArray arr2 && int.TryParse(key, out var i))
             {
-                return (T) arr2[i];
+                return (T) arr2[i]!;
             }
 
             return ( root[key] as T )!;
         }
 
-        private static JToken? GetValueFromToken(JToken root, string key)
+        private static JsonNode? GetValueFromNode(JsonNode root, string key)
         {
-            if (root is JArray arr)
+            if (root is JsonArray arr)
             {
                 if (int.TryParse(key, out var index))
                 {

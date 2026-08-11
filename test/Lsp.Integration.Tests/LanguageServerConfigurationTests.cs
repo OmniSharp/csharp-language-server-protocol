@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
 using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 using OmniSharp.Extensions.JsonRpc.Testing;
@@ -54,7 +54,11 @@ namespace Lsp.Integration.Tests
                 options =>
                 {
                     options.WithCapability(new DidChangeConfigurationCapability());
-                    options.OnConfiguration(@params => Task.FromResult(new Container<JToken>(@params.Items.Select(z => (JToken?)null))));
+                    options.OnConfiguration(
+                        @params => Task.FromResult(
+                            new Container<JsonElement>(@params.Items.Select(_ => JsonSerializer.SerializeToElement<object?>(null)))
+                        )
+                    );
                     ConfigureClient(options);
                 }, ConfigureServer
             );
@@ -76,6 +80,35 @@ namespace Lsp.Integration.Tests
 
             server.Configuration["mysection:key"].Should().Be("value");
             server.Configuration["othersection:value"].Should().Be("key");
+        }
+
+        [Fact]
+        public async Task Should_Flatten_Nested_Configuration_Values()
+        {
+            var (client, server) = await Initialize(
+                options => options.WithCapability(new DidChangeConfigurationCapability()),
+                ConfigureServer
+            );
+
+            client.Workspace.DidChangeConfiguration(
+                new DidChangeConfigurationParams {
+                    Settings = JsonSerializer.SerializeToElement(
+                        new {
+                            section = new {
+                                enabled = true,
+                                retries = 3,
+                                values = new[] { "first", "second" }
+                            }
+                        }
+                    )
+                }
+            );
+            await server.Configuration.WaitForChange(CancellationToken);
+
+            server.Configuration["section:enabled"].Should().Be("True");
+            server.Configuration["section:retries"].Should().Be("3");
+            server.Configuration["section:values:0"].Should().Be("first");
+            server.Configuration["section:values:1"].Should().Be("second");
         }
 
         [Fact]
