@@ -123,8 +123,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             ReplaceConverter(converters, new StjChangeAnnotationIdentifierConverter());
             ReplaceConverter(converters, new StjAggregateCompletionListConverter());
             ReplaceConverter(converters, new StjLspAnyConverter());
-            ReplaceConverter(converters, new StjJObjectConverter());
-            ReplaceConverter(converters, new StjJTokenConverter());
             ReplaceConverter(converters, new StjObjectPrimitiveOrElementConverter());
             ReplaceConverter(converters, new StjOptionalBooleanConverter());
             ReplaceConverter(converters, new StjTextEditConverter());
@@ -138,7 +136,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             ReplaceConverter(converters, new StjWorkspaceFolderOrUriConverter());
             ReplaceConverter(converters, new StjGlobPatternConverter());
             ReplaceConverter(converters, new StjLocationOrFileLocationConverter());
-            ReplaceConverter(converters, new NewtonsoftStringEnumConverterFactory());
+            ReplaceConverter(converters, new EnumMemberStringEnumConverterFactory());
         }
 
         protected internal static void RemoveConverter<T>(IList<JsonConverter> converters)
@@ -318,40 +316,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 }
             }
 
-            var ignoredProperties = new List<JsonPropertyInfo>();
             foreach (var property in typeInfo.Properties)
             {
                 var member = property.AttributeProvider as MemberInfo;
-                if (member?.GetCustomAttribute<Newtonsoft.Json.JsonIgnoreAttribute>(true) is not null)
-                {
-                    ignoredProperties.Add(property);
-                    continue;
-                }
-
-                if (member?.GetCustomAttribute<Newtonsoft.Json.JsonExtensionDataAttribute>(true) is not null)
-                {
-                    property.IsExtensionData = true;
-                }
-
-                var jsonProperty = member?.GetCustomAttribute<Newtonsoft.Json.JsonPropertyAttribute>(true);
-                if (jsonProperty is not null)
-                {
-                    if (!string.IsNullOrWhiteSpace(jsonProperty.PropertyName))
-                    {
-                        property.Name = jsonProperty.PropertyName;
-                    }
-
-                    if (jsonProperty.NullValueHandling == Newtonsoft.Json.NullValueHandling.Ignore)
-                    {
-                        AppendShouldSerialize(property, (_, value) => value is not null);
-                    }
-
-                    if (( jsonProperty.DefaultValueHandling & Newtonsoft.Json.DefaultValueHandling.Ignore ) == Newtonsoft.Json.DefaultValueHandling.Ignore)
-                    {
-                        AppendShouldSerialize(property, (_, value) => !IsDefaultValue(value, property.PropertyType));
-                    }
-                }
-
                 var hasOptional = member?.GetCustomAttributes(typeof(OptionalAttribute), true).Any() == true;
 
                 if (hasOptional || typeInfo.Type.Name.EndsWith("Capabilities", StringComparison.Ordinal))
@@ -365,11 +332,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 }
 
                 ConfigureCapabilityPropertyFiltering(typeInfo.Type, property);
-            }
-
-            foreach (var ignored in ignoredProperties)
-            {
-                typeInfo.Properties.Remove(ignored);
             }
         }
 

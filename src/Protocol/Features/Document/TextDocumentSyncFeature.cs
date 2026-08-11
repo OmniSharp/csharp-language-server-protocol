@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
 using Minimatch;
-using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -194,7 +193,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// does the document filter contains a language
             /// </summary>
-            [JsonIgnore]
+            [System.Text.Json.Serialization.JsonIgnore]
             public bool HasLanguage => Language != null;
 
             /// <summary>
@@ -206,7 +205,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// does the document filter contains a scheme
             /// </summary>
-            [JsonIgnore]
+            [System.Text.Json.Serialization.JsonIgnore]
             public bool HasScheme => Scheme != null;
 
             /// <summary>
@@ -238,7 +237,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// does the document filter contains a paattern
             /// </summary>
-            [JsonIgnore]
+            [System.Text.Json.Serialization.JsonIgnore]
             public bool HasPattern => Pattern != null;
 
             private GlobPattern? _pattern;

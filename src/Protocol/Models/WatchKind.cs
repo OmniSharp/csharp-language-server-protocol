@@ -1,11 +1,9 @@
 using System;
-using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [Flags]
-    [JsonConverter(typeof(NumberEnumConverter))]
     public enum WatchKind
     {
         /// <summary>

@@ -44,7 +44,7 @@ The migration is split into independently testable and committable iterations. E
   - Replace contract-resolver behavior for optional values, extension data, capability filtering, and tuples.
   - Verify existing fixtures remain wire-compatible.
 
-- [ ] **7. Remove LSP transitional bridges**
+- [x] **7. Remove LSP transitional bridges**
   - Remove the Newtonsoft `JsonElement` converter and extension-data resolver bridge once unused.
   - Remove obsolete Newtonsoft serializer compatibility paths from LSP and JsonRpc.
   - Confirm no LSP project source references Newtonsoft.Json.

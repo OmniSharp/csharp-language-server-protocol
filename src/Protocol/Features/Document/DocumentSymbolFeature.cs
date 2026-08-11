@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -33,7 +32,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         
         public partial class SymbolInformationOrDocumentSymbolContainer {}
 
-        [JsonConverter(typeof(SymbolInformationOrDocumentSymbolConverter))]
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
         [GenerateContainer]
         public record SymbolInformationOrDocumentSymbol

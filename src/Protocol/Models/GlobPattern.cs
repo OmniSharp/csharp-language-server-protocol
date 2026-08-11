@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -9,7 +8,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     ///
     /// @since 3.17.0
     /// </summary>
-    [JsonConverter(typeof(GlobPatternConverter))]
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public record GlobPattern
     {

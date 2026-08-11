@@ -1,7 +1,5 @@
 using System.Diagnostics;
 using OmniSharp.Extensions.JsonRpc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -72,7 +70,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Capability(typeof(InlineValueWorkspaceClientCapabilities))]
         public partial record InlineValueRefreshParams : IRequest<Unit>;
 
-        [JsonConverter(typeof(Converter))]
         public abstract partial record InlineValueBase
         {
             /// <summary>
@@ -80,46 +77,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             public Range Range { get; init; }
 
-            internal class Converter : JsonConverter<InlineValueBase>
-            {
-                public override bool CanWrite => false;
-
-                public override void WriteJson(JsonWriter writer, InlineValueBase value, JsonSerializer serializer)
-                {
-                    throw new NotImplementedException();
-                }
-
-                public override InlineValueBase ReadJson(
-                    JsonReader reader, Type objectType, InlineValueBase existingValue, bool hasExistingValue, JsonSerializer serializer
-                )
-                {
-                    var result = JObject.Load(reader);
-                    if (result.ContainsKey("text"))
-                    {
-                        return new InlineValueText()
-                        {
-                            Range = result["range"]!.ToObject<Range?>(serializer)!,
-                            Text = result["text"]!.Value<string>()!
-                        };
-                    }
-
-                    if (result.ContainsKey("variableName") || result.ContainsKey("caseSensitiveLookup"))
-                    {
-                        return new InlineValueVariableLookup()
-                        {
-                            Range = result["range"].ToObject<Range>(serializer)!,
-                            VariableName = result["variableName"]!.Value<string>()!,
-                            CaseSensitiveLookup = result["caseSensitiveLookup"]?.Value<bool?>() ?? false,
-                        };
-                    }
-
-                    return new InlineValueEvaluatableExpression()
-                    {
-                        Range = result["range"].ToObject<Range>(serializer)!,
-                        Expression = result["expression"]?.Value<string>()
-                    };
-                }
-            }
         }
 
         /// <summary>

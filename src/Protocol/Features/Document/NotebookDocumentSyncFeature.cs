@@ -6,8 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
 using Minimatch;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -372,7 +370,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public override string ToString() => DebuggerDisplay;
         }
 
-        [JsonConverter(typeof(Converter))]
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
         public record StringOrNotebookDocumentFilter
         {
@@ -396,39 +393,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <inheritdoc />
             public override string ToString() => DebuggerDisplay;
 
-            internal class Converter : JsonConverter<StringOrNotebookDocumentFilter>
-            {
-                public override void WriteJson(JsonWriter writer, StringOrNotebookDocumentFilter value, JsonSerializer serializer)
-                {
-                    if (value.HasString)
-                    {
-                        writer.WriteValue(value.String);
-                    }
-                    else
-                    {
-                        serializer.Serialize(writer, value.NotebookDocumentFilter);
-                    }
-                }
-
-                public override StringOrNotebookDocumentFilter ReadJson(
-                    JsonReader reader, Type objectType, StringOrNotebookDocumentFilter existingValue, bool hasExistingValue, JsonSerializer serializer
-                )
-                {
-                    if (reader.TokenType == JsonToken.StartObject)
-                    {
-                        return new StringOrNotebookDocumentFilter(JObject.Load(reader).ToObject<NotebookDocumentFilter>(serializer));
-                    }
-
-                    if (reader.TokenType == JsonToken.String)
-                    {
-                        return new StringOrNotebookDocumentFilter(( reader.Value as string )!);
-                    }
-
-                    return new StringOrNotebookDocumentFilter("");
-                }
-
-                public override bool CanRead => true;
-            }
         }
 
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
@@ -449,7 +413,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// does the document filter contains a language
             /// </summary>
-            [JsonIgnore]
+            [System.Text.Json.Serialization.JsonIgnore]
             public bool HasNotebookType => NotebookType != null;
 
             /// <summary>
@@ -461,7 +425,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// does the document filter contains a scheme
             /// </summary>
-            [JsonIgnore]
+            [System.Text.Json.Serialization.JsonIgnore]
             public bool HasScheme => Scheme != null;
 
             /// <summary>
@@ -481,7 +445,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// does the document filter contains a paattern
             /// </summary>
-            [JsonIgnore]
+            [System.Text.Json.Serialization.JsonIgnore]
             public bool HasPattern => Pattern != null;
 
             private GlobPattern? _pattern;
@@ -731,7 +695,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.17.0
         /// </summary>
-        [JsonConverter(typeof(NumberEnumConverter))]
         public enum NotebookCellKind
         {
             /// <summary>

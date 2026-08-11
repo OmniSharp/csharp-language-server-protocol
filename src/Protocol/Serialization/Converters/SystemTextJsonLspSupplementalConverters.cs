@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -1365,38 +1364,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
         }
     }
 
-    internal sealed class StjJTokenConverter : JsonConverter<JToken>
-    {
-        public override JToken? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            if (reader.TokenType == JsonTokenType.Null) return null;
-            using var document = JsonDocument.ParseValue(ref reader);
-            return JToken.Parse(document.RootElement.GetRawText());
-        }
-
-        public override void Write(Utf8JsonWriter writer, JToken value, JsonSerializerOptions options)
-        {
-            using var document = JsonDocument.Parse(value.ToString(Newtonsoft.Json.Formatting.None));
-            document.RootElement.WriteTo(writer);
-        }
-    }
-
-    internal sealed class StjJObjectConverter : JsonConverter<JObject>
-    {
-        public override JObject? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            if (reader.TokenType == JsonTokenType.Null) return null;
-            using var document = JsonDocument.ParseValue(ref reader);
-            return JObject.Parse(document.RootElement.GetRawText());
-        }
-
-        public override void Write(Utf8JsonWriter writer, JObject value, JsonSerializerOptions options)
-        {
-            using var document = JsonDocument.Parse(value.ToString(Newtonsoft.Json.Formatting.None));
-            document.RootElement.WriteTo(writer);
-        }
-    }
-
     internal sealed class StjOptionalBooleanConverter : JsonConverter<bool>
     {
         public override bool Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -2117,14 +2084,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
         }
     }
 
-    internal sealed class NewtonsoftStringEnumConverterFactory : JsonConverterFactory
+    internal sealed class EnumMemberStringEnumConverterFactory : JsonConverterFactory
     {
         public override bool CanConvert(Type typeToConvert)
         {
             var enumType = Nullable.GetUnderlyingType(typeToConvert) ?? typeToConvert;
             if (!enumType.IsEnum) return false;
-            var converter = enumType.GetCustomAttribute<Newtonsoft.Json.JsonConverterAttribute>();
-            return converter?.ConverterType?.Name == "StringEnumConverter";
+            return enumType.GetFields(BindingFlags.Public | BindingFlags.Static)
+                           .Any(field => field.GetCustomAttribute<EnumMemberAttribute>() is not null);
         }
 
         public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
@@ -2132,13 +2099,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             var enumType = Nullable.GetUnderlyingType(typeToConvert) ?? typeToConvert;
             if (Nullable.GetUnderlyingType(typeToConvert) is not null)
             {
-                return (JsonConverter) Activator.CreateInstance(typeof(NullableNewtonsoftStringEnumConverter<>).MakeGenericType(enumType))!;
+                return (JsonConverter) Activator.CreateInstance(typeof(NullableEnumMemberStringEnumConverter<>).MakeGenericType(enumType))!;
             }
 
-            return (JsonConverter) Activator.CreateInstance(typeof(NewtonsoftStringEnumConverter<>).MakeGenericType(enumType))!;
+            return (JsonConverter) Activator.CreateInstance(typeof(EnumMemberStringEnumConverter<>).MakeGenericType(enumType))!;
         }
 
-        private sealed class NewtonsoftStringEnumConverter<T> : JsonConverter<T> where T : struct, Enum
+        private sealed class EnumMemberStringEnumConverter<T> : JsonConverter<T> where T : struct, Enum
         {
             private static readonly IReadOnlyDictionary<string, T> ReadMap = CreateReadMap();
             private static readonly IReadOnlyDictionary<T, string> WriteMap = CreateWriteMap();
@@ -2199,9 +2166,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             }
         }
 
-        private sealed class NullableNewtonsoftStringEnumConverter<T> : JsonConverter<T?> where T : struct, Enum
+        private sealed class NullableEnumMemberStringEnumConverter<T> : JsonConverter<T?> where T : struct, Enum
         {
-            private static readonly NewtonsoftStringEnumConverter<T> Inner = new NewtonsoftStringEnumConverter<T>();
+            private static readonly EnumMemberStringEnumConverter<T> Inner = new EnumMemberStringEnumConverter<T>();
 
             public override T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {

@@ -1,5 +1,4 @@
 ﻿//HintName: AssemblyCapabilityKeys.cs
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;

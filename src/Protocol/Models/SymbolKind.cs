@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -6,7 +5,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     /// A symbol kind.
     /// </summary>
-    [JsonConverter(typeof(NumberEnumConverter))]
     public enum SymbolKind
     {
         File = 1,

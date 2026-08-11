@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -47,7 +46,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// A document highlight kind.
         /// </summary>
-        [JsonConverter(typeof(NumberEnumConverter))]
         public enum DocumentHighlightKind
         {
             /// <summary>

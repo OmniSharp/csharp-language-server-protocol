@@ -4,9 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using OmniSharp.Extensions.JsonRpc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -237,7 +234,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.15.0
         /// </summary>
-        [JsonConverter(typeof(NumberEnumConverter))]
         public enum CompletionItemTag
         {
             /// <summary>
@@ -249,7 +245,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// The kind of a completion entry.
         /// </summary>
-        [JsonConverter(typeof(NumberEnumConverter))]
         public enum CompletionItemKind
         {
             Text = 1,
@@ -380,7 +375,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public string? TriggerCharacter { get; init; }
         }
 
-        [JsonConverter(typeof(NumberEnumConverter))]
         public enum CompletionTriggerKind
         {
             /// <summary>
@@ -403,7 +397,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// Represents a collection of [completion items](#CompletionItem) to be presented
         /// in the editor.
         /// </summary>
-        [JsonConverter(typeof(Converter))]
         public partial class CompletionList
         {
             public CompletionList(bool isIncomplete) : this(Enumerable.Empty<CompletionItem>(), isIncomplete)
@@ -470,73 +463,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     ItemDefaults = source?.ItemDefaults,
                     ApplyKind = source?.ApplyKind
                 };
-
-            internal class Converter : JsonConverter<CompletionList>
-            {
-                public override void WriteJson(JsonWriter writer, CompletionList? value, JsonSerializer serializer)
-                {
-                    if (!value.IsIncomplete && value.ItemDefaults is null && value.ApplyKind is null)
-                    {
-                        serializer.Serialize(writer, value.Items.ToArray());
-                        return;
-                    }
-
-                    writer.WriteStartObject();
-                    writer.WritePropertyName("isIncomplete");
-                    writer.WriteValue(value.IsIncomplete);
-
-                    writer.WritePropertyName("items");
-                    writer.WriteStartArray();
-                    foreach (var item in value.Items)
-                    {
-                        serializer.Serialize(writer, item);
-                    }
-                    writer.WriteEndArray();
-
-                    if (value.ItemDefaults is { })
-                    {
-                        writer.WritePropertyName("itemDefaults");
-                        serializer.Serialize(writer, value.ItemDefaults);
-                    }
-
-                    if (value.ApplyKind is { })
-                    {
-                        writer.WritePropertyName("applyKind");
-                        serializer.Serialize(writer, value.ApplyKind);
-                    }
-
-                    writer.WriteEndObject();
-                }
-
-                public override CompletionList? ReadJson(
-                    JsonReader reader, Type objectType, CompletionList? existingValue, bool hasExistingValue, JsonSerializer serializer
-                )
-                {
-                    if (reader.TokenType == JsonToken.StartArray)
-                    {
-                        var array = JArray.Load(reader).ToObject<IEnumerable<CompletionItem>>(serializer);
-                        return new CompletionList(array);
-                    }
-
-                    if (reader.TokenType == JsonToken.Null)
-                    {
-                        return null;
-                    }
-
-                    var result = JObject.Load(reader);
-                    var items = result["items"].ToObject<IEnumerable<CompletionItem>>(serializer);
-                    return new CompletionList(items, result["isIncomplete"]?.Value<bool>() ?? false)
-                    {
-                        ItemDefaults = result["itemDefaults"]?.ToObject<CompletionListItemDefaults>(serializer),
-                        ApplyKind = result["applyKind"]?.ToObject<CompletionItemApplyKinds>(serializer)
-                    };
-                }
-
-                public override bool CanRead => true;
-            }
         }
 
-        [JsonConverter(typeof(TypedCompletionListConverter))]
         public partial class CompletionList<T>
         {
             public CompletionList(bool isIncomplete) : this(isIncomplete, Enumerable.Empty<CompletionItem<T>>())
@@ -616,28 +544,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         }
 
-        internal class TypedCompletionListConverter : JsonConverter
-        {
-            public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
-            {
-                serializer.Serialize(writer, (CompletionList?)value);
-            }
-
-            public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
-            {
-                var completionList = serializer.Deserialize<CompletionList>(reader);
-                return objectType.GetMethod(nameof(CompletionList<IHandlerIdentity>.Create), BindingFlags.Static | BindingFlags.Public)!
-                          .Invoke(null, new object[] { completionList })!;
-            }
-
-            public override bool CanConvert(Type objectType)
-            {
-                return objectType.IsGenericType && objectType.GetGenericTypeDefinition() == typeof(CompletionList<>);
-            }
-
-            public override bool CanRead => true;
-        }
-
         public record CompletionListItemDefaults
         {
             /// <summary>
@@ -699,7 +605,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.18.0
         /// </summary>
-        [JsonConverter(typeof(StringEnumConverter))]
         public enum ApplyKind
         {
             [EnumMember(Value = "replace")]

@@ -1,8 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
@@ -84,7 +82,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             $" {( Message?.ToString()?.Length > 20 ? Message.ToString()!.Substring(0, 20) : Message )}";
     }
 
-    [JsonConverter(typeof(DiagnosticCodeConverter))]
     public readonly struct DiagnosticCode
     {
         public DiagnosticCode(long value)
@@ -125,7 +122,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         }
     }
 
-    [JsonConverter(typeof(NumberEnumConverter))]
     public enum DiagnosticSeverity
     {
         /// <summary>
@@ -154,7 +150,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     ///
     /// @since 3.15.0
     /// </summary>
-    [JsonConverter(typeof(NumberEnumConverter))]
     public enum DiagnosticTag
     {
         /// <summary>

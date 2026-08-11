@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
-using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -17,7 +16,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The identifier of the actual command handler.
         /// </summary>
-        [JsonProperty("command")]
+        [System.Text.Json.Serialization.JsonPropertyName("command")]
         public string Name { get; init; } = null!;
 
         /// <summary>

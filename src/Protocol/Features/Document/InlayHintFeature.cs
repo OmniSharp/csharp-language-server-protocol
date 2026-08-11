@@ -1,8 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using OmniSharp.Extensions.JsonRpc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -182,7 +180,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             private string DebuggerDisplay => ToString();
         }
 
-        [JsonConverter(typeof(Converter))]
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
         public record StringOrInlayHintLabelParts
         {
@@ -211,40 +208,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <inheritdoc />
             public override string ToString() => DebuggerDisplay;
 
-            internal class Converter : JsonConverter<StringOrInlayHintLabelParts>
-            {
-                public override void WriteJson(JsonWriter writer, StringOrInlayHintLabelParts value, JsonSerializer serializer)
-                {
-                    if (value.HasString)
-                    {
-                        writer.WriteValue(value.String);
-                    }
-                    else
-                    {
-                        serializer.Serialize(writer, value.InlayHintLabelParts ?? Array.Empty<InlayHintLabelPart>());
-                    }
-                }
-
-                public override StringOrInlayHintLabelParts ReadJson(
-                    JsonReader reader, Type objectType, StringOrInlayHintLabelParts existingValue, bool hasExistingValue, JsonSerializer serializer
-                )
-                {
-                    if (reader.TokenType == JsonToken.StartArray)
-                    {
-                        var result = JArray.Load(reader);
-                        return new StringOrInlayHintLabelParts(result.ToObject<Container<InlayHintLabelPart>>(serializer));
-                    }
-
-                    if (reader.TokenType == JsonToken.String)
-                    {
-                        return new StringOrInlayHintLabelParts(( reader.Value as string )!);
-                    }
-
-                    return "";
-                }
-
-                public override bool CanRead => true;
-            }
         }
 
         /// <summary>
@@ -252,7 +215,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.17.0
         /// </summary>
-        [JsonConverter(typeof(NumberEnumConverter))]
         public enum InlayHintKind
         {
             /// <summary>
