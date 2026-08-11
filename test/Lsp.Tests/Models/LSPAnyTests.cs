@@ -1,4 +1,3 @@
-using System;
 using System.Text.Json;
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -30,7 +29,10 @@ namespace Lsp.Tests.Models
             var result = serializer.DeserializeObject<LSPAnyContainer>(expected);
 
             result.Value.Value.ValueKind.Should().Be(JsonValueKind.Object);
-            Fixture.SerializeObject(result).Should().Be(expected.Replace("\r\n", "\n", StringComparison.Ordinal));
+            var serialized = Fixture.SerializeObject(result);
+            using var expectedDocument = JsonDocument.Parse(expected);
+            using var serializedDocument = JsonDocument.Parse(serialized);
+            JsonElement.DeepEquals(expectedDocument.RootElement, serializedDocument.RootElement).Should().BeTrue();
         }
 
         [Fact]

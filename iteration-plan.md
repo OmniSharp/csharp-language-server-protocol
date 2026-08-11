@@ -38,7 +38,7 @@ The migration is split into independently testable and committable iterations. E
   - `LSPAny.Value` and its implicit conversions now use `JsonElement` instead of `JToken`.
   - `LSPObject` and `LSPArray` are System.Text.Json builders and no longer derive from `JObject` and `JArray`.
 
-- [ ] **6. Port the LSP serializer and converters**
+- [x] **6. Port the LSP serializer and converters**
   - Reimplement `LspSerializer` and `ProposedLspSerializer` on System.Text.Json.
   - Port converters in focused groups: scalars and enums, simple unions, discriminated objects, then complex edits and diagnostics.
   - Replace contract-resolver behavior for optional values, extension data, capability filtering, and tuples.

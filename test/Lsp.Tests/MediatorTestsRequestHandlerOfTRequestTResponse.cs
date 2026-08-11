@@ -64,7 +64,8 @@ namespace Lsp.Tests
                 }
             };
 
-            var request = new Request(id, "textDocument/codeAction", JsonTestHelper.Parse(JsonConvert.SerializeObject(@params, new LspSerializer(ClientVersion.Lsp3).Settings)));
+            var serializer = new LspSerializer(ClientVersion.Lsp3);
+            var request = new Request(id, "textDocument/codeAction", JsonTestHelper.Parse(serializer.SerializeObject(@params)));
             var cts = new CancellationTokenSource();
             cts.Cancel();
 

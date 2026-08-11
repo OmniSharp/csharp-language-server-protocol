@@ -1,27 +1,30 @@
 ﻿using System;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 {
-    internal class ProposedCapabilitiesConverter<TFrom, TTo> : JsonConverter
+    internal class ProposedCapabilitiesConverter<TFrom, TTo> : JsonConverter<TFrom>
         where TTo : TFrom
         where TFrom : notnull
     {
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override TFrom? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            return serializer.Deserialize<TTo>(reader);
+            return JsonSerializer.Deserialize<TTo>(ref reader, options);
         }
 
-        public override bool CanConvert(Type objectType)
+        public override void Write(Utf8JsonWriter writer, TFrom value, JsonSerializerOptions options)
         {
-            return objectType == typeof(TFrom);
-        }
+            var writeOptions = new JsonSerializerOptions(options);
+            for (var i = writeOptions.Converters.Count - 1; i >= 0; i--)
+            {
+                if (ReferenceEquals(writeOptions.Converters[i], this))
+                {
+                    writeOptions.Converters.RemoveAt(i);
+                }
+            }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            throw new NotImplementedException();
+            JsonSerializer.Serialize(writer, value, value.GetType(), writeOptions);
         }
-
-        public override bool CanWrite => false;
     }
 }

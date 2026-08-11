@@ -69,7 +69,7 @@ namespace Lsp.Tests
 
             var request = new Notification(
                 TextDocumentNames.DidSave,
-                JsonTestHelper.Parse(JsonConvert.SerializeObject(@params, new LspSerializer(ClientVersion.Lsp3).Settings))
+                JsonTestHelper.Parse(new LspSerializer(ClientVersion.Lsp3).SerializeObject(@params))
             );
 
             await mediator.RouteNotification(mediator.GetDescriptors(request), request, CancellationToken.None);
@@ -115,7 +115,7 @@ namespace Lsp.Tests
 
             var request = new Notification(
                 TextDocumentNames.DidSave,
-                JsonTestHelper.Parse(JsonConvert.SerializeObject(@params, new LspSerializer(ClientVersion.Lsp3).Settings))
+                JsonTestHelper.Parse(new LspSerializer(ClientVersion.Lsp3).SerializeObject(@params))
             );
 
             await mediator.RouteNotification(mediator.GetDescriptors(request), request, CancellationToken.None);
@@ -162,7 +162,7 @@ namespace Lsp.Tests
 
             var request = new Request(
                 id, TextDocumentNames.CodeAction,
-                JsonTestHelper.Parse(JsonConvert.SerializeObject(@params, new LspSerializer(ClientVersion.Lsp3).Settings))
+                JsonTestHelper.Parse(new LspSerializer(ClientVersion.Lsp3).SerializeObject(@params))
             );
 
             await mediator.RouteRequest(mediator.GetDescriptors(request), request, CancellationToken.None);
@@ -223,7 +223,7 @@ namespace Lsp.Tests
 
             var request = new Request(
                 id, TextDocumentNames.CodeAction,
-                JsonTestHelper.Parse(JsonConvert.SerializeObject(@params, new LspSerializer(ClientVersion.Lsp3).Settings))
+                JsonTestHelper.Parse(new LspSerializer(ClientVersion.Lsp3).SerializeObject(@params))
             );
 
             await mediator.RouteRequest(mediator.GetDescriptors(request), request, CancellationToken.None);
@@ -281,7 +281,7 @@ namespace Lsp.Tests
 
             var request = new Request(
                 id, TextDocumentNames.CodeLens,
-                JsonTestHelper.Parse(JsonConvert.SerializeObject(@params, new LspSerializer(ClientVersion.Lsp3).Settings))
+                JsonTestHelper.Parse(new LspSerializer(ClientVersion.Lsp3).SerializeObject(@params))
             );
 
             await mediator.RouteRequest(mediator.GetDescriptors(request), request, CancellationToken.None);

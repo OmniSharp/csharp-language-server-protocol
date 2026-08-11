@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
@@ -9,7 +9,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
     {
         public new static LspSerializer Instance { get; } = new ProposedLspSerializer();
 
-        protected override void AddOrReplaceConverters(ICollection<JsonConverter> converters)
+        protected override void AddOrReplaceConverters(IList<JsonConverter> converters)
         {
 #pragma warning disable CS0618
             AddProposedCapabilitiesConverter<ServerCapabilities, ProposedServerCapabilities>(converters);
@@ -23,7 +23,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             base.AddOrReplaceConverters(converters);
         }
 
-        private void AddProposedCapabilitiesConverter<TFrom, TTo>(ICollection<JsonConverter> converters) where TTo : TFrom where TFrom : notnull
+        private void AddProposedCapabilitiesConverter<TFrom, TTo>(IList<JsonConverter> converters) where TTo : TFrom where TFrom : notnull
         {
             RemoveConverter<TFrom>(converters);
             ReplaceConverter(converters, new ProposedCapabilitiesConverter<TFrom, TTo>());

@@ -29,7 +29,7 @@ namespace Lsp.Tests.Models
             result.Should().Be(expected);
 
             var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<DidChangeConfigurationParams>(expected);
-            deresult.Settings!.Value.GetRawText().Should().Be(model.Settings!.Value.GetRawText());
+            JsonElement.DeepEquals(deresult.Settings!.Value, model.Settings!.Value).Should().BeTrue();
         }
     }
 }

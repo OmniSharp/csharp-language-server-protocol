@@ -2,7 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Newtonsoft.Json;
+using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Serialization;
 using OmniSharp.Extensions.JsonRpc.Serialization.Converters;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -13,7 +17,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 {
-    public class LspSerializer : JsonRpcSerializer, ISerializer
+    public class LspSerializer : SystemTextJsonSerializer, ISerializer
     {
         private static readonly ImmutableArray<CompletionItemKind> DefaultCompletionItemKinds = Enum
                                                                                  .GetValues(typeof(CompletionItemKind))
@@ -63,81 +67,95 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
         {
         }
 
-        public LspSerializer(ClientVersion clientVersion) => ClientVersion = clientVersion;
-
-
-        protected override JsonSerializer CreateSerializer()
+        public LspSerializer(ClientVersion clientVersion) : base(CreateBaseOptions())
         {
-            var serializer = base.CreateSerializer();
-            serializer.ContractResolver = new LspContractResolver(
-                _completionItemKinds,
-                _completionItemTags,
-                _documentSymbolKinds,
-                _workspaceSymbolKinds,
-                _documentSymbolTags,
-                _workspaceSymbolTags,
-                _diagnosticTags,
-                _codeActionKinds,
-                _semanticTokenTypes,
-                _semanticTokenModifier
-            );
-            return serializer;
+            ClientVersion = clientVersion;
+            Reset();
         }
 
-        protected override JsonSerializerSettings CreateSerializerSettings()
+        private static JsonSerializerOptions CreateBaseOptions()
         {
-            var settings = base.CreateSerializerSettings();
-            settings.ContractResolver = new LspContractResolver(
-                _completionItemKinds,
-                _completionItemTags,
-                _documentSymbolKinds,
-                _workspaceSymbolKinds,
-                _documentSymbolTags,
-                _workspaceSymbolTags,
-                _diagnosticTags,
-                _codeActionKinds,
-                _semanticTokenTypes,
-                _semanticTokenModifier
-            );
-            return settings;
+            var resolver = new DefaultJsonTypeInfoResolver();
+            var options = new JsonSerializerOptions {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                TypeInfoResolver = resolver,
+                PropertyNameCaseInsensitive = true,
+                DefaultIgnoreCondition = JsonIgnoreCondition.Never,
+            };
+            return options;
         }
 
-        protected override void AddOrReplaceConverters(ICollection<JsonConverter> converters)
+        protected virtual void AddOrReplaceConverters(IList<JsonConverter> converters)
         {
-            ReplaceConverter(converters, new SupportsConverter());
-            ReplaceConverter(converters, new CompletionList.Converter());
-            ReplaceConverter(converters, new DiagnosticCodeConverter());
-            ReplaceConverter(converters, new NullableDiagnosticCodeConverter());
-            ReplaceConverter(converters, new LocationOrLocationLinksConverter());
-            ReplaceConverter(converters, new MarkedStringCollectionConverter());
-            ReplaceConverter(converters, new MarkedStringConverter());
-            ReplaceConverter(converters, new StringOrMarkupContentConverter());
-            ReplaceConverter(converters, new TextDocumentSyncConverter());
-            ReplaceConverter(converters, new BooleanNumberStringConverter());
-            ReplaceConverter(converters, new BooleanStringConverter());
-            ReplaceConverter(converters, new BooleanOrConverter());
-            ReplaceConverter(converters, new ProgressTokenConverter());
-            ReplaceConverter(converters, new MarkedStringsOrMarkupContentConverter());
-            ReplaceConverter(converters, new CommandOrCodeActionConverter());
-            ReplaceConverter(converters, new SemanticTokensFullOrDeltaConverter());
-            ReplaceConverter(converters, new SemanticTokensFullOrDeltaPartialResultConverter());
-            ReplaceConverter(converters, new SymbolInformationOrDocumentSymbolConverter());
-            ReplaceConverter(converters, new LocationOrLocationLinkConverter());
-            ReplaceConverter(converters, new StringOrInlayHintLabelParts.Converter());
-            ReplaceConverter(converters, new WorkspaceEditDocumentChangeConverter());
-            ReplaceConverter(converters, new ParameterInformationLabelConverter());
-            ReplaceConverter(converters, new ValueTupleContractResolver<long, long>());
-            ReplaceConverter(converters, new RangeOrPlaceholderRangeConverter());
-            ReplaceConverter(converters, new EnumLikeStringConverter());
-            ReplaceConverter(converters, new DocumentUriConverter());
-            ReplaceConverter(converters, new ChangeAnnotationIdentifierConverter());
-            //            ReplaceConverter(converters, new AggregateConverter<CodeLensContainer>());
-            //            ReplaceConverter(converters, new AggregateConverter<DocumentLinkContainer>());
-            //            ReplaceConverter(converters, new AggregateConverter<LocationContainer>());
-            //            ReplaceConverter(converters, new AggregateConverter<LocationOrLocationLinks>());
-            //            ReplaceConverter(converters, new AggregateConverter<CommandOrCodeActionContainer>());
-            ReplaceConverter(converters, new AggregateCompletionListConverter());
-            base.AddOrReplaceConverters(converters);
+            ReplaceConverter(converters, new SupportsConverterFactory());
+            ReplaceConverter(converters, new CompletionListConverter());
+            ReplaceConverter(converters, new TypedCompletionListConverterFactory());
+            ReplaceConverter(converters, new StringOrInlayHintLabelPartsConverter());
+            ReplaceConverter(converters, new SystemTextJsonEnumLikeStringConverterFactory());
+            ReplaceConverter(converters, new RangeOrEditRangeConverter());
+            ReplaceConverter(converters, new StringOrStringValueConverter());
+            ReplaceConverter(converters, new InlineCompletionListConverter());
+            ReplaceConverter(converters, new InlineValueBaseConverter());
+            ReplaceConverter(converters, new StringOrNotebookDocumentFilterConverter());
+            ReplaceConverter(converters, new ContainerBaseConverterFactory());
+            ReplaceConverter(converters, new StjDocumentUriConverter());
+            ReplaceConverter(converters, new StjDiagnosticCodeConverter());
+            ReplaceConverter(converters, new StjNullableDiagnosticCodeConverter());
+            ReplaceConverter(converters, new StjLocationOrLocationLinksConverter());
+            ReplaceConverter(converters, new StjLocationOrLocationLinkConverter());
+            ReplaceConverter(converters, new StjMarkedStringConverter());
+            ReplaceConverter(converters, new StjMarkedStringCollectionConverter());
+            ReplaceConverter(converters, new StjStringOrMarkupContentConverter());
+            ReplaceConverter(converters, new StjMarkedStringsOrMarkupContentConverter());
+            ReplaceConverter(converters, new StjTextDocumentSyncConverter());
+            ReplaceConverter(converters, new StjBooleanNumberStringConverter());
+            ReplaceConverter(converters, new StjBooleanStringConverter());
+            ReplaceConverter(converters, new StjBooleanOrConverterFactory());
+            ReplaceConverter(converters, new StjProgressTokenConverter());
+            ReplaceConverter(converters, new StjCommandOrCodeActionConverter());
+            ReplaceConverter(converters, new StjSemanticTokensFullOrDeltaConverter());
+            ReplaceConverter(converters, new StjSemanticTokensFullOrDeltaPartialResultConverter());
+            ReplaceConverter(converters, new StjSymbolInformationOrDocumentSymbolConverter());
+            ReplaceConverter(converters, new StjWorkspaceEditDocumentChangeConverter());
+            ReplaceConverter(converters, new StjParameterInformationLabelConverter());
+            ReplaceConverter(converters, new StjValueTupleLongLongConverter());
+            ReplaceConverter(converters, new StjRangeOrPlaceholderRangeConverter());
+            ReplaceConverter(converters, new StjChangeAnnotationIdentifierConverter());
+            ReplaceConverter(converters, new StjAggregateCompletionListConverter());
+            ReplaceConverter(converters, new StjLspAnyConverter());
+            ReplaceConverter(converters, new StjJObjectConverter());
+            ReplaceConverter(converters, new StjJTokenConverter());
+            ReplaceConverter(converters, new StjObjectPrimitiveOrElementConverter());
+            ReplaceConverter(converters, new StjOptionalBooleanConverter());
+            ReplaceConverter(converters, new StjTextEditConverter());
+            ReplaceConverter(converters, new StjAnnotatedTextEditConverter());
+            ReplaceConverter(converters, new StjSnippetTextEditConverter());
+            ReplaceConverter(converters, new StjTextEditOrInsertReplaceEditConverter());
+            ReplaceConverter(converters, new StjDocumentDiagnosticReportConverterFactory());
+            ReplaceConverter(converters, new StjRelatedDocumentDiagnosticReportConverterFactory());
+            ReplaceConverter(converters, new StjWorkspaceDocumentDiagnosticReportConverterFactory());
+            ReplaceConverter(converters, new StjRpcErrorConverterFactory());
+            ReplaceConverter(converters, new StjWorkspaceFolderOrUriConverter());
+            ReplaceConverter(converters, new StjGlobPatternConverter());
+            ReplaceConverter(converters, new StjLocationOrFileLocationConverter());
+            ReplaceConverter(converters, new NewtonsoftStringEnumConverterFactory());
+        }
+
+        protected internal static void RemoveConverter<T>(IList<JsonConverter> converters)
+        {
+            for (var i = converters.Count - 1; i >= 0; i--)
+            {
+                if (converters[i] is T)
+                {
+                    converters.RemoveAt(i);
+                }
+            }
+        }
+
+        protected internal static void ReplaceConverter<T>(IList<JsonConverter> converters, T item) where T : JsonConverter
+        {
+            RemoveConverter<T>(converters);
+            converters.Add(item);
         }
 
         public LspSerializer WithCompletionItemKinds(IEnumerable<CompletionItemKind> completionItemKinds)
@@ -278,34 +296,147 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 
         private LspSerializer Reset()
         {
-            AddOrReplaceConverters(Settings.Converters);
-            Settings.ContractResolver = new LspContractResolver(
-                _completionItemKinds,
-                _completionItemTags,
-                _documentSymbolKinds,
-                _workspaceSymbolKinds,
-                _documentSymbolTags,
-                _workspaceSymbolTags,
-                _diagnosticTags,
-                _codeActionKinds,
-                _semanticTokenTypes,
-                _semanticTokenModifier
-            );
-
-            AddOrReplaceConverters(JsonSerializer.Converters);
-            JsonSerializer.ContractResolver = new LspContractResolver(
-                _completionItemKinds,
-                _completionItemTags,
-                _documentSymbolKinds,
-                _workspaceSymbolKinds,
-                _documentSymbolTags,
-                _workspaceSymbolTags,
-                _diagnosticTags,
-                _codeActionKinds,
-                _semanticTokenTypes,
-                _semanticTokenModifier
-            );
+            var options = CreateOptionsSnapshot(CreateBaseOptions());
+            var resolver = new DefaultJsonTypeInfoResolver();
+            resolver.Modifiers.Add(ConfigureTypeInfo);
+            options.TypeInfoResolver = resolver;
+            AddOrReplaceConverters(options.Converters);
+            ReplaceOptions(options);
             return this;
+        }
+
+        private void ConfigureTypeInfo(JsonTypeInfo typeInfo)
+        {
+            if (typeof(ICapabilitiesBase).IsAssignableFrom(typeInfo.Type) || typeInfo.Type == typeof(MessageActionItem))
+            {
+                var extensionData = typeInfo.Properties.FirstOrDefault(z =>
+                    ( z.AttributeProvider as MemberInfo )?.Name == nameof(ICapabilitiesBase.ExtensionData)
+                );
+                if (extensionData is not null)
+                {
+                    extensionData.IsExtensionData = true;
+                }
+            }
+
+            var ignoredProperties = new List<JsonPropertyInfo>();
+            foreach (var property in typeInfo.Properties)
+            {
+                var member = property.AttributeProvider as MemberInfo;
+                if (member?.GetCustomAttribute<Newtonsoft.Json.JsonIgnoreAttribute>(true) is not null)
+                {
+                    ignoredProperties.Add(property);
+                    continue;
+                }
+
+                if (member?.GetCustomAttribute<Newtonsoft.Json.JsonExtensionDataAttribute>(true) is not null)
+                {
+                    property.IsExtensionData = true;
+                }
+
+                var jsonProperty = member?.GetCustomAttribute<Newtonsoft.Json.JsonPropertyAttribute>(true);
+                if (jsonProperty is not null)
+                {
+                    if (!string.IsNullOrWhiteSpace(jsonProperty.PropertyName))
+                    {
+                        property.Name = jsonProperty.PropertyName;
+                    }
+
+                    if (jsonProperty.NullValueHandling == Newtonsoft.Json.NullValueHandling.Ignore)
+                    {
+                        AppendShouldSerialize(property, (_, value) => value is not null);
+                    }
+
+                    if (( jsonProperty.DefaultValueHandling & Newtonsoft.Json.DefaultValueHandling.Ignore ) == Newtonsoft.Json.DefaultValueHandling.Ignore)
+                    {
+                        AppendShouldSerialize(property, (_, value) => !IsDefaultValue(value, property.PropertyType));
+                    }
+                }
+
+                var hasOptional = member?.GetCustomAttributes(typeof(OptionalAttribute), true).Any() == true;
+
+                if (hasOptional || typeInfo.Type.Name.EndsWith("Capabilities", StringComparison.Ordinal))
+                {
+                    AppendShouldSerialize(property, (_, value) => !IsDefaultValue(value, property.PropertyType));
+                }
+
+                if (typeof(ISupports).IsAssignableFrom(property.PropertyType))
+                {
+                    AppendShouldSerialize(property, (_, value) => value is ISupports supports && supports.IsSupported);
+                }
+
+                ConfigureCapabilityPropertyFiltering(typeInfo.Type, property);
+            }
+
+            foreach (var ignored in ignoredProperties)
+            {
+                typeInfo.Properties.Remove(ignored);
+            }
+        }
+
+        private void ConfigureCapabilityPropertyFiltering(Type declaringType, JsonPropertyInfo property)
+        {
+            var originalGet = property.Get;
+            if (originalGet is null) return;
+
+            if (declaringType == typeof(CompletionItem) && property.PropertyType == typeof(CompletionItemKind) && _completionItemKinds.Length > 0)
+            {
+                property.Get = target => ClampEnumValue((CompletionItemKind) originalGet(target)!, _completionItemKinds);
+            }
+
+            if (declaringType == typeof(CompletionItem) && property.PropertyType == typeof(Container<CompletionItemTag>) && _completionItemTags.Length > 0)
+            {
+                property.Get = target => FilterContainer((IEnumerable<CompletionItemTag>?) originalGet(target), _completionItemTags);
+            }
+
+            if (declaringType == typeof(DocumentSymbol) && property.PropertyType == typeof(SymbolKind) && _documentSymbolKinds.Length > 0)
+            {
+                property.Get = target => ClampEnumValue((SymbolKind) originalGet(target)!, _documentSymbolKinds);
+            }
+
+            if (declaringType == typeof(DocumentSymbol) && property.PropertyType == typeof(Container<SymbolTag>) && _documentSymbolTags.Length > 0)
+            {
+                property.Get = target => FilterContainer((IEnumerable<SymbolTag>?) originalGet(target), _documentSymbolTags);
+            }
+
+            if (declaringType == typeof(Diagnostic) && property.PropertyType == typeof(Container<DiagnosticTag>) && _diagnosticTags.Length > 0)
+            {
+                property.Get = target => FilterContainer((IEnumerable<DiagnosticTag>?) originalGet(target), _diagnosticTags);
+            }
+
+            if (declaringType == typeof(CodeAction) && property.PropertyType == typeof(CodeActionKind) && _codeActionKinds.Length > 0)
+            {
+                property.Get = target => originalGet(target) is CodeActionKind value ? ClampEnumValue(value, _codeActionKinds) : null;
+            }
+
+            if (declaringType == typeof(SymbolInformation) && property.PropertyType == typeof(SymbolKind) && _workspaceSymbolKinds.Length > 0)
+            {
+                property.Get = target => ClampEnumValue((SymbolKind) originalGet(target)!, _workspaceSymbolKinds);
+            }
+
+            if (declaringType == typeof(SymbolInformation) && property.PropertyType == typeof(Container<SymbolTag>) && _workspaceSymbolTags.Length > 0)
+            {
+                property.Get = target => FilterContainer((IEnumerable<SymbolTag>?) originalGet(target), _workspaceSymbolTags);
+            }
+        }
+
+        private static bool IsDefaultValue(object? value, Type type) =>
+            value is null || type.IsValueType && value.Equals(Activator.CreateInstance(type));
+
+        private static void AppendShouldSerialize(JsonPropertyInfo property, Func<object, object?, bool> shouldSerialize)
+        {
+            var existingShouldSerialize = property.ShouldSerialize;
+            property.ShouldSerialize = existingShouldSerialize is null
+                ? shouldSerialize
+                : (target, value) => existingShouldSerialize(target, value) && shouldSerialize(target, value);
+        }
+
+        private static T ClampEnumValue<T>(T value, ImmutableArray<T> validValues) where T : struct
+            => validValues.Contains(value) ? value : validValues[0];
+
+        private static Container<T>? FilterContainer<T>(IEnumerable<T>? value, ImmutableArray<T> validValues) where T : struct
+        {
+            if (value is null) return null;
+            return new Container<T>(value.Join(validValues, z => z, z => z, (left, _) => left));
         }
     }
 }
