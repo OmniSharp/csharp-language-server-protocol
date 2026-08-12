@@ -520,7 +520,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         _requests.TryAdd(requestHandle.Request.Id, requestHandle);
                         requestHandle.OnComplete += r => _requests.TryRemove(r.Id, out _);
                     }
-                    catch (Exception e) when (e is JsonException or Newtonsoft.Json.JsonException)
+                    catch (JsonException e)
                     {
                         _outputHandler.Send(new ParseError(item.Request.Id, item.Request.Method));
                         _logger.LogCritical(e, "Error parsing request");
@@ -576,7 +576,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
                         _requestInvoker.InvokeNotification(descriptor, item.Notification);
                     }
-                    catch (Exception e) when (e is JsonException or Newtonsoft.Json.JsonException)
+                    catch (JsonException e)
                     {
                         _logger.LogCritical(e, "Error parsing notification");
                     }

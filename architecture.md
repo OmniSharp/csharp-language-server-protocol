@@ -51,7 +51,7 @@ For example, `CompletionParams` in `src\Protocol\Features\Document\CompletionFea
 `src\JsonRpc` handles the wire-level JSON-RPC mechanics used by LSP:
 
 1. `Connection` owns an `InputHandler` and opens the input loop.
-2. `InputHandler` reads LSP-style `Content-Length: ...\r\n\r\n` framed messages from a `PipeReader`, parses the JSON payload with Newtonsoft.Json, validates it through an `IReceiver`, and separates requests, notifications, responses, and errors.
+2. `InputHandler` reads LSP-style `Content-Length: ...\r\n\r\n` framed messages from a `PipeReader`, parses the JSON payload with System.Text.Json, validates it through an `IReceiver`, and separates requests, notifications, responses, and errors.
 3. Incoming responses are completed through `IResponseRouter`, which maps response IDs back to pending outgoing requests.
 4. Incoming requests and notifications are routed through `IRequestRouter`.
 5. `RequestInvoker` invokes the selected handler descriptors, applies serial/parallel scheduling, request timeouts, cancellation, and error mapping.

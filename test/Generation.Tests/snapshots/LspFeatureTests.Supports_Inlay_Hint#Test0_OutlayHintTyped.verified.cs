@@ -1,8 +1,8 @@
 ﻿//HintName: Test0_OutlayHintTyped.cs
 using System.Diagnostics;
 using OmniSharp.Extensions.JsonRpc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;

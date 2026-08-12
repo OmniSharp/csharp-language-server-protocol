@@ -1,11 +1,12 @@
 using System;
 using System.Text.Json;
-using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
     public class DelegatingRequest<T> : IRequest<JsonElement>, IRequest
     {
+        private static readonly JsonSerializerOptions SerializerOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
         public DelegatingRequest(object value) => Value = ToJsonElement(value);
 
         public JsonElement Value { get; }
@@ -24,9 +25,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 return element.Clone();
             }
 
-            var token = value as JToken ?? JToken.FromObject(value);
-            using var document = JsonDocument.Parse(token.ToString(Newtonsoft.Json.Formatting.None));
-            return document.RootElement.Clone();
+            return JsonSerializer.SerializeToElement(value, value.GetType(), SerializerOptions);
         }
     }
 }

@@ -71,7 +71,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                          List<ExternAliasDirectiveSyntax>(),
                          List(
                              candidate.SyntaxTree.GetCompilationUnitRoot().Usings.Concat(
-                                 new[] { UsingDirective(ParseName("Newtonsoft.Json")), UsingDirective(ParseName("System.ComponentModel")) }
+                                 new[] { UsingDirective(ParseName("System.ComponentModel")) }
                              )
                          ), List<AttributeListSyntax>(),
                          SingletonList<MemberDeclarationSyntax>(
@@ -123,29 +123,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                              SeparatedList(
                                                  new[]
                                                  {
-                                                     Attribute(IdentifierName("JsonProperty"))
-                                                        .WithArgumentList(
-                                                             AttributeArgumentList(
-                                                                 SeparatedList(
-                                                                     new[]
-                                                                     {
-                                                                         AttributeArgument(
-                                                                             LiteralExpression(
-                                                                                 SyntaxKind.StringLiteralExpression, Literal("$$__handler_id__$$")
-                                                                             )
-                                                                         ),
-                                                                         AttributeArgument(
-                                                                                 MemberAccessExpression(
-                                                                                     SyntaxKind.SimpleMemberAccessExpression,
-                                                                                     IdentifierName("DefaultValueHandling"),
-                                                                                     IdentifierName("Ignore")
-                                                                                 )
-                                                                             )
-                                                                            .WithNameEquals(NameEquals(IdentifierName("DefaultValueHandling")))
-                                                                     }
-                                                                 )
-                                                             )
-                                                         ),
                                                      Attribute(ParseName("System.Text.Json.Serialization.JsonPropertyName"))
                                                         .WithArgumentList(
                                                              AttributeArgumentList(

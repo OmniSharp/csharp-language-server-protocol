@@ -1,6 +1,5 @@
 using OmniSharp.Extensions.JsonRpc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.JsonRpc;
@@ -91,7 +90,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         /// unhandled: breaks when exception unhandled,
         /// userUnhandled: breaks if the exception is not handled by user code.
         /// </summary>
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public enum ExceptionBreakMode
         {
             Never, Always, Unhandled, UserUnhandled

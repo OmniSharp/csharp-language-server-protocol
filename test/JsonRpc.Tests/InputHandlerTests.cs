@@ -8,14 +8,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Serialization;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
+using System.Text.Json;
 using Xunit;
 using Xunit.Abstractions;
 using JsonElement = System.Text.Json.JsonElement;
@@ -603,9 +602,8 @@ namespace JsonRpc.Tests
             {
                 var stream = assembly.GetManifestResourceStream(name);
                 using var streamReader = new StreamReader(stream!);
-                using var jsonReader = new JsonTextReader(streamReader);
-                var serializer = new JsonSerializer();
-                return serializer.Deserialize<DataItem[]>(jsonReader);
+                var json = streamReader.ReadToEnd();
+                return JsonSerializer.Deserialize<DataItem[]>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
             }
 
             private PipeReader CreateReader(DataItem[] data)
@@ -679,7 +677,7 @@ namespace JsonRpc.Tests
                 public string MsgKind { get; set; } = null!;
                 public string MsgType { get; set; } = null!;
                 public string MsgId { get; set; } = null!;
-                public JToken Arg { get; set; } = null!;
+                public JsonElement Arg { get; set; }
             }
         }
     }

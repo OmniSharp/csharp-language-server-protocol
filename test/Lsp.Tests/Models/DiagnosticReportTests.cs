@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
+using System.Text.Json;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -53,10 +53,11 @@ namespace Lsp.Tests.Models
 
             var result = _serializer.SerializeObject(model);
 
-            var json = JObject.Parse(result);
-            json["kind"]!.Value<string>().Should().Be("unchanged");
-            json["resultId"]!.Value<string>().Should().Be("result-2");
-            json["relatedDocuments"]![relatedUri.ToString()]!["kind"]!.Value<string>().Should().Be("full");
+            using var doc = JsonDocument.Parse(result);
+            var json = doc.RootElement;
+            json.GetProperty("kind").GetString().Should().Be("unchanged");
+            json.GetProperty("resultId").GetString().Should().Be("result-2");
+            json.GetProperty("relatedDocuments").GetProperty(relatedUri.ToString()).GetProperty("kind").GetString().Should().Be("full");
 
             var deresult = _serializer.DeserializeObject<RelatedDocumentDiagnosticReport>(result);
             deresult.Should().BeOfType<RelatedUnchangedDocumentDiagnosticReport>();

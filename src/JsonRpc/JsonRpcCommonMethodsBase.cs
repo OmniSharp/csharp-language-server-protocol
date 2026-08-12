@@ -42,6 +42,11 @@ namespace OmniSharp.Extensions.JsonRpc
             return OnRequest<Unit, TResponse>(method, (_, cancellationToken) => handler(cancellationToken), options);
         }
 
+        public T OnRequest(string method, Func<CancellationToken, Task> handler, JsonRpcHandlerOptions? options = null)
+        {
+            return OnRequest<Unit>(method, (_, cancellationToken) => handler(cancellationToken), options);
+        }
+
         public T OnRequest<TParams>(string method, Func<TParams, Task> handler, JsonRpcHandlerOptions? options = null)
         {
             return OnRequest(method, HandlerAdapter.Adapt(handler), options);

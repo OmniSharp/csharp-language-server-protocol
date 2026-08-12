@@ -1,8 +1,8 @@
 using System;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -51,7 +51,7 @@ namespace Lsp.Tests.Models
             result.Cells.Should().NotBeNull();
             result.Cells!.TextContent.Should().NotBeNull();
             result.Cells.TextContent!.ToArray().Should().HaveCount(2);
-            JToken.DeepEquals(JObject.Parse(Fixture.SerializeObject(result)), JObject.Parse(expected)).Should().BeTrue();
+            JsonNode.DeepEquals(JsonNode.Parse(Fixture.SerializeObject(result)), JsonNode.Parse(expected)).Should().BeTrue();
         }
 
         [Fact]
@@ -94,10 +94,11 @@ namespace Lsp.Tests.Models
                 }
             };
 
-            var result = JObject.Parse(Fixture.SerializeObject(model));
+            using var resultDoc = JsonDocument.Parse(Fixture.SerializeObject(model));
+            var result = resultDoc.RootElement;
 
-            result["cells"]!["textContent"].Should().BeOfType<JArray>();
-            result["cells"]!["textContent"]!.Should().HaveCount(2);
+            result.GetProperty("cells").GetProperty("textContent").ValueKind.Should().Be(JsonValueKind.Array);
+            result.GetProperty("cells").GetProperty("textContent").GetArrayLength().Should().Be(2);
         }
 
         [Fact]
@@ -108,10 +109,11 @@ namespace Lsp.Tests.Models
                 Metadata = JsonSerializer.SerializeToElement(new { custom = true })
             };
 
-            var result = JObject.Parse(Fixture.SerializeObject(model));
+            using var resultDoc = JsonDocument.Parse(Fixture.SerializeObject(model));
+            var result = resultDoc.RootElement;
 
-            result["metadata"]!["custom"]!.Value<bool>().Should().BeTrue();
-            result.ContainsKey("cells").Should().BeFalse();
+            result.GetProperty("metadata").GetProperty("custom").GetBoolean().Should().BeTrue();
+            result.TryGetProperty("cells", out _).Should().BeFalse();
         }
     }
 }

@@ -3,7 +3,6 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.JsonRpc;
@@ -56,13 +55,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
 
         private static void WriteValue(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
         {
-            if (value is JToken token)
-            {
-                using var document = JsonDocument.Parse(token.ToString(Newtonsoft.Json.Formatting.None));
-                document.RootElement.WriteTo(writer);
-                return;
-            }
-
             JsonSerializer.Serialize(writer, value, value.GetType(), options);
         }
 
