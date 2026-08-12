@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace OmniSharp.Extensions.JsonRpc.Server.Messages
 {
@@ -8,7 +8,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server.Messages
 
         string Message { get; }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         object? Data { get; }
     }
 }

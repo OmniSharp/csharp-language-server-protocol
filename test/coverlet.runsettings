@@ -86,7 +86,6 @@
                 <ModulePath>.*Microsoft\.SourceLink\.GitHub\.dll</ModulePath>
                 <ModulePath>.*Nerdbank\.Streams\.dll</ModulePath>
                 <ModulePath>.*NETStandard\.Library\.dll</ModulePath>
-                <ModulePath>.*Newtonsoft\.Json\.dll</ModulePath>
                 <ModulePath>.*NSubstitute\.dll</ModulePath>
                 <ModulePath>.*ReportGenerator\.dll</ModulePath>
                 <ModulePath>.*Rocket\.Surgery\.MSBuild\.CI\.dll</ModulePath>
@@ -97,7 +96,6 @@
                 <ModulePath>.*Serilog\.Sinks\.File\.dll</ModulePath>
                 <ModulePath>.*Serilog\.Sinks\.Observable\.dll</ModulePath>
                 <ModulePath>.*Serilog\.Sinks\.XUnit\.dll</ModulePath>
-                <ModulePath>.*Snapper\.dll</ModulePath>
                 <ModulePath>.*System\.Collections\.Immutable\.dll</ModulePath>
                 <ModulePath>.*System\.Reactive\.dll</ModulePath>
                 <ModulePath>.*System\.Threading\.Channels\.dll</ModulePath>

@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System.Text.Json;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.JsonRpc.Generation;
 
@@ -51,7 +51,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// the data.
         /// </summary>
         [Optional]
-        public JToken? AdapterData { get; init; }
+        public JsonElement? AdapterData { get; init; }
 
         /// <summary>
         /// The checksums associated with this file.

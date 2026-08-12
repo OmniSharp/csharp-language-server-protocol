@@ -42,6 +42,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -71,7 +72,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         /// Arguments that the command should be invoked with.
         /// </summary>
         [Optional]
-        public JArray? Arguments { get; init; }
+        public JsonElement? Arguments { get; init; }
     }
 }";
 

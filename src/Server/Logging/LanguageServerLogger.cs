@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
@@ -40,7 +40,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Logging
                                   //Hopefully this isn't too expensive in the long run
                                   ( state is IEnumerable<KeyValuePair<string, object>> dict
                                       ? string.Join(" ", dict.Where(z => z.Key != "{OriginalFormat}").Select(z => $"{z.Key}='{z.Value}'"))
-                                      : JsonConvert.SerializeObject(state).Replace("\"", "'")
+                                      : JsonSerializer.Serialize(state).Replace("\"", "'")
                                   )
                     }
                 );

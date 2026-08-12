@@ -32,7 +32,7 @@ Some of the important options include...
   * These methods can be used to create handler delegates without having to implement the request interfaces.
 * `options.OnJsonNotification` / `options.OnJsonRequest`
   * These methods can be used to create handler delegates without having to implement the request interfaces.
-  * These json `JToken` an the request / response types.
+  * These use `JsonElement` for request and response values.
 * `options.WithMaximumRequestTimeout()`
   * Sets the maximum timeout before a request is cancelled
   * Defaults to 5 minutes

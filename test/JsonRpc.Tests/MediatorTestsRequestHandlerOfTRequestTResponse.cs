@@ -4,8 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
 using OmniSharp.Extensions.JsonRpc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json.Serialization;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using Xunit;
@@ -32,7 +31,7 @@ namespace JsonRpc.Tests
         public class Command
         {
             public string Title { get; set; } = null!;
-            [JsonProperty("command")] public string Name { get; set; } = null!;
+            [JsonPropertyName("command")] public string Name { get; set; } = null!;
         }
 
         public MediatorTestsRequestHandlerOfTRequestTResponse(ITestOutputHelper testOutputHelper) : base(testOutputHelper) =>

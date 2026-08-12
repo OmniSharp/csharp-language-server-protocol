@@ -1,5 +1,5 @@
+using System.Text.Json;
 using OmniSharp.Extensions.JsonRpc;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.JsonRpc;
@@ -79,7 +79,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// Optional data to report. For the 'telemetry' category the data will be sent to telemetry, for the other categories the data is shown in JSON format.
             /// </summary>
             [Optional]
-            public JToken? Data { get; init; }
+            public JsonElement? Data { get; init; }
         }
 
         [StringEnum]

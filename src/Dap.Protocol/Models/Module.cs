@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
@@ -80,7 +80,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// Allows additional data to be displayed
         /// </summary>
         [JsonExtensionData]
-        [System.Text.Json.Serialization.JsonExtensionData]
         public Dictionary<string, object> ExtensionData { get; init; } = new Dictionary<string, object>();
     }
 }

@@ -1,12 +1,11 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+﻿using System.Text.Json.Serialization;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
     /// <summary>
     /// This enumeration defines all possible access types for data breakpoints.
     /// </summary>
-    [JsonConverter(typeof(StringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum DataBreakpointAccessType
     {
         Read,

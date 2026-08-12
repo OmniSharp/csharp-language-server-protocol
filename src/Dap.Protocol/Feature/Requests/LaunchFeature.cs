@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
@@ -30,11 +30,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// The client should leave the data intact.
             /// </summary>
             [Optional]
-            [JsonProperty(PropertyName = "__restart")]
-            public JToken? Restart { get; init; }
+            [JsonPropertyName("__restart")]
+            public JsonElement? Restart { get; init; }
 
             [JsonExtensionData]
-            [System.Text.Json.Serialization.JsonExtensionData]
             public IDictionary<string, object> ExtensionData { get; init; } = new Dictionary<string, object>();
         }
 

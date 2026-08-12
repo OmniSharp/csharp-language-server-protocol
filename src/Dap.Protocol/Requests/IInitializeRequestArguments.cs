@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
@@ -9,7 +9,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// The ID of the(frontend) client using this adapter.
         /// </summary>
-        [Optional, JsonProperty("clientID")]
+        [Optional, JsonPropertyName("clientID")]
         string? ClientId { get; set; }
 
         /// <summary>
@@ -21,7 +21,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// The ID of the debug adapter.
         /// </summary>
-        [JsonProperty("adapterID")]
+        [JsonPropertyName("adapterID")]
         string AdapterId { get; set; }
 
         /// <summary>

@@ -16,6 +16,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Test;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 

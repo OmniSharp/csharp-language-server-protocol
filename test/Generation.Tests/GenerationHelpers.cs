@@ -10,7 +10,7 @@ using OmniSharp.Extensions.JsonRpc;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.JsonRpc.Generators;
@@ -48,7 +48,7 @@ namespace Generation.Tests
                 typeof(GenerationHelpers).Assembly,
                 typeof(IDebugAdapterClientRegistry).Assembly,
                 typeof(Unit).Assembly,
-                typeof(JToken).Assembly,
+                typeof(JsonElement).Assembly,
                 typeof(ILanguageServerRegistry).Assembly,
             };
             MetadataReferences = coreMetaReferences

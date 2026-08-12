@@ -5,8 +5,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using System.Threading;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc.Client;
+using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using StjJsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace OmniSharp.Extensions.JsonRpc.Serialization
@@ -48,6 +48,7 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization
             ReplaceConverter(converters, new OutgoingRequestConverter());
             ReplaceConverter(converters, new OutgoingNotificationConverter());
             ReplaceConverter(converters, new OutgoingResponseConverter());
+            ReplaceConverter(converters, new RpcErrorConverterFactory());
         }
 
         private static void ReplaceConverter<T>(IList<JsonConverter> converters, T converter) where T : JsonConverter
@@ -65,13 +66,8 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization
 
         public string SerializeObject(object value) => SerializeObject(value, value.GetType());
 
-        public string SerializeObject(object value, Type type)
+        public virtual string SerializeObject(object value, Type type)
         {
-            if (value is JToken token)
-            {
-                return token.ToString(Newtonsoft.Json.Formatting.None);
-            }
-
             return StjJsonSerializer.Serialize(value, type, Options);
         }
 
@@ -114,20 +110,12 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization
 
         private string GetJson(object value) => value switch
         {
-            JToken token => token.ToString(Newtonsoft.Json.Formatting.None),
             JsonElement element => element.GetRawText(),
             _ => SerializeObject(value)
         };
 
         private static void WriteValue(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
         {
-            if (value is JToken token)
-            {
-                using var document = JsonDocument.Parse(token.ToString(Newtonsoft.Json.Formatting.None));
-                document.RootElement.WriteTo(writer);
-                return;
-            }
-
             StjJsonSerializer.Serialize(writer, value, value.GetType(), options);
         }
 
@@ -193,6 +181,53 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization
                 {
                     WriteValue(writer, value.Result, options);
                 }
+                writer.WriteEndObject();
+            }
+        }
+
+        private sealed class RpcErrorConverterFactory : JsonConverterFactory
+        {
+            public override bool CanConvert(Type typeToConvert) => typeof(RpcError).IsAssignableFrom(typeToConvert);
+
+            public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options) =>
+                (JsonConverter)Activator.CreateInstance(typeof(RpcErrorConverter<>).MakeGenericType(typeToConvert))!;
+        }
+
+        private sealed class RpcErrorConverter<T> : JsonConverter<T> where T : RpcError
+        {
+            public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                using var document = JsonDocument.ParseValue(ref reader);
+                var root = document.RootElement;
+                object? id = null;
+                if (root.TryGetProperty("id", out var idElement))
+                {
+                    id = idElement.ValueKind switch
+                    {
+                        JsonValueKind.String => idElement.GetString(),
+                        JsonValueKind.Number when idElement.TryGetInt64(out var number) => number,
+                        _ => null
+                    };
+                }
+
+                var error = root.TryGetProperty("error", out var errorElement)
+                    ? errorElement.Deserialize<ErrorMessage>(options)
+                    : null;
+                if (typeof(T) == typeof(RpcError)) return (T)(object)new RpcError(id, error);
+                throw new JsonException($"Cannot deserialize JSON-RPC errors as {typeof(T).FullName}.");
+            }
+
+            public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
+            {
+                writer.WriteStartObject();
+                writer.WriteString("jsonrpc", "2.0");
+                if (value.Id is not null)
+                {
+                    writer.WritePropertyName("id");
+                    WriteValue(writer, value.Id, options);
+                }
+                writer.WritePropertyName("error");
+                JsonSerializer.Serialize(writer, value.Error, options);
                 writer.WriteEndObject();
             }
         }

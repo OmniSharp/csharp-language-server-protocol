@@ -3,7 +3,6 @@ using System.Text.Json;
 using FluentAssertions;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using Xunit;
@@ -17,8 +16,8 @@ namespace Dap.Tests
         public void ShouldRespond_AsExpected(string json, Renor[] request)
         {
             var receiver = new DapReceiver();
-            var inSerializer = new DapProtocolSerializer();
-            var outSerializer = new DapProtocolSerializer();
+            var inSerializer = new DapSerializer();
+            var outSerializer = new DapSerializer();
             var (requests, _) = receiver.GetRequests(JsonTestHelper.Parse(json));
             var result = requests.ToArray();
             request.Length.Should().Be(result.Length);
@@ -37,7 +36,7 @@ namespace Dap.Tests
         [Fact]
         public void Should_Camel_Case_As_Expected()
         {
-            var serializer = new DapProtocolSerializer();
+            var serializer = new DapSerializer();
             var response = serializer.SerializeObject(
                 new InitializeResponse
                 {

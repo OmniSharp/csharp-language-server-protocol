@@ -1,6 +1,6 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
@@ -24,8 +24,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// The value is not interpreted by the client and passed unmodified as an attribute '__restart' to the 'launch' and 'attach' requests.
             /// </summary>
             [Optional]
-            [JsonProperty(PropertyName = "__restart")]
-            public JToken? Restart { get; init; }
+            [JsonPropertyName("__restart")]
+            public JsonElement? Restart { get; init; }
         }
     }
 }

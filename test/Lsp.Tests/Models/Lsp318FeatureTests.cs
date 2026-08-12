@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -29,14 +29,17 @@ namespace Lsp.Tests.Models
                 }
             );
 
-            var json = JObject.Parse(Fixture.SerializeObject(model));
+            var jsonStr = Fixture.SerializeObject(model);
+            using var doc = JsonDocument.Parse(jsonStr);
+            var json = doc.RootElement;
 
-            json["items"]!.Should().HaveCount(1);
-            json["items"]![0]!["insertText"]!["kind"]!.Value<string>().Should().Be("snippet");
-            json["items"]![0]!["insertText"]!["value"]!.Value<string>().Should().Be("Console.WriteLine($1);$0");
-            json["items"]![0]!["command"]!["tooltip"]!.Value<string>().Should().Be("Run after insertion");
+            var items = json.GetProperty("items").EnumerateArray().ToArray();
+            items.Should().HaveCount(1);
+            items[0].GetProperty("insertText").GetProperty("kind").GetString().Should().Be("snippet");
+            items[0].GetProperty("insertText").GetProperty("value").GetString().Should().Be("Console.WriteLine($1);$0");
+            items[0].GetProperty("command").GetProperty("tooltip").GetString().Should().Be("Run after insertion");
 
-            var result = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<InlineCompletionList>(json.ToString());
+            var result = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<InlineCompletionList>(jsonStr);
             result.Items.Single().InsertText.StringValue!.Value.Should().Be("Console.WriteLine($1);$0");
         }
 
@@ -61,12 +64,14 @@ namespace Lsp.Tests.Models
                 }
             };
 
-            var json = JObject.Parse(Fixture.SerializeObject(model));
+            var jsonStr = Fixture.SerializeObject(model);
+            using var doc = JsonDocument.Parse(jsonStr);
+            var json = doc.RootElement;
 
-            json["applyKind"]!["commitCharacters"]!.Value<string>().Should().Be("merge");
-            json["applyKind"]!["data"]!.Value<string>().Should().Be("replace");
+            json.GetProperty("applyKind").GetProperty("commitCharacters").GetString().Should().Be("merge");
+            json.GetProperty("applyKind").GetProperty("data").GetString().Should().Be("replace");
 
-            var result = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<CompletionList>(json.ToString());
+            var result = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<CompletionList>(jsonStr);
             result.ApplyKind!.CommitCharacters.Should().Be(ApplyKind.Merge);
             result.ApplyKind!.Data.Should().Be(ApplyKind.Replace);
         }
@@ -93,14 +98,16 @@ namespace Lsp.Tests.Models
                 )
             };
 
-            var json = JObject.Parse(Fixture.SerializeObject(model));
+            var jsonStr = Fixture.SerializeObject(model);
+            using var doc = JsonDocument.Parse(jsonStr);
+            var json = doc.RootElement;
 
-            json["metadata"]!["isRefactoring"]!.Value<bool>().Should().BeTrue();
-            json["documentChanges"]![0]!["edits"]![0]!["snippet"]!["kind"]!.Value<string>().Should().Be("snippet");
-            json["documentChanges"]![0]!["edits"]![0]!["snippet"]!["value"]!.Value<string>().Should().Be("class ${1:Name} {$0}");
-            json["documentChanges"]![0]!["edits"]![0]!["annotationId"]!.Value<string>().Should().Be("snippet-edit");
+            json.GetProperty("metadata").GetProperty("isRefactoring").GetBoolean().Should().BeTrue();
+            json.GetProperty("documentChanges")[0].GetProperty("edits")[0].GetProperty("snippet").GetProperty("kind").GetString().Should().Be("snippet");
+            json.GetProperty("documentChanges")[0].GetProperty("edits")[0].GetProperty("snippet").GetProperty("value").GetString().Should().Be("class ${1:Name} {$0}");
+            json.GetProperty("documentChanges")[0].GetProperty("edits")[0].GetProperty("annotationId").GetString().Should().Be("snippet-edit");
 
-            var result = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<WorkspaceEdit>(json.ToString());
+            var result = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<WorkspaceEdit>(jsonStr);
             result.Metadata!.IsRefactoring.Should().BeTrue();
             result.DocumentChanges!.Single().TextDocumentEdit!.Edits.Single().Should().BeOfType<SnippetTextEdit>();
         }
@@ -135,20 +142,21 @@ namespace Lsp.Tests.Models
                 }
             };
 
-            var json = JObject.Parse(Fixture.SerializeObject(capabilities));
+            using var capDoc = JsonDocument.Parse(Fixture.SerializeObject(capabilities));
+            var json = capDoc.RootElement;
 
-            json["workspace"]!["workspaceEdit"]!["metadataSupport"]!.Value<bool>().Should().BeTrue();
-            json["workspace"]!["workspaceEdit"]!["snippetEditSupport"]!.Value<bool>().Should().BeTrue();
-            json["workspace"]!["foldingRange"]!["refreshSupport"]!.Value<bool>().Should().BeTrue();
-            json["workspace"]!["textDocumentContent"]!["dynamicRegistration"]!.Value<bool>().Should().BeTrue();
-            json["textDocument"]!["filters"]!["relativePatternSupport"]!.Value<bool>().Should().BeTrue();
-            json["textDocument"]!["inlineCompletion"]!["dynamicRegistration"]!.Value<bool>().Should().BeTrue();
-            json["textDocument"]!["rangeFormatting"]!["rangesSupport"]!.Value<bool>().Should().BeTrue();
-            json["textDocument"]!["completion"]!["completionList"]!["applyKindSupport"]!.Value<bool>().Should().BeTrue();
-            json["textDocument"]!["codeAction"]!["documentationSupport"]!.Value<bool>().Should().BeTrue();
-            json["textDocument"]!["codeLens"]!["resolveSupport"]!["properties"]!.Values<string>().Should().Contain("command");
-            json["textDocument"]!["signatureHelp"]!["signatureInformation"]!["noActiveParameterSupport"]!.Value<bool>().Should().BeTrue();
-            json["textDocument"]!["diagnostic"]!["markupMessageSupport"]!.Value<bool>().Should().BeTrue();
+            json.GetProperty("workspace").GetProperty("workspaceEdit").GetProperty("metadataSupport").GetBoolean().Should().BeTrue();
+            json.GetProperty("workspace").GetProperty("workspaceEdit").GetProperty("snippetEditSupport").GetBoolean().Should().BeTrue();
+            json.GetProperty("workspace").GetProperty("foldingRange").GetProperty("refreshSupport").GetBoolean().Should().BeTrue();
+            json.GetProperty("workspace").GetProperty("textDocumentContent").GetProperty("dynamicRegistration").GetBoolean().Should().BeTrue();
+            json.GetProperty("textDocument").GetProperty("filters").GetProperty("relativePatternSupport").GetBoolean().Should().BeTrue();
+            json.GetProperty("textDocument").GetProperty("inlineCompletion").GetProperty("dynamicRegistration").GetBoolean().Should().BeTrue();
+            json.GetProperty("textDocument").GetProperty("rangeFormatting").GetProperty("rangesSupport").GetBoolean().Should().BeTrue();
+            json.GetProperty("textDocument").GetProperty("completion").GetProperty("completionList").GetProperty("applyKindSupport").GetBoolean().Should().BeTrue();
+            json.GetProperty("textDocument").GetProperty("codeAction").GetProperty("documentationSupport").GetBoolean().Should().BeTrue();
+            json.GetProperty("textDocument").GetProperty("codeLens").GetProperty("resolveSupport").GetProperty("properties").EnumerateArray().Select(x => x.GetString()).Should().Contain("command");
+            json.GetProperty("textDocument").GetProperty("signatureHelp").GetProperty("signatureInformation").GetProperty("noActiveParameterSupport").GetBoolean().Should().BeTrue();
+            json.GetProperty("textDocument").GetProperty("diagnostic").GetProperty("markupMessageSupport").GetBoolean().Should().BeTrue();
         }
 
         [Fact]
@@ -176,13 +184,14 @@ namespace Lsp.Tests.Models
                 }
             };
 
-            var json = JObject.Parse(Fixture.SerializeObject(capabilities));
+            using var srvDoc = JsonDocument.Parse(Fixture.SerializeObject(capabilities));
+            var json = srvDoc.RootElement;
 
-            json["inlineCompletionProvider"]!["workDoneProgress"]!.Value<bool>().Should().BeTrue();
-            json["documentRangeFormattingProvider"]!["rangesSupport"]!.Value<bool>().Should().BeTrue();
-            json["workspace"]!["textDocumentContent"]!["schemes"]!.Values<string>().Should().Contain(new[] { "git", "vscode-notebook-cell" });
-            json["codeActionProvider"]!["documentation"]![0]!["kind"]!.Value<string>().Should().Be("refactor.move");
-            json["codeActionProvider"]!["documentation"]![0]!["command"]!["tooltip"]!.Value<string>().Should().Be("Learn about move refactorings");
+            json.GetProperty("inlineCompletionProvider").GetProperty("workDoneProgress").GetBoolean().Should().BeTrue();
+            json.GetProperty("documentRangeFormattingProvider").GetProperty("rangesSupport").GetBoolean().Should().BeTrue();
+            json.GetProperty("workspace").GetProperty("textDocumentContent").GetProperty("schemes").EnumerateArray().Select(x => x.GetString()).Should().Contain(new[] { "git", "vscode-notebook-cell" });
+            json.GetProperty("codeActionProvider").GetProperty("documentation").EnumerateArray().First().GetProperty("kind").GetString().Should().Be("refactor.move");
+            json.GetProperty("codeActionProvider").GetProperty("documentation").EnumerateArray().First().GetProperty("command").GetProperty("tooltip").GetString().Should().Be("Learn about move refactorings");
         }
 
         [Fact]

@@ -1,9 +1,9 @@
 using System;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog;
@@ -151,18 +151,18 @@ namespace SampleServer
                                     }
                                 ).ConfigureAwait(false);
 
-                                var baseConfig = new JObject();
+                                var baseConfig = new JsonObject();
                                 foreach (var config in languageServer.Configuration.AsEnumerable())
                                 {
-                                    baseConfig.Add(config.Key, config.Value);
+                                    baseConfig.Add(config.Key, JsonNode.Parse(config.Value));
                                 }
 
                                 logger.LogInformation("Base Config: {@Config}", baseConfig);
 
-                                var scopedConfig = new JObject();
+                                var scopedConfig = new JsonObject();
                                 foreach (var config in configuration.AsEnumerable())
                                 {
-                                    scopedConfig.Add(config.Key, config.Value);
+                                    scopedConfig.Add(config.Key, JsonNode.Parse(config.Value));
                                 }
 
                                 logger.LogInformation("Scoped Config: {@Config}", scopedConfig);

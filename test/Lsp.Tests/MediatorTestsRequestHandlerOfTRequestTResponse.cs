@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using DryIoc;
 using FluentAssertions;
 using OmniSharp.Extensions.JsonRpc;
-using Newtonsoft.Json;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Client;
