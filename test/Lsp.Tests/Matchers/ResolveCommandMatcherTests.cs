@@ -83,7 +83,7 @@ namespace Lsp.Tests.Matchers
             );
 
             // When
-            Func<Task> a = async () => await handlerMatcher.Handle(new CodeLensParams(), () => Task.FromResult(new CodeLensContainer()), CancellationToken.None);
+            Func<Task> a = async () => await handlerMatcher.Handle(new CodeLensParams(), _ => Task.FromResult(new CodeLensContainer()), CancellationToken.None);
             await a.Should().NotThrowAsync();
         }
 
@@ -272,7 +272,7 @@ namespace Lsp.Tests.Matchers
             ( list is IEnumerable<ICanBeResolved> ).Should().BeTrue();
 
             // When
-            var response = await handlerMatcher.Handle(new CompletionParams(), () => Task.FromResult(list), CancellationToken.None);
+            var response = await handlerMatcher.Handle(new CompletionParams(), _ => Task.FromResult(list), CancellationToken.None);
 
             // Then
             response.Should().BeEquivalentTo(list, x => x.UsingStructuralRecordEquality());
@@ -323,7 +323,7 @@ namespace Lsp.Tests.Matchers
             ( list is IEnumerable<ICanBeResolved> ).Should().BeTrue();
 
             // When
-            var response = await handlerMatcher.Handle(new CodeLensParams(), () => Task.FromResult(list), CancellationToken.None);
+            var response = await handlerMatcher.Handle(new CodeLensParams(), _ => Task.FromResult(list), CancellationToken.None);
 
             // Then
             response.Should().BeEquivalentTo(list, x => x.UsingStructuralRecordEquality());
@@ -370,7 +370,7 @@ namespace Lsp.Tests.Matchers
             };
 
             // When
-            var response = await handlerMatcher.Handle(item, () => Task.FromResult(item), CancellationToken.None);
+            var response = await handlerMatcher.Handle(item, _ => Task.FromResult(item), CancellationToken.None);
 
             // Then
             response.Should().BeEquivalentTo(item, x => x.UsingStructuralRecordEquality());
