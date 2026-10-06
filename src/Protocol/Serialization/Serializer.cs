@@ -321,7 +321,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 var member = property.AttributeProvider as MemberInfo;
                 var hasOptional = member?.GetCustomAttributes(typeof(OptionalAttribute), true).Any() == true;
 
-                if (hasOptional || typeInfo.Type.Name.EndsWith("Capabilities", StringComparison.Ordinal))
+                if (member?.Name == nameof(SignatureHelp.ActiveParameter)
+                    && typeof(IOptionalActiveParameter).IsAssignableFrom(typeInfo.Type))
+                {
+                    AppendShouldSerialize(property, (target, _) => ((IOptionalActiveParameter) target).HasActiveParameter);
+                }
+                else if (hasOptional || typeInfo.Type.Name.EndsWith("Capabilities", StringComparison.Ordinal))
                 {
                     AppendShouldSerialize(property, (_, value) => !IsDefaultValue(value, property.PropertyType));
                 }

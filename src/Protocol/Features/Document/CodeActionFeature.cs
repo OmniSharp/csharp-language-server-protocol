@@ -160,6 +160,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public CodeActionDisabled? Disabled { get; init; }
 
             /// <summary>
+            /// Tags for this code action.
+            ///
+            /// @since 3.18.0 - proposed
+            /// </summary>
+            [Optional]
+            public Container<CodeActionTag>? Tags { get; init; }
+
+            /// <summary>
             /// A data entry field that is preserved on a document link between a
             /// DocumentLinkRequest and a DocumentLinkResolveRequest.
             /// </summary>
@@ -200,6 +208,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// This is displayed in the code actions UI.
             /// </summary>
             public string Reason { get; init; } = null!;
+        }
+
+        /// <summary>
+        /// Code action tags.
+        ///
+        /// @since 3.18.0 - proposed
+        /// </summary>
+        public enum CodeActionTag
+        {
+            LLMGenerated = 1
         }
 
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
@@ -554,6 +572,24 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             [Optional]
             public bool DocumentationSupport { get; set; }
+
+            /// <summary>
+            /// The code action tags supported by the client.
+            ///
+            /// @since 3.18.0 - proposed
+            /// </summary>
+            [Optional]
+            public CodeActionTagSupportOptions? TagSupport { get; set; }
+        }
+
+        /// <summary>
+        /// Code action tag values supported by the client.
+        ///
+        /// @since 3.18.0 - proposed
+        /// </summary>
+        public class CodeActionTagSupportOptions
+        {
+            public Container<CodeActionTag> ValueSet { get; set; } = null!;
         }
 
         public class CodeActionLiteralSupportOptions

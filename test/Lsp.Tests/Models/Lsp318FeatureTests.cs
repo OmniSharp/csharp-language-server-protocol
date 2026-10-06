@@ -201,6 +201,95 @@ namespace Lsp.Tests.Models
             CodeActionKind.RefactorMove.ToString().Should().Be("refactor.move");
             CodeActionKind.Notebook.ToString().Should().Be("notebook");
             SemanticTokenType.Label.ToString().Should().Be("label");
+            LanguageKind.D.ToString().Should().Be("d");
+            LanguageKind.Delphi.ToString().Should().Be("pascal");
+            LanguageKind.Pascal.ToString().Should().Be("pascal");
+        }
+
+        [Fact]
+        public void ProtocolMethods_ExposeAll318Requests()
+        {
+            TextDocumentNames.InlineCompletion.Should().Be("textDocument/inlineCompletion");
+            WorkspaceNames.TextDocumentContent.Should().Be("workspace/textDocumentContent");
+            WorkspaceNames.TextDocumentContentRefresh.Should().Be("workspace/textDocumentContent/refresh");
+            WorkspaceNames.FoldingRangeRefresh.Should().Be("workspace/foldingRange/refresh");
+            TextDocumentNames.RangesFormatting.Should().Be("textDocument/rangesFormatting");
+        }
+
+        [Fact]
+        public void CodeAction_Serializes318TagsAndCapability()
+        {
+            var action = new CodeAction {
+                Title = "Generated fix",
+                Tags = new Container<CodeActionTag>(CodeActionTag.LLMGenerated)
+            };
+            var capabilities = new CodeActionCapability {
+                TagSupport = new CodeActionTagSupportOptions {
+                    ValueSet = new Container<CodeActionTag>(CodeActionTag.LLMGenerated)
+                }
+            };
+
+            using var actionDocument = JsonDocument.Parse(Fixture.SerializeObject(action));
+            using var capabilityDocument = JsonDocument.Parse(Fixture.SerializeObject(capabilities));
+
+            actionDocument.RootElement.GetProperty("tags")[0].GetInt32().Should().Be(1);
+            capabilityDocument.RootElement.GetProperty("tagSupport").GetProperty("valueSet")[0].GetInt32().Should().Be(1);
+        }
+
+        [Fact]
+        public void SignatureHelp_SerializesNullActiveParameters()
+        {
+            var signatureHelp = new SignatureHelp {
+                Signatures = new Container<SignatureInformation>(
+                    new SignatureInformation {
+                        Label = "M(value)",
+                        ActiveParameter = null
+                    }
+                ),
+                ActiveParameter = null
+            };
+
+            using var document = JsonDocument.Parse(Fixture.SerializeObject(signatureHelp));
+
+            document.RootElement.GetProperty("activeParameter").ValueKind.Should().Be(JsonValueKind.Null);
+            document.RootElement.GetProperty("signatures")[0].GetProperty("activeParameter").ValueKind.Should().Be(JsonValueKind.Null);
+        }
+
+        [Fact]
+        public void SignatureHelp_OmitsUnsetActiveParameters()
+        {
+            var signatureHelp = new SignatureHelp {
+                Signatures = new Container<SignatureInformation>(
+                    new SignatureInformation { Label = "M()" }
+                )
+            };
+
+            using var document = JsonDocument.Parse(Fixture.SerializeObject(signatureHelp));
+
+            document.RootElement.TryGetProperty("activeParameter", out _).Should().BeFalse();
+            document.RootElement.GetProperty("signatures")[0].TryGetProperty("activeParameter", out _).Should().BeFalse();
+        }
+
+        [Fact]
+        public void DocumentFilters_Serialize318RelativePatterns()
+        {
+            DocumentUri baseUri = new Uri("file:///workspace/");
+            var textFilter = new TextDocumentFilter {
+                Language = "csharp",
+                Pattern = new RelativePattern { BaseUri = baseUri, Pattern = "**/*.cs" }
+            };
+            var notebookFilter = new NotebookDocumentFilter {
+                NotebookType = "jupyter-notebook",
+                Pattern = new RelativePattern { BaseUri = baseUri, Pattern = "**/*.ipynb" }
+            };
+
+            using var textDocument = JsonDocument.Parse(Fixture.SerializeObject(textFilter));
+            using var notebookDocument = JsonDocument.Parse(Fixture.SerializeObject(notebookFilter));
+
+            textDocument.RootElement.GetProperty("pattern").GetProperty("baseUri").GetString().Should().Be("file:///workspace/");
+            textDocument.RootElement.GetProperty("pattern").GetProperty("pattern").GetString().Should().Be("**/*.cs");
+            notebookDocument.RootElement.GetProperty("pattern").GetProperty("baseUri").GetString().Should().Be("file:///workspace/");
+            notebookDocument.RootElement.GetProperty("pattern").GetProperty("pattern").GetString().Should().Be("**/*.ipynb");
         }
     }
 }
