@@ -6,3 +6,5 @@ branches:
   main:
     mode: ContinuousDeployment
     label: alpha
+  pull-request:
+    label: PullRequest
