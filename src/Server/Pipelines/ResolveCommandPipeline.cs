@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
+using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
@@ -26,7 +25,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
 
         public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
-            var response = await next().ConfigureAwait(false);
+            var response = await next(cancellationToken).ConfigureAwait(false);
             cancellationToken.ThrowIfCancellationRequested();
 
             // Only pin the handler type, if we know the source handler (codelens) is also the resolver.
@@ -60,21 +59,19 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
 
             void UpdatePrivateHandlerId(ICanBeResolved item, Guid id)
             {
-                item.SetRawData(item.Data ?? new JObject());
-                if (item.Data is JObject o)
+                var data = item.Data is { ValueKind: JsonValueKind.Object }
+                    ? item.Data.Value.Deserialize<Dictionary<string, JsonElement>>() ?? new Dictionary<string, JsonElement>()
+                    : new Dictionary<string, JsonElement>();
+                if (id == Guid.Empty)
                 {
-                    if (id == Guid.Empty)
-                    {
-                        if (o.ContainsKey(Constants.PrivateHandlerId))
-                        {
-                            o.Remove(Constants.PrivateHandlerId);
-                        }
-
-                        return;
-                    }
-
-                    o[Constants.PrivateHandlerId] = id;
+                    data.Remove(Constants.PrivateHandlerId);
                 }
+                else
+                {
+                    data[Constants.PrivateHandlerId] = JsonSerializer.SerializeToElement(id);
+                }
+
+                item.SetRawData(JsonSerializer.SerializeToElement(data));
             }
         }
     }

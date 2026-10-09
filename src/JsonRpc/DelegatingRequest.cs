@@ -1,12 +1,31 @@
-using MediatR;
-using Newtonsoft.Json.Linq;
+using System;
+using System.Text.Json;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public class DelegatingRequest<T> : IRequest<JToken>, IRequest
+    public class DelegatingRequest<T> : IRequest<JsonElement>, IRequest
     {
-        public DelegatingRequest(object value) => Value = typeof(T) == typeof(Unit) || value is Unit ? new JObject() : JToken.FromObject(value);
+        private static readonly JsonSerializerOptions SerializerOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
-        public JToken Value { get; }
+        public DelegatingRequest(object value) => Value = ToJsonElement(value);
+
+        public JsonElement Value { get; }
+
+        private static JsonElement ToJsonElement(object value)
+        {
+            if (typeof(T) == typeof(Unit) || value is Unit)
+            {
+                return JsonSerializer.SerializeToElement(new { });
+            }
+
+            if (value is null) throw new ArgumentNullException(nameof(value));
+
+            if (value is JsonElement element)
+            {
+                return element.Clone();
+            }
+
+            return JsonSerializer.SerializeToElement(value, value.GetType(), SerializerOptions);
+        }
     }
 }

@@ -1,10 +1,8 @@
-using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [JsonConverter(typeof(LocationOrLocationLinkConverter))]
     [GenerateContainer("LocationOrLocationLinks")]
     public record LocationOrLocationLink
     {
@@ -31,6 +29,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public static implicit operator LocationOrLocationLink(LocationLink locationLink) => new LocationOrLocationLink(locationLink);
     }
 
-    [JsonConverter(typeof(LocationOrLocationLinksConverter))]
     public partial class LocationOrLocationLinks { }
 }

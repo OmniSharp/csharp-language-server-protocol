@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using System.Text.Json;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -30,11 +30,11 @@ namespace Lsp.Tests.Models
             {
                 Command = new Command
                 {
-                    Arguments = new JArray { 1, "2", true },
+                    Arguments = Command.CreateArguments(1, "2", true),
                     Name = "abc",
                     Title = "Cool story bro"
                 },
-                Data = JObject.FromObject(
+                Data = JsonSerializer.SerializeToElement(
                     new Dictionary<string, object>
                     {
                         { "somethingCool", 1 }

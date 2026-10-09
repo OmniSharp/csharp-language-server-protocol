@@ -1,7 +1,10 @@
 workflow: GitHubFlow/v1
 semantic-version-format: Loose
+next-version: 1.0.1
 
 branches:
   main:
     mode: ContinuousDeployment
     label: alpha
+  pull-request:
+    label: PullRequest

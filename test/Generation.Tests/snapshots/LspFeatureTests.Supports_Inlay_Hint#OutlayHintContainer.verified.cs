@@ -1,8 +1,8 @@
 ﻿//HintName: OutlayHintContainer.cs
 using System.Diagnostics;
-using MediatR;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;

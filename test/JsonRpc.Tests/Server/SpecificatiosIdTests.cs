@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using Xunit;
 
@@ -14,7 +13,7 @@ namespace JsonRpc.Tests.Server
         public void ShouldParse_SimpleMessages(string message, Type outputType, object? expectedResult)
         {
             var receiver = new Receiver();
-            var (requests, _) = receiver.GetRequests(JToken.Parse(message));
+            var (requests, _) = receiver.GetRequests(JsonTestHelper.Parse(message));
             var result = requests.Single().Request!;
 
             result.Id.Should().Be(expectedResult);

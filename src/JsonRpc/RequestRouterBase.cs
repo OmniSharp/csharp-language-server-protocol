@@ -7,10 +7,8 @@ using System.Reactive.Disposables;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
@@ -57,13 +55,15 @@ namespace OmniSharp.Extensions.JsonRpc
                         _logger.LogTrace(
                             "Converting params for Notification {Method} to {Type}", notification.Method, descriptors.Default.Params.GetGenericArguments()[0].FullName
                         );
-                        var o = notification.Params?.ToObject(descriptors.Default.Params.GetGenericArguments()[0], _serializer.JsonSerializer);
+                        var o = notification.Params is null
+                            ? null
+                            : _serializer.DeserializeObject(notification.Params, descriptors.Default.Params.GetGenericArguments()[0]);
                         @params = Activator.CreateInstance(descriptors.Default.Params, o);
                     }
                     else
                     {
                         _logger.LogTrace("Converting params for Notification {Method} to {Type}", notification.Method, descriptors.Default.Params.FullName);
-                        @params = notification.Params?.ToObject(descriptors.Default.Params, _serializer.JsonSerializer);
+                        @params = notification.Params is null ? null : _serializer.DeserializeObject(notification.Params, descriptors.Default.Params);
                     }
                 }
 
@@ -75,9 +75,9 @@ namespace OmniSharp.Extensions.JsonRpc
                 using var scope = serviceScopeFactory.CreateScope();
                 var context = scope.ServiceProvider.GetRequiredService<IRequestContext>();
                 context.Descriptor = descriptor;
-                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var dispatcher = scope.ServiceProvider.GetRequiredService<IRequestDispatcher>();
 
-                await HandleNotification(mediator, descriptor, @params ?? Activator.CreateInstance(descriptor.Params!), token).ConfigureAwait(false);
+                await HandleNotification(dispatcher, descriptor, @params ?? Activator.CreateInstance(descriptor.Params!), token).ConfigureAwait(false);
             }
         }
 
@@ -106,14 +106,16 @@ namespace OmniSharp.Extensions.JsonRpc
                             "Converting params for Request ({Id}) {Method} to {Type}", request.Id, request.Method,
                             descriptors.Default!.Params!.GetGenericArguments()[0].FullName
                         );
-                        var o = request.Params?.ToObject(descriptors.Default!.Params!.GetGenericArguments()[0], _serializer.JsonSerializer);
+                        var o = request.Params is null
+                            ? null
+                            : _serializer.DeserializeObject(request.Params, descriptors.Default!.Params!.GetGenericArguments()[0]);
                         @params = Activator.CreateInstance(descriptors.Default!.Params, o);
                     }
                     else
                     {
                         _logger.LogTrace("Converting params for Request ({Id}) {Method} to {Type}", request.Id, request.Method, descriptors.Default!.Params!.FullName);
                         _logger.LogTrace("Converting params for Notification {Method} to {Type}", request.Method, descriptors.Default!.Params.FullName);
-                        @params = request.Params?.ToObject(descriptors.Default!.Params, _serializer.JsonSerializer);
+                        @params = request.Params is null ? null : _serializer.DeserializeObject(request.Params, descriptors.Default!.Params);
                     }
                 }
                 catch (Exception cannotDeserializeRequestParams)
@@ -124,8 +126,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
                 using var scope = _serviceScopeFactory.CreateScope();
                 // TODO: Do we want to support more handlers as "aggregate"?
-                if (typeof(IEnumerable).IsAssignableFrom(descriptors.Default!.Response) && typeof(string) != descriptors.Default!.Response
-                                                                                        && !typeof(JToken).IsAssignableFrom(descriptors.Default!.Response))
+                if (typeof(IEnumerable).IsAssignableFrom(descriptors.Default!.Response) && typeof(string) != descriptors.Default!.Response)
                 {
                     var responses = await Task.WhenAll(descriptors.Select(descriptor => InnerRoute(_serviceScopeFactory, request, descriptor, @params, token, _logger)))
                                               .ConfigureAwait(false);
@@ -153,11 +154,11 @@ namespace OmniSharp.Extensions.JsonRpc
                 using var scope = serviceScopeFactory.CreateScope();
                 var context = scope.ServiceProvider.GetRequiredService<IRequestContext>();
                 context.Descriptor = descriptor;
-                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var dispatcher = scope.ServiceProvider.GetRequiredService<IRequestDispatcher>();
 
                 token.ThrowIfCancellationRequested();
 
-                var result = HandleRequest(mediator, descriptor, @params ?? Activator.CreateInstance(descriptor.Params!), token);
+                var result = HandleRequest(dispatcher, descriptor, @params ?? Activator.CreateInstance(descriptor.Params!), token);
                 await result.ConfigureAwait(false);
 
                 token.ThrowIfCancellationRequested();
@@ -196,31 +197,31 @@ namespace OmniSharp.Extensions.JsonRpc
                                                                 .Where(x => x.Name == nameof(SendRequest))
                                                                 .First(x => x.GetGenericArguments().Length == 2);
 
-        public static Task HandleNotification(IMediator mediator, IHandlerDescriptor handler, object @params, CancellationToken token) =>
+        internal static Task HandleNotification(IRequestDispatcher dispatcher, IHandlerDescriptor handler, object @params, CancellationToken token) =>
             (Task) SendRequestUnit
                   .MakeGenericMethod(handler.Params!)
-                  .Invoke(null, new[] { mediator, @params, token });
+                  .Invoke(null, new[] { dispatcher, @params, token });
 
-        public static Task HandleRequest(IMediator mediator, IHandlerDescriptor descriptor, object @params, CancellationToken token)
+        internal static Task HandleRequest(IRequestDispatcher dispatcher, IHandlerDescriptor descriptor, object @params, CancellationToken token)
         {
             if (!descriptor.HasReturnType)
             {
                 return (Task) SendRequestUnit
                              .MakeGenericMethod(descriptor.Params!)
-                             .Invoke(null, new[] { mediator, @params, token });
+                             .Invoke(null, new[] { dispatcher, @params, token });
             }
 
             return (Task) SendRequestResponse
                          .MakeGenericMethod(descriptor.Params!, descriptor.Response!)
-                         .Invoke(null, new[] { mediator, @params, token });
+                         .Invoke(null, new[] { dispatcher, @params, token });
         }
 
-        private static Task SendRequest<T>(IMediator mediator, T request, CancellationToken token)
+        private static Task SendRequest<T>(IRequestDispatcher dispatcher, T request, CancellationToken token)
             where T : IRequest<Unit> =>
-            mediator.Send(request, token);
+            dispatcher.Send(request, token);
 
-        private static Task<TResponse> SendRequest<T, TResponse>(IMediator mediator, T request, CancellationToken token)
+        private static Task<TResponse> SendRequest<T, TResponse>(IRequestDispatcher dispatcher, T request, CancellationToken token)
             where T : IRequest<TResponse> =>
-            mediator.Send(request, token);
+            dispatcher.Send<T, TResponse>(request, token);
     }
 }

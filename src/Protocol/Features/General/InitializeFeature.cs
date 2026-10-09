@@ -1,9 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
-using MediatR;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -178,7 +176,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
             }
 
-            internal InitializeParams(IInitializeParams<JObject> @params, ClientCapabilities clientCapabilities)
+            internal InitializeParams(IInitializeParams<JsonElement> @params, ClientCapabilities clientCapabilities)
             {
                 ProcessId = @params.ProcessId;
                 Trace = @params.Trace;
@@ -197,7 +195,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateHandlerMethods(typeof(ILanguageServerRegistry))]
         [GenerateRequestMethods(typeof(ILanguageClient))]
         internal partial record
-            InternalInitializeParams : IInitializeParams<JObject>, IRequest<InitializeResult> // This is required for generation to work correctly.
+            InternalInitializeParams : IInitializeParams<JsonElement>, IRequest<InitializeResult> // This is required for generation to work correctly.
         {
             /// <summary>
             /// The process Id of the parent process that started
@@ -242,7 +240,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// The capabilities provided by the client (editor or tool)
             /// </summary>
-            public JObject Capabilities { get; init; } = null!;
+            public JsonElement Capabilities { get; init; }
 
             /// <summary>
             /// The initial trace setting. If omitted trace is disabled ('off').
@@ -291,7 +289,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public bool Retry { get; init; }
         }
 
-        [JsonConverter(typeof(StringEnumConverter))]
         public enum InitializeTrace
         {
             [EnumMember(Value = "off")] Off,

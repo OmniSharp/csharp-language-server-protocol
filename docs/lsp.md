@@ -5,8 +5,7 @@ The goal of this library is to implement [Language Server Protocol](https://micr
 Included in this library is a full-fidelity `LanguageServer` but also full `LanguageClient` implementation that could be implemented in an editor, but mainly it is used to help make Unit Testing easier, more consistent (and maybe even fun!).
 
 # Concepts
-The language server is built on a few concepts.  At it's core is the [MediatR](https://github.com/jbogard/MediatR) library that you will build language specific handlers around. Around that core is a bunch of knowledge of the LSP protocol
-with the goal of making it more ".NET" like and less protocol centric.
+The language server is built around request, response, handler, and pipeline contracts from `OmniSharp.Extensions.JsonRpc`. Language-specific handlers use those contracts, while the surrounding layers provide knowledge of the LSP protocol with the goal of making it more ".NET" like and less protocol centric.
 
 LSP revolves around features ( eg Completion, Hover, etc ) that define the inputs (request object) the outputs (response object) as well as Client Capabilities and Server Registration Options.
 
@@ -51,7 +50,7 @@ Some of the important options include...
   * These methods can be used to create handler delegates without having to implement the request interfaces.
 * `options.OnJsonNotification` / `options.OnJsonRequest`
   * These methods can be used to create handler delegates without having to implement the request interfaces.
-  * These json `JToken` an the request / response types.
+  * These use `JsonElement` for request and response values.
 * `options.WithMaximumRequestTimeout()`
   * Sets the maximum timeout before a request is cancelled
   * Defaults to 5 minutes

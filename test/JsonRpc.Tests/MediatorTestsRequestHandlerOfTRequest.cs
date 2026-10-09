@@ -2,9 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
-using MediatR;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using Xunit;
@@ -39,7 +37,7 @@ namespace JsonRpc.Tests
 
             var id = Guid.NewGuid().ToString();
             var @params = new ExecuteCommandParams { Command = "123" };
-            var request = new Request(id, "workspace/executeCommand", JObject.Parse(JsonConvert.SerializeObject(@params)));
+            var request = new Request(id, "workspace/executeCommand", JsonTestHelper.ToElement(@params));
 
             await router.RouteRequest(router.GetDescriptors(request), request, CancellationToken.None);
 

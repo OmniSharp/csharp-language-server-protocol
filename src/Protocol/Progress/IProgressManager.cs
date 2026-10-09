@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Reactive.Concurrency;
 using System.Threading;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
@@ -10,7 +9,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
     public interface IProgressManager : IProgressHandler
     {
         IProgressObservable<T> Monitor<T>(ProgressToken token);
-        IProgressObservable<T> Monitor<T>(ProgressToken token, Func<JToken, T> factory);
+        IProgressObservable<T> Monitor<T>(ProgressToken token, Func<object, T> factory);
 
         IRequestProgressObservable<TItem, TResult> MonitorUntil<TItem, TResult>(
             IPartialItemRequest<TResult, TItem> request,

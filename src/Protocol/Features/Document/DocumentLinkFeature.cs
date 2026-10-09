@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System.Linq;
-using MediatR;
-using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -66,7 +65,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// DocumentLinkRequest and a DocumentLinkResolveRequest.
             /// </summary>
             [Optional]
-            public JToken? Data { get; init; }
+            public System.Text.Json.JsonElement? Data { get; init; }
 
             /// <summary>
             /// The tooltip text when you hover over this link.

@@ -1,9 +1,7 @@
-﻿using Newtonsoft.Json;
-using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
+﻿using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-[JsonConverter(typeof(LocationOrFileLocationConverter))]
 public record LocationOrFileLocation
 {
     public LocationOrFileLocation(Location location)

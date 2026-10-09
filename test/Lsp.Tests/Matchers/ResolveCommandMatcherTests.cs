@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -83,7 +83,7 @@ namespace Lsp.Tests.Matchers
             );
 
             // When
-            Func<Task> a = async () => await handlerMatcher.Handle(new CodeLensParams(), () => Task.FromResult(new CodeLensContainer()), CancellationToken.None);
+            Func<Task> a = async () => await handlerMatcher.Handle(new CodeLensParams(), _ => Task.FromResult(new CodeLensContainer()), CancellationToken.None);
             await a.Should().NotThrowAsync();
         }
 
@@ -100,7 +100,7 @@ namespace Lsp.Tests.Matchers
             // When
             var result = handlerMatcher.FindHandler(
                                             new CodeLens {
-                                                Data = JObject.FromObject(new Dictionary<string, object> { [Constants.PrivateHandlerId] = _trueId, ["a"] = 1 })
+                                                Data = JsonSerializer.SerializeToElement(new Dictionary<string, object> { [Constants.PrivateHandlerId] = _trueId, ["a"] = 1 })
                                             },
                                             new List<LspHandlerDescriptor> {
                                                 new LspHandlerDescriptor(
@@ -189,7 +189,7 @@ namespace Lsp.Tests.Matchers
             // When
             var result = handlerMatcher.FindHandler(
                                             new CompletionItem {
-                                                Data = JObject.FromObject(new Dictionary<string, object> { [Constants.PrivateHandlerId] = _trueId, ["a"] = 1 })
+                                                Data = JsonSerializer.SerializeToElement(new Dictionary<string, object> { [Constants.PrivateHandlerId] = _trueId, ["a"] = 1 })
                                             },
                                             new List<LspHandlerDescriptor> {
                                                 new LspHandlerDescriptor(
@@ -264,7 +264,7 @@ namespace Lsp.Tests.Matchers
             );
 
             var item = new CompletionItem {
-                Data = JObject.FromObject(new { hello = "world" })
+                Data = JsonSerializer.SerializeToElement(new { hello = "world" })
             };
             var list = new CompletionList(item);
 
@@ -272,14 +272,14 @@ namespace Lsp.Tests.Matchers
             ( list is IEnumerable<ICanBeResolved> ).Should().BeTrue();
 
             // When
-            var response = await handlerMatcher.Handle(new CompletionParams(), () => Task.FromResult(list), CancellationToken.None);
+            var response = await handlerMatcher.Handle(new CompletionParams(), _ => Task.FromResult(list), CancellationToken.None);
 
             // Then
             response.Should().BeEquivalentTo(list, x => x.UsingStructuralRecordEquality());
             response.Items.Should().Contain(item);
             var responseItem = response.Items.First();
-            responseItem.Data![Constants.PrivateHandlerId].Value<Guid>().Should().Be(_trueId);
-            responseItem.Data!["hello"].Value<string>().Should().Be("world");
+            responseItem.Data!.Value.GetProperty(Constants.PrivateHandlerId).GetGuid().Should().Be(_trueId);
+            responseItem.Data.Value.GetProperty("hello").GetString().Should().Be("world");
         }
 
         [Fact]
@@ -315,7 +315,7 @@ namespace Lsp.Tests.Matchers
             );
 
             var item = new CodeLens {
-                Data = JObject.FromObject(new { hello = "world" })
+                Data = JsonSerializer.SerializeToElement(new { hello = "world" })
             };
             var list = new CodeLensContainer(item);
 
@@ -323,14 +323,14 @@ namespace Lsp.Tests.Matchers
             ( list is IEnumerable<ICanBeResolved> ).Should().BeTrue();
 
             // When
-            var response = await handlerMatcher.Handle(new CodeLensParams(), () => Task.FromResult(list), CancellationToken.None);
+            var response = await handlerMatcher.Handle(new CodeLensParams(), _ => Task.FromResult(list), CancellationToken.None);
 
             // Then
             response.Should().BeEquivalentTo(list, x => x.UsingStructuralRecordEquality());
             response.Should().Contain(item);
             var responseItem = response.First();
-            responseItem.Data![Constants.PrivateHandlerId].Value<Guid>().Should().Be(_trueId);
-            responseItem.Data["hello"].Value<string>().Should().Be("world");
+            responseItem.Data!.Value.GetProperty(Constants.PrivateHandlerId).GetGuid().Should().Be(_trueId);
+            responseItem.Data.Value.GetProperty("hello").GetString().Should().Be("world");
         }
 
         [Fact]
@@ -366,17 +366,18 @@ namespace Lsp.Tests.Matchers
             );
 
             var item = new CodeLens {
-                Data = JObject.FromObject(new { hello = "world" })
+                Data = JsonSerializer.SerializeToElement(new { hello = "world" })
             };
 
             // When
-            var response = await handlerMatcher.Handle(item, () => Task.FromResult(item), CancellationToken.None);
+            var response = await handlerMatcher.Handle(item, _ => Task.FromResult(item), CancellationToken.None);
 
             // Then
             response.Should().BeEquivalentTo(item, x => x.UsingStructuralRecordEquality());
-            var data = item.Data.Should().BeOfType<JObject>().Subject;
-            data.Should().NotContainKey(Constants.PrivateHandlerId);
-            data["hello"].Value<string>().Should().Be("world");
+            item.Data.Should().NotBeNull();
+            var data = item.Data!.Value;
+            data.TryGetProperty(Constants.PrivateHandlerId, out _).Should().BeFalse();
+            data.GetProperty("hello").GetString().Should().Be("world");
         }
     }
 }

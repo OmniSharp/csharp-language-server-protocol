@@ -2,10 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading;
-using MediatR;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -26,12 +25,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateRequestMethods(typeof(IGeneralLanguageClient), typeof(ILanguageClient), typeof(IGeneralLanguageServer), typeof(ILanguageServer))]
         public record ProgressParams : IRequest<Unit>
         {
-            public static ProgressParams Create<T>(ProgressToken token, T value, JsonSerializer jsonSerializer)
+            public static ProgressParams Create<T>(ProgressToken token, T value, ISerializer serializer)
             {
+                using var document = JsonDocument.Parse(serializer.SerializeObject(value));
                 return new ProgressParams
                 {
                     Token = token,
-                    Value = JToken.FromObject(value, jsonSerializer)
+                    Value = document.RootElement.Clone()
                 };
             }
 
@@ -43,10 +43,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// <summary>
             /// The progress data.
             /// </summary>
-            public JToken Value { get; init; } = null!;
+            public JsonElement Value { get; init; }
         }
 
-        [JsonConverter(typeof(ProgressTokenConverter))]
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
         public record ProgressToken : IEquatable<long>, IEquatable<string>
         {
@@ -99,9 +98,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 return new ProgressToken(value);
             }
 
-            public ProgressParams Create<T>(T value, JsonSerializer jsonSerializer)
+            public ProgressParams Create<T>(T value, ISerializer serializer)
             {
-                return ProgressParams.Create(this, value, jsonSerializer);
+                return ProgressParams.Create(this, value, serializer);
             }
 
             public bool Equals(long other)

@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
-using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;

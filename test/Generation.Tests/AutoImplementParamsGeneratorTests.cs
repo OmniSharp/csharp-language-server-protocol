@@ -20,7 +20,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 namespace Test
 {
     [Method(""abcd"")]
-    public partial class DeclarationParams : TextDocumentPositionParams, IWorkDoneProgressParams, IPartialItemsRequest<LocationOrLocationLinks, LocationOrLocationLink> { }
+    public partial class DeclarationParams : TextDocumentPositionParams, IWorkDoneProgressParams, IPartialItemsRequest<LocationOrLocationLinks, LocationOrLocationLink>, IHandlerIdentity { }
 }
 ";
             await Verify(GenerationHelpers.GenerateAll(source));

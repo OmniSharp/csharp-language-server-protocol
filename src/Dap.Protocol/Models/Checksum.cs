@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
@@ -15,7 +15,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// Value of the checksum.
         /// </summary>
-        [JsonProperty("checksum")]
+        [JsonPropertyName("checksum")]
         public string Value { get; init; } = null!;
     }
 }

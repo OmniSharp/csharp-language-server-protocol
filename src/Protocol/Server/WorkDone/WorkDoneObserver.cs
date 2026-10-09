@@ -35,16 +35,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
         }
 
         public void OnCompleted() => _router.SendNotification(
-            WorkDoneToken.Create(_onComplete?.Invoke() ?? new WorkDoneProgressEnd { Message = "" }, _serializer.JsonSerializer)
+            WorkDoneToken.Create(_onComplete?.Invoke() ?? new WorkDoneProgressEnd { Message = "" }, _serializer)
         );
 
         void IObserver<WorkDoneProgress>.OnError(Exception error) =>
             _router.SendNotification(
-                WorkDoneToken.Create(_onError?.Invoke(error) ?? new WorkDoneProgressEnd { Message = error.ToString() }, _serializer.JsonSerializer)
+                WorkDoneToken.Create(_onError?.Invoke(error) ?? new WorkDoneProgressEnd { Message = error.ToString() }, _serializer)
             );
 
         public void OnNext(WorkDoneProgress value) => _router.SendNotification(
-            WorkDoneToken.Create(value, _serializer.JsonSerializer)
+            WorkDoneToken.Create(value, _serializer)
         );
 
         public ProgressToken WorkDoneToken { get; }

@@ -1,8 +1,8 @@
 ﻿//HintName: SubLensRegistrationOptions.cs
 using System.Diagnostics;
 using System.Linq;
-using MediatR;
-using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
+using System.Text.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;

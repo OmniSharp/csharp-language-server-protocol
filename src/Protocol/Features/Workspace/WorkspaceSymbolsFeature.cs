@@ -1,6 +1,5 @@
 using System.Diagnostics;
-using MediatR;
-using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -144,7 +143,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// A data entry field that is preserved on a workspace symbol between a
             /// workspace symbol request and a workspace symbol resolve request.
             /// </summary>
-            public JToken? Data { get; set; }
+            public System.Text.Json.JsonElement? Data { get; set; }
 
             private string DebuggerDisplay => $"[{Kind}@{Location}] {Name}";
 

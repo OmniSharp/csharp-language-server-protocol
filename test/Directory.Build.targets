@@ -1,6 +1,5 @@
 <Project>
     <ItemGroup>
-        <PackageReference Include="Newtonsoft.Json" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" />
         <PackageReference Include="xunit.runner.visualstudio" />
         <PackageReference Include="xunit" />
@@ -14,7 +13,6 @@
         <PackageReference Include="coverlet.msbuild" />
         <PackageReference Include="Microsoft.Reactive.Testing" />
         <PackageReference Include="Bogus" />
-        <PackageReference Include="Snapper" />
         <PackageReference Include="Xunit.SkippableFact" />
         
       <PackageReference Include="Verify.Xunit" />

@@ -7,9 +7,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -151,8 +149,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             var deserializedRegistration = new Registration {
                 Id = registration.Id,
                 Method = registration.Method,
-                RegisterOptions = registration.RegisterOptions is JToken token
-                    ? token.ToObject(registrationType, _serializer.JsonSerializer)
+                RegisterOptions = registration.RegisterOptions is not null && !registrationType.IsInstanceOfType(registration.RegisterOptions)
+                    ? _serializer.DeserializeObject(_serializer.SerializeObject(registration.RegisterOptions), registrationType)
                     : registration.RegisterOptions
             };
 

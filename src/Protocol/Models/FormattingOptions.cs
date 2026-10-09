@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
-using Newtonsoft.Json;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     /// <summary>
     /// Value-object describing what options formatting should use.
     /// </summary>
-    [JsonDictionary]
     public class FormattingOptions : Dictionary<string, BooleanNumberString>
     {
         /// <summary>
@@ -15,7 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <remarks>
         /// <see cref="uint"/> in the LSP spec
         /// </remarks>
-        [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public int TabSize
         {
             get => TryGetValue("tabSize", out var tabSize) && tabSize.IsInteger ? tabSize.Integer : -1;
@@ -25,7 +23,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// Prefer spaces over tabs.
         /// </summary>
-        [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public bool InsertSpaces
         {
             get => TryGetValue("insertSpaces", out var insertSpaces) && insertSpaces.IsBool && insertSpaces.Bool;
@@ -37,7 +35,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///
         /// @since 3.15.0
         /// </summary>
-        [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public bool TrimTrailingWhitespace
         {
             get => TryGetValue("trimTrailingWhitespace", out var trimTrailingWhitespace) && trimTrailingWhitespace.IsBool && trimTrailingWhitespace.Bool;
@@ -49,7 +47,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///
         /// @since 3.15.0
         /// </summary>
-        [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public bool InsertFinalNewline
         {
             get => TryGetValue("insertFinalNewline", out var insertFinalNewline) && insertFinalNewline.IsBool && insertFinalNewline.Bool;
@@ -61,7 +59,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///
         /// @since 3.15.0
         /// </summary>
-        [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public bool TrimFinalNewlines
         {
             get => TryGetValue("trimFinalNewlines", out var trimFinalNewlines) && trimFinalNewlines.IsBool && trimFinalNewlines.Bool;

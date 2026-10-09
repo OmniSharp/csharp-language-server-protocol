@@ -1,5 +1,5 @@
+using System.Text.Json;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using Xunit;
@@ -20,11 +20,12 @@ namespace Lsp.Tests.Capabilities.Client
 
             var result = new LspSerializer(ClientVersion.Lsp3).SerializeObject(model);
 
-            var workspace = JObject.Parse(result)["workspace"]!;
-            workspace["inlayHint"]!["refreshSupport"]!.Value<bool>().Should().BeTrue();
-            workspace["diagnostics"]!["refreshSupport"]!.Value<bool>().Should().BeTrue();
-            workspace["semanticTokens"].Should().BeNull();
-            workspace["codeLens"].Should().BeNull();
+            using var doc = JsonDocument.Parse(result);
+            var workspace = doc.RootElement.GetProperty("workspace");
+            workspace.GetProperty("inlayHint").GetProperty("refreshSupport").GetBoolean().Should().BeTrue();
+            workspace.GetProperty("diagnostics").GetProperty("refreshSupport").GetBoolean().Should().BeTrue();
+            workspace.TryGetProperty("semanticTokens", out _).Should().BeFalse();
+            workspace.TryGetProperty("codeLens", out _).Should().BeFalse();
         }
     }
 }

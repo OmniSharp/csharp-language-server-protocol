@@ -1,9 +1,8 @@
 ﻿using System;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -11,12 +10,12 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         #region OnRequest / OnNotification
 
-        public T OnJsonRequest(string method, Func<JToken, CancellationToken, Task<JToken>> handler, JsonRpcHandlerOptions? options = null)
+        public T OnJsonRequest(string method, Func<JsonElement, CancellationToken, Task<JsonElement>> handler, JsonRpcHandlerOptions? options = null)
         {
             return AddHandler(method, _ => new DelegatingJsonRequestHandler(handler), options);
         }
 
-        public T OnJsonRequest(string method, Func<JToken, Task<JToken>> handler, JsonRpcHandlerOptions? options = null)
+        public T OnJsonRequest(string method, Func<JsonElement, Task<JsonElement>> handler, JsonRpcHandlerOptions? options = null)
         {
             return OnJsonRequest(method, HandlerAdapter.Adapt(handler), options);
         }
@@ -43,6 +42,11 @@ namespace OmniSharp.Extensions.JsonRpc
             return OnRequest<Unit, TResponse>(method, (_, cancellationToken) => handler(cancellationToken), options);
         }
 
+        public T OnRequest(string method, Func<CancellationToken, Task> handler, JsonRpcHandlerOptions? options = null)
+        {
+            return OnRequest<Unit>(method, (_, cancellationToken) => handler(cancellationToken), options);
+        }
+
         public T OnRequest<TParams>(string method, Func<TParams, Task> handler, JsonRpcHandlerOptions? options = null)
         {
             return OnRequest(method, HandlerAdapter.Adapt(handler), options);
@@ -60,22 +64,22 @@ namespace OmniSharp.Extensions.JsonRpc
             return OnRequest<TParams>(method, (_, cancellationToken) => handler(cancellationToken), options);
         }
 
-        public T OnJsonNotification(string method, Action<JToken, CancellationToken> handler, JsonRpcHandlerOptions? options = null)
+        public T OnJsonNotification(string method, Action<JsonElement, CancellationToken> handler, JsonRpcHandlerOptions? options = null)
         {
             return OnJsonNotification(method, HandlerAdapter.Adapt(handler), options);
         }
 
-        public T OnJsonNotification(string method, Action<JToken> handler, JsonRpcHandlerOptions? options = null)
+        public T OnJsonNotification(string method, Action<JsonElement> handler, JsonRpcHandlerOptions? options = null)
         {
             return OnJsonNotification(method, HandlerAdapter.Adapt(handler), options);
         }
 
-        public T OnJsonNotification(string method, Func<JToken, CancellationToken, Task> handler, JsonRpcHandlerOptions? options = null)
+        public T OnJsonNotification(string method, Func<JsonElement, CancellationToken, Task> handler, JsonRpcHandlerOptions? options = null)
         {
             return AddHandler(method, _ => new DelegatingJsonNotificationHandler(handler), options);
         }
 
-        public T OnJsonNotification(string method, Func<JToken, Task> handler, JsonRpcHandlerOptions? options = null)
+        public T OnJsonNotification(string method, Func<JsonElement, Task> handler, JsonRpcHandlerOptions? options = null)
         {
             return OnJsonNotification(method, HandlerAdapter.Adapt(handler), options);
         }

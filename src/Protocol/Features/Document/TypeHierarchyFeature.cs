@@ -6,7 +6,6 @@ using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -95,7 +94,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// resolving supertypes and subtypes.
             /// </summary>
             [Optional]
-            public JToken? Data { get; init; }
+            public System.Text.Json.JsonElement? Data { get; init; }
 
             private string DebuggerDisplay =>
                 $"[{Kind.ToString()}] " +
@@ -114,7 +113,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         {
             public TypeHierarchyItem Item { get; init; } = null!;
 
-            JToken? ICanBeResolved.Data
+            System.Text.Json.JsonElement? ICanBeResolved.Data
             {
                 get => Item.GetRawData();
                 init => Item.SetRawData(value);
@@ -126,7 +125,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         {
             public TypeHierarchyItem<T> Item { get; init; } = null!;
 
-            JToken? ICanBeResolved.Data
+            System.Text.Json.JsonElement? ICanBeResolved.Data
             {
                 get => Item.GetRawData();
                 init => Item.SetRawData(value);

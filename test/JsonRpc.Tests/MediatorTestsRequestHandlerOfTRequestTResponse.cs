@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
-using MediatR;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
+using System.Text.Json.Serialization;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using Xunit;
@@ -32,7 +31,7 @@ namespace JsonRpc.Tests
         public class Command
         {
             public string Title { get; set; } = null!;
-            [JsonProperty("command")] public string Name { get; set; } = null!;
+            [JsonPropertyName("command")] public string Name { get; set; } = null!;
         }
 
         public MediatorTestsRequestHandlerOfTRequestTResponse(ITestOutputHelper testOutputHelper) : base(testOutputHelper) =>
@@ -49,7 +48,7 @@ namespace JsonRpc.Tests
 
             var id = Guid.NewGuid().ToString();
             var @params = new CodeActionParams { TextDocument = "TextDocument", Range = "Range", Context = "Context" };
-            var request = new Request(id, "textDocument/codeAction", JObject.Parse(JsonConvert.SerializeObject(@params)));
+            var request = new Request(id, "textDocument/codeAction", JsonTestHelper.ToElement(@params));
 
             await router.RouteRequest(router.GetDescriptors(request), request, CancellationToken.None);
 

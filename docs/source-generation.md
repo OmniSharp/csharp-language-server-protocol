@@ -21,7 +21,7 @@ You may also provide a specific name that will be used for the interface and bas
 
 There is special logic to handle request objects that use the `IPartialItemRequest<,>` or `IPartialItemsRequest<,>` interfaces.  This emit another base class `<name>PartialHandlerBase` that implements the right stuff for creating a handler that works with the partial spec.
 
-Certain MediatR request types will map to different matters.
+Certain JSON-RPC request types map to different generated handler shapes.
 * `IRequest<TResponse>` - Will map as a request
 * `IRequest` - Will map as a notification
 * `IJsonRpcRequest` - Will map as a `Task` returning request.
@@ -48,12 +48,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     [Parallel, Method(ClientNames.RegisterCapability, Direction.ServerToClient)]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-    public interface IRegisterCapabilityHandler : IJsonRpcRequestHandler<RegistrationParams, MediatR.Unit>
+    public interface IRegisterCapabilityHandler : IJsonRpcRequestHandler<RegistrationParams, OmniSharp.Extensions.JsonRpc.Unit>
     {
     }
 
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
-    abstract public class RegisterCapabilityHandlerBase : AbstractHandlers.Request<RegistrationParams, MediatR.Unit>, IRegisterCapabilityHandler
+    abstract public class RegisterCapabilityHandlerBase : AbstractHandlers.Request<RegistrationParams, OmniSharp.Extensions.JsonRpc.Unit>, IRegisterCapabilityHandler
     {
     }
 #nullable restore
@@ -83,8 +83,8 @@ Example Request Object:
         /// The client should leave the data intact.
         /// </summary>
         [Optional]
-        [JsonProperty(PropertyName = "__restart")]
-        public JToken? Restart { get; set; }
+        [JsonPropertyName("__restart")]
+        public JsonElement? Restart { get; set; }
 
         [JsonExtensionData] public IDictionary<string, object> ExtensionData { get; set; } = new Dictionary<string, object>();
     }
@@ -387,7 +387,7 @@ Example Object:
         /// a code lens and a code lens resolve request.
         /// </summary>
         [Optional]
-        public JToken? Data { get; set; }
+        public JsonElement? Data { get; set; }
 
         private string DebuggerDisplay => $"{Range}{( Command != null ? $" {Command}" : "" )}";
 
@@ -458,8 +458,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [Optional]
         public T Data
         {
-            get => ((ICanBeResolved)this).Data?.ToObject<T>()!;
-            set => ((ICanBeResolved)this).Data = JToken.FromObject(value);
+            get => this.GetRawData<T>()!;
+            set => this.SetRawData(value);
         }
 
         private string DebuggerDisplay => $"{Range}{(Command != null ? $" {Command}" : "")}";
@@ -471,16 +471,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             return new CodeLens<TData>{Range = Range, Command = Command, Data = data};
         }
 
-        JToken? ICanBeResolved.Data
+        JsonElement? ICanBeResolved.Data
         {
             get;
             set;
         }
 
-        private JToken? JData
+        private JsonElement? JData
         {
-            get => ((ICanBeResolved)this).Data;
-            set => ((ICanBeResolved)this).Data = value;
+            get => this.GetRawData();
+            set => this.SetRawData(value);
         }
 
         public static implicit operator CodeLens<T>(CodeLens value) => new CodeLens<T>{Range = value.Range, Command = value.Command, JData = ((ICanBeResolved)value).Data};
@@ -649,7 +649,7 @@ Example Object:
         /// a code lens and a code lens resolve request.
         /// </summary>
         [Optional]
-        public JToken? Data { get; set; }
+        public JsonElement? Data { get; set; }
 
         private string DebuggerDisplay => $"{Range}{( Command != null ? $" {Command}" : "" )}";
 

@@ -1,6 +1,5 @@
 using System.Diagnostics;
-using MediatR;
-using Newtonsoft.Json;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -77,7 +76,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.15.0
         /// </summary>
-        [JsonConverter(typeof(NumberEnumConverter))]
         public enum SignatureHelpTriggerKind
         {
             /// <summary>
@@ -101,8 +99,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// callable. There can be multiple signature but only one
         /// active and only one active parameter.
         /// </summary>
-        public partial record SignatureHelp
+        public partial record SignatureHelp : IOptionalActiveParameter
         {
+            private int? _activeParameter;
+            private bool _hasActiveParameter;
+
             /// <summary>
             /// One or more signatures.
             /// </summary>
@@ -118,7 +119,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// The active parameter of the active signature.
             /// </summary>
             [Optional]
-            public int? ActiveParameter { get; init; }
+            public int? ActiveParameter
+            {
+                get => _activeParameter;
+                init
+                {
+                    _activeParameter = value;
+                    _hasActiveParameter = true;
+                }
+            }
+
+            bool IOptionalActiveParameter.HasActiveParameter => _hasActiveParameter;
         }
 
         /// <summary>
@@ -127,8 +138,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// a set of parameters.
         /// </summary>
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-        public record SignatureInformation
+        public record SignatureInformation : IOptionalActiveParameter
         {
+            private int? _activeParameter;
+            private bool _hasActiveParameter;
+
             /// <summary>
             /// The label of this signature. Will be shown in
             /// the UI.
@@ -156,7 +170,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// @since 3.16.0
             /// </summary>
             [Optional]
-            public int? ActiveParameter { get; init; }
+            public int? ActiveParameter
+            {
+                get => _activeParameter;
+                init
+                {
+                    _activeParameter = value;
+                    _hasActiveParameter = true;
+                }
+            }
+
+            bool IOptionalActiveParameter.HasActiveParameter => _hasActiveParameter;
 
             private string DebuggerDisplay => $"{Label}{Documentation?.ToString() ?? ""}";
 
@@ -165,6 +189,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
                 return DebuggerDisplay;
             }
+        }
+
+        internal interface IOptionalActiveParameter
+        {
+            bool HasActiveParameter { get; }
         }
 
         /// <summary>
@@ -196,7 +225,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }
         }
 
-        [JsonConverter(typeof(ParameterInformationLabelConverter))]
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
         public record ParameterInformationLabel
         {

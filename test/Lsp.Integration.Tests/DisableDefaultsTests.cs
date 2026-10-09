@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Linq;
 using NSubstitute;
 using NSubstitute.Exceptions;
 using OmniSharp.Extensions.JsonRpc;
@@ -141,7 +140,7 @@ namespace Lsp.Integration.Tests
                 {
                     try
                     {
-                        action.Received(1).Invoke(Arg.Is<DidChangeConfigurationParams>(z => Equals(z.Settings, JValue.CreateNull())));
+                        action.Received(1).Invoke(Arg.Is<DidChangeConfigurationParams>(z => z.Settings == null));
                         return true;
                     }
                     catch (ReceivedCallsException e)

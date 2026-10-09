@@ -49,7 +49,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     .AddUsings(
                          UsingDirective(ParseName("System")), UsingDirective(ParseName("System.Collections.Generic")),
                          UsingDirective(ParseName("System.Diagnostics")), UsingDirective(ParseName("System.Linq")),
-                         UsingDirective(ParseName("System.Reflection")), UsingDirective(ParseName("Newtonsoft.Json")),
+                         UsingDirective(ParseName("System.Reflection")),
                          UsingDirective(ParseName("OmniSharp.Extensions.JsonRpc")),
                          UsingDirective(ParseName("OmniSharp.Extensions.JsonRpc.Serialization.Converters"))
                      )
@@ -104,13 +104,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                            {
                                AttributeList(
                                    SingletonSeparatedList(
-                                       Attribute(IdentifierName("JsonConverter"))
+                                       Attribute(ParseName("System.Text.Json.Serialization.JsonConverter"))
                                           .WithArgumentList(
                                                AttributeArgumentList(
                                                    SingletonSeparatedList(
                                                        AttributeArgument(
                                                            TypeOfExpression(
-                                                               IdentifierName("EnumLikeStringConverter")
+                                                               IdentifierName("SystemTextJsonEnumLikeStringConverterFactory")
                                                            )
                                                        )
                                                    )

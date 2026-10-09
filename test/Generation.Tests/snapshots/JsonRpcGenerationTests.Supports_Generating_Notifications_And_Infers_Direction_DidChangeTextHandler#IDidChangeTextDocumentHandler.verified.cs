@@ -1,5 +1,4 @@
 ﻿//HintName: IDidChangeTextDocumentHandler.cs
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Events;

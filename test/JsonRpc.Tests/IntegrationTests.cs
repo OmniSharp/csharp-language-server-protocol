@@ -4,7 +4,7 @@ using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;

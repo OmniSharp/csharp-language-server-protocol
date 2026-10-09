@@ -2,10 +2,10 @@ using System;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
+using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Lsp.Integration.Tests.Fixtures;
-using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
@@ -46,7 +46,7 @@ namespace Lsp.Integration.Tests
                                         Command = new Command
                                         {
                                             Name = "data-a",
-                                            Arguments = JArray.FromObject(new object[] { 1, "2", false })
+                                            Arguments = Command.CreateArguments(1, "2", false)
                                         },
                                         Data = new Data
                                         {
@@ -78,7 +78,7 @@ namespace Lsp.Integration.Tests
                                         Command = new Command
                                         {
                                             Name = "nested-b",
-                                            Arguments = JArray.FromObject(new object[] { 1, "2", false })
+                                            Arguments = Command.CreateArguments(1, "2", false)
                                         },
                                         Data = new Nested
                                         {
@@ -105,7 +105,7 @@ namespace Lsp.Integration.Tests
                                         Command = new Command
                                         {
                                             Name = "no-data-c",
-                                            Arguments = JArray.FromObject(new object[] { 1, "2", false })
+                                            Arguments = Command.CreateArguments(1, "2", false)
                                         }
                                     }
                                 )
@@ -128,7 +128,7 @@ namespace Lsp.Integration.Tests
                                         Command = new Command
                                         {
                                             Name = "not-included",
-                                            Arguments = JArray.FromObject(new object[] { 1, "2", false })
+                                            Arguments = Command.CreateArguments(1, "2", false)
                                         }
                                     }
                                 )
@@ -174,7 +174,7 @@ namespace Lsp.Integration.Tests
                                         Command = new Command
                                         {
                                             Name = "execute-a",
-                                            Arguments = JArray.FromObject(new object[] { 1, "2", false })
+                                            Arguments = Command.CreateArguments(1, "2", false)
                                         },
                                         Data = new Data
                                         {
@@ -233,7 +233,7 @@ namespace Lsp.Integration.Tests
                                         End = new Position(0, 1)
                                     },
                                     CommitCharacters = new Container<string>("a", "b", "c"),
-                                    Data = JObject.FromObject(new { Test = 1 })
+                                    Data = JsonSerializer.SerializeToElement(new { Test = 1 })
                                 }
                             }
                         ),
@@ -245,7 +245,7 @@ namespace Lsp.Integration.Tests
                                     Command = new Command
                                     {
                                         Name = "execute-a",
-                                        Arguments = JArray.FromObject(new object[] { 1, "2", false })
+                                        Arguments = Command.CreateArguments(1, "2", false)
                                     },
                                     Data = new Data
                                     {
@@ -299,7 +299,7 @@ namespace Lsp.Integration.Tests
                                         Command = new Command
                                         {
                                             Name = "execute-a",
-                                            Arguments = JArray.FromObject(new object[] { 1, "2", false })
+                                            Arguments = Command.CreateArguments(1, "2", false)
                                         },
                                         Data = new Data
                                         {
@@ -350,7 +350,7 @@ namespace Lsp.Integration.Tests
                                     Command = new Command
                                     {
                                         Name = "execute-a",
-                                        Arguments = JArray.FromObject(new object[] { 1, "2", false })
+                                        Arguments = Command.CreateArguments(1, "2", false)
                                     },
                                     Data = new Data
                                     {
@@ -401,7 +401,7 @@ namespace Lsp.Integration.Tests
                                         Command = new Command
                                         {
                                             Name = "execute-a",
-                                            Arguments = JArray.FromObject(new object[] { 1, "2", false })
+                                            Arguments = Command.CreateArguments(1, "2", false)
                                         },
                                         Data = new Data
                                         {
@@ -452,7 +452,7 @@ namespace Lsp.Integration.Tests
                                     Command = new Command
                                     {
                                         Name = "execute-a",
-                                        Arguments = JArray.FromObject(new object[] { 1, "2", false })
+                                        Arguments = Command.CreateArguments(1, "2", false)
                                     },
                                     Data = new Data
                                     {
@@ -504,7 +504,7 @@ namespace Lsp.Integration.Tests
                                         Command = new Command
                                         {
                                             Name = "execute-a",
-                                            Arguments = JArray.FromObject(new object[] { 1, "2", false })
+                                            Arguments = Command.CreateArguments(1, "2", false)
                                         }
                                     }
                                 )
@@ -540,7 +540,7 @@ namespace Lsp.Integration.Tests
                                     Command = new Command
                                     {
                                         Name = "execute-a",
-                                        Arguments = JArray.FromObject(new object[] { 1, "2", false })
+                                        Arguments = Command.CreateArguments(1, "2", false)
                                     },
                                 }
                             );
@@ -576,7 +576,7 @@ namespace Lsp.Integration.Tests
                                         Command = new Command
                                         {
                                             Name = "execute-a",
-                                            Arguments = JArray.FromObject(new object[] { 1, "2", false })
+                                            Arguments = Command.CreateArguments(1, "2", false)
                                         },
                                     }
                                 )
@@ -612,7 +612,7 @@ namespace Lsp.Integration.Tests
                                     Command = new Command
                                     {
                                         Name = "execute-a",
-                                        Arguments = JArray.FromObject(new object[] { 1, "2", false })
+                                        Arguments = Command.CreateArguments(1, "2", false)
                                     },
                                 }
                             );
@@ -648,7 +648,7 @@ namespace Lsp.Integration.Tests
                                         Command = new Command
                                         {
                                             Name = "execute-a",
-                                            Arguments = JArray.FromObject(new object[] { 1, "2", false })
+                                            Arguments = Command.CreateArguments(1, "2", false)
                                         },
                                     }
                                 )
@@ -684,7 +684,7 @@ namespace Lsp.Integration.Tests
                                     Command = new Command
                                     {
                                         Name = "execute-a",
-                                        Arguments = JArray.FromObject(new object[] { 1, "2", false })
+                                        Arguments = Command.CreateArguments(1, "2", false)
                                     },
                                 }
                             );

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using MediatR;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using OmniSharp.Extensions.JsonRpc;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.JsonRpc;
@@ -63,7 +62,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             public long? ShellProcessId { get; init; }
         }
 
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public enum RunInTerminalArgumentsKind
         {
             Integrated,

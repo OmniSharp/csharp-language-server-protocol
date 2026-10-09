@@ -8,16 +8,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Serialization;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
+using System.Text.Json;
 using Xunit;
 using Xunit.Abstractions;
+using JsonElement = System.Text.Json.JsonElement;
 
 namespace JsonRpc.Tests
 {
@@ -78,7 +78,7 @@ namespace JsonRpc.Tests
             await pipe.Writer.CompleteAsync();
             await processTask;
 
-            receiver.Received().IsValid(Arg.Is<JToken>(x => x.ToString() == "{}"));
+            receiver.Received().IsValid(Arg.Is<JsonElement>(x => x.GetRawText() == "{}"));
         }
 
         [Fact]
@@ -109,7 +109,7 @@ namespace JsonRpc.Tests
             await pipe.Writer.CompleteAsync();
             await processTask;
 
-            receiver.Received(3).IsValid(Arg.Is<JToken>(x => x.ToString() == "{}"));
+            receiver.Received(3).IsValid(Arg.Is<JsonElement>(x => x.GetRawText() == "{}"));
         }
 
         [Theory]
@@ -150,7 +150,7 @@ namespace JsonRpc.Tests
             await pipe.Writer.CompleteAsync();
             await processTask;
 
-            receiver.Received(1).IsValid(Arg.Is<JToken>(x => x.ToString() == "{}"));
+            receiver.Received(1).IsValid(Arg.Is<JsonElement>(x => x.GetRawText() == "{}"));
         }
 
         [Fact]
@@ -212,7 +212,7 @@ namespace JsonRpc.Tests
             await pipe.Writer.CompleteAsync();
             await processTask;
 
-            receiver.Received(3).IsValid(Arg.Is<JToken>(x => x.ToString() == "{}"));
+            receiver.Received(3).IsValid(Arg.Is<JsonElement>(x => x.GetRawText() == "{}"));
         }
 
         [Fact]
@@ -252,7 +252,7 @@ namespace JsonRpc.Tests
             await pipe.Writer.CompleteAsync();
             await processTask;
 
-            receiver.Received(3).IsValid(Arg.Is<JToken>(x => x.ToString() == "{}"));
+            receiver.Received(3).IsValid(Arg.Is<JsonElement>(x => x.GetRawText() == "{}"));
         }
 
         [Theory]
@@ -288,7 +288,7 @@ namespace JsonRpc.Tests
             await pipe.Writer.CompleteAsync();
             await processTask;
 
-            receiver.Received(1).IsValid(Arg.Any<JToken>());
+            receiver.Received(1).IsValid(Arg.Any<JsonElement>());
         }
 
         [Fact]
@@ -303,7 +303,7 @@ namespace JsonRpc.Tests
                 new JsonRpcSerializer(),
                 new AssemblyScanningHandlerTypeDescriptorProvider(new[] { typeof(AssemblyScanningHandlerTypeDescriptorProvider).Assembly, typeof(InputHandlerTests).Assembly })
             );
-            var pending = new TaskCompletionSource<JToken>();
+            var pending = new TaskCompletionSource<JsonElement>();
             responseRouter.Requests.TryAdd("request-id", ("method", pending)).Should().BeTrue();
 
             using var handler = NewHandler(
@@ -337,7 +337,7 @@ namespace JsonRpc.Tests
                 new JsonRpcSerializer(),
                 new AssemblyScanningHandlerTypeDescriptorProvider(new[] { typeof(AssemblyScanningHandlerTypeDescriptorProvider).Assembly, typeof(InputHandlerTests).Assembly })
             );
-            var pending = new TaskCompletionSource<JToken>();
+            var pending = new TaskCompletionSource<JsonElement>();
             responseRouter.Requests.TryAdd("request-id", ("method", pending)).Should().BeTrue();
 
             using var handler = NewHandler(
@@ -368,7 +368,7 @@ namespace JsonRpc.Tests
                 new JsonRpcSerializer(),
                 new AssemblyScanningHandlerTypeDescriptorProvider(new[] { typeof(AssemblyScanningHandlerTypeDescriptorProvider).Assembly, typeof(InputHandlerTests).Assembly })
             );
-            var pending = new TaskCompletionSource<JToken>();
+            var pending = new TaskCompletionSource<JsonElement>();
             responseRouter.Requests.TryAdd("response-id", ("known", pending)).Should().BeTrue();
 
             var handlerDescriptor = Substitute.For<IHandlerDescriptor>();
@@ -465,7 +465,7 @@ namespace JsonRpc.Tests
             await pipe.Writer.CompleteAsync();
             await processTask;
 
-            receiver.Received(3).IsValid(Arg.Is<JToken>(x => x.ToString() == "{}"));
+            receiver.Received(3).IsValid(Arg.Is<JsonElement>(x => x.ToString() == "{}"));
         }
 
         [Theory]
@@ -503,9 +503,9 @@ namespace JsonRpc.Tests
             var calls = receiver.ReceivedCalls();
             var call = calls.Single();
             call.GetMethodInfo().Name.Should().Be("IsValid");
-            call.GetArguments()[0].Should().BeAssignableTo<JToken>();
-            var arg = call.GetArguments()[0] as JToken;
-            arg!.ToString().Should().Be(JToken.Parse(data).ToString());
+            call.GetArguments()[0].Should().BeAssignableTo<JsonElement>();
+            var arg = (JsonElement)call.GetArguments()[0]!;
+            arg.GetRawText().Should().Be(JsonTestHelper.Parse(data).GetRawText());
         }
 
         [Theory]
@@ -602,9 +602,8 @@ namespace JsonRpc.Tests
             {
                 var stream = assembly.GetManifestResourceStream(name);
                 using var streamReader = new StreamReader(stream!);
-                using var jsonReader = new JsonTextReader(streamReader);
-                var serializer = new JsonSerializer();
-                return serializer.Deserialize<DataItem[]>(jsonReader);
+                var json = streamReader.ReadToEnd();
+                return JsonSerializer.Deserialize<DataItem[]>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
             }
 
             private PipeReader CreateReader(DataItem[] data)
@@ -615,7 +614,7 @@ namespace JsonRpc.Tests
                         {
                             if (z.MsgKind.EndsWith("response"))
                             {
-                                return new OutgoingResponse(z.MsgId, z.Arg, new Request(z.MsgId, z.MsgType, JValue.CreateNull()));
+                                return new OutgoingResponse(z.MsgId, z.Arg, new Request(z.MsgId, z.MsgType, null));
                             }
 
                             if (z.MsgKind.EndsWith("request"))
@@ -678,7 +677,7 @@ namespace JsonRpc.Tests
                 public string MsgKind { get; set; } = null!;
                 public string MsgType { get; set; } = null!;
                 public string MsgId { get; set; } = null!;
-                public JToken Arg { get; set; } = null!;
+                public JsonElement Arg { get; set; }
             }
         }
     }

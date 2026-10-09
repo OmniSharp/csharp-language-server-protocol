@@ -2,10 +2,10 @@ using System;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
+using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Lsp.Integration.Tests.Fixtures;
-using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
@@ -356,7 +356,7 @@ namespace Lsp.Integration.Tests
                                 new InlayHintContainer(
                                     new InlayHint
                                     {
-                                        Data = JObject.FromObject(new Data
+                                        Data = JsonSerializer.SerializeToElement(new Data
                                         {
                                             Child = new Nested
                                             {
@@ -371,8 +371,9 @@ namespace Lsp.Integration.Tests
                         },
                         (inlayHint, capability, token) =>
                         {
-                            inlayHint.Data["Name"] = "resolved";
-                            return Task.FromResult(inlayHint with { Data = inlayHint.Data});
+                            var data = inlayHint.GetRawData<Data>()! with { Name = "resolved" };
+                            inlayHint.SetRawData(data);
+                            return Task.FromResult(inlayHint);
                         },
                         (_, _) => new InlayHintRegistrationOptions()
                     );
@@ -400,7 +401,7 @@ namespace Lsp.Integration.Tests
                                 new InlayHintContainer(
                                     new InlayHint
                                     {
-                                        Data = JToken.FromObject(new Data
+                                        Data = JsonSerializer.SerializeToElement(new Data
                                         {
                                             Child = new Nested
                                             {
@@ -415,8 +416,9 @@ namespace Lsp.Integration.Tests
                         },
                         inlayHint =>
                         {
-                            inlayHint.Data["Name"] = "resolved";
-                            return Task.FromResult(inlayHint with { Data = inlayHint.Data});
+                            var data = inlayHint.GetRawData<Data>()! with { Name = "resolved" };
+                            inlayHint.SetRawData(data);
+                            return Task.FromResult(inlayHint);
                         },
                         (_, _) => new InlayHintRegistrationOptions()
                     );

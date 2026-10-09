@@ -2,9 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
-using MediatR;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
@@ -38,7 +36,7 @@ namespace JsonRpc.Tests
             var router = AutoSubstitute.Resolve<RequestRouter>();
 
             var @params = new CancelParams { Id = Guid.NewGuid() };
-            var notification = new Notification("$/cancelRequest", JObject.Parse(JsonConvert.SerializeObject(@params)));
+            var notification = new Notification("$/cancelRequest", JsonTestHelper.ToElement(@params));
 
             await router.RouteNotification(router.GetDescriptors(notification), notification, CancellationToken.None);
 

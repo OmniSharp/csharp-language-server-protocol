@@ -16,7 +16,6 @@ namespace Generation.Tests
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -43,7 +42,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
+using System.Text.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -73,7 +72,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         /// Arguments that the command should be invoked with.
         /// </summary>
         [Optional]
-        public JArray? Arguments { get; init; }
+        public JsonElement? Arguments { get; init; }
     }
 }";
 
@@ -87,7 +86,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -117,7 +115,6 @@ namespace Test
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 
@@ -138,7 +135,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events.Test
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -165,7 +161,6 @@ namespace Test
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -193,7 +188,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -223,7 +217,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -250,7 +243,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -273,7 +265,7 @@ namespace Test
         public async Task Supports_Custom_Method_Names()
         {
             var source = @"
-using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
@@ -310,7 +302,7 @@ using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using System.Collections.Generic;
-using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
 {
@@ -332,7 +324,7 @@ using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using System.Collections.Generic;
-using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
 {
@@ -354,7 +346,7 @@ using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using System.Collections.Generic;
-using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
 {
@@ -376,7 +368,7 @@ using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using System.Collections.Generic;
-using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
 {
@@ -400,7 +392,7 @@ using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using System.Collections.Generic;
-using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using RenameRegistrationOptions = OmniSharp.Extensions.LanguageServer.Protocol.Models.RenameRegistrationOptions;
 using RenameCapability = OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.RenameCapability;
 using ITextDocumentIdentifierParams = OmniSharp.Extensions.LanguageServer.Protocol.Models.ITextDocumentIdentifierParams;

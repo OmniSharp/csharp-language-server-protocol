@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -15,7 +15,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
     public class LanguageClientOptions : LanguageProtocolRpcOptionsBase<LanguageClientOptions>, ILanguageClientRegistry
     {
         public ClientCapabilities ClientCapabilities { get; set; } = new ClientCapabilities {
-            Experimental = new Dictionary<string, JToken>(),
+            Experimental = new Dictionary<string, JsonElement>(),
             General = new GeneralClientCapabilities(),
             Window = new WindowClientCapabilities(),
             Workspace = new WorkspaceClientCapabilities(),
@@ -65,11 +65,11 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.AddHandlerLink(string fromMethod, string toMethod) =>
             AddHandlerLink(fromMethod, toMethod);
 
-        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnJsonRequest(string method, Func<JToken, Task<JToken>> handler, JsonRpcHandlerOptions? options) =>
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnJsonRequest(string method, Func<JsonElement, Task<JsonElement>> handler, JsonRpcHandlerOptions? options) =>
             OnJsonRequest(method, handler, options);
 
         ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnJsonRequest(
-            string method, Func<JToken, CancellationToken, Task<JToken>> handler, JsonRpcHandlerOptions? options
+            string method, Func<JsonElement, CancellationToken, Task<JsonElement>> handler, JsonRpcHandlerOptions? options
         ) => OnJsonRequest(method, handler, options);
 
         ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnRequest<TParams, TResponse>(
@@ -102,18 +102,18 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             string method, Action<TParams, CancellationToken> handler, JsonRpcHandlerOptions? options
         ) => OnNotification(method, handler, options);
 
-        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnJsonNotification(string method, Action<JToken> handler, JsonRpcHandlerOptions? options) =>
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnJsonNotification(string method, Action<JsonElement> handler, JsonRpcHandlerOptions? options) =>
             OnJsonNotification(method, handler, options);
 
         ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnJsonNotification(
-            string method, Func<JToken, CancellationToken, Task> handler, JsonRpcHandlerOptions? options
+            string method, Func<JsonElement, CancellationToken, Task> handler, JsonRpcHandlerOptions? options
         ) => OnJsonNotification(method, handler, options);
 
-        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnJsonNotification(string method, Func<JToken, Task> handler, JsonRpcHandlerOptions? options) =>
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnJsonNotification(string method, Func<JsonElement, Task> handler, JsonRpcHandlerOptions? options) =>
             OnJsonNotification(method, handler, options);
 
         ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnJsonNotification(
-            string method, Action<JToken, CancellationToken> handler, JsonRpcHandlerOptions? options
+            string method, Action<JsonElement, CancellationToken> handler, JsonRpcHandlerOptions? options
         ) => OnJsonNotification(method, handler, options);
 
         ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnNotification<TParams>(string method, Action<TParams> handler, JsonRpcHandlerOptions? options) =>

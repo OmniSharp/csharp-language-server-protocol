@@ -7,6 +7,7 @@ using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 using static System.Reactive.Linq.Observable;
+using ReactiveUnit = System.Reactive.Unit;
 
 namespace OmniSharp.Extensions.JsonRpc.Testing
 {
@@ -15,10 +16,10 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
         private readonly JsonRpcTestOptions _options;
         private readonly CancellationToken _cancellationToken;
         private readonly IScheduler _scheduler;
-        private readonly IObservable<Unit> _settle;
+        private readonly IObservable<ReactiveUnit> _settle;
         private readonly IObserver<int> _requester;
         private readonly IDisposable _connectable;
-        private readonly IObservable<Unit> _timeoutValue;
+        private readonly IObservable<ReactiveUnit> _timeoutValue;
 
         public Settler(JsonRpcTestOptions options, CancellationToken cancellationToken, IScheduler? scheduler = null)
         {
@@ -26,7 +27,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
             _cancellationToken = cancellationToken;
             scheduler ??= Scheduler.Immediate;
             _scheduler = scheduler;
-            _timeoutValue = Return(Unit.Default, _scheduler);
+            _timeoutValue = Return(ReactiveUnit.Default, _scheduler);
             var subject = new Subject<int>();
             var data = subject;
 
@@ -43,13 +44,13 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
                                   z => {
                                       if (z > 0)
                                       {
-                                          return Never<Unit>();
+                                          return Never<ReactiveUnit>();
 //                                          return Timer(_options.Timeout, _scheduler)
 //                                             .Select(z => Unit.Default);
                                       }
 
                                       return Timer(_options.WaitTime, _scheduler)
-                                         .Select(_ => Unit.Default);
+                                         .Select(_ => ReactiveUnit.Default);
                                   }
                               )
                              .Replay(1, _scheduler);
@@ -62,15 +63,15 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
 
         public Task SettleNext() => SettleNextInternal().ToTask(_cancellationToken, _scheduler);
 
-        public IObservable<Unit> SettleNextInternal() => _settle
-                                                        .Catch<Unit, Exception>(_ => _timeoutValue)
+        public IObservable<ReactiveUnit> SettleNextInternal() => _settle
+                                .Catch<ReactiveUnit, Exception>(_ => _timeoutValue)
                                                         .Take(1)
                                                         .IgnoreElements()
                                                         .LastOrDefaultAsync();
 
-        public IObservable<Unit> Settle() =>  _settle
+        public IObservable<ReactiveUnit> Settle() =>  _settle
                                             .Timeout(_options.Timeout, _scheduler)
-                                             .Catch<Unit, Exception>(_ => _timeoutValue);
+                             .Catch<ReactiveUnit, Exception>(_ => _timeoutValue);
 
         void IRequestSettler.OnStartRequest() => _requester.OnNext(1);
 

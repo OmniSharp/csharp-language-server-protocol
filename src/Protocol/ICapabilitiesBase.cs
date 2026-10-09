@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public interface ICapabilitiesBase
     {
-        [JsonExtensionData] IDictionary<string, JToken> ExtensionData { get; set; }
+        IDictionary<string, JsonElement> ExtensionData { get; set; }
     }
 }

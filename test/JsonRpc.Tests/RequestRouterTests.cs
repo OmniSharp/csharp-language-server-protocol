@@ -31,7 +31,7 @@ namespace JsonRpc.Tests
 
             registry.Populate(collection, ServiceProvider);
 
-            var request = new Request(Guid.NewGuid().ToString(), "$/my/something/awesome", "123123123123");
+            var request = new Request(Guid.NewGuid().ToString(), "$/my/something/awesome", JsonTestHelper.ToElement("123123123123"));
             await mediator.RouteRequest(mediator.GetDescriptors(request), request, CancellationToken.None);
 
             await method.Received(1).Invoke(Arg.Any<string>());
@@ -51,7 +51,7 @@ namespace JsonRpc.Tests
 
             registry.Populate(collection, ServiceProvider);
 
-            var request = new Request(Guid.NewGuid().ToString(), "$/my/something/awesome", "123123123123");
+            var request = new Request(Guid.NewGuid().ToString(), "$/my/something/awesome", JsonTestHelper.ToElement("123123123123"));
             await mediator.RouteRequest(mediator.GetDescriptors(request), request, CancellationToken.None);
 
             await method.Received(1).Invoke(Arg.Any<string>());
@@ -70,7 +70,7 @@ namespace JsonRpc.Tests
 
             registry.Populate(collection, ServiceProvider);
 
-            var notification = new Notification("$/my/something/awesome", "123123123123");
+            var notification = new Notification("$/my/something/awesome", JsonTestHelper.ToElement("123123123123"));
             await mediator.RouteNotification(mediator.GetDescriptors(notification), notification, CancellationToken.None);
 
             method.Received(1).Invoke(Arg.Any<string>());

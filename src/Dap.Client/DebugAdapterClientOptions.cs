@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
@@ -89,14 +89,14 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
         }
 
         IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnJsonRequest(
-            string method, Func<JToken, Task<JToken>> handler, JsonRpcHandlerOptions? options
+            string method, Func<JsonElement, Task<JsonElement>> handler, JsonRpcHandlerOptions? options
         )
         {
             return OnJsonRequest(method, handler, options);
         }
 
         IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnJsonRequest(
-            string method, Func<JToken, CancellationToken, Task<JToken>> handler, JsonRpcHandlerOptions? options
+            string method, Func<JsonElement, CancellationToken, Task<JsonElement>> handler, JsonRpcHandlerOptions? options
         )
         {
             return OnJsonRequest(method, handler, options);
@@ -159,28 +159,28 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
         }
 
         IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnJsonNotification(
-            string method, Action<JToken> handler, JsonRpcHandlerOptions? options
+            string method, Action<JsonElement> handler, JsonRpcHandlerOptions? options
         )
         {
             return OnJsonNotification(method, handler, options);
         }
 
         IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnJsonNotification(
-            string method, Func<JToken, CancellationToken, Task> handler, JsonRpcHandlerOptions? options
+            string method, Func<JsonElement, CancellationToken, Task> handler, JsonRpcHandlerOptions? options
         )
         {
             return OnJsonNotification(method, handler, options);
         }
 
         IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnJsonNotification(
-            string method, Func<JToken, Task> handler, JsonRpcHandlerOptions? options
+            string method, Func<JsonElement, Task> handler, JsonRpcHandlerOptions? options
         )
         {
             return OnJsonNotification(method, handler, options);
         }
 
         IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnJsonNotification(
-            string method, Action<JToken, CancellationToken> handler, JsonRpcHandlerOptions? options
+            string method, Action<JsonElement, CancellationToken> handler, JsonRpcHandlerOptions? options
         )
         {
             return OnJsonNotification(method, handler, options);

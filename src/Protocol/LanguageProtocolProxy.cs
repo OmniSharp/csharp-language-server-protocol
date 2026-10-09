@@ -1,10 +1,10 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
-using MediatR;
-using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
@@ -63,7 +63,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             return _responseRouter.SendRequest(request, cancellationToken);
         }
 
-        bool IResponseRouter.TryGetRequest(object id, [NotNullWhen(true)] out string? method, [NotNullWhen(true)] out TaskCompletionSource<JToken>? pendingTask)
+        bool IResponseRouter.TryGetRequest(object id, [NotNullWhen(true)] out string? method, [NotNullWhen(true)] out TaskCompletionSource<JsonElement>? pendingTask)
         {
             return _responseRouter.TryGetRequest(id, out method, out pendingTask);
         }

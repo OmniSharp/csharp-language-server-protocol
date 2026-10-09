@@ -18,7 +18,6 @@ namespace Generation.Tests
         public async Task Supports_Generating_Custom_Language_Extensions()
         {
             var source = @"
-using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -84,7 +83,6 @@ namespace Lsp.Tests.Integration.Fixtures
 // </auto-generated>
 // ------------------------------------------------------------------------------
 
-using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -129,9 +127,9 @@ namespace Lsp.Tests.Integration.Fixtures
         {
             var source = @"
 using System.Diagnostics;
-using MediatR;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -255,7 +253,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             /// DocumentLinkRequest and a DocumentLinkResolveRequest.
             /// </summary>
             [Optional]
-            public JToken? Data { get; init; }
+            public System.Text.Json.JsonElement? Data { get; init; }
 
             private string DebuggerDisplay => ToString();
         }
@@ -338,37 +336,32 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 
             internal class Converter : JsonConverter<StringOrOutlayHintLabelParts>
             {
-                public override void WriteJson(JsonWriter writer, StringOrOutlayHintLabelParts value, JsonSerializer serializer)
+                public override StringOrOutlayHintLabelParts? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
                 {
-                    if (value.HasString)
+                    if (reader.TokenType == JsonTokenType.StartArray)
                     {
-                        writer.WriteValue(value.String);
-                    }
-                    else
-                    {
-                        serializer.Serialize(writer, value.OutlayHintLabelParts ?? Array.Empty<OutlayHintLabelPart>());
-                    }
-                }
-
-                public override StringOrOutlayHintLabelParts ReadJson(
-                    JsonReader reader, Type objectType, StringOrOutlayHintLabelParts existingValue, bool hasExistingValue, JsonSerializer serializer
-                )
-                {
-                    if (reader.TokenType == JsonToken.StartArray)
-                    {
-                        var result = JArray.Load(reader);
-                        return new StringOrOutlayHintLabelParts(result.ToObject<Container<OutlayHintLabelPart>>(serializer));
+                        return new StringOrOutlayHintLabelParts(JsonSerializer.Deserialize<Container<OutlayHintLabelPart>>(ref reader, options)!);
                     }
 
-                    if (reader.TokenType == JsonToken.String)
+                    if (reader.TokenType == JsonTokenType.String)
                     {
-                        return new StringOrOutlayHintLabelParts(( reader.Value as string )!);
+                        return new StringOrOutlayHintLabelParts(reader.GetString()!);
                     }
 
                     return """";
                 }
 
-                public override bool CanRead => true;
+                public override void Write(Utf8JsonWriter writer, StringOrOutlayHintLabelParts value, JsonSerializerOptions options)
+                {
+                    if (value.HasString)
+                    {
+                        writer.WriteStringValue(value.String);
+                    }
+                    else
+                    {
+                        JsonSerializer.Serialize(writer, value.OutlayHintLabelParts ?? Array.Empty<OutlayHintLabelPart>(), options);
+                    }
+                }
             }
         }
 
@@ -378,7 +371,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         /// @since 3.17.0
         /// </summary>
         /// 
-        [JsonConverter(typeof(NumberEnumConverter))]
         public enum OutlayHintKind
         {
             /// <summary>
@@ -468,8 +460,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             var source = @"
 using System.Diagnostics;
 using System.Linq;
-using MediatR;
-using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
+using System.Text.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -539,7 +531,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             /// a code lens and a code lens resolve request.
             /// </summary>
             [Optional]
-            public JToken? Data { get; init; }
+            public System.Text.Json.JsonElement? Data { get; init; }
 
             private string DebuggerDisplay => $""{Range}{( Command != null ? $"" {Command}"" : """" )}"";
 

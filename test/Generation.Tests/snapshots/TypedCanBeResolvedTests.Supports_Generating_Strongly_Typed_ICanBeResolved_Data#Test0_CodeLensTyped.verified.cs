@@ -3,9 +3,9 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -83,8 +83,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             };
         }
 
-        JToken? ICanBeResolved.Data { get; init; }
-        private JToken? JData { get => this.GetRawData(); init => this.SetRawData(value); }
+        System.Text.Json.JsonElement? ICanBeResolved.Data { get; init; }
+        private System.Text.Json.JsonElement? JData { get => this.GetRawData(); init => this.SetRawData(value); }
 
         public static implicit operator CodeLens<T>(CodeLens value) => new CodeLens<T>
         {

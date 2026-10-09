@@ -1,8 +1,6 @@
 using System.Diagnostics;
 using System.Linq;
-using MediatR;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -162,11 +160,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public CodeActionDisabled? Disabled { get; init; }
 
             /// <summary>
+            /// Tags for this code action.
+            ///
+            /// @since 3.18.0 - proposed
+            /// </summary>
+            [Optional]
+            public Container<CodeActionTag>? Tags { get; init; }
+
+            /// <summary>
             /// A data entry field that is preserved on a document link between a
             /// DocumentLinkRequest and a DocumentLinkResolveRequest.
             /// </summary>
             [Optional]
-            public JToken? Data { get; init; }
+            public System.Text.Json.JsonElement? Data { get; init; }
 
             private string DebuggerDisplay => $"[{Kind}] {Title}";
 
@@ -204,7 +210,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public string Reason { get; init; } = null!;
         }
 
-        [JsonConverter(typeof(CommandOrCodeActionConverter))]
+        /// <summary>
+        /// Code action tags.
+        ///
+        /// @since 3.18.0 - proposed
+        /// </summary>
+        public enum CodeActionTag
+        {
+            LLMGenerated = 1
+        }
+
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
         [GenerateContainer]
         public record CommandOrCodeAction : ICanBeResolved // This to ensure that code actions get updated as expected
@@ -291,7 +306,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 return DebuggerDisplay;
             }
 
-            JToken? ICanBeResolved.Data
+            System.Text.Json.JsonElement? ICanBeResolved.Data
             {
                 get => _codeAction?.Data;
                 init
@@ -474,7 +489,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
 
-        [JsonConverter(typeof(NumberEnumConverter))]
         public enum CodeActionTriggerKind
         {
             /// <summary>
@@ -558,6 +572,24 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             [Optional]
             public bool DocumentationSupport { get; set; }
+
+            /// <summary>
+            /// The code action tags supported by the client.
+            ///
+            /// @since 3.18.0 - proposed
+            /// </summary>
+            [Optional]
+            public CodeActionTagSupportOptions? TagSupport { get; set; }
+        }
+
+        /// <summary>
+        /// Code action tag values supported by the client.
+        ///
+        /// @since 3.18.0 - proposed
+        /// </summary>
+        public class CodeActionTagSupportOptions
+        {
+            public Container<CodeActionTag> ValueSet { get; set; } = null!;
         }
 
         public class CodeActionLiteralSupportOptions

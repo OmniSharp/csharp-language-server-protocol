@@ -1,10 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -41,7 +42,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// Arguments that the command should be invoked with.
             /// </summary>
             [Optional]
-            public JArray? Arguments { get; init; }
+            public Container<JsonElement>? Arguments { get; init; }
         }
 
         [Serial]
@@ -63,7 +64,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// Arguments that the command should be invoked with.
             /// </summary>
             [Optional]
-            public JArray? Arguments { get; init; }
+            public Container<JsonElement>? Arguments { get; init; }
         }
 
         /// <summary>
@@ -128,9 +129,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public sealed override Task<Unit> Handle(ExecuteCommandParams request, CancellationToken cancellationToken)
             {
-                var args = request.Arguments ?? new JArray();
+                var args = request.Arguments?.ToList() ?? new List<JsonElement>();
                 T arg1 = default;
-                if (args.Count > 0) arg1 = args[0].ToObject<T>(_serializer.JsonSerializer);
+                if (args.Count > 0) arg1 = _serializer.DeserializeObject<T>(args[0]);
                 return Handle(arg1!, cancellationToken);
             }
 
@@ -153,9 +154,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public sealed override Task<TResponse> Handle(ExecuteCommandParams<TResponse> request, CancellationToken cancellationToken)
             {
-                var args = request.Arguments ?? new JArray();
+                var args = request.Arguments?.ToList() ?? new List<JsonElement>();
                 T arg1 = default;
-                if (args.Count > 0) arg1 = args[0].ToObject<T>(_serializer.JsonSerializer);
+                if (args.Count > 0) arg1 = _serializer.DeserializeObject<T>(args[0]);
                 return Handle(arg1!, cancellationToken);
             }
 
@@ -178,11 +179,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public sealed override Task<Unit> Handle(ExecuteCommandParams request, CancellationToken cancellationToken)
             {
-                var args = request.Arguments ?? new JArray();
+                var args = request.Arguments?.ToList() ?? new List<JsonElement>();
                 T arg1 = default;
-                if (args.Count > 0) arg1 = args[0].ToObject<T>(_serializer.JsonSerializer);
+                if (args.Count > 0) arg1 = _serializer.DeserializeObject<T>(args[0]);
                 T2 arg2 = default;
-                if (args.Count > 1) arg2 = args[1].ToObject<T2>(_serializer.JsonSerializer);
+                if (args.Count > 1) arg2 = _serializer.DeserializeObject<T2>(args[1]);
                 return Handle(arg1!, arg2!, cancellationToken);
             }
 
@@ -205,11 +206,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public sealed override Task<TResponse> Handle(ExecuteCommandParams<TResponse> request, CancellationToken cancellationToken)
             {
-                var args = request.Arguments ?? new JArray();
+                var args = request.Arguments?.ToList() ?? new List<JsonElement>();
                 T arg1 = default;
-                if (args.Count > 0) arg1 = args[0].ToObject<T>(_serializer.JsonSerializer);
+                if (args.Count > 0) arg1 = _serializer.DeserializeObject<T>(args[0]);
                 T2 arg2 = default;
-                if (args.Count > 1) arg2 = args[1].ToObject<T2>(_serializer.JsonSerializer);
+                if (args.Count > 1) arg2 = _serializer.DeserializeObject<T2>(args[1]);
                 return Handle(arg1!, arg2!, cancellationToken);
             }
 
@@ -232,13 +233,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public sealed override Task<Unit> Handle(ExecuteCommandParams request, CancellationToken cancellationToken)
             {
-                var args = request.Arguments ?? new JArray();
+                var args = request.Arguments?.ToList() ?? new List<JsonElement>();
                 T arg1 = default;
-                if (args.Count > 0) arg1 = args[0].ToObject<T>(_serializer.JsonSerializer);
+                if (args.Count > 0) arg1 = _serializer.DeserializeObject<T>(args[0]);
                 T2 arg2 = default;
-                if (args.Count > 1) arg2 = args[1].ToObject<T2>(_serializer.JsonSerializer);
+                if (args.Count > 1) arg2 = _serializer.DeserializeObject<T2>(args[1]);
                 T3 arg3 = default;
-                if (args.Count > 2) arg3 = args[2].ToObject<T3>(_serializer.JsonSerializer);
+                if (args.Count > 2) arg3 = _serializer.DeserializeObject<T3>(args[2]);
                 return Handle(arg1!, arg2!, arg3!, cancellationToken);
             }
 
@@ -261,13 +262,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public sealed override Task<TResponse> Handle(ExecuteCommandParams<TResponse> request, CancellationToken cancellationToken)
             {
-                var args = request.Arguments ?? new JArray();
+                var args = request.Arguments?.ToList() ?? new List<JsonElement>();
                 T arg1 = default;
-                if (args.Count > 0) arg1 = args[0].ToObject<T>(_serializer.JsonSerializer);
+                if (args.Count > 0) arg1 = _serializer.DeserializeObject<T>(args[0]);
                 T2 arg2 = default;
-                if (args.Count > 1) arg2 = args[1].ToObject<T2>(_serializer.JsonSerializer);
+                if (args.Count > 1) arg2 = _serializer.DeserializeObject<T2>(args[1]);
                 T3 arg3 = default;
-                if (args.Count > 2) arg3 = args[2].ToObject<T3>(_serializer.JsonSerializer);
+                if (args.Count > 2) arg3 = _serializer.DeserializeObject<T3>(args[2]);
                 return Handle(arg1!, arg2!, arg3!, cancellationToken);
             }
 
@@ -290,15 +291,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public sealed override Task<Unit> Handle(ExecuteCommandParams request, CancellationToken cancellationToken)
             {
-                var args = request.Arguments ?? new JArray();
+                var args = request.Arguments?.ToList() ?? new List<JsonElement>();
                 T arg1 = default;
-                if (args.Count > 0) arg1 = args[0].ToObject<T>(_serializer.JsonSerializer);
+                if (args.Count > 0) arg1 = _serializer.DeserializeObject<T>(args[0]);
                 T2 arg2 = default;
-                if (args.Count > 1) arg2 = args[1].ToObject<T2>(_serializer.JsonSerializer);
+                if (args.Count > 1) arg2 = _serializer.DeserializeObject<T2>(args[1]);
                 T3 arg3 = default;
-                if (args.Count > 2) arg3 = args[2].ToObject<T3>(_serializer.JsonSerializer);
+                if (args.Count > 2) arg3 = _serializer.DeserializeObject<T3>(args[2]);
                 T4 arg4 = default;
-                if (args.Count > 3) arg4 = args[3].ToObject<T4>(_serializer.JsonSerializer);
+                if (args.Count > 3) arg4 = _serializer.DeserializeObject<T4>(args[3]);
                 return Handle(arg1!, arg2!, arg3!, arg4!, cancellationToken);
             }
 
@@ -321,15 +322,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public sealed override Task<TResponse> Handle(ExecuteCommandParams<TResponse> request, CancellationToken cancellationToken)
             {
-                var args = request.Arguments ?? new JArray();
+                var args = request.Arguments?.ToList() ?? new List<JsonElement>();
                 T arg1 = default;
-                if (args.Count > 0) arg1 = args[0].ToObject<T>(_serializer.JsonSerializer);
+                if (args.Count > 0) arg1 = _serializer.DeserializeObject<T>(args[0]);
                 T2 arg2 = default;
-                if (args.Count > 1) arg2 = args[1].ToObject<T2>(_serializer.JsonSerializer);
+                if (args.Count > 1) arg2 = _serializer.DeserializeObject<T2>(args[1]);
                 T3 arg3 = default;
-                if (args.Count > 2) arg3 = args[2].ToObject<T3>(_serializer.JsonSerializer);
+                if (args.Count > 2) arg3 = _serializer.DeserializeObject<T3>(args[2]);
                 T4 arg4 = default;
-                if (args.Count > 3) arg4 = args[3].ToObject<T4>(_serializer.JsonSerializer);
+                if (args.Count > 3) arg4 = _serializer.DeserializeObject<T4>(args[3]);
                 return Handle(arg1!, arg2!, arg3!, arg4!, cancellationToken);
             }
 
@@ -352,17 +353,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public sealed override Task<Unit> Handle(ExecuteCommandParams request, CancellationToken cancellationToken)
             {
-                var args = request.Arguments ?? new JArray();
+                var args = request.Arguments?.ToList() ?? new List<JsonElement>();
                 T arg1 = default;
-                if (args.Count > 0) arg1 = args[0].ToObject<T>(_serializer.JsonSerializer);
+                if (args.Count > 0) arg1 = _serializer.DeserializeObject<T>(args[0]);
                 T2 arg2 = default;
-                if (args.Count > 1) arg2 = args[1].ToObject<T2>(_serializer.JsonSerializer);
+                if (args.Count > 1) arg2 = _serializer.DeserializeObject<T2>(args[1]);
                 T3 arg3 = default;
-                if (args.Count > 2) arg3 = args[2].ToObject<T3>(_serializer.JsonSerializer);
+                if (args.Count > 2) arg3 = _serializer.DeserializeObject<T3>(args[2]);
                 T4 arg4 = default;
-                if (args.Count > 3) arg4 = args[3].ToObject<T4>(_serializer.JsonSerializer);
+                if (args.Count > 3) arg4 = _serializer.DeserializeObject<T4>(args[3]);
                 T5 arg5 = default;
-                if (args.Count > 4) arg5 = args[4].ToObject<T5>(_serializer.JsonSerializer);
+                if (args.Count > 4) arg5 = _serializer.DeserializeObject<T5>(args[4]);
                 return Handle(arg1!, arg2!, arg3!, arg4!, arg5!, cancellationToken);
             }
 
@@ -385,17 +386,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public sealed override Task<TResponse> Handle(ExecuteCommandParams<TResponse> request, CancellationToken cancellationToken)
             {
-                var args = request.Arguments ?? new JArray();
+                var args = request.Arguments?.ToList() ?? new List<JsonElement>();
                 T arg1 = default;
-                if (args.Count > 0) arg1 = args[0].ToObject<T>(_serializer.JsonSerializer);
+                if (args.Count > 0) arg1 = _serializer.DeserializeObject<T>(args[0]);
                 T2 arg2 = default;
-                if (args.Count > 1) arg2 = args[1].ToObject<T2>(_serializer.JsonSerializer);
+                if (args.Count > 1) arg2 = _serializer.DeserializeObject<T2>(args[1]);
                 T3 arg3 = default;
-                if (args.Count > 2) arg3 = args[2].ToObject<T3>(_serializer.JsonSerializer);
+                if (args.Count > 2) arg3 = _serializer.DeserializeObject<T3>(args[2]);
                 T4 arg4 = default;
-                if (args.Count > 3) arg4 = args[3].ToObject<T4>(_serializer.JsonSerializer);
+                if (args.Count > 3) arg4 = _serializer.DeserializeObject<T4>(args[3]);
                 T5 arg5 = default;
-                if (args.Count > 4) arg5 = args[4].ToObject<T5>(_serializer.JsonSerializer);
+                if (args.Count > 4) arg5 = _serializer.DeserializeObject<T5>(args[4]);
                 return Handle(arg1!, arg2!, arg3!, arg4!, arg5!, cancellationToken);
             }
 
@@ -418,19 +419,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public sealed override Task<Unit> Handle(ExecuteCommandParams request, CancellationToken cancellationToken)
             {
-                var args = request.Arguments ?? new JArray();
+                var args = request.Arguments?.ToList() ?? new List<JsonElement>();
                 T arg1 = default;
-                if (args.Count > 0) arg1 = args[0].ToObject<T>(_serializer.JsonSerializer);
+                if (args.Count > 0) arg1 = _serializer.DeserializeObject<T>(args[0]);
                 T2 arg2 = default;
-                if (args.Count > 1) arg2 = args[1].ToObject<T2>(_serializer.JsonSerializer);
+                if (args.Count > 1) arg2 = _serializer.DeserializeObject<T2>(args[1]);
                 T3 arg3 = default;
-                if (args.Count > 2) arg3 = args[2].ToObject<T3>(_serializer.JsonSerializer);
+                if (args.Count > 2) arg3 = _serializer.DeserializeObject<T3>(args[2]);
                 T4 arg4 = default;
-                if (args.Count > 3) arg4 = args[3].ToObject<T4>(_serializer.JsonSerializer);
+                if (args.Count > 3) arg4 = _serializer.DeserializeObject<T4>(args[3]);
                 T5 arg5 = default;
-                if (args.Count > 4) arg5 = args[4].ToObject<T5>(_serializer.JsonSerializer);
+                if (args.Count > 4) arg5 = _serializer.DeserializeObject<T5>(args[4]);
                 T6 arg6 = default;
-                if (args.Count > 5) arg6 = args[5].ToObject<T6>(_serializer.JsonSerializer);
+                if (args.Count > 5) arg6 = _serializer.DeserializeObject<T6>(args[5]);
                 return Handle(arg1!, arg2!, arg3!, arg4!, arg5!, arg6!, cancellationToken);
             }
 
@@ -453,19 +454,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public sealed override Task<TResponse> Handle(ExecuteCommandParams<TResponse> request, CancellationToken cancellationToken)
             {
-                var args = request.Arguments ?? new JArray();
+                var args = request.Arguments?.ToList() ?? new List<JsonElement>();
                 T arg1 = default;
-                if (args.Count > 0) arg1 = args[0].ToObject<T>(_serializer.JsonSerializer);
+                if (args.Count > 0) arg1 = _serializer.DeserializeObject<T>(args[0]);
                 T2 arg2 = default;
-                if (args.Count > 1) arg2 = args[1].ToObject<T2>(_serializer.JsonSerializer);
+                if (args.Count > 1) arg2 = _serializer.DeserializeObject<T2>(args[1]);
                 T3 arg3 = default;
-                if (args.Count > 2) arg3 = args[2].ToObject<T3>(_serializer.JsonSerializer);
+                if (args.Count > 2) arg3 = _serializer.DeserializeObject<T3>(args[2]);
                 T4 arg4 = default;
-                if (args.Count > 3) arg4 = args[3].ToObject<T4>(_serializer.JsonSerializer);
+                if (args.Count > 3) arg4 = _serializer.DeserializeObject<T4>(args[3]);
                 T5 arg5 = default;
-                if (args.Count > 4) arg5 = args[4].ToObject<T5>(_serializer.JsonSerializer);
+                if (args.Count > 4) arg5 = _serializer.DeserializeObject<T5>(args[4]);
                 T6 arg6 = default;
-                if (args.Count > 5) arg6 = args[5].ToObject<T6>(_serializer.JsonSerializer);
+                if (args.Count > 5) arg6 = _serializer.DeserializeObject<T6>(args[5]);
                 return Handle(arg1!, arg2!, arg3!, arg4!, arg5!, arg6!, cancellationToken);
             }
 

@@ -1,8 +1,8 @@
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using MediatR;
-using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Testing;
@@ -37,7 +37,7 @@ namespace Lsp.Integration.Tests
                 }, CancellationToken
             );
 
-            response.Should().BeEquivalentTo(JToken.FromObject(new { someValue = "custom" }));
+            response.GetProperty("someValue").GetString().Should().Be("custom");
         }
 
         [Fact]
@@ -47,7 +47,7 @@ namespace Lsp.Integration.Tests
                 options => { }, options =>
                 {
                     options.AddHandler<CustomExecuteCommandHandler>();
-                    options.OnExecuteCommand<JObject>("myothercommand", (a, ct) => Unit.Task);
+                    options.OnExecuteCommand<JsonElement>("myothercommand", (a, ct) => Unit.Task);
                 }
             );
 
@@ -55,7 +55,7 @@ namespace Lsp.Integration.Tests
                 new ExecuteCommandParams
                 {
                     Command = "myothercommand",
-                    Arguments = new JArray(new JObject())
+                    Arguments = Command.CreateArguments(new { })
                 }, CancellationToken
             );
 
@@ -67,12 +67,12 @@ namespace Lsp.Integration.Tests
             );
 
             normalResponse.Should().Be(Unit.Value);
-            customResponse.Should().BeEquivalentTo(JToken.FromObject(new { someValue = "custom" }));
+            customResponse.GetProperty("someValue").GetString().Should().Be("custom");
         }
     }
 
     [Method(WorkspaceNames.ExecuteCommand)]
-    public class CustomExecuteCommandHandler : IJsonRpcRequestHandler<CustomExecuteCommandParams, JToken>,
+    public class CustomExecuteCommandHandler : IJsonRpcRequestHandler<CustomExecuteCommandParams, JsonElement>,
                                                IRegistration<ExecuteCommandRegistrationOptions, ExecuteCommandCapability>
     {
         // ReSharper disable once NotAccessedField.Local
@@ -84,9 +84,9 @@ namespace Lsp.Integration.Tests
             Commands = new Container<string>("mycommand")
         };
 
-        public Task<JToken> Handle(CustomExecuteCommandParams request, CancellationToken cancellationToken)
+        public Task<JsonElement> Handle(CustomExecuteCommandParams request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(JToken.FromObject(new { someValue = "custom" }));
+            return Task.FromResult(JsonSerializer.SerializeToElement(new { someValue = "custom" }));
         }
 
         public ExecuteCommandRegistrationOptions GetRegistrationOptions(ExecuteCommandCapability capability, ClientCapabilities clientCapabilities)
@@ -97,7 +97,7 @@ namespace Lsp.Integration.Tests
     }
 
     [Method(WorkspaceNames.ExecuteCommand, Direction.ClientToServer)]
-    public partial record CustomExecuteCommandParams : IRequest<JToken>, IWorkDoneProgressParams, IExecuteCommandParams // required for routing
+    public partial record CustomExecuteCommandParams : IRequest<JsonElement>, IWorkDoneProgressParams, IExecuteCommandParams // required for routing
     {
         /// <summary>
         /// The identifier of the actual command handler.
@@ -108,6 +108,6 @@ namespace Lsp.Integration.Tests
         /// Arguments that the command should be invoked with.
         /// </summary>
         [Optional]
-        public JArray? Arguments { get; init; }
+        public Container<JsonElement>? Arguments { get; init; }
     }
 }

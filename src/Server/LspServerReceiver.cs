@@ -1,6 +1,6 @@
 using System.Collections.Generic;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -17,7 +17,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _logger = logger;
         }
 
-        public override (IEnumerable<Renor> results, bool hasResponse) GetRequests(JToken container)
+        public override (IEnumerable<Renor> results, bool hasResponse) GetRequests(JsonElement container)
         {
             if (_initialized) return base.GetRequests(container);
 

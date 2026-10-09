@@ -4,9 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
 using FluentAssertions;
-using MediatR;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Client;
@@ -65,7 +63,8 @@ namespace Lsp.Tests
                 }
             };
 
-            var request = new Request(id, "textDocument/codeAction", JObject.Parse(JsonConvert.SerializeObject(@params, new LspSerializer(ClientVersion.Lsp3).Settings)));
+            var serializer = new LspSerializer(ClientVersion.Lsp3);
+            var request = new Request(id, "textDocument/codeAction", JsonTestHelper.Parse(serializer.SerializeObject(@params)));
             var cts = new CancellationTokenSource();
             cts.Cancel();
 

@@ -1,17 +1,17 @@
 using System;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public class DelegatingJsonRequestHandler : IJsonRpcRequestHandler<DelegatingRequest<JToken>, JToken>
+    public class DelegatingJsonRequestHandler : IJsonRpcRequestHandler<DelegatingRequest<JsonElement>, JsonElement>
     {
-        private readonly Func<JToken, CancellationToken, Task<JToken>> _handler;
+        private readonly Func<JsonElement, CancellationToken, Task<JsonElement>> _handler;
 
-        public DelegatingJsonRequestHandler(Func<JToken, CancellationToken, Task<JToken>> handler) => _handler = handler;
+        public DelegatingJsonRequestHandler(Func<JsonElement, CancellationToken, Task<JsonElement>> handler) => _handler = handler;
 
-        public async Task<JToken> Handle(DelegatingRequest<JToken> request, CancellationToken cancellationToken)
+        public async Task<JsonElement> Handle(DelegatingRequest<JsonElement> request, CancellationToken cancellationToken)
         {
             var response = await _handler.Invoke(request.Value, cancellationToken).ConfigureAwait(false);
             return response;

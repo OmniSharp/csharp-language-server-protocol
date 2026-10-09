@@ -1,6 +1,6 @@
 using System.ComponentModel;
 using System.Reflection;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -14,7 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// A data entry field that is preserved for resolve requests
         /// </summary>
         [Optional]
-        JToken? Data { get; init; }
+        JsonElement? Data { get; init; }
     }
 
     public static class CanBeResolvedExtension
@@ -23,7 +23,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         private static readonly PropertyInfo CanHaveDataProperty = typeof(ICanHaveData).GetProperty(nameof(ICanHaveData.Data))!;
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void SetRawData(this ICanBeResolved? resolved, JToken? value)
+        public static void SetRawData(this ICanBeResolved? resolved, JsonElement? value)
         {
             if (resolved is null) return;
             CanBeResolvedProperty.SetValue(resolved, value);
@@ -33,25 +33,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public static void SetRawData<T>(this ICanBeResolved? resolved, T value) where T : class?
         {
             if (resolved is null) return;
-            CanBeResolvedProperty.SetValue(resolved, JObject.FromObject(value));
+            CanBeResolvedProperty.SetValue(resolved, JsonSerializer.SerializeToElement(value));
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static JToken? GetRawData(this ICanBeResolved? resolved)
+        public static JsonElement? GetRawData(this ICanBeResolved? resolved)
         {
             if (resolved is null) return null;
-            return CanBeResolvedProperty.GetValue(resolved) as JToken;
+            return CanBeResolvedProperty.GetValue(resolved) is JsonElement value ? value : null;
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static T? GetRawData<T>(this ICanBeResolved? resolved) where T : class?
         {
             if (resolved is null) return null;
-            return (CanBeResolvedProperty.GetValue(resolved) as JToken)?.ToObject<T>();
+            return CanBeResolvedProperty.GetValue(resolved) is JsonElement value ? value.Deserialize<T>() : null;
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void SetRawData(this ICanHaveData? resolved, JToken? value)
+        public static void SetRawData(this ICanHaveData? resolved, JsonElement? value)
         {
             if (resolved is null) return;
             CanHaveDataProperty.SetValue(resolved, value);
@@ -61,21 +61,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public static void SetRawData<T>(this ICanHaveData? resolved, T value)
         {
             if (resolved is null) return;
-            CanBeResolvedProperty.SetValue(resolved, JObject.FromObject(value));
+            CanHaveDataProperty.SetValue(resolved, JsonSerializer.SerializeToElement(value));
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static JToken? GetRawData(this ICanHaveData? resolved)
+        public static JsonElement? GetRawData(this ICanHaveData? resolved)
         {
             if (resolved is null) return null;
-            return CanHaveDataProperty.GetValue(resolved) as JToken;
+            return CanHaveDataProperty.GetValue(resolved) is JsonElement value ? value : null;
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static T? GetRawData<T>(this ICanHaveData? resolved) where T : class?
         {
             if (resolved is null) return null;
-            return (CanBeResolvedProperty.GetValue(resolved) as JToken)?.ToObject<T>();
+            return CanHaveDataProperty.GetValue(resolved) is JsonElement value ? value.Deserialize<T>() : null;
         }
     }
 
@@ -85,6 +85,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// A data entry field that is preserved for resolve requests
         /// </summary>
         [Optional]
-        JToken? Data { get; init; }
+        JsonElement? Data { get; init; }
     }
 }

@@ -1,11 +1,11 @@
 using System;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Lsp.Integration.Tests.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Testing;
@@ -68,14 +68,14 @@ namespace Lsp.Integration.Tests
             );
 
             {
-                var capability = client.ClientSettings.Capabilities!.Workspace!.ExtensionData["unitTests"]
-                    .ToObject<UnitTestCapability>(client.Services.GetRequiredService<ISerializer>().JsonSerializer);
+                var capability = client.Services.GetRequiredService<ISerializer>()
+                                       .DeserializeObject<UnitTestCapability>(client.ClientSettings.Capabilities!.Workspace!.ExtensionData["unitTests"]);
                 capability.Property.Should().Be("Abcd");
             }
 
             {
-                var capability = server.ClientSettings.Capabilities!.Workspace!.ExtensionData["unitTests"]
-                    .ToObject<UnitTestCapability>(server.Services.GetRequiredService<ISerializer>().JsonSerializer);
+                var capability = server.Services.GetRequiredService<ISerializer>()
+                                       .DeserializeObject<UnitTestCapability>(server.ClientSettings.Capabilities!.Workspace!.ExtensionData["unitTests"]);
                 capability.Property.Should().Be("Abcd");
             }
 
@@ -119,7 +119,8 @@ namespace Lsp.Integration.Tests
                 options =>
                 {
                     options.UseAssemblyAttributeScanning = false;
-                    options.ClientCapabilities.Workspace!.ExtensionData["unitTests"] = JToken.FromObject(new { property = "Abcd", dynamicRegistration = true });
+                    options.ClientCapabilities.Workspace!.ExtensionData["unitTests"] =
+                        JsonSerializer.SerializeToElement(new { property = "Abcd", dynamicRegistration = true });
                 },
                 options =>
                 {
@@ -130,8 +131,8 @@ namespace Lsp.Integration.Tests
             );
 
             {
-                var capability = server.ClientSettings.Capabilities!.Workspace!.ExtensionData["unitTests"]
-                    .ToObject<UnitTestCapability>(server.Services.GetRequiredService<ISerializer>().JsonSerializer);
+                var capability = server.Services.GetRequiredService<ISerializer>()
+                                       .DeserializeObject<UnitTestCapability>(server.ClientSettings.Capabilities!.Workspace!.ExtensionData["unitTests"]);
                 capability.Property.Should().Be("Abcd");
             }
 
@@ -179,15 +180,15 @@ namespace Lsp.Integration.Tests
             );
 
             {
-                var capability = server.ClientSettings.Capabilities!.Workspace!.ExtensionData["unitTests"]
-                    .ToObject<UnitTestCapability>(server.Services.GetRequiredService<ISerializer>().JsonSerializer);
+                var capability = server.Services.GetRequiredService<ISerializer>()
+                                       .DeserializeObject<UnitTestCapability>(server.ClientSettings.Capabilities!.Workspace!.ExtensionData["unitTests"]);
                 capability.Property.Should().Be("Abcd");
             }
 
             {
                 server.ServerSettings.Capabilities.ExtensionData["unitTestDiscovery"].Should().NotBeNull();
-                server.ServerSettings.Capabilities.ExtensionData["unitTestDiscovery"]
-                      .ToObject<UnitTestRegistrationOptions.StaticOptions>(server.Services.GetRequiredService<ISerializer>().JsonSerializer)
+                server.Services.GetRequiredService<ISerializer>()
+                      .DeserializeObject<UnitTestRegistrationOptions.StaticOptions>(server.ServerSettings.Capabilities.ExtensionData["unitTestDiscovery"])
                       .SupportsDebugging.Should().BeTrue();
             }
 

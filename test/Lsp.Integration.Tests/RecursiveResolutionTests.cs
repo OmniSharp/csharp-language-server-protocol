@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
 using FluentAssertions;
-using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;

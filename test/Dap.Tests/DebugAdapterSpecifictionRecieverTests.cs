@@ -1,9 +1,8 @@
 using System.Linq;
+using System.Text.Json;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using Xunit;
@@ -17,9 +16,9 @@ namespace Dap.Tests
         public void ShouldRespond_AsExpected(string json, Renor[] request)
         {
             var receiver = new DapReceiver();
-            var inSerializer = new DapProtocolSerializer();
-            var outSerializer = new DapProtocolSerializer();
-            var (requests, _) = receiver.GetRequests(JToken.Parse(json));
+            var inSerializer = new DapSerializer();
+            var outSerializer = new DapSerializer();
+            var (requests, _) = receiver.GetRequests(JsonTestHelper.Parse(json));
             var result = requests.ToArray();
             request.Length.Should().Be(result.Length);
 
@@ -28,15 +27,16 @@ namespace Dap.Tests
                 var r = request[i];
                 var response = result[i];
 
-                inSerializer.SerializeObject(response)
-                            .Should().Be(outSerializer.SerializeObject(r));
+                var actual = JsonTestHelper.Parse(inSerializer.SerializeObject(response));
+                var expected = JsonTestHelper.Parse(outSerializer.SerializeObject(r));
+                JsonElement.DeepEquals(actual, expected).Should().BeTrue();
             }
         }
 
         [Fact]
         public void Should_Camel_Case_As_Expected()
         {
-            var serializer = new DapProtocolSerializer();
+            var serializer = new DapSerializer();
             var response = serializer.SerializeObject(
                 new InitializeResponse
                 {
@@ -55,7 +55,7 @@ namespace Dap.Tests
                     @"{""seq"": ""0"", ""type"": ""request"", ""command"": ""attach"", ""arguments"": { ""__restart"": 3 }}",
                     new Renor[]
                     {
-                        new Request(0, "attach", new JObject { { "__restart", 3 } })
+                        new Request(0, "attach", JsonTestHelper.ToElement(new { __restart = 3 }))
                     }
                 );
 
@@ -63,7 +63,7 @@ namespace Dap.Tests
                     @"{""seq"": ""1"", ""type"": ""request"", ""command"": ""attach""}",
                     new Renor[]
                     {
-                        new Request(1, "attach", new JObject())
+                        new Request(1, "attach", JsonTestHelper.Parse("{}"))
                     }
                 );
 
@@ -71,7 +71,7 @@ namespace Dap.Tests
                     @"{""seq"": ""0"", ""type"": ""event"", ""event"": ""breakpoint"", ""body"": { ""reason"": ""new"" }}",
                     new Renor[]
                     {
-                        new Notification("breakpoint", new JObject { { "reason", "new" } }),
+                        new Notification("breakpoint", JsonTestHelper.ToElement(new { reason = "new" })),
                     }
                 );
 
@@ -87,7 +87,7 @@ namespace Dap.Tests
                     @"{""seq"": ""1"", ""type"": ""response"", ""request_seq"": 3, ""success"": true, ""command"": ""attach"", ""body"": {  }}",
                     new Renor[]
                     {
-                        new ServerResponse(3, new JObject()),
+                        new ServerResponse(3, JsonTestHelper.Parse("{}")),
                     }
                 );
 
@@ -95,7 +95,7 @@ namespace Dap.Tests
                     @"{""seq"": ""1"", ""type"": ""response"", ""request_seq"": 3, ""success"": true, ""command"": ""attach"", ""body"": null}",
                     new Renor[]
                     {
-                        new ServerResponse(3, null),
+                        new ServerResponse(3, JsonTestHelper.Parse("null")),
                     }
                 );
 
@@ -111,7 +111,7 @@ namespace Dap.Tests
                     @"{""seq"": ""1"", ""type"": ""response"", ""request_seq"": 3, ""success"": false, ""command"": ""attach"", ""body"": null}",
                     new Renor[]
                     {
-                        new ServerError(3, new ServerErrorResult(-1, "Unknown Error", new JObject())),
+                        new ServerError(3, new ServerErrorResult(-1, "Unknown Error", JsonTestHelper.Parse("{}"))),
                     }
                 );
 
@@ -130,7 +130,7 @@ namespace Dap.Tests
         public void Should_ValidateInvalidMessages(string json, bool expected)
         {
             var receiver = new DapReceiver();
-            var result = receiver.IsValid(JToken.Parse(json));
+            var result = receiver.IsValid(JsonTestHelper.Parse(json));
             result.Should().Be(expected);
         }
 
