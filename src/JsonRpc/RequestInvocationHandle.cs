@@ -6,9 +6,41 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     public class RequestInvocationHandle : IDisposable
     {
+        private readonly object _completionGate = new object();
         private bool _disposed;
+        private Action<Request>? _onComplete;
 
-        public event Action<Request>? OnComplete;
+        /// <summary>
+        /// Notifies subscribers when the request completes. Subscribers added after completion
+        /// are invoked synchronously so that an already completed request can still be released.
+        /// </summary>
+        public event Action<Request>? OnComplete
+        {
+            add
+            {
+                bool completed;
+                lock (_completionGate)
+                {
+                    completed = _disposed;
+                    if (!completed)
+                    {
+                        _onComplete += value;
+                    }
+                }
+
+                if (completed)
+                {
+                    value?.Invoke(Request);
+                }
+            }
+            remove
+            {
+                lock (_completionGate)
+                {
+                    _onComplete -= value;
+                }
+            }
+        }
 
         public RequestInvocationHandle(Request request)
         {
@@ -22,14 +54,20 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public void Dispose()
         {
-            if (_disposed)
+            Action<Request>? completed;
+            lock (_completionGate)
             {
-                return;
+                if (_disposed)
+                {
+                    return;
+                }
+
+                _disposed = true;
+                completed = _onComplete;
+                _onComplete = null;
             }
 
-            _disposed = true;
-
-            OnComplete?.Invoke(Request);
+            completed?.Invoke(Request);
         }
     }
 }
