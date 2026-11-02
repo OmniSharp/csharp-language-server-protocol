@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using Lsp.Integration.Tests.Fixtures;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Testing;

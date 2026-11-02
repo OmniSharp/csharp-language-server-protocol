@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using Lsp.Integration.Tests.Fixtures;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Testing;

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reactive.Disposables;
-using FluentAssertions;
+using AwesomeAssertions;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using Xunit;
