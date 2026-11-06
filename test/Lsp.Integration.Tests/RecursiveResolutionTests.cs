@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
-using FluentAssertions;
+using AwesomeAssertions;
 using OmniSharp.Extensions.JsonRpc;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;

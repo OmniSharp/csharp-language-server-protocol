@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DryIoc;
-using FluentAssertions;
+using AwesomeAssertions;
 using OmniSharp.Extensions.JsonRpc;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;

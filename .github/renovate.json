@@ -43,8 +43,8 @@
             "automerge": true
         },
         {
-            "matchPackagePatterns": ["^FluentAssertions"],
-            "groupName": "fluentassertions",
+            "matchPackagePatterns": ["^AwesomeAssertions"],
+            "groupName": "awesomeassertions",
             "labels": [":truck: private-dependencies"],
             "automerge": true
         },
@@ -127,8 +127,8 @@
             "automerge": false
         },
         {
-            "matchPackagePatterns": ["^FluentAssertions"],
-            "groupName": "fluentassertions",
+            "matchPackagePatterns": ["^AwesomeAssertions"],
+            "groupName": "awesomeassertions",
             "labels": [":truck: private-dependencies"],
             "automerge": true
         },

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 // ReSharper disable once CheckNamespace
 namespace NSubstitute
 {
-    public class TraceWriter : FluentAssertions.Equivalency.Tracing.ITraceWriter
+    public class TraceWriter : AwesomeAssertions.Equivalency.Tracing.ITraceWriter
     {
         private readonly ILogger _logger;
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO.Pipelines;
 using System.Threading;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 using Xunit;
