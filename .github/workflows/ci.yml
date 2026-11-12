@@ -92,15 +92,15 @@ jobs:
       - name: 🔨 Use .NET 8.0 SDK
         uses: actions/setup-dotnet@v6.1.0
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: '11.0.x'
       - name: 🔨 Use .NET 9.0 SDK
         uses: actions/setup-dotnet@v6.1.0
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: '11.0.x'
       - name: 🔨 Use .NET 10.0 SDK
         uses: actions/setup-dotnet@v6.1.0
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: '11.0.x'
       - name: 🎁 dotnet tool restore
         run: |
           dotnet tool restore
