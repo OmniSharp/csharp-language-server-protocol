@@ -2,7 +2,7 @@
 using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using OmniSharp.Extensions.JsonRpc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

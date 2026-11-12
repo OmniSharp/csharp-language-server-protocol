@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using Lsp.Integration.Tests.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
