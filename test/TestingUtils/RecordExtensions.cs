@@ -1,4 +1,4 @@
-using FluentAssertions.Equivalency;
+using AwesomeAssertions.Equivalency;
 
 namespace TestingUtils
 {

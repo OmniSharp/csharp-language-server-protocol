@@ -3,7 +3,7 @@ using System.IO;
 using System.IO.Pipelines;
 using System.Reactive.Concurrency;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;

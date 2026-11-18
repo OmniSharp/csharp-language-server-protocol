@@ -1,5 +1,5 @@
-using FluentAssertions.Equivalency;
-using FluentAssertions.Equivalency.Steps;
+using AwesomeAssertions.Equivalency;
+using AwesomeAssertions.Equivalency.Steps;
 
 namespace TestingUtils
 {
