@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Reactive.Testing;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;

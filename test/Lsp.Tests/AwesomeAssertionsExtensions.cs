@@ -1,4 +1,4 @@
-using FluentAssertions.Equivalency;
+using AwesomeAssertions.Equivalency;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
@@ -7,7 +7,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 
 namespace Lsp.Tests
 {
-    public static class FluentAssertionsExtensions
+    public static class AwesomeAssertionsExtensions
     {
         public static EquivalencyOptions<T> ConfigureForSupports<T>(this EquivalencyOptions<T> options, ILogger? logger = null)
         {

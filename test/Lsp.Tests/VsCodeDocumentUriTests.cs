@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using FluentAssertions;
+using AwesomeAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using Xunit;
 

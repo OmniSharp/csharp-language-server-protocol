@@ -20,10 +20,10 @@
             </Attributes>
             <Functions>
               <Exclude>
+                <Function>^AwesomeAssertions.*</Function>
                 <Function>^Bogus.*</Function>
                 <Function>^DryIoc.*</Function>
                 <Function>^FakeItEasy.*</Function>
-                <Function>^FluentAssertions.*</Function>
                 <Function>^JetBrains\..*</Function>
                 <Function>^Microsoft\..*</Function>
                 <Function>^Moq.*</Function>
@@ -64,11 +64,11 @@
                 <ModulePath>.*TestingUtils\.dll</ModulePath>
               </Include>
               <Exclude>
+                <ModulePath>.*AwesomeAssertions\.dll</ModulePath>
                 <ModulePath>.*Bogus\.dll</ModulePath>
                 <ModulePath>.*coverlet\.collector\.dll</ModulePath>
                 <ModulePath>.*coverlet\.msbuild\.dll</ModulePath>
                 <ModulePath>.*DryIoc\.Internal\.dll</ModulePath>
-                <ModulePath>.*FluentAssertions\.dll</ModulePath>
                 <ModulePath>.*GitVersion\.Tool\.dll</ModulePath>
                 <ModulePath>.*MediatR\.dll</ModulePath>
                 <ModulePath>.*Microsoft\.CodeAnalysis\.Analyzers\.dll</ModulePath>
