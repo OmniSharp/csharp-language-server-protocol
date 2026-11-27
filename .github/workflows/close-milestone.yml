@@ -42,7 +42,7 @@ jobs:
 
       # move any issues to that milestone in the event the release is renamed
       - name: sync milestones
-        uses: RocketSurgeonsGuild/actions/sync-milestone@v0.4.0
+        uses: RocketSurgeonsGuild/actions/sync-milestone@v0.5.0
         with:
           default-label: 'mysterious'
           github-token: ${{ secrets.OMNISHARP_BOT_TOKEN }}
