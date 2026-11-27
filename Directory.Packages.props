@@ -60,6 +60,6 @@
     <PackageVersion Include="Nerdbank.Streams" Version="2.14.416" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.9.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="5.9.0" />
-    <PackageVersion Include="DryIoc.Internal" Version="5.4.3" />
+    <PackageVersion Include="DryIoc.Internal" Version="6.0.0" />
   </ItemGroup>
 </Project>
